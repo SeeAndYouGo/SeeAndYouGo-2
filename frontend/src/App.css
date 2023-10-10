@@ -1,0 +1,37 @@
+@import url('https://webfontworld.github.io/SCoreDream/SCoreDream.css');
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+* {
+  font-family: 'SCoreDream', sans-serif;
+  font-family: 'SCoreDream';
+  box-sizing: border-box;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+a {
+  color: black;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eee;
+  width: 100%;
+}
+
+#root {
+  width: 360px;
+  position: relative;
+}
+
+.App {
+  width: 100%;
+  padding: 40px 30px;
+}
+
+.App2 {
+  float: left;
+  padding: 40px 15px;
+}
