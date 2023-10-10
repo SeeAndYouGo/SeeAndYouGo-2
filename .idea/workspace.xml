@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f7be9212-95f1-487b-9449-1aaa4c3bac29" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/Connection.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/Connection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/Restaurant.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/Restaurant.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/backend">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="SeeAndYouGoV2" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2WY7NofNpAYx3wMOPF5pRfjubI5" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "jdk.selected.JAVA_MODULE": "11",
+    "last_opened_file_path": "/Users/singyeongjun/Desktop/SeeAndYouGo/backend"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo" />
+      <recent name="$PROJECT_DIR$/backend" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f7be9212-95f1-487b-9449-1aaa4c3bac29" name="Changes" comment="" />
+      <created>1696897621532</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1696897621532</updated>
+    </task>
+    <servers />
+  </component>
+</project>
