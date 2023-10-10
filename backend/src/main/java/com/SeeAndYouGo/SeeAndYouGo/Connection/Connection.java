@@ -20,8 +20,4 @@ public class Connection {
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
-
-    private String data;
-
-    private String name;
 }
