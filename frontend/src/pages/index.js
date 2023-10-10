@@ -4,6 +4,7 @@ import UpdateLog from "../components/UpdateLog";
 import Cafeteria from "../components/Cafeteria";
 import "../App.css";
 import { Link } from "react-router-dom";
+import Navigation from "../components/Navigation";
 
 
 // 시간 정보가 포함된 식단 인원 정보 request
@@ -46,7 +47,7 @@ function App() {
             )}
             {restaurantData.map((val, idx) => {
                 return (
-                    <Link to={`/View/${idx+1}`} key={idx+1}>
+                    <Link to={`/View/${idx + 1}`} key={idx + 1}>
                         <Cafeteria
                             idx={idx + 1}
                             key={idx}
@@ -55,6 +56,7 @@ function App() {
                     </Link>
                 );
             })}
+            <Navigation />
         </div>
     );
 }

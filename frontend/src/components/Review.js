@@ -79,7 +79,7 @@ const ReviewWrite = () => {
                 <div style={{position: 'relative', width: 'calc(100% - 55px)', float: 'left'}}>
                     <input type="file" id="Review-file-input" hidden></input>
                     <ReviewWriteInput placeholder="리뷰를 남겨주세요 :)" />
-                    <ReviewWriteCamera for="Review-file-input"><FontAwesomeIcon icon={faCamera} /></ReviewWriteCamera>
+                    <ReviewWriteCamera htmlFor="Review-file-input"><FontAwesomeIcon icon={faCamera} /></ReviewWriteCamera>
                 </div>
                 <ReviewWriteButton>작성</ReviewWriteButton>
             </div>

@@ -11,9 +11,10 @@ const Table = styled.table`
     & tbody th, td {
         font-size: 14px;
     }
-    &:first-child {
+    &:first-of-type {
         margin-bottom: 10px;
     }
+
 `;
 
 
@@ -71,7 +72,6 @@ const ModalMenuTable = () => {
             <MenuTable dept={1} />
         </>
     )
-    
 };
 
 export default ModalMenuTable;
