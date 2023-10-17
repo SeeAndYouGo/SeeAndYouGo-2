@@ -28,14 +28,17 @@ body {
 
 .App {
   width: 100%;
-  padding: 40px 15px;
-  position: relative;
+  padding: 20px 15px 40px 15px;
   width: inherit;
 }
 
 .App2 {
   float: left;
   padding: 40px 15px;
-  position: relative;
+  width: inherit;
+}
+
+.App3 {
+  padding: 30px 15px;
   width: inherit;
 }

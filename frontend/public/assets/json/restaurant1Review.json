@@ -1,0 +1,31 @@
+[
+    { 
+        "restaurant": "2학생회관",
+        "dept": "교직원",
+        "madeTime": "20231014 14:03",
+        "writer": "배고픈 학생1",
+        "rate": 4.0,
+        "comment": "맛있어요!",
+        "image": "ReviewSample1.jpg"
+    },
+    {
+        "restaurant": "2학생회관",
+        "dept": "학생",
+        "madeTime": "20231014 14:20",
+        "writer": "배고픈 학생2",
+        "rate": 5.0,
+        "comment": "맛있어요!",
+        "image": ""
+    },
+    { 
+        "restaurant": "2학생회관",
+        "dept": "교직원",
+        "madeTime": "20231014 14:33",
+        "writer": "배고픈 학생3",
+        "rate": 3.0,
+        "comment": "낫배드",
+        "image": "ReviewSample4.jpg"
+    }
+]
+
+

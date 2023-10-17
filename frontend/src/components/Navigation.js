@@ -42,7 +42,7 @@ const Navigation = () => {
                     </Link>
                 </NavItem>
                 <NavItem>
-                    <Link to="/">
+                    <Link to="/ReviewPage">
                         <FontAwesomeIcon icon={faCommentDots} />
                         <span style={{fontWeight: 400}}> 리뷰페이지</span>
                     </Link>
