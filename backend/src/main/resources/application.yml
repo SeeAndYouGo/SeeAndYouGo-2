@@ -17,6 +17,10 @@ spring:
       hibernate:
         format_sql: true
 #        dialect: org.hibernate.dialect.MySQL8Dialect
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 
   mvc:
     pathmatch:

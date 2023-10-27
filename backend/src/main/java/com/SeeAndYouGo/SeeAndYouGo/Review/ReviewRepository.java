@@ -3,8 +3,10 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -81,21 +83,32 @@ public class ReviewRepository {
                 .getResultList();
     }
 
+
+
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate parsedDate = LocalDate.parse(date, dateFormatter);
-        LocalDateTime startDate = parsedDate.atStartOfDay();
+        LocalDateTime startDate = parsedDate.atTime(0,0,0); //.atStartOfDay();
         LocalDateTime endDate = parsedDate.atTime(23, 59, 59);
 
-        return em.createQuery("select r from Review r " +
+//        return em.createQuery("select r from Review r " +
+//                        "where r.restaurant.name = :restaurantName " +
+//                        "and FORMATDATETIME(r.madeTime, '%Y-%m-%d') between FORMATDATETIME(:startDate,'%Y-%m-%dT%TZ') " +
+//                        "and FORMATDATETIME(:endDate,'%Y-%m-%dT%TZ') order by r.reviewRate desc, r.likeCount desc", Review.class)
+//                .setParameter("restaurantName", restaurantName)
+//                .setParameter("startDate", startDate)
+//                .setParameter("endDate", endDate)
+//                .setMaxResults(5)
+//                .getResultList();
+
+        TypedQuery<Review> reviewTypedQuery = em.createQuery("select r from Review r " +
                         "where r.restaurant.name = :restaurantName " +
-                        "and r.madeTime between :startDate " +
-                        "and :endDate order by r.reviewRate desc, r.likeCount desc", Review.class)
+                        "and SUBSTRING(r.madeTime,0, 10) = SUBSTRING(:startDate,0, 10)", Review.class)
                 .setParameter("restaurantName", restaurantName)
                 .setParameter("startDate", startDate)
-                .setParameter("endDate", endDate)
-                .setMaxResults(3)
-                .getResultList();
+                .setMaxResults(5);
+        return reviewTypedQuery.getResultList();
     }
+
 }

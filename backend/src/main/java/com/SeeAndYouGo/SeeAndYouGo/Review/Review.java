@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,25 +13,29 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 public class Review {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "review_id")
-    private Long id;
-
-    private String writer;
-
-    private LocalDateTime madeTime;
-
-    private Integer likeCount;
+    public Long id;
+    @Column(name = "writer")
+    public String writer;
+    @Column(name = "madeTime")
+    public LocalDateTime madeTime;
+    @Column(name = "likeCount")
+    public Integer likeCount;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
-    private Menu menu;
-    private String comment;
-    private String imgLink;
-    private Double reviewRate;
+    public Menu menu;
+    @Column(name = "comment")
+    public String comment;
+    @Column(name = "imgLink")
+    public String imgLink;
+    @Column(name = "reviewRate")
+    public Double reviewRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurant;
+    public Restaurant restaurant;
 
     public void setMadeTime(String madeTimeStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm");

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -67,7 +68,15 @@ public class RestaurantRepository {
         query.setParameter("date", today);
         return query.getSingleResult();
     }
-
+    public Restaurant findByName(String name) {
+        try {
+            return em.createQuery("select r from Restaurant r where r.name = :name", Restaurant.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
     @Query("SELECT e FROM Employee e WHERE e.department = :department")
     public void deleteRestaurantsMatchedDate(@Param("date") String date) {}
 

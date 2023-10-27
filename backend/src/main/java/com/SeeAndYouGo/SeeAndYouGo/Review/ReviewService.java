@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -22,14 +21,14 @@ public class ReviewService {
 
     @Transactional
     public Long registerReview(Review review, String restaurantName) {
-        LocalDate today = LocalDate.now();
-        Restaurant restaurant = restaurantRepository.findTodayRestaurant(restaurantName, today.toString());
+        Restaurant restaurant = restaurantRepository.findByName(restaurantName);
         if (restaurant == null) {
             throw new IllegalArgumentException("Restaurant not found for name: " + restaurantName);
         }
-        review.setRestaurant(restaurant);
-        reviewRepository.save(review);
 
+        review.setRestaurant(restaurant);
+
+        reviewRepository.save(review);
         return review.getId();
     }
 
@@ -41,10 +40,12 @@ public class ReviewService {
 //        }
 //    }
 
+
     public Review findOne(Long id) {
         Optional<Review> reviewOptional = reviewRepository.findById(id);
         return reviewOptional.orElse(null);
     }
+
 
     public List<Review> findAllReviews() {
         return reviewRepository.findAll();
