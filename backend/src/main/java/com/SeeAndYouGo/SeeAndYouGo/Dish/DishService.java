@@ -35,8 +35,8 @@ public class DishService {
 
     @Transactional
     @Scheduled(cron="0 0 0 * * SAT")
-    public void saveAndCashWeekDish() throws Exception{
-        String wifiInfo = fetchDishInfoToString();
+    public void saveAndCashWeekDish(Integer page) throws Exception{
+        String wifiInfo = fetchDishInfoToString(page);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate friday  = LocalDate.now().with(DayOfWeek.SUNDAY);
@@ -79,7 +79,7 @@ public class DishService {
                 Restaurant restaurant = restaurantService.getRestaurantIfExistElseCreate(restaurantName, objDate.toString());
                 Dish dish = new Dish(menuName, dept, objDate.toString(), DishType.SIDE, restaurant, menuType, price);
                 dishes.add(dish);
-            }else break;
+            }else continue;
         }
         // 오늘 날짜의 Dish를 만들었으면, 이걸 기준으로 Menu를 만든다.
         List<Menu> menus = menuService.createMenuWithDishses(dishes);
@@ -105,7 +105,7 @@ public class DishService {
             restaurantService.deleteRestaurants(localDate.toString());
         }
 
-        String wifiInfo = fetchDishInfoToString();
+        String wifiInfo = fetchDishInfoToString(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
 
@@ -166,9 +166,9 @@ public class DishService {
 
 
 
-    private String fetchDishInfoToString() throws Exception {
+    private String fetchDishInfoToString(Integer page) throws Exception {
         System.out.println("1111");
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page=1&AUTH_KEY=D6E3BE404CC745B885E81D6BD5FE90CD6A59E572"; // API 엔드포인트
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=D6E3BE404CC745B885E81D6BD5FE90CD6A59E572"; // API 엔드포인트
 
         // URL 생성
         URL url = new URL(apiUrl);

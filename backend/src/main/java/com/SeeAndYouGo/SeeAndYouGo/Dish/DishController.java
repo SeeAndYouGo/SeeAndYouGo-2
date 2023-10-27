@@ -13,7 +13,9 @@ public class DishController {
 
     @GetMapping("/week")
     public void week() throws Exception {
-        dishService.saveAndCashWeekDish();
+        dishService.saveAndCashWeekDish(1);
+        dishService.saveAndCashWeekDish(2);
+        dishService.saveAndCashWeekDish(3);
     }
 
     @GetMapping("/day")
