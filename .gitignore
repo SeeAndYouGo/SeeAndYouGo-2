@@ -2,6 +2,10 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,react,java
 
 **/app.properties
+.idea
+**/.idea
+**/.gradle
+**/build
 
 ### Java ###
 # Compiled class file
