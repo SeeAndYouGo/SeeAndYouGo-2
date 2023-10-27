@@ -47,7 +47,7 @@ public class MenuRepository {
         query.setParameter("type", MenuType.LUNCH);
 
         return query.getResultList();
-    }ㅌ
+    }
 
     public List<Menu> findMenusByDateRange(Long restaurantId, LocalDate startDate, LocalDate endDate) {
         TypedQuery<Menu> query = em.createQuery(
@@ -65,3 +65,4 @@ public class MenuRepository {
 
         return query.getResultList();
     }
+}
