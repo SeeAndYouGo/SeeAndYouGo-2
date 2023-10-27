@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,react,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,react,java
 
+**/app.properties
+
 ### Java ###
 # Compiled class file
 *.class
@@ -43,7 +45,7 @@ thumb
 sketch
 
 ### Gradle ###
-**/.gradle
+.gradle
 **/build/
 !src/**/build/
 
