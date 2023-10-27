@@ -16,4 +16,7 @@ public class Dish {
 
     @Enumerated(EnumType.STRING)
     private DishType dishType;
+    private String date;
+
+
 }

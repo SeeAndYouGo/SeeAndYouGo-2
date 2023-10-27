@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f7be9212-95f1-487b-9449-1aaa4c3bac29" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/Connection.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/Connection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionResponse.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Connection/ConnectionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/Restaurant.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/Restaurant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Dish/Dish.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Dish/Dish.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/Menu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/MenuRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/MenuRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/MenuResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/MenuResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Menu/Type.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +46,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Enum" />
         <option value="Class" />
       </list>
     </option>
@@ -57,15 +62,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "jdk.selected.JAVA_MODULE": "11",
-    "last_opened_file_path": "/Users/singyeongjun/Desktop/SeeAndYouGo/backend"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;11&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/singyeongjun/Desktop/SeeAndYouGo/backend&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.SeeAndYouGo.SeeAndYouGo.Menu" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/backend" />
       <recent name="$PROJECT_DIR$" />
@@ -75,6 +83,21 @@
       <recent name="$PROJECT_DIR$/backend" />
       <recent name="$PROJECT_DIR$" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="SeeAndYouGo" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="SeeAndYouGo" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -86,5 +109,16 @@
       <updated>1696897621532</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

@@ -44,7 +44,7 @@ public class MenuRepository {
 
         query.setParameter("restaurant_id", restaurantId);
         query.setParameter("date", date);
-        query.setParameter("type", Type.LUNCH);
+        query.setParameter("type", MenuType.LUNCH);
 
         return query.getResultList();
     }ㅌ
@@ -61,7 +61,7 @@ public class MenuRepository {
         query.setParameter("restaurant_id", restaurantId);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
-        query.setParameter("type", Type.LUNCH);
+        query.setParameter("type", MenuType.LUNCH);
 
         return query.getResultList();
     }

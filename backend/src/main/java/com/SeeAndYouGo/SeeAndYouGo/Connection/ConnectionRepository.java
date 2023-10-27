@@ -15,20 +15,30 @@ public class ConnectionRepository {
 
     public Connection findRecent(String restaurantName){
         TypedQuery<Connection> query = em.createQuery(
-                "SELECT connected FROM Connected connected " +
-                        "WHERE connected.name LIKE CONCAT('%', :name, '%') " +
-                        "AND connected.time = (SELECT MAX(c2.time) FROM Connected c2 " +
-                        "WHERE c2.name LIKE CONCAT('%', :name, '%'))",
+                "SELECT c FROM Connection c " +
+                        "WHERE c.time = (SELECT MAX(c2.time) FROM Connection c2 " +
+                        "WHERE c2.restaurant.name = :name) " +
+                        "AND c.restaurant.name = :name",
                 Connection.class
         );
         query.setParameter("name", restaurantName);
-
         return query.getSingleResult();
     }
 
+    public String findRecentTime(){
+        String res = "NULL";
+        TypedQuery<String> query = em.createQuery(
+                "SELECT MAX(ct2.time) FROM Connection ct2",
+                String.class
+        );
+
+        return res;
+    }
+
+
     public Long countNumberOfData(){
         TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(*) FROM Connected",
+                "SELECT COUNT(*) FROM Connection",
                 Long.class
         );
         return query.getSingleResult();
