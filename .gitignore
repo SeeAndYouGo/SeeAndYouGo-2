@@ -43,7 +43,7 @@ thumb
 sketch
 
 ### Gradle ###
-.gradle
+**/.gradle
 **/build/
 !src/**/build/
 
