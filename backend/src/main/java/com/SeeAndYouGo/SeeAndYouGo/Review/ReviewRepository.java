@@ -104,7 +104,8 @@ public class ReviewRepository {
 
         TypedQuery<Review> reviewTypedQuery = em.createQuery("select r from Review r " +
                         "where r.restaurant.name = :restaurantName " +
-                        "and SUBSTRING(r.madeTime,0, 10) = SUBSTRING(:startDate,0, 10)", Review.class)
+                        "and SUBSTRING(r.madeTime,0, 10) = SUBSTRING(:startDate,0, 10)" +
+                        "order by r.reviewRate desc, r.likeCount desc", Review.class)
                 .setParameter("restaurantName", restaurantName)
                 .setParameter("startDate", startDate)
                 .setMaxResults(5);
