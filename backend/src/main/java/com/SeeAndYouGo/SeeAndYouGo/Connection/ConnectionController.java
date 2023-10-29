@@ -25,7 +25,7 @@ public class ConnectionController {
         return ResponseEntity.ok(connectionResponse);
     }
 
-    @GetMapping("/connection/cash")
+    @GetMapping("/connection/cache")
     public void cash() throws Exception {
         connectedService.saveAndCashConnection();
     }

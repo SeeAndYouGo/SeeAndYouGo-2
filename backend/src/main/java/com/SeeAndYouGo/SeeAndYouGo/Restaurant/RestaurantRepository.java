@@ -80,4 +80,16 @@ public class RestaurantRepository {
     @Query("SELECT e FROM Employee e WHERE e.department = :department")
     public void deleteRestaurantsMatchedDate(@Param("date") String date) {}
 
+    public List<Restaurant> findTodayAllRestaurant(String name, String today) {
+
+        TypedQuery<Restaurant> query = em.createQuery(
+                "SELECT r FROM Restaurant r " +
+                        "WHERE r.name = :name AND r.date = :date",
+                Restaurant.class
+        );
+        query.setParameter("name", name);
+        query.setParameter("date", today);
+        return query.getResultList();
+    }
+
 }
