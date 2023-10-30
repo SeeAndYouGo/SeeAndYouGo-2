@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +9,9 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
+import 'rsuite/dist/rsuite-no-reset.min.css';
+import { Cascader } from 'rsuite';
+
 const ReviewWriteContainer = styled.form`
 	width: 100%;
 	background: #fff;
@@ -15,6 +19,14 @@ const ReviewWriteContainer = styled.form`
 	border-radius: 20px;
 	margin: 10px 0 20px 0;
 	float: left;
+
+	& .rs-picker-toggle-placeholder, & .rs-picker-search-bar-input {
+		font-size: 12px;
+		font-weight: 400;
+	}
+	& .rs-picker-cascader-menu-items {
+		font-size: 12px;
+	}
 `;
 const ReviewStarRating = styled.span`
 	float: left;
@@ -35,7 +47,8 @@ const ReviewWriteInput = styled.input`
 	padding: 0 10px;
 	height: 35px;
 	outline: none;
-	width: 100%;
+	float:right;
+	width: 180px;
 
 	&::placeholder {
 		font-weight: 400;
@@ -62,12 +75,61 @@ const ReviewWriteButton = styled.button`
 	font-weight: 400;
 	cursor: pointer;
 `;
+const ReviewWriteNameChekbox = styled.input`
+	float: left;
+	width: 15px;
+	height: 15px;
+	margin-left: 5px;
+	top: 50%;
+	transform: translateY(-50%);
+	position: absolute;
+`;
+
+const ReviewSubmit = (e) => {
+	e.preventDefault();
+	const formData = new FormData();
+}
+
+const ReviewMenuSelect = () => {
+	const [menuData, setMenuData] = useState([]);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const res = await fetch(`/assets/json/Restaurant1Menu.json`, {
+				headers: {
+					"Content-Type": "application/json",
+				},
+				method: "GET",
+			});
+			const result = await res.json();
+			return result;
+		};
+		fetchData().then((data) => {
+			setMenuData(data);
+		});
+	}, []);
+
+	return (
+		<div style={{ display: 'block', marginBottom: 10 }}>
+			<p style={{ margin: "0", float: "left", fontSize: 15 }}>메뉴 선택</p>
+			<Cascader
+				style={{ width: "100%", marginTop: 5 }}
+				placeholder="메뉴를 선택해주세요"
+				data={menuData}
+			/>
+		</div>
+	);
+}
 
 const ReviewWrite = () => {
 	const [starVal, setStarVal] = useState(0);
+	const params = useParams();
+	const restaurant = params.restaurant;
+
 	return (
 		<ReviewWriteContainer>
-			<div style={{ width: "100%", float: "left" }}>
+			{restaurant == 1 ? <ReviewMenuSelect /> : null}
+			<div style={{ width: "50%", float: "left" }}>
 				<p style={{ margin: "0", float: "left", fontSize: 15 }}>별점</p>
 				<ReviewStarRating>
 					<StarsRating
@@ -78,21 +140,22 @@ const ReviewWrite = () => {
 					/>
 				</ReviewStarRating>
 			</div>
-			<div style={{ width: "100%" }}>
-				<div
-					style={{
-						position: "relative",
-						width: "calc(100% - 55px)",
-						float: "left",
-					}}
-				>
+			<div style={{ width: "50%", float: "left", height: 30 }}>
+
+				<ReviewWriteInput placeholder="닉네임" style={{ height: 25, float: "right", width: "90%", lineHeight: 25 }} />
+			</div>
+			<div style={{ width: "100%", float: "left", marginTop: 5 }}>
+				<div style={{ position: "relative", width: "calc(100% - 55px)", float: "left" }}>
 					<input type="file" id="Review-file-input" hidden></input>
+					<p style={{ margin: "0", float: "left", fontSize: 15, lineHeight: "35px" }}>익명</p>
+					<ReviewWriteNameChekbox type="checkbox" />
 					<ReviewWriteInput placeholder="리뷰를 남겨주세요 :)" />
+
 					<ReviewWriteCamera htmlFor="Review-file-input">
 						<FontAwesomeIcon icon={faCamera} />
 					</ReviewWriteCamera>
 				</div>
-				<ReviewWriteButton>작성</ReviewWriteButton>
+				<ReviewWriteButton onClick={ReviewSubmit}>작성</ReviewWriteButton>
 			</div>
 		</ReviewWriteContainer>
 	);
