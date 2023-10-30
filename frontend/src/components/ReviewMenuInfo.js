@@ -105,16 +105,16 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 						if (radioValue === "menu1") {
 							return index === 1 ? null : (
 								<MenuInfo
-									mainMenu={nowValue.menu[0]}
-									subMenu={nowValue.menu.slice(1)}
+									mainMenu={nowValue.dishList[0]}
+									subMenu={nowValue.dishList.slice(1)}
 									key={index}
 								/>
 							);
 						} else {
 							return index === 0 ? null : (
 								<MenuInfo
-									mainMenu={nowValue.menu[0]}
-									subMenu={nowValue.menu.slice(1)}
+									mainMenu={nowValue.dishList[0]}
+									subMenu={nowValue.dishList.slice(1)}
 									key={index}
 								/>
 							);

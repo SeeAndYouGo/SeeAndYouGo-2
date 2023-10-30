@@ -23,7 +23,7 @@ const AdminMainMenu = () => {
 		fetchData().then((data) => {
 			setNullLength(0);
 			data.map((val, _) =>
-				val.menu[0] === null ? setNullLength((n) => n + 1) : null
+				val.dishList[0] === null ? setNullLength((n) => n + 1) : null
 			);
 
 			setMenuList(data);
@@ -91,13 +91,13 @@ const AdminMainMenu = () => {
 					</button>
 				</div>
 				{menuList.map((val, index) => {
-					return val.menu[0] === null ? null : (
+					return val.dishList[0] === null ? null : (
 						<div key={index}>
 							<p>
 								{val.dateTime} / {val.restaurantName} /{" "}
 								{val.dept}
 							</p>
-							{val.menu.map((val2, index2) => {
+							{val.dishList.map((val2, index2) => {
 								return (
 									<div key={index2}>
 										<label>
