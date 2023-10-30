@@ -14,7 +14,6 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class RestaurantRepository {
     private final EntityManager em;
 

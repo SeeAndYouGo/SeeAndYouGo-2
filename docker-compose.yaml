@@ -1,0 +1,70 @@
+version: "3.8"
+
+networks:
+  backbone:
+    driver: bridge
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: mysql
+      MYSQL_ROOT_PASSWORD: seeandyougo
+      MYSQL_USER: seeandyougo
+      MYSQL_PASSWORD: seeandyougo
+      TZ: 'Asia/Seoul'
+    volumes:
+      - ./data:/var/lib/mysql
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --range_optimizer_max_mem_size=16777216
+    networks:
+      - backbone
+  seeandyougo:
+    container_name: seeandyougo
+    build:
+      context: ./backend
+      args:
+        ACCESS_KEY: ${ACCESS_KEY}
+        SECRET_KEY: ${SECRET_KEY}
+    restart: always
+
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend:/app
+    networks:
+      - backbone
+    depends_on:
+      - mysql
+    environment:
+      - TZ=Asia/Seoul
+  seeandyougo-nginx:
+    container_name: seeandyougo-nginx
+    build: .
+    restart: always
+    ports: 
+      - "80:80/tcp"
+      - "443:443"
+    networks:
+      - backbone
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - seeandyougo
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    restart: on-failure
+    ports:
+      - 3000:3000
+    networks:
+      - backbone
+    depends_on:
+      - seeandyougo
+    environment:
+      - TZ=Asia/Seoul
