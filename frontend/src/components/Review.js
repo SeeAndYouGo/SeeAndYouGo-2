@@ -260,7 +260,6 @@ const Review = ({ idx }) => {
 			setReviewArr(data);
 		});
 	}, []);
-
 	return (
 		<div style={{ float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0 }}>오늘 메뉴의 리뷰</p>
