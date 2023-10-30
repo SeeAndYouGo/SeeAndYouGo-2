@@ -54,6 +54,7 @@ const SortingSelect = styled.select`
 	}
 `;
 
+// TODO totalReview인 경우에 식당 name, dept 리뷰 칸에 표기해주기
 const ReviewList = ({ idx }) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);

@@ -6,8 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { faPen } from "@fortawesome/free-solid-svg-icons";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import 'rsuite/dist/rsuite-no-reset.min.css';
 import { Cascader } from 'rsuite';
@@ -121,6 +119,7 @@ const ReviewMenuSelect = () => {
 	);
 }
 
+// 별점 0점인 경우 리뷰 작성 불가능하게 하기
 const ReviewWrite = () => {
 	const [starVal, setStarVal] = useState(0);
 	const params = useParams();
@@ -164,7 +163,7 @@ const ReviewWrite = () => {
 const ReviewItemContainer = styled.div`
 	width: 100%;
 	background: #fff;
-	padding: 15px;
+	padding: 7px 15px;
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
@@ -199,15 +198,6 @@ const ReviewItemStar = styled.span`
 		margin-right: 2px;
 	}
 `;
-const ReviewItemButtons = styled.div`
-	float: right;
-	font-size: 14px;
-	color: #999;
-	> svg {
-		margin-left: 5px;
-		cursor: pointer;
-	}
-`;
 const ReviewItemContent = styled.p`
 	width: 100%;
 	font-size: 14px;
@@ -233,12 +223,8 @@ const ReviewItem = ({ user, time, content, img, rate }) => {
 							{rate}
 						</ReviewItemStar>
 					</p>
-					<p>{time}분 전</p>
+					<p>{time} 작성</p>
 				</ReviewItemProfile>
-				<ReviewItemButtons>
-					<FontAwesomeIcon icon={faPen} />
-					<FontAwesomeIcon icon={faTrash} />
-				</ReviewItemButtons>
 			</div>
 			<div className="Row2" style={{ float: "left", width: "100%" }}>
 				<ReviewItemContent>{content}</ReviewItemContent>
@@ -280,6 +266,7 @@ const Review = ({ idx }) => {
 			<p style={{ fontSize: 18, margin: 0 }}>오늘 메뉴의 리뷰</p>
 			<ReviewWrite />
 
+			<p style={{ fontSize: 18, margin: 0 }}>오늘의 리뷰 미리보기</p>
 			{reviewArr.map((el, index) => (
 				<ReviewItem
 					key={index}

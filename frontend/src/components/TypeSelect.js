@@ -52,13 +52,14 @@ const Desc = styled.div`
 	text-align: center;
 `;
 
+// TODO 학생 식당, 교직원 식당 구분해서 출력하도록 하기
 const TypeSelect = ({ idx }) => {
 	// Tab Menu 중 현재 어떤 Tab이 선택되어 있는지 확인하기 위한 currentTab 상태와 currentTab을 갱신하는 함수가 존재해야 하고, 초기값은 0.
 	const [currentTab, clickTab] = useState(0);
 
 	const menuArr = [
-		{ name: "학생 식당", content: <Menu /> },
-		{ name: "교직원 식당", content: "교직원 메뉴" },
+		{ name: "학생 식당", content: <Menu idx={0}/> },
+		{ name: "교직원 식당", content: <Menu idx={0}/> },
 	];
 
 	const TabMenuUl = () => {

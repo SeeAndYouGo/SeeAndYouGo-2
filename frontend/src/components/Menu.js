@@ -55,6 +55,8 @@ const MainMenu = styled.p`
 	text-align: center;
 `;
 
+
+// TODO api 주소로 메뉴 불러올 수 있도록 수정
 const MenuArray = [
 	"김치찌개 & 계란후라이",
 	"생선까스",

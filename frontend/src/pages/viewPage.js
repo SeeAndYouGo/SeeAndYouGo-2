@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import DetailHeader from "../components/DetailHeader";
 import TypeSelect from "../components/TypeSelect";
 import Navigation from "../components/Navigation";
+import Cafeteria1Info from "../components/Cafeteria1Info";
 
 function View() {
 	const params = useParams();
@@ -13,7 +14,7 @@ function View() {
 		<>
 			<div className="App2">
 				<DetailHeader idx={restaurant} rate={50} />
-				{restaurant === 1 ? null : <TypeSelect idx={restaurant} />}
+				{restaurant === 1 ? <Cafeteria1Info /> : <TypeSelect idx={restaurant} />}
 				<Review idx={restaurant} />
 				<Navigation />
 			</div>

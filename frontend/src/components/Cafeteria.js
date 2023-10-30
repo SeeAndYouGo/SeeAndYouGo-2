@@ -64,6 +64,7 @@ const MenuItem = styled.p`
     `}
 `;
 
+// TODO 메뉴가 2초마다 바뀌는 기능 제거하고 0번 index의 메뉴만 출력될 수 있도록 수정 
 // 메뉴 이름 2.0초마다 변경되어 표시
 const MenuList = ({ nowList }) => {
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -193,16 +194,14 @@ const Cafeteria = ({ idx, value }) => {
 		<CafeteriaContainer>
 			<FirstRow>
 				<CafeteriaName>{nameList[idx]}</CafeteriaName>
-				<span style={{ fontWeight: 500, fontSize: 11, marginLeft: 10 }}>
+				<span style={{ fontWeight: 500, fontSize: 11, marginLeft: 20 }}>
 					{status}
 				</span>
 				<MyProgress value={rate} />
-				{idx === 1 ? null : (
-					<FontAwesomeIcon
-						icon={faChevronRight}
-						style={{ color: "#b0b0b0", marginLeft: 10 }}
-					/>
-				)}
+				<FontAwesomeIcon
+					icon={faChevronRight}
+					style={{ color: "#b0b0b0", marginLeft: 10 }}
+				/>
 			</FirstRow>
 			{idx === 1 ? null : (
 				<SecondRow>
@@ -212,7 +211,7 @@ const Cafeteria = ({ idx, value }) => {
 								key={index}
 								menuDept={val.dept}
 								menuPrice={val.price}
-								menuName={val.menu}
+								menuName={val.dishList}
 							/>
 						);
 					})}

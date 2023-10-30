@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const ColorContainer = styled.div`
 	display: flex;
-	margin-left: 10px;
+	margin-left: 20px;
 	border: 1px solid #dddddd;
 	border-radius: 5px;
 	overflow: hidden;
