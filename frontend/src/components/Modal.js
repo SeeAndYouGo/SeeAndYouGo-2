@@ -16,7 +16,7 @@ const BackgroundDim = styled.div`
 const ModalContainer = styled.div`
 	position: fixed;
 	top: 50%;
-	left: 180px;
+	left: 50%;
 	transform: translate(-50%, -50%);
 	padding: 8px;
 	background-color: white;

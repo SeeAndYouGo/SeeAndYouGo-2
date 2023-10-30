@@ -4,7 +4,9 @@ import View from "./pages/viewPage";
 import ReviewPage from "./pages/ReviewPage";
 import AdminMainMenu from "./pages/AdminMainMenu";
 
+
 const App = () => {
+
 	return (
 		<Routes>
 			<Route exact path="/" element={<Index />} />
@@ -13,6 +15,7 @@ const App = () => {
 			<Route exact path="/Admin/MainMenu" element={<AdminMainMenu />} />
 			<Route path="*" element={<h1>404 Not Found</h1>} />
 		</Routes>
+
 	);
 };
 
