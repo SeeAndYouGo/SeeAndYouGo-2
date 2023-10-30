@@ -1,12 +1,14 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +20,12 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final RestaurantRepository restaurantRepository;
+    private final MenuService menuService;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName) {
-        Restaurant restaurant = restaurantRepository.findByName(restaurantName);
+        restaurantName = menuService.parseRestaurantName(restaurantName);
+        Restaurant restaurant = restaurantRepository.findTodayRestaurant(restaurantName, LocalDate.now().toString());
         if (restaurant == null) {
             throw new IllegalArgumentException("Restaurant not found for name: " + restaurantName);
         }

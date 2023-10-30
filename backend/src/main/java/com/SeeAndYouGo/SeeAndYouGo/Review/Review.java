@@ -38,7 +38,7 @@ public class Review {
     public Restaurant restaurant;
 
     public void setMadeTime(String madeTimeStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.madeTime = LocalDateTime.parse(madeTimeStr, formatter);
     }
 }
