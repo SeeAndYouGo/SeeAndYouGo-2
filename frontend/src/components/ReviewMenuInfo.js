@@ -42,8 +42,9 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// "http:localhost:8080/get_menu/{name}/{date}"
-			const res = await fetch(`/assets/json/myMenu.json`, {
+			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			// const nowUrl = "/assets/json/myMenu.json";
+			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -65,7 +66,7 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 	return (
 		<>
 			<div>
-				{idx === 1 || idx === 2 ? (
+				{idx === 2 ? (
 					<>
 						<MyRadio
 							type="radio"
@@ -112,7 +113,7 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 						} else {
 							return index === 0 ? null : (
 								<MenuInfo
-									mainMenu={nowValue.menu[0]+"hello"}
+									mainMenu={nowValue.menu[0]}
 									subMenu={nowValue.menu.slice(1)}
 									key={index}
 								/>

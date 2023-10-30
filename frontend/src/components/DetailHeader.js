@@ -57,6 +57,7 @@ const MenuTable = styled.div`
 `;
 
 const operatingTime = [
+	[],
 	["1학생회관", "11:30-14:00"],
 	["2학생회관", "11:00-13:30"],
 	["3학생회관", "11:00-13:30"],
@@ -107,7 +108,7 @@ const DetailHeader = ({ idx, rate }) => {
 				<p style={{ margin: 0, fontSize: 10 }}>식단표</p>
 			</MenuTable>
 			<Modal visible={visible2} onClose={() => setVisible2(false)}>
-				<ModalMenuTable/>
+				<ModalMenuTable idx={idx} />
 			</Modal>
 		</div>
 	);

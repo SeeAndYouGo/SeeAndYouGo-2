@@ -4,65 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
-// const ReviewItemContainer = styled.div`
-//     /* display: flex;
-//     flex-direction: column;
-//     justify-content: center;
-//     align-items: center;
-//     width: 100%;
-//     height: 100%; */
-// `;
-
-// const ReviewItemFirstRow = styled.div`
-
-// `;
-
-// // 리뷰 작성자 정보
-// const MemberInfo = styled.div`
-
-// `;
-
-// const MemberPicture = styled.img`
-
-// `;
-
-// const MemberName = styled.p`
-
-// `;
-
-// const MemberRate = styled.p`
-
-// `;
-
-// const MemberWriteTime = styled.p`
-
-// `;
-
-// // 리뷰 작성된 식당 정보
-// const ReviewPlaceInfo = styled.p`
-
-// `;
-
-// const ReviewPlaceName = styled.p`
-
-// `;
-
-// const ReviewPlaceDeptName = styled.p`
-
-// `;
-
-// // 리뷰 코멘트 및 이미지
-// const ReviewItemSecondRow = styled.div`
-
-// `;
-
-// const ReviewComment = styled.p`
-
-// `;
-
-// const ReviewImage = styled.img`
-
-// `;
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
