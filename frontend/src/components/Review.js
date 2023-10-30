@@ -158,8 +158,8 @@ const ReviewWrite = () => {
 			redirect: 'follow'
 		};
 
-		//fetch("http://localhost:8080/api/review", requestOptions)
-		fetch("http://192.168.0.3:8080/api/review", requestOptions)
+		fetch("http://localhost:8080/api/review", requestOptions)
+		// fetch("http://192.168.0.3:8080/api/review", requestOptions)
 			.then(response => response.text())
 			.then(result => console.log(result))
 			.catch(error => console.log('error', error));	
@@ -315,8 +315,8 @@ const Review = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowUrl = `/api/topReview/restaurant${idx}`;
-			const nowUrl = "/assets/json/restaurant1Review.json";
+			const nowUrl = `/api/topReview/restaurant${idx}`;
+			// const nowUrl = "/assets/json/restaurant1Review.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",

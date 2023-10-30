@@ -11,21 +11,21 @@ function App() {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
-		// const jsonFilePaths = [
-		// 	"/api/connection/restaurant1",
-		// 	"/api/connection/restaurant2",
-		// 	"/api/connection/restaurant3",
-		// 	"/api/connection/restaurant4",
-		// 	"/api/connection/restaurant5",
-		// ];
-
 		const jsonFilePaths = [
-			"assets/json/restaurant1.json",
-			"assets/json/restaurant2.json",
-			"assets/json/restaurant3.json",
-			"assets/json/restaurant3.json",
-			"assets/json/restaurant3.json",
+			"/api/connection/restaurant1",
+			"/api/connection/restaurant2",
+			"/api/connection/restaurant3",
+			"/api/connection/restaurant4",
+			"/api/connection/restaurant5",
 		];
+
+		// const jsonFilePaths = [
+		// 	"assets/json/restaurant1.json",
+		// 	"assets/json/restaurant2.json",
+		// 	"assets/json/restaurant3.json",
+		// 	"assets/json/restaurant3.json",
+		// 	"assets/json/restaurant3.json",
+		// ];
 		Promise.all(
 			jsonFilePaths.map((path) =>
 				fetch(path).then((response) => response.json())

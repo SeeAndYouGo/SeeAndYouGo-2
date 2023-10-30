@@ -12,10 +12,10 @@ RUN yarn add -D @craco/craco
 RUN yarn add -D @emotion/babel-preset-css-prop
 RUN yarn add react-star-rate
 RUN yarn add rsuite
-RUN npm install -g serve
-RUN yarn build
+# RUN npm install -g serve
+# RUN yarn build
 
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "build"]
+CMD ["yarn", "start"]

@@ -9,8 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowUrl = "/api/weeklyMenu";
-			const nowUrl = "/assets/json/tempMenuList.json";
+			const nowUrl = "/api/weeklyMenu";
+			// const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -61,7 +61,7 @@ const AdminMainMenu = () => {
 		if (nullCount === nullLength) {
 			console.log("전송 가능 상태입니다.");
 			// 여기에 POST로 전송하도록 합니다.
-			const nowUrl = "/api/weekly_main_menu";
+			const nowUrl = "/api/weeklyMainMenu";
 			fetch(nowUrl, {
 				method: "POST",
 				headers: {
