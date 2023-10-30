@@ -72,4 +72,9 @@ public class Restaurant {
         }
         this.restaurantRate = rate/reviewList.size();
     }
+
+    @Override
+    public String toString(){
+        return name+" "+date + " " + menuList;
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
@@ -57,7 +58,7 @@ public class RestaurantRepository {
         return query.getSingleResult();
     }
 
-    public Restaurant findTodayRestaurant(String name, String today) {
+    public Restaurant findTodayRestaurant(String name, String date) {
 
         TypedQuery<Restaurant> query = em.createQuery(
                 "SELECT r FROM Restaurant r " +
@@ -65,7 +66,8 @@ public class RestaurantRepository {
                 Restaurant.class
         );
         query.setParameter("name", name);
-        query.setParameter("date", today);
+        query.setParameter("date", date);
+
         return query.getSingleResult();
     }
     public Restaurant findByName(String name) {
@@ -77,10 +79,11 @@ public class RestaurantRepository {
             return null;
         }
     }
-    @Query("SELECT e FROM Employee e WHERE e.department = :department")
-    public void deleteRestaurantsMatchedDate(@Param("date") String date) {}
 
-    public List<Restaurant> findTodayAllRestaurant(String name, String today) {
+    public void deleteRestaurantsMatchedDate(String date) {
+    }
+
+    public List<Restaurant> findTodayAllRestaurant(String name, String date) {
 
         TypedQuery<Restaurant> query = em.createQuery(
                 "SELECT r FROM Restaurant r " +
@@ -88,7 +91,7 @@ public class RestaurantRepository {
                 Restaurant.class
         );
         query.setParameter("name", name);
-        query.setParameter("date", today);
+        query.setParameter("date", date);
         return query.getResultList();
     }
 

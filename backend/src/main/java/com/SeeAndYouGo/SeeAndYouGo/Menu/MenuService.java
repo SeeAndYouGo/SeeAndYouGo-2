@@ -1,22 +1,12 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -43,10 +33,27 @@ public class MenuService {
         }catch(Exception e){}
 
         Restaurant restaurant = restaurantRepository.findTodayRestaurant(parseRestaurantName, parsedDate);
-        System.out.println(restaurant.getMenuList());
-        return restaurant.getMenuList();
+        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
+
+        return sortMainDish(menus);
     }
 
+    private List<Menu> sortMainDish(List<Menu> menus) {
+        List<Menu> sortMenus = new ArrayList<>();
+
+        for (Menu menu : menus) {
+            List<Dish> dishList = new ArrayList<>();
+            for (Dish dish : menu.getDishList()) {
+                if(dish.getDishType().equals(DishType.MAIN))
+                    dishList.add(0, dish);
+                else
+                    dishList.add(dish);
+            }
+            menu.setDishList(dishList);
+            sortMenus.add(menu);
+        }
+        return sortMenus;
+    }
     public List<Menu>[] getOneWeekRestaurantMenu(String placeName, String date) {
         // 날짜 문자열을 파싱
         LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -60,11 +67,36 @@ public class MenuService {
         for(LocalDate i = startOfWeek; i.compareTo(endOfWeek) <= 0; i = i.plusDays(1)){
             weekMenuList[++idx] = getOneDayRestaurantMenu(placeName, i.toString());
         }
-
         return weekMenuList;
     }
 
+//    private List<Menu>[] extractNotLunch(List<Menu>[] weekMenuList) {
+//        List<Menu>[] weekMenusLunch = new List[weekMenuList.length];
+//
+//        int idx = 0;
+//        for (List<Menu> menusLunch : weekMenusLunch) {
+//
+//            for (Menu menu : menusLunch) {
+//                if(!containDinner(menu))
+//                    menusLunch.remove(menu);
+//            }
+//            weekMenusLunch[idx++] = menusLunch;
+//        }
+//        return weekMenusLunch;
+//    }
 
+    private static boolean containDinner(Menu menu) {
+        return menu.getMenuType().equals(MenuType.LUNCH);
+    }
+
+    private List<Menu> extractNotLunch(List<Menu> weekMenuList) {
+        List<Menu> weekLunchMenus = new ArrayList<>();
+        for (Menu menu : weekMenuList) {
+            if(containDinner(menu))
+                weekLunchMenus.add(menu);
+        }
+        return weekLunchMenus;
+    }
 
     public String parseRestaurantName(String name) {
         if (name.contains("1")) return "1학생회관";
@@ -76,7 +108,7 @@ public class MenuService {
     }
 
     @Transactional
-    public List<Menu> createMenuWithDishses(List<Dish> dishes) {
+    public List<Menu> createMenuWithDishs(List<Dish> dishes) {
         Map<String, Menu> responseMap = new HashMap<>();
 
         for (Dish dish : dishes) {

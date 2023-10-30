@@ -37,6 +37,7 @@ public class RestaurantService {
     }
 
     public void deleteRestaurants(String date) {
+        System.out.println("11231453"+date);
         restaurantRepository.deleteRestaurantsMatchedDate(date);
     }
 
