@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConnectionResponse {
+    private String restaurantName;
     private Integer capacity;
     private Integer connected;
     private String dateTime;

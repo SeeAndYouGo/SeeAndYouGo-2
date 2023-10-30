@@ -11,7 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuResponse {
-    private List<Dish> dishList;
+    private String restaurantName;
+    private List<String> dishList;
     private Integer price;
-    private Dept dept;
+    private String dept;
+    private String date;
+    private String menuType;
 }

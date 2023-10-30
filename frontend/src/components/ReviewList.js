@@ -54,15 +54,17 @@ const SortingSelect = styled.select`
 	}
 `;
 
-const ReviewList = () => {
+const ReviewList = ({ idx }) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// "http:localhost:8080/"
-			const res = await fetch(`/assets/json/totalReview.json`, {
+			const nowUrl =
+				idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
+			// const nowUrl = "/assets/json/totalReview.json"
+			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -74,7 +76,7 @@ const ReviewList = () => {
 		fetchData().then((data) => {
 			setReview(data);
 		});
-	}, []);
+	}, [idx]);
 
 	const toggleOnlyImageReviewVisiblity = () => {
 		setIsChecked(!isChecked);
@@ -86,9 +88,17 @@ const ReviewList = () => {
 		setSortOrder(selectedSortOrder);
 
 		if (selectedSortOrder === "latest") {
-			setReview([...review].sort((a, b) => new Date(b.madeTime) - new Date(a.madeTime)));
+			setReview(
+				[...review].sort(
+					(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
+				)
+			);
 		} else if (selectedSortOrder === "earliest") {
-			setReview([...review].sort((a, b) => new Date(a.madeTime) - new Date(b.madeTime)));
+			setReview(
+				[...review].sort(
+					(a, b) => new Date(a.madeTime) - new Date(b.madeTime)
+				)
+			);
 		} else if (selectedSortOrder === "highRate") {
 			setReview([...review].sort((a, b) => b.rate - a.rate));
 		} else if (selectedSortOrder === "lowRate") {
@@ -116,7 +126,6 @@ const ReviewList = () => {
 					<option value="earliest">오래된순</option>
 					<option value="lowRate">별점 낮은순</option>
 					<option value="highRate">별점 높은순</option>
-					{/* <option value="like">좋아요 많은순</option> */}
 				</SortingSelect>
 
 				{review.map((nowReview, idx) => {

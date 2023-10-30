@@ -11,22 +11,21 @@ function App() {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
-		// JSON 파일
 		const jsonFilePaths = [
-			"assets/json/restaurant1.json",
-			"assets/json/restaurant2.json",
-			"assets/json/restaurant3.json",
-			"assets/json/restaurant3.json",
-			"assets/json/restaurant3.json",
+			"/api/connection/restaurant1",
+			"/api/connection/restaurant2",
+			"/api/connection/restaurant3",
+			"/api/connection/restaurant4",
+			"/api/connection/restaurant5",
 		];
-		// API URL 주소
-		// const jsonFilePaths = [
-		// 	"http://localhost:8080/get_congestion/restaurant1",
-		// 	"http://localhost:8080/get_congestion/restaurant2",
-		// 	"http://localhost:8080/get_congestion/restaurant3",
-		// ];
 
-		// 여러 JSON 파일 가져오기
+		// const jsonFilePaths = [
+		// 	"assets/json/restaurant1.json",
+		// 	"assets/json/restaurant2.json",
+		// 	"assets/json/restaurant3.json",
+		// 	"assets/json/restaurant3.json",
+		// 	"assets/json/restaurant3.json",
+		// ];
 		Promise.all(
 			jsonFilePaths.map((path) =>
 				fetch(path).then((response) => response.json())
