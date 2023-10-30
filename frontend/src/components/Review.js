@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
@@ -192,25 +191,42 @@ const ReviewItem = ({ user, time, content, img, rate }) => {
 	);
 };
 
-const Review = () => {
+const Review = ({ idx }) => {
+	const [reviewArr, setReviewArr] = useState([]);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const nowUrl = `/api/topReview/restaurant${idx}`;
+			// const nowUrl = "/assets/json/restaurant1Review.json";
+			const res = await fetch(nowUrl, {
+				headers: {
+					"Content-Type": "application/json",
+				},
+				method: "GET",
+			});
+			const result = await res.json();
+			return result;
+		};
+		fetchData().then((data) => {
+			setReviewArr(data);
+		});
+	}, []);
+
 	return (
 		<div style={{ float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0 }}>오늘 메뉴의 리뷰</p>
 			<ReviewWrite />
-			<ReviewItem
-				user={"익명1"}
-				time={20}
-				rate={5}
-				content={"맵지만 맛있게 먹었다 !"}
-				img={"/assets/images/menu1.jpg"}
-			/>
-			<ReviewItem
-				user={"익명2"}
-				time={55}
-				rate={4}
-				content={"닭갈비 은근 양 많다"}
-			/>
-			<ReviewItem user={"익명3"} time={55} rate={3} content={"맛있음"} />
+
+			{reviewArr.map((el, index) => (
+				<ReviewItem
+					key={index}
+					user={el.writer}
+					time={el.madeTime}
+					rate={el.rate}
+					content={el.comment}
+					img={el.image}
+				/>
+			))}
 		</div>
 	);
 };

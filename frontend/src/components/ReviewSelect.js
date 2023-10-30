@@ -30,13 +30,13 @@ const TabMenu = styled.ul`
 const reviewArray = [
 	{
 		name: "전체",
-		content: <ReviewList />,
+		content: <ReviewList idx={0}/>,
 	},
 	{
 		name: "1학",
 		content: (
 			<>
-				<ReviewList />
+				<ReviewList idx={1}/>
 			</>
 		),
 	},
@@ -44,8 +44,8 @@ const reviewArray = [
 		name: "2학",
 		content: (
 			<>
-				<ReviewMenuInfo idx={1} />
-				<ReviewList />
+				<ReviewMenuInfo idx={2} />
+				<ReviewList idx={2}/>
 			</>
 		),
 	},
@@ -53,8 +53,8 @@ const reviewArray = [
 		name: "3학",
 		content: (
 			<>
-				<ReviewMenuInfo idx={2} />
-				<ReviewList />
+				<ReviewMenuInfo idx={3} />
+				<ReviewList idx={3}/>
 			</>
 		),
 	},
@@ -62,8 +62,8 @@ const reviewArray = [
 		name: "상록회관",
 		content: (
 			<>
-				<ReviewMenuInfo idx={3} />
-				<ReviewList />
+				<ReviewMenuInfo idx={4} />
+				<ReviewList idx={4}/>
 			</>
 		),
 	},
@@ -71,8 +71,8 @@ const reviewArray = [
 		name: "생과대",
 		content: (
 			<>
-				<ReviewMenuInfo idx={4} />
-				<ReviewList />
+				<ReviewMenuInfo idx={5} />
+				<ReviewList idx={5}/>
 			</>
 		),
 	},
