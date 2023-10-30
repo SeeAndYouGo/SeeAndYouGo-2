@@ -105,3 +105,4 @@ const ModalMenuTable = ({ idx }) => {
 		</>
 	);
 };
+export default ModalMenuTable;
