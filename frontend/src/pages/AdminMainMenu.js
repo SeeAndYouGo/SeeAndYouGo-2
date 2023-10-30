@@ -9,8 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = "/api/weeklyMenu";
-			// const nowUrl = "/assets/json/tempMenuList.json";
+			// const nowUrl = "/api/weeklyMenu";
+			const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",

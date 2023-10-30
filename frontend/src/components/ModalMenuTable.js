@@ -24,9 +24,9 @@ const ModalMenuTable = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/weeklyMenu/restaurant${idx}`;
-			// const tempNum = idx === 2 || idx === 3 ? 10 : 5;
-			// const nowUrl = `/assets/json/weeklyMenu${tempNum}.json`;
+			// const nowUrl = `/api/weeklyMenu/restaurant${idx}`;
+			const tempNum = idx === 2 || idx === 3 ? 10 : 5;
+			const nowUrl = `/assets/json/weeklyMenu${tempNum}.json`;
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",

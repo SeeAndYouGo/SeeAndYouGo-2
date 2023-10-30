@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, createContext } from "react";
 import { useParams } from "react-router-dom";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -45,10 +45,13 @@ const ReviewWriteInput = styled.input`
 	border: 1px solid #d9d9d9;
 	border-radius: 10px;
 	padding: 0 10px;
+	padding-right: 35px;
 	height: 35px;
 	outline: none;
 	float:right;
-	width: 180px;
+	font-size: 12px;
+	font-weight: 400;
+	width: 100%;
 
 	&::placeholder {
 		font-weight: 400;
@@ -64,14 +67,15 @@ const ReviewWriteCamera = styled.label`
 	cursor: pointer;
 `;
 const ReviewWriteButton = styled.button`
-	width: 45px;
+	width: 100%;
+	margin-top: 10px;
 	font-size: 12px;
 	background: #d9d9d9;
 	color: "#777";
 	border-radius: 10px;
 	border: none;
-	height: 35px;
-	float: right;
+	height: 30px;
+	float: left;
 	font-weight: 400;
 	cursor: pointer;
 `;
@@ -80,51 +84,83 @@ const ReviewWriteNameChekbox = styled.input`
 	width: 15px;
 	height: 15px;
 	margin-left: 5px;
+	margin-right: 10px;
+	position: relative;
 	top: 50%;
 	transform: translateY(-50%);
-	position: absolute;
 `;
 
-const ReviewSubmit = (e) => {
-	e.preventDefault();
-	const formData = new FormData();
-}
-
-const ReviewMenuSelect = () => {
-	const [menuData, setMenuData] = useState([]);
-
-	useEffect(() => {
-		const fetchData = async () => {
-			const res = await fetch(`/assets/json/Restaurant1Menu.json`, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
-		};
-		fetchData().then((data) => {
-			setMenuData(data);
-		});
-	}, []);
-
-	return (
-		<div style={{ display: 'block', marginBottom: 10 }}>
-			<p style={{ margin: "0", float: "left", fontSize: 15 }}>메뉴 선택</p>
-			<Cascader
-				style={{ width: "100%", marginTop: 5 }}
-				placeholder="메뉴를 선택해주세요"
-				data={menuData}
-			/>
-		</div>
-	);
-}
-
 const ReviewWrite = () => {
-	const [starVal, setStarVal] = useState(0);
 	const params = useParams();
-	const restaurant = params.restaurant;
+	const restaurant = Number(params.restaurant);
+
+	// const [data, setData] = useState({
+	// 	restaurant: restaurant,
+	// 	'menuName' : '',
+	// 	'dept' : 'student',
+	// 	'writer' : '',
+	// 	'rate' : 0,
+	// 	'comment' : '',
+	// 	'imgUrl' : '',
+	// });
+
+	const [starVal, setStarVal] = useState(0);
+	const [imgVal, setImgVal] = useState("");
+	const [name, setName] = useState("");
+	const [comment, setComment] = useState("");
+	const [menuName, setMenuName] = useState("");
+
+	const ReviewSubmit = (e) => {
+		e.preventDefault();
+		const formdata = new FormData();
+		const requestData = {"restaurant": "restaurant"+restaurant, "writer":name, "rate":parseFloat(starVal), "comment":comment};
+
+		formdata.append("review", JSON.stringify(requestData));
+		formdata.append("image", imgVal.target.files[0], imgVal.target.files[0].name);
+		const requestOptions = {
+			method: 'POST',
+			body: formdata,
+			redirect: 'follow'
+		};
+
+		//fetch("http://localhost:8080/api/review", requestOptions)
+		fetch("http://192.168.0.3:8080/api/review", requestOptions)
+			.then(response => response.text())
+			.then(result => console.log(result))
+			.catch(error => console.log('error', error));	
+	}
+
+	const ReviewMenuSelect = () => {
+		const [menuData, setMenuData] = useState([]);
+	
+		useEffect(() => {
+			const fetchData = async () => {
+				const res = await fetch(`/assets/json/Restaurant1Menu.json`, {
+					headers: {
+						"Content-Type": "application/json",
+					},
+					method: "GET",
+				});
+				const result = await res.json();
+				return result;
+			};
+			fetchData().then((data) => {
+				setMenuData(data);
+			});
+		}, []);
+	
+		return (
+			<div style={{ display: 'block', marginBottom: 10 }}>
+				<p style={{ margin: "0", float: "left", fontSize: 15 }}>메뉴 선택</p>
+					<Cascader
+						style={{ width: "100%", marginTop: 5 }}
+						placeholder="메뉴를 선택해주세요"
+						data={menuData}
+						
+					/>
+			</div>
+		);
+	}
 
 	return (
 		<ReviewWriteContainer>
@@ -140,17 +176,15 @@ const ReviewWrite = () => {
 					/>
 				</ReviewStarRating>
 			</div>
-			<div style={{ width: "50%", float: "left", height: 30 }}>
-
-				<ReviewWriteInput placeholder="닉네임" style={{ height: 25, float: "right", width: "90%", lineHeight: 25 }} />
+			<div style={{ width: "100%", float: "left", height: 30 }}>
+				<p style={{ margin: "0", float: "left", fontSize: 15, lineHeight: "35px" }}>익명</p>
+				<ReviewWriteNameChekbox type="checkbox" />
+				<ReviewWriteInput type="text" onChange={(name) => { setName(name.target.value) }} maxLength={6} placeholder="닉네임" style={{ height: 30, float: "left", width: "30%", lineHeight: 25, paddingRight: 0 }} />
 			</div>
 			<div style={{ width: "100%", float: "left", marginTop: 5 }}>
-				<div style={{ position: "relative", width: "calc(100% - 55px)", float: "left" }}>
-					<input type="file" id="Review-file-input" hidden></input>
-					<p style={{ margin: "0", float: "left", fontSize: 15, lineHeight: "35px" }}>익명</p>
-					<ReviewWriteNameChekbox type="checkbox" />
-					<ReviewWriteInput placeholder="리뷰를 남겨주세요 :)" />
-
+				<div style={{ position: "relative", width: "100%", float: "left" }}>
+					<input type="file" id="Review-file-input" hidden onChange={(val) => { setImgVal(val) }}></input>
+					<ReviewWriteInput type="text" onChange={(val) => setComment(val.target.value)} placeholder="리뷰를 남겨주세요 :)" />
 					<ReviewWriteCamera htmlFor="Review-file-input">
 						<FontAwesomeIcon icon={faCamera} />
 					</ReviewWriteCamera>
@@ -259,8 +293,8 @@ const Review = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/topReview/restaurant${idx}`;
-			// const nowUrl = "/assets/json/restaurant1Review.json";
+			// const nowUrl = `/api/topReview/restaurant${idx}`;
+			const nowUrl = "/assets/json/restaurant1Review.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",

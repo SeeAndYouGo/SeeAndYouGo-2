@@ -173,8 +173,8 @@ const Cafeteria = ({ idx, value }) => {
 		setRate(value);
 
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = "/assets/json/myMenu.json";
+			// const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			const nowUrl = "/assets/json/myMenu.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",

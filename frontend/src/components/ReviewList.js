@@ -61,9 +61,9 @@ const ReviewList = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl =
-				idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
-			// const nowUrl = "/assets/json/totalReview.json"
+			// const nowUrl =
+			// 	idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
+			const nowUrl = "/assets/json/totalReview.json"
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
