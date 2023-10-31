@@ -1,12 +1,18 @@
-﻿spring:
+spring:
+#  datasource:
+#    url: jdbc:h2:tcp://localhost/~/seeandyougo
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/mysql?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql_db:3306/mysql_db?useSSL=false&allowPublicKeyRetrieval=true
     username: seeandyougo
     password: seeandyougo
+
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -15,10 +21,11 @@
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
 
 logging.level:
   org.hibernate.SQL: debug
-  org.hibernate.type: trace
+#  org.hibernate.type: trace

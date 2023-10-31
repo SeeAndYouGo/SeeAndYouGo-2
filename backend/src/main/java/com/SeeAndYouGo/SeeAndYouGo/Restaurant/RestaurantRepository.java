@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,6 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-@RequestMapping("/api")
 public class RestaurantRepository {
     private final EntityManager em;
 
@@ -58,18 +58,6 @@ public class RestaurantRepository {
         return query.getSingleResult();
     }
 
-    public Restaurant findTodayRestaurant(String name, String date) {
-
-        TypedQuery<Restaurant> query = em.createQuery(
-                "SELECT r FROM Restaurant r " +
-                        "WHERE r.name = :name AND r.date = :date",
-                Restaurant.class
-        );
-        query.setParameter("name", name);
-        query.setParameter("date", date);
-
-        return query.getSingleResult();
-    }
     public Restaurant findByName(String name) {
         try {
             return em.createQuery("select r from Restaurant r where r.name = :name", Restaurant.class)
@@ -93,6 +81,19 @@ public class RestaurantRepository {
         query.setParameter("name", name);
         query.setParameter("date", date);
         return query.getResultList();
+    }
+
+    public Restaurant findTodayRestaurant(String name, String date) {
+
+        TypedQuery<Restaurant> query = em.createQuery(
+                "SELECT r FROM Restaurant r " +
+                        "WHERE r.name = :name " +
+                        "AND r.date = :date",
+                Restaurant.class
+        );
+        query.setParameter("name", name);
+        query.setParameter("date", date);
+        return query.setMaxResults(1).getSingleResult();
     }
 
 }
