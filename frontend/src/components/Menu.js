@@ -41,58 +41,23 @@ const Price = styled.p`
 	font-weight: 400;
 `;
 
-const MainMenuContainer = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-`;
-
-const MainMenu = styled.p`
-	margin: 0;
-	padding-left: 5px;
-	font-size: 20px;
-	text-align: center;
-`;
-
-
-// TODO api 주소로 메뉴 불러올 수 있도록 수정
-const MenuArray = [
-	"김치찌개 & 계란후라이",
-	"생선까스",
-	"어묵채볶음",
-	"건파래무침",
-	"깍두기",
-];
-
-const Menu = () => {
+const Menu = ({ value }) => {
 	return (
 		<MenuContainer>
 			<div style={{ display: "flex" }}>
-				<TypeName>학생식당</TypeName>
-				<Price>4,500</Price>
+				<TypeName>{value.dept}</TypeName>
+				<Price>{value.price}</Price>
 			</div>
-			<div style={{textAlign: "center"}}>
-				{MenuArray.map((menu, index) =>
-					index === 0 ? (
-						<MainMenuContainer key={index}>
-							<FontAwesomeIcon icon={faUtensils} fontSize={25} />
-							<MainMenu key={menu}>{menu}</MainMenu>
-						</MainMenuContainer>
-					) : (
-						<p
-							key={index}
-							style={{ margin: 0, fontSize: 15, fontWeight: 400 }}
-						>
-							{menu}
-						</p>
-					)
-				)}
+			<div style={{ textAlign: "center" }}>
+				{value.dishList.map((menu, index) => (
+					<p
+						key={index}
+						style={{ margin: 0, fontSize: 15, fontWeight: 400 }}
+					>
+						{menu}
+					</p>
+				))}
 			</div>
-			<FontAwesomeIcon
-				icon={faHeart}
-				style={{ float: "right", paddingRight: 10 }}
-			/>
 		</MenuContainer>
 	);
 };

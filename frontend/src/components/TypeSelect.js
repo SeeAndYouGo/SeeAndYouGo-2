@@ -1,11 +1,9 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useEffect } from "react";
 import Menu from "./Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
-
-// Styled-Component 라이브러리를 활용해 TabMenu 와 Desc 컴포넌트의 CSS를 구현.
 
 const TabMenu = styled.ul`
 	color: black;
@@ -52,20 +50,33 @@ const Desc = styled.div`
 	text-align: center;
 `;
 
-// TODO 학생 식당, 교직원 식당 구분해서 출력하도록 하기
 const TypeSelect = ({ idx }) => {
-	// Tab Menu 중 현재 어떤 Tab이 선택되어 있는지 확인하기 위한 currentTab 상태와 currentTab을 갱신하는 함수가 존재해야 하고, 초기값은 0.
 	const [currentTab, clickTab] = useState(0);
+	const [menuData, setMenuData] = useState([]);
 
-	const menuArr = [
-		{ name: "학생 식당", content: <Menu idx={0}/> },
-		{ name: "교직원 식당", content: <Menu idx={0}/> },
-	];
+	useEffect(() => {
+		const fetchData = async () => {
+			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			// const nowUrl = "/assets/json/myMenu.json";
+			const res = await fetch(nowUrl, {
+				headers: {
+					"Content-Type": "application/json",
+				},
+				method: "GET",
+			});
+			const result = await res.json();
+			return result;
+		};
+		fetchData().then((data) => {
+			setMenuData(data);
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const TabMenuUl = () => {
 		return (
 			<TabMenu>
-				{menuArr.map((el, index) => (
+				{menuData.map((nowValue, index) => (
 					<li
 						key={index}
 						className={
@@ -73,14 +84,14 @@ const TypeSelect = ({ idx }) => {
 						}
 						onClick={() => selectMenuHandler(index)}
 					>
-						{el.name}
+						{nowValue.dept}
 					</li>
 				))}
 				<FontAwesomeIcon
 					icon={faCircleExclamation}
-					style={{ marginLeft: 10, fontSize: 12 }}
+					style={{ marginLeft: 15, fontSize: 12 }}
 				/>
-				<span style={{ fontSize: 9, marginLeft: 5, fontWeight: 400 }}>
+				<span style={{ fontSize: 10, marginLeft: 5, fontWeight: 400 }}>
 					교직원은 학생도 이용 가능합니다.
 				</span>
 			</TabMenu>
@@ -93,15 +104,19 @@ const TypeSelect = ({ idx }) => {
 		clickTab(index);
 	};
 
-	console.log(idx);
-
 	return (
 		<>
 			<div style={{ marginTop: 30 }}>
 				{idx === 2 || idx === 3 ? <TabMenuUl /> : null}
-				<Desc>
-					<div>{menuArr[currentTab].content}</div>
-				</Desc>
+				{menuData.map((nowValue, index) => {
+					return (
+						<Desc key={index}>
+							{currentTab === index ? (
+								<Menu value={nowValue} />
+							) : null}
+						</Desc>
+					);
+				})}
 			</div>
 		</>
 	);

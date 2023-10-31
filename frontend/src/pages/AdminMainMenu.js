@@ -9,8 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = "/api/weeklyMenu";
-			// const nowUrl = "/assets/json/tempMenuList.json";
+			// const nowUrl = "/api/weeklyMenu";
+			const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -94,7 +94,7 @@ const AdminMainMenu = () => {
 					return val.dishList[0] === null ? null : (
 						<div key={index}>
 							<p>
-								{val.dateTime} / {val.restaurantName} /{" "}
+								{val.date} / {val.restaurantName} /{" "}
 								{val.dept}
 							</p>
 							{val.dishList.map((val2, index2) => {
