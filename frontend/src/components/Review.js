@@ -315,7 +315,7 @@ const Review = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/topReview/restaurant${idx}`;
+			const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
 			// const nowUrl = "/assets/json/restaurant1Review.json";
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -343,7 +343,7 @@ const Review = ({ idx }) => {
 					time={el.madeTime}
 					rate={el.rate}
 					content={el.comment}
-					img={el.image}
+					img={el.imgLink}
 				/>
 			))}
 		</div>

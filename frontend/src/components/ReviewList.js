@@ -63,7 +63,7 @@ const ReviewList = ({ idx }) => {
 	useEffect(() => {
 		const fetchData = async () => {
 			const nowUrl =
-				idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
+				idx === 0 ? "http://localhost:8080/api/totalReview" : `http://localhost:8080/api/review/restaurant${idx}`;
 			// const nowUrl = "/assets/json/totalReview.json"
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -139,7 +139,7 @@ const ReviewList = ({ idx }) => {
 							time={nowReview.madeTime}
 							rate={nowReview.rate}
 							content={nowReview.comment}
-							img={nowReview.image}
+							img={nowReview.imageLink}
 							key={idx}
 						/>
 					);

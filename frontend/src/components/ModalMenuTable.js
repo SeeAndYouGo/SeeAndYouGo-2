@@ -24,7 +24,7 @@ const ModalMenuTable = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/weeklyMenu/restaurant${idx}`;
+			const nowUrl = `http://localhost:8080/api/weeklyMenu/restaurant${idx}`;
 			// const tempNum = idx === 2 || idx === 3 ? 10 : 5;
 			// const nowUrl = `/assets/json/weeklyMenu${tempNum}.json`;
 			const res = await fetch(nowUrl, {
@@ -39,10 +39,10 @@ const ModalMenuTable = ({ idx }) => {
 		fetchData().then((data) => {
 			if (idx === 2 || idx === 3) {
 				const studentMainData = data.filter(
-					(item) => item.dept === "학생식당"
+					(item) => item.dept === "STUDENT"
 				);
 				const staffMainData = data.filter(
-					(item) => item.dept === "교직원식당"
+					(item) => item.dept === "STAFF"
 				);
 
 				setStudentMain(studentMainData);

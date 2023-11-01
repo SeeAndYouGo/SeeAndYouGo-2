@@ -9,8 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowUrl = "/api/weeklyMenu";
-			const nowUrl = "/assets/json/tempMenuList.json";
+			const nowUrl = "http://localhost:8080/api/weeklyMenu";
+			// const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -39,10 +39,10 @@ const AdminMainMenu = () => {
 		setMainResult((prevArray) => {
 			const tempArray = [...prevArray];
 			const tempObject = {
-				menu: e.target.value,
+				mainDishName: e.target.value,
 				restaurantName: selectedRestaurantName,
 				dept: selectedDept,
-				dateTime: selectedDateTime,
+				date: selectedDateTime,
 			};
 
 			tempArray[e.target.name] = tempObject;
@@ -61,9 +61,9 @@ const AdminMainMenu = () => {
 		if (nullCount === nullLength) {
 			console.log("전송 가능 상태입니다.");
 			// 여기에 POST로 전송하도록 합니다.
-			const nowUrl = "/api/weeklyMainMenu";
+			const nowUrl = "http://localhost:8080/api/mainMenu";
 			fetch(nowUrl, {
-				method: "POST",
+				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -110,7 +110,7 @@ const AdminMainMenu = () => {
 													handleChange(
 														val.restaurantName,
 														val.dept,
-														val.dateTime,
+														val.date,
 														e
 													)
 												}
