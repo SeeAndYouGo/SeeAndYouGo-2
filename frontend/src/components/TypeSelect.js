@@ -50,6 +50,7 @@ const Desc = styled.div`
 	text-align: center;
 `;
 
+// TODO 학생 식당, 교직원 식당 구분해서 출력하도록 하기
 const TypeSelect = ({ idx }) => {
 	const [currentTab, clickTab] = useState(0);
 	const [menuData, setMenuData] = useState([]);

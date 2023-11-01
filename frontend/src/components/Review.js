@@ -7,9 +7,6 @@ import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 
-import 'rsuite/dist/rsuite-no-reset.min.css';
-import { Cascader } from 'rsuite';
-
 const ReviewWriteContainer = styled.form`
 	width: 100%;
 	background: #fff;
@@ -125,6 +122,7 @@ const ReviewMenuSelect = () => {
 }
 
 // 별점 0점인 경우 리뷰 작성 불가능하게 하기
+
 const ReviewWrite = () => {
 	const params = useParams();
 	const restaurant = Number(params.restaurant);
