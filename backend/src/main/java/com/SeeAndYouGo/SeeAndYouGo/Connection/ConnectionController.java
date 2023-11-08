@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +25,8 @@ public class ConnectionController {
     }
 
     @GetMapping("/connection/cache")
-    public void cash() throws Exception {
-        connectedService.saveAndCashConnection();
+    @Scheduled(fixedRate = 60000, initialDelay = 1000)
+    public void cache() throws Exception {
+        connectedService.saveAndCacheConnection();
     }
 }

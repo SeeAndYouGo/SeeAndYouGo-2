@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
@@ -23,7 +24,7 @@ public class ReviewService {
     private final MenuService menuService;
 
     @Transactional
-    public Long registerReview(Review review, String restaurantName) {
+    public Long registerReview(Review review, String restaurantName, String dept) {
         restaurantName = menuService.parseRestaurantName(restaurantName);
         Restaurant restaurant = restaurantRepository.findTodayRestaurant(restaurantName, LocalDate.now().toString());
         if (restaurant == null) {
@@ -31,9 +32,20 @@ public class ReviewService {
         }
 
         review.setRestaurant(restaurant);
-
+        Dept changeStringToDept = Dept.valueOf(dept);
+        Menu menu;
+        menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept);
+        review.setMenu(menu);
         reviewRepository.save(review);
         return review.getId();
+    }
+
+    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept) {
+        for (Menu menu : restaurant.getMenuList()) {
+            if(menu.getDept().equals(dept))
+                return menu;
+        }
+        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
     }
 
 //    @Transactional

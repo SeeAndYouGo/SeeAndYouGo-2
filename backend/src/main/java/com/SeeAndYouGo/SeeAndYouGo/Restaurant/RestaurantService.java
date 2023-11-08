@@ -26,6 +26,9 @@ public class RestaurantService {
         }
     }
 
+
+
+
     public boolean checkRestaurantInDate(String name, String date) {
         Long aLong = restaurantRepository.countNumberOfDataInDate(name, date);
         return aLong > 0 ? true : false;

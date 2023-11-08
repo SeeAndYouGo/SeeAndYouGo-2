@@ -34,6 +34,14 @@ public class DishRepository {
                 .getResultList();
     }
 
+    public Long countNumberOfData(){
+        TypedQuery<Long> query = em.createQuery(
+                "SELECT COUNT(*) FROM Dish",
+                Long.class
+        );
+        return query.getSingleResult();
+    }
+
 
     public Dish findByDishIdentifier(String restaurantName, String mainDishName, Dept dept, String date) {
         TypedQuery<Dish> query = em.createQuery(

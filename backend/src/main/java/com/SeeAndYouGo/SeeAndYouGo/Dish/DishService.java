@@ -30,12 +30,9 @@ public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
     private final RestaurantService restaurantService;
-    private final RestaurantRepository restaurantRepository;
-    private final MenuRepository menuRepository;
 
     @Transactional
-    @Scheduled(cron="0 0 0 * * SAT")
-    public void saveAndCashWeekDish(Integer page) throws Exception{
+    public void saveAndCacheWeekDish(Integer page) throws Exception{
         String wifiInfo = fetchDishInfoToString(page);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
@@ -94,8 +91,7 @@ public class DishService {
     }
 
     @Transactional
-    @Scheduled(cron="0 0 0 * * MON-FRI")
-    public void saveAndCashTodayDish() throws Exception{
+    public void saveAndCacheTodayDish() throws Exception{
         // 가장 먼저 해당 식당에 메뉴가 있는지 확인을 해봐야한다. 만약 있다면 갱신해야함.
         // Dish에 있다면 해당 Dish를 삭제하고, 다시 만들자.
         // 이 때, Restaurant은 만드는 것이 아닌 가져오는 것임.
@@ -167,7 +163,6 @@ public class DishService {
 
 
     private String fetchDishInfoToString(Integer page) throws Exception {
-        System.out.println("1111");
         String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=D6E3BE404CC745B885E81D6BD5FE90CD6A59E572"; // API 엔드포인트
 
         // URL 생성

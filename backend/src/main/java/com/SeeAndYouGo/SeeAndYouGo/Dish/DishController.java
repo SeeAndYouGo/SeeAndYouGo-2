@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,15 +21,17 @@ public class DishController {
     }
 
     @GetMapping("/week")
+    @Scheduled(cron="0 0 0 * * SAT")
     public void week() throws Exception {
-        dishService.saveAndCashWeekDish(1);
-        dishService.saveAndCashWeekDish(2);
-        dishService.saveAndCashWeekDish(3);
+        dishService.saveAndCacheWeekDish(1);
+        dishService.saveAndCacheWeekDish(2);
+        dishService.saveAndCacheWeekDish(3);
     }
 
     @GetMapping("/day")
+    @Scheduled(cron="0 0 0 * * MON-FRI")
     public void day() throws Exception {
-        dishService.saveAndCashTodayDish();
+        dishService.saveAndCacheTodayDish();
     }
 
 

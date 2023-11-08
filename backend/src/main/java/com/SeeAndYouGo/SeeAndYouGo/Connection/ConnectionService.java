@@ -1,5 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishController;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.google.gson.JsonArray;
@@ -24,6 +29,8 @@ import static com.SeeAndYouGo.SeeAndYouGo.Connection.Connection.createNewConnect
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
     private final RestaurantRepository restaurantRepository;
+    private final DishRepository dishRepository;
+    private final DishController dishController;
 
     public Connection getRecentConnected(String restaurantName){
         String changeRestaurantName = changeRestaurantName(restaurantName);
@@ -33,14 +40,16 @@ public class ConnectionService {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 60000, initialDelay = 1000)
-    public void saveAndCashConnection() throws Exception{
+    public void saveAndCacheConnection() throws Exception{
+        if(dishRepository.countNumberOfData() == 0){
+            dishController.week();
+        }
 
         String wifiInfo = fetchConnectionInfoToString();
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
-        JsonObject jsonWithRestaurantInfo = CashJsonWithRestaurantInfo(jsonObject);
+        JsonObject jsonWithRestaurantInfo = CacheJsonWithRestaurantInfo(jsonObject);
 
         if(jsonWithRestaurantInfo.size() == 0) return;
 
@@ -115,7 +124,7 @@ public class ConnectionService {
         return time; // 시간형식은 2023-11-23 22:02:01 이다.
     }
 
-    private JsonObject CashJsonWithRestaurantInfo(JsonObject jsonObject) {
+    private JsonObject CacheJsonWithRestaurantInfo(JsonObject jsonObject) {
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
         JsonObject locationData = new JsonObject();
 
@@ -126,7 +135,7 @@ public class ConnectionService {
             String location = entry.get("LOCATION").getAsString();
 
 
-            location = changeRestaurantNameForCashing(location);
+            location = changeRestaurantNameForCache(location);
             if(location.equals("NULL")) continue;
 
             int client = entry.get("CLIENT").getAsInt();
@@ -178,7 +187,7 @@ public class ConnectionService {
         return json;
     }
 
-    public String changeRestaurantNameForCashing(String name){
+    public String changeRestaurantNameForCache(String name){
         if(name.contains("Je1")) return "1학생회관";
         else if(name.contains("제2학생회관")) return "2학생회관";
         else if(name.contains("Je3_Hak") || name.contains("3학생")) return "3학생회관";
