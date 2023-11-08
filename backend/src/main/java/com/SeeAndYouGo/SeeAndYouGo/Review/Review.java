@@ -20,7 +20,7 @@ public class Review {
     @Column(name = "writer")
     public String writer;
     @Column(name = "madeTime")
-    public LocalDateTime madeTime;
+    public String madeTime;
     @Column(name = "likeCount")
     public Integer likeCount;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,8 +37,8 @@ public class Review {
     @JoinColumn(name = "restaurant_id")
     public Restaurant restaurant;
 
-    public void setMadeTime(String madeTimeStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        this.madeTime = LocalDateTime.parse(madeTimeStr, formatter);
-    }
+//    public void setMadeTime(String madeTimeStr) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        this.madeTime = LocalDateTime.parse(madeTimeStr, formatter).toString();
+//    }
 }

@@ -27,22 +27,36 @@ public class ReviewController {
     // 탑 리뷰 조회
     @GetMapping("/topReview/{restaurant}")
     public List<ReviewDto> getTopReviews(@PathVariable String restaurant) {
-        restaurant = menuService.parseRestaurantName(restaurant);
+        String restaurantName = menuService.parseRestaurantName(restaurant);
 
         String date = LocalDate.now().toString();
-        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurant, date);
+        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
 
-        List<ReviewDto> response = new ArrayList<>();
-        for (Review review : reviews) {
-            response.add( ReviewDto.of(review) );
-        }
+        List<ReviewDto> response = getReviewDtos(reviews);
 
         return response;
     }
 
-    @GetMapping
-    public List<Review> getAllReviews() {
-        return reviewService.findAllReviews();
+    private static List<ReviewDto> getReviewDtos(List<Review> reviews) {
+        List<ReviewDto> response = new ArrayList<>();
+        reviews.forEach(review -> response.add(ReviewDto.of(review)));
+        return response;
+    }
+
+    @GetMapping("/totalReview")
+    public List<ReviewDto> getAllReviews() {
+        String date = LocalDate.now().toString();
+        List<Review> allReviews = reviewService.findAllReviews(date);
+
+        return getReviewDtos(allReviews);
+    }
+
+    @GetMapping("/review/{restaurant}")
+    public List<ReviewDto> getRestaurantReviews(@PathVariable String restaurant) {
+        String date = LocalDate.now().toString();
+        String restaurantName = menuService.parseRestaurantName(restaurant);
+        List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
+        return getReviewDtos(restaurantReviews);
     }
 
     // 리뷰 게시
@@ -56,8 +70,7 @@ public class ReviewController {
         }
 
         // 원하는 날짜 및 시간 형식을 정의합니다.
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd hh:mm:ss");
-        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 
         review.setWriter(requestDto.getWriter());
         review.setReviewRate(requestDto.getRate());
@@ -71,6 +84,7 @@ public class ReviewController {
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
+
 
 
 

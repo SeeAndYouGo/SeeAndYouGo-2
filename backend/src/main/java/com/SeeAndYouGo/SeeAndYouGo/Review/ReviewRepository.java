@@ -83,33 +83,40 @@ public class ReviewRepository {
                 .getResultList();
     }
 
-
-
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate parsedDate = LocalDate.parse(date, dateFormatter);
         LocalDateTime startDate = parsedDate.atTime(0,0,0); //.atStartOfDay();
-        LocalDateTime endDate = parsedDate.atTime(23, 59, 59);
 
-//        return em.createQuery("select r from Review r " +
-//                        "where r.restaurant.name = :restaurantName " +
-//                        "and FORMATDATETIME(r.madeTime, '%Y-%m-%d') between FORMATDATETIME(:startDate,'%Y-%m-%dT%TZ') " +
-//                        "and FORMATDATETIME(:endDate,'%Y-%m-%dT%TZ') order by r.reviewRate desc, r.likeCount desc", Review.class)
-//                .setParameter("restaurantName", restaurantName)
-//                .setParameter("startDate", startDate)
-//                .setParameter("endDate", endDate)
-//                .setMaxResults(5)
-//                .getResultList();
-
-        TypedQuery<Review> reviewTypedQuery = em.createQuery("select r from Review r " +
+        TypedQuery<Review> reviewTypedQuery = em.createQuery(
+                "select r from Review r " +
                         "where r.restaurant.name = :restaurantName " +
-                        "and SUBSTRING(r.madeTime,0, 10) = SUBSTRING(:startDate,0, 10)" +
-                        "order by r.reviewRate desc, r.likeCount desc", Review.class)
+                        "and FUNCTION('SUBSTRING', r.madeTime, 1, 10) = FUNCTION('SUBSTRING', :date, 1, 10) " +
+                        "order by r.madeTime desc", Review.class)
                 .setParameter("restaurantName", restaurantName)
-                .setParameter("startDate", startDate)
+                .setParameter("date", startDate)
                 .setMaxResults(5);
         return reviewTypedQuery.getResultList();
     }
 
+    public List<Review> findAllByMadeTime(String date) {
+        TypedQuery<Review> reviewTypedQuery = em.createQuery(
+                        "select r from Review r " +
+                                "where FUNCTION('SUBSTRING', r.madeTime, 1, 10) = FUNCTION('SUBSTRING', :date, 1, 10) " +
+                                "order by r.madeTime desc", Review.class)
+                .setParameter("date", date);
+        return reviewTypedQuery.getResultList();
+    }
+
+    public List<Review> findReviewsByRestaurantAndDate(String restaurantName, String date) {
+        TypedQuery<Review> reviewTypedQuery = em.createQuery(
+                        "select r from Review r " +
+                                "where FUNCTION('SUBSTRING', r.madeTime, 1, 10) = FUNCTION('SUBSTRING', :date, 1, 10) " +
+                                "and r.restaurant.name = :restaurantName " +
+                                "order by r.madeTime desc", Review.class)
+                .setParameter("restaurantName", restaurantName)
+                .setParameter("date", date);
+        return reviewTypedQuery.getResultList();
+    }
 }
