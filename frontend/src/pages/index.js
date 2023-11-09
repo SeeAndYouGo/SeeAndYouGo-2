@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Header from "../components/Header";
-import UpdateLog from "../components/UpdateLog";
-import Cafeteria from "../components/Cafeteria";
+import Header from "../components/MainPage/Header";
+import UpdateLog from "../components/MainPage/UpdateLog";
+import Cafeteria from "../components/MainPage/Cafeteria";
 import "../App.css";
 import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
@@ -11,12 +11,20 @@ function App() {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
+		// const jsonFilePaths = [
+		// 	"/api/connection/restaurant1",
+		// 	"/api/connection/restaurant2",
+		// 	"/api/connection/restaurant3",
+		// 	"/api/connection/restaurant4",
+		// 	"/api/connection/restaurant5",
+		// ];
+
 		const jsonFilePaths = [
-			"/api/connection/restaurant1",
-			"/api/connection/restaurant2",
-			"/api/connection/restaurant3",
-			"/api/connection/restaurant4",
-			"/api/connection/restaurant5",
+			"http://27.96.131.182/api/connection/restaurant1",
+			"http://27.96.131.182/api/connection/restaurant2",
+			"http://27.96.131.182/api/connection/restaurant3",
+			"http://27.96.131.182/api/connection/restaurant4",
+			"http://27.96.131.182/api/connection/restaurant5",
 		];
 
 		// const jsonFilePaths = [

@@ -1,6 +1,6 @@
 import React from "react";
-import ReviewHeader from "../components/ReviewHeader";
-import ReviewSelect from "../components/ReviewSelect";
+import ReviewHeader from "../components/ReviewPage/ReviewHeader";
+import ReviewSelect from "../components/ReviewPage/ReviewSelect";
 import Navigation from "../components/Navigation";
 
 const ReviewPage = () => {

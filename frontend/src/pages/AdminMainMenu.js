@@ -9,7 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = "http://localhost:8080/api/weeklyMenu";
+			// const nowUrl = "http://localhost:8080/api/weeklyMenu";
+			const nowUrl = "http://27.96.131.182/api/weeklyMenu";
 			// const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -25,7 +26,7 @@ const AdminMainMenu = () => {
 			data.map((val, _) =>
 				val.dishList[0] === null ? setNullLength((n) => n + 1) : null
 			);
-
+			console.log(data);
 			setMenuList(data);
 		});
 	}, []);
@@ -51,17 +52,16 @@ const AdminMainMenu = () => {
 	};
 
 	const handleSubmit = (e) => {
-		e.preventDefault();
-
 		const nullCount = mainResult.filter((val) => val === null).length;
 
 		console.log("count", nullCount);
 		console.log("length", nullLength);
 
 		if (nullCount === nullLength) {
-			console.log("전송 가능 상태입니다.");
 			// 여기에 POST로 전송하도록 합니다.
-			const nowUrl = "http://localhost:8080/api/mainMenu";
+			// const nowUrl = "http://localhost:8080/api/mainMenu";
+			const nowUrl = "http://27.96.131.182/api/mainMenu";
+			// const nowUrl = "http://localhost:8080/api/mainMenu";
 			fetch(nowUrl, {
 				method: "PUT",
 				headers: {
@@ -72,11 +72,10 @@ const AdminMainMenu = () => {
 			.then((data) => console.log(data));
 
 			alert("전송 성공");
+			window.location.replace("/"); 
 		} else {
 			alert("라디오 버튼을 모두 선택해주세요.")
-			console.log("전송 불가능 상태입니다.");
 		}
-		console.log("결과확인합니다.", mainResult);
 	};
 
 	return (
@@ -86,9 +85,7 @@ const AdminMainMenu = () => {
 					<span>
 						비밀 주소입니다. 어떻게 오셨죠?
 					</span>
-					<button onClick={handleSubmit} style={{ float: "right" }}>
-						제출하기
-					</button>
+					
 				</div>
 				{menuList.map((val, index) => {
 					return val.dishList[0] === null ? null : (
@@ -124,6 +121,14 @@ const AdminMainMenu = () => {
 					);
 				})}
 			</div>
+			<button type="confi" onClick={() => {
+				if(window.confirm("제출하시겠습니까?")) {
+					handleSubmit();
+				}
+			}} style={{ float: "right" }}>
+						제출하기
+					</button>
+			<div style={{height:"100px"}}></div>
 			<Navigation />
 		</>
 	);

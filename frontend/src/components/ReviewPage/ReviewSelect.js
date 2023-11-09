@@ -1,6 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
-import React from "react";
 import ReviewList from "./ReviewList";
 import ReviewMenuInfo from "./ReviewMenuInfo";
 

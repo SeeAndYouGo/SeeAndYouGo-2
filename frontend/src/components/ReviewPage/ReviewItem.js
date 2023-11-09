@@ -52,17 +52,48 @@ const ReviewItemContent = styled.p`
 	margin: 5px 0;
 `;
 
+const RestaurantName = styled.p`
+	font-size: 12px;
+	font-weight: 500;
+	color: #555555;
+`;
+
+const DeptName = styled.p`
+	width: 60px;
+	margin: 10px 0px 10px 10px;
+	padding-top: 2px;
+	text-align: center;
+	background-color: #555555;
+	color: white;
+	border-radius: 5px;
+	font-size: 12px;
+	text-align: center;
+	font-weight: 500;
+`;
+
 const CalculateWriteTime = (inputTime, nowTime) => {
 	const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
 	if (checkMinutes < 60) {
 		return `${Math.floor(checkMinutes)}분 전`;
-	} else {
+	} else if (checkMinutes < 1440) {
 		return `${Math.floor(checkMinutes / 60)}시간 전`;
+	} else {
+		return `${Math.floor(checkMinutes / 1440)}일 전`;
 	}
 };
 
-const ReviewItem = ({ user, time, content, img, rate }) => {
-	const targetTime = moment("2023-10-14 15:00:00");
+const ReviewItem = ({
+	user,
+	restaurant,
+	dept,
+	time,
+	content,
+	img,
+	rate,
+	isTotal,
+}) => {
+	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
+	const targetTime = moment(tempTargetTime);
 
 	return (
 		<>
@@ -76,13 +107,27 @@ const ReviewItem = ({ user, time, content, img, rate }) => {
 						<div>
 							<ReviewItemStar style={{ fontWeight: 500 }}>
 								<FontAwesomeIcon icon={solidStar} />
-								{rate}
+								{rate % 1 === 0 ? rate + ".0" : rate}
 							</ReviewItemStar>
 							<span style={{ fontWeight: 400 }}>
 								{CalculateWriteTime(targetTime, time)}
 							</span>
+							
 						</div>
+						
 					</ReviewItemProfile>
+					{isTotal && (
+								<div style={{display: "flex", float:"right" }}>
+									<RestaurantName>
+										{restaurant}
+									</RestaurantName>
+									<DeptName>
+										{dept === "STAFF"
+											? "교직원식당"
+											: "학생식당"}
+									</DeptName>
+								</div>
+							)}
 				</div>
 				<div className="Row2" style={{ float: "left", width: "100%" }}>
 					<ReviewItemContent>{content}</ReviewItemContent>

@@ -62,9 +62,11 @@ const ReviewList = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			// const nowUrl =
+			// 	idx === 0 ? "http://localhost:8080/api/totalReview" : `http://localhost:8080/api/review/restaurant${idx}`;
 			const nowUrl =
-				idx === 0 ? "http://localhost:8080/api/totalReview" : `http://localhost:8080/api/review/restaurant${idx}`;
-			// const nowUrl = "/assets/json/totalReview.json"
+				idx === 0 ? "http://27.96.131.182/api/totalReview" : `http://27.96.131.182/api/review/restaurant${idx}`;
+			// const nowUrl = "/assets/json/restaurant1Review.json"
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -129,8 +131,9 @@ const ReviewList = ({ idx }) => {
 					<option value="highRate">별점 높은순</option>
 				</SortingSelect>
 
-				{review.map((nowReview, idx) => {
+				{review.map((nowReview, nowIndex) => {
 					if (isChecked && nowReview.image === "") {
+						console.log(typeof(nowReview.rate))
 						return null;
 					}
 					return (
@@ -139,8 +142,11 @@ const ReviewList = ({ idx }) => {
 							time={nowReview.madeTime}
 							rate={nowReview.rate}
 							content={nowReview.comment}
-							img={nowReview.imageLink}
-							key={idx}
+							img={nowReview.imgLink}
+							restaurant={nowReview.restaurant}
+							dept={nowReview.dept}
+							key={nowIndex}
+							isTotal={idx === 0 ? true : false}
 						/>
 					);
 				})}

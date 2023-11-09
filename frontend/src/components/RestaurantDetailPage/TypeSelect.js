@@ -1,9 +1,10 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
 import React, { useEffect } from "react";
-import Menu from "./Menu";
+import Menu from "../MainPage/Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import ReviewWrite from "./ReviewWrite";
 
 const TabMenu = styled.ul`
 	color: black;
@@ -18,12 +19,6 @@ const TabMenu = styled.ul`
 	padding: 5px;
 
 	.submenu {
-		// 기본 Tabmenu 에 대한 CSS를 구현
-		/* display: flex-start; */
-		/* justify-content: space-between; */
-		/*width: 380px;
-    heigth: 30px; */
-		/* width: calc(100% / 4); */
 		padding: 5px 10px;
 		margin-right: 5px;
 		text-align: center;
@@ -34,9 +29,6 @@ const TabMenu = styled.ul`
 	}
 
 	.focused {
-		//선택된 Tabmenu 에만 적용되는 CSS를 구현
-		/* background-color: rgb(255, 255, 255); */
-		/* color: rgb(21, 20, 20); */
 		background-color: black;
 		color: white;
 	}
@@ -53,11 +45,13 @@ const Desc = styled.div`
 // TODO 학생 식당, 교직원 식당 구분해서 출력하도록 하기
 const TypeSelect = ({ idx }) => {
 	const [currentTab, clickTab] = useState(0);
-	const [menuData, setMenuData] = useState([]);
+	const [staffMenu, setStaffMenu] = useState([]);
+	const [studentMenu, setStudentMenu] = useState([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			// const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
 			// const nowUrl = "/assets/json/myMenu.json";
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -69,15 +63,23 @@ const TypeSelect = ({ idx }) => {
 			return result;
 		};
 		fetchData().then((data) => {
-			setMenuData(data);
+			if (idx === 2 || idx === 3) {
+				const staffMenuData = data.filter(
+					(item) => item.dept === "STAFF"
+				);
+				setStaffMenu(staffMenuData);
+			}
+			const studentMenuData = data.filter(
+				(item) => item.dept !== "STAFF"
+			);
+			setStudentMenu(studentMenuData);
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [idx]);
 
 	const TabMenuUl = () => {
 		return (
 			<TabMenu>
-				{menuData.map((nowValue, index) => (
+				{studentMenu.map((nowValue, index) => (
 					<li
 						key={index}
 						className={
@@ -85,9 +87,23 @@ const TypeSelect = ({ idx }) => {
 						}
 						onClick={() => selectMenuHandler(index)}
 					>
-						{nowValue.dept}
+						{nowValue.dept === "STAFF" ? "교직원식당" : "학생식당"}
 					</li>
 				))}
+				{staffMenu.map((nowValue, index) => (
+					<li
+						key={index}
+						className={
+							index + 1 === currentTab
+								? "submenu focused"
+								: "submenu"
+						}
+						onClick={() => selectMenuHandler(index + 1)}
+					>
+						{nowValue.dept === "STAFF" ? "교직원식당" : "학생식당"}
+					</li>
+				))}
+
 				<FontAwesomeIcon
 					icon={faCircleExclamation}
 					style={{ marginLeft: 15, fontSize: 12 }}
@@ -109,13 +125,40 @@ const TypeSelect = ({ idx }) => {
 		<>
 			<div style={{ marginTop: 30 }}>
 				{idx === 2 || idx === 3 ? <TabMenuUl /> : null}
-				{menuData.map((nowValue, index) => {
+				{studentMenu.map((nowValue, index) => {
 					return (
-						<Desc key={index}>
-							{currentTab === index ? (
-								<Menu value={nowValue} />
-							) : null}
-						</Desc>
+						<>
+							<Desc key={index}>
+								{currentTab === index ? (
+									<>
+										<Menu value={nowValue} />
+										<ReviewWrite
+											restaurantName={idx}
+											deptName={"STUDENT"}
+											nowMainMenu={nowValue[0]}
+										/>
+									</>
+								) : null}
+							</Desc>
+						</>
+					);
+				})}
+				{staffMenu.map((nowValue, index) => {
+					return (
+						<>
+							<Desc key={index}>
+								{currentTab === index + 1 ? (
+									<>
+										<Menu value={nowValue} />
+										<ReviewWrite
+											restaurantName={idx}
+											deptName={"STAFF"}
+											nowMainMenu={nowValue[0]}
+										/>
+									</>
+								) : null}
+							</Desc>
+						</>
 					);
 				})}
 			</div>

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 
 const MyRadio = styled.input`
+	margin-left: 10px;
 	accent-color: black;
 	-ms-transform: scale(1.5) /* IE 9 */;
 	-webkit-transform: scale(1.5) /* Chrome, Safari, Opera */;
@@ -36,13 +37,18 @@ const MenuInfo = ({ mainMenu, subMenu }) => {
 	);
 };
 
-const ReviewMenuInfo = ({ idx, initialValue }) => {
+const ReviewMenuInfo = ({ idx }) => {
 	const [menuData, setMenuData] = useState([]);
 	const [radioValue, setRadioValue] = useState("menu1");
 
+	const initialSetting = () => {
+		setRadioValue("menu1");
+	};
+
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			// const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
 			// const nowUrl = "/assets/json/myMenu.json";
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -55,8 +61,9 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 		};
 		fetchData().then((data) => {
 			setMenuData(data);
+			initialSetting();
 		});
-	}, [initialValue]);
+	}, [idx]);
 
 	const handleRadioChange = (event) => {
 		const nowType = event.target.value;
@@ -66,14 +73,14 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 	return (
 		<>
 			<div>
-				{idx === 2 ? (
+				{idx === 2 || idx === 3 ? (
 					<>
 						<MyRadio
 							type="radio"
 							name="menu"
 							value="menu1"
 							id="menu1"
-							defaultChecked
+							checked={radioValue === "menu1"}
 							onChange={handleRadioChange}
 						/>
 						<label htmlFor="menu1" style={{ padding: "0px 5px" }}>
@@ -85,6 +92,7 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 							name="menu"
 							id="menu2"
 							value="menu2"
+							checked={radioValue === "menu2"}
 							onChange={handleRadioChange}
 						/>
 						<label htmlFor="menu2" style={{ padding: "0px 5px" }}>
@@ -92,6 +100,7 @@ const ReviewMenuInfo = ({ idx, initialValue }) => {
 						</label>
 					</>
 				) : null}
+
 				<div
 					style={{
 						margin: "10px 0px",

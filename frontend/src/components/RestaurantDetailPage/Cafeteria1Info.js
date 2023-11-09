@@ -99,7 +99,9 @@ const CafeteriaSpan = ({ str1, str3, str4 }) => {
 		<>
 			<div>
 				<span>{str1}</span>
-				<span style={{ marginLeft: "10px", float: "right" }}>{str4}</span>
+				<span style={{ marginLeft: "10px", float: "right" }}>
+					{str4}
+				</span>
 				<span style={{ float: "right" }}>{str3}</span>
 			</div>
 		</>
@@ -120,10 +122,9 @@ const Cafeteria1Info = () => {
 
 	return (
 		<div className="Cafeteria1">
-			<p style={{fontSize:"18px"}}>메뉴</p>
+			<p style={{ fontSize: "18px" }}>메뉴</p>
 			{Cafeteria1MenuList.map((nowList, index1) => {
-				const { classification, menuList, operatingTime } =
-					nowList;
+				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((name) => (
 					<li
 						key={name}
@@ -143,7 +144,12 @@ const Cafeteria1Info = () => {
 				));
 				return (
 					<div
-						style={{background:"white", padding: "5px 15px", borderRadius: "10px", margin:"8px 0px"}}
+						style={{
+							background: "white",
+							padding: "5px 15px",
+							borderRadius: "10px",
+							margin: "8px 0px",
+						}}
 						key={index1}
 						onClick={() => toggleMenu(classification)}
 					>
