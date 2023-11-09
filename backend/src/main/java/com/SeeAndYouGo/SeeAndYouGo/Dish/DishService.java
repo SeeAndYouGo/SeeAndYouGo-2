@@ -198,7 +198,7 @@ public class DishService {
         for (MainDishResponse mainDishResponse : mainDishResponses) {
             String mainDishName = mainDishResponse.getMainDishName();
             String date = mainDishResponse.getDate();
-            Dept dept = Dept.changeStringToDept(mainDishResponse.getDept());
+            Dept dept = Dept.valueOf(mainDishResponse.getDept());
             String restaurantName = mainDishResponse.getRestaurantName();
 
             Dish dish = dishRepository.findByDishIdentifier(restaurantName, mainDishName, dept, date);

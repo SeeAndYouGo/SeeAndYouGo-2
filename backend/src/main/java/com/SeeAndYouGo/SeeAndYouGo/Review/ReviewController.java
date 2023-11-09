@@ -59,15 +59,42 @@ public class ReviewController {
         return getReviewDtos(restaurantReviews);
     }
 
+    // // 리뷰 게시
+    // @PostMapping(value = "/review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    // public ResponseEntity<Long> postReview(@RequestPart(value = "review") ReviewRequestDto requestDto, @RequestPart(value = "image",required = false) MultipartFile imgFile) throws Exception {
+    //     Review review = new Review();
+    //     NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
+    //     String imgUrl = "";
+    //     if (imgFile != null){
+    //         imgUrl = NCloudObjectStorage.imgUpload(imgFile.getInputStream(), imgFile.getContentType());
+    //     }
+
+    //     // 원하는 날짜 및 시간 형식을 정의합니다.
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
+
+    //     review.setWriter(requestDto.getWriter());
+    //     review.setReviewRate(requestDto.getRate());
+    //     review.setComment(requestDto.getComment());
+    //     review.setImgLink(imgUrl);
+    //     review.setLikeCount(0);
+
+
+    //     review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+
+    //     Long reviewId = reviewService.registerReview(review, requestDto.getRestaurant(), requestDto.getDept());
+
+    //     return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
+    // }
+
     // 리뷰 게시
-    @PostMapping(value = "/review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Long> postReview(@RequestPart(value = "review") ReviewRequestDto requestDto, @RequestPart(value = "image",required = false) MultipartFile imgFile) throws Exception {
+    @PostMapping(value = "/review")
+    public ResponseEntity<Long> postReview(@RequestBody ReviewRequestDto requestDto) {
         Review review = new Review();
-        NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
+        // NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
-        if (imgFile != null){
-            imgUrl = NCloudObjectStorage.imgUpload(imgFile.getInputStream(), imgFile.getContentType());
-        }
+        // if (imgFile != null){
+        //     imgUrl = NCloudObjectStorage.imgUpload(imgFile.getInputStream(), imgFile.getContentType());
+        // }
 
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
@@ -85,9 +112,6 @@ public class ReviewController {
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
-
-
-
 
     // 리뷰 삭제
 //    @DeleteMapping("/review/{reviewId}")

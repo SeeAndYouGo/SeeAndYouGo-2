@@ -48,13 +48,13 @@ public class DishRepository {
                 "SELECT d FROM Dish d " +
                         "WHERE d.restaurant.name = :restaurant_name " +
                         "AND d.name = :main_dish_name "+
-//                        "AND d.dept = :dept " +
+                        "AND d.dept = :dept " +
                         "AND d.date = :date ",
                 Dish.class);
 
         query.setParameter("restaurant_name", restaurantName);
         query.setParameter("main_dish_name",  mainDishName);
-//        query.setParameter("dept", dept);
+        query.setParameter("dept", dept);
         query.setParameter("date", date);
 //        query.setParameter("menu_type", MenuType.LUNCH);
 
