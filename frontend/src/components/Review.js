@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import 'rsuite/dist/rsuite-no-reset.min.css';
+import { Cascader } from 'rsuite';
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -156,7 +158,7 @@ const ReviewWrite = () => {
 			redirect: 'follow'
 		};
 
-		fetch("http://localhost:8080/api/review", requestOptions)
+		fetch("/api/review", requestOptions)
 		// fetch("http://192.168.0.3:8080/api/review", requestOptions)
 			.then(response => response.text())
 			.then(result => console.log(result))
@@ -313,7 +315,7 @@ const Review = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
+			const nowUrl = `/api/topReview/restaurant${idx}`;
 			// const nowUrl = "/assets/json/restaurant1Review.json";
 			const res = await fetch(nowUrl, {
 				headers: {
