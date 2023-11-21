@@ -3,10 +3,11 @@ import Index from "./pages/index";
 import View from "./pages/viewPage";
 import ReviewPage from "./pages/ReviewPage";
 import AdminMainMenu from "./pages/AdminMainMenu";
+import RouteChangeTracker from "./RouteChangeTracker";
 
 
 const App = () => {
-
+	RouteChangeTracker();
 	return (
 		<Routes>
 			<Route exact path="/" element={<Index />} />
