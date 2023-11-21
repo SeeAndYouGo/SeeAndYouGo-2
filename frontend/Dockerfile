@@ -12,6 +12,8 @@ RUN yarn add -D @craco/craco
 RUN yarn add -D @emotion/babel-preset-css-prop
 RUN yarn add react-star-rate
 RUN yarn add rsuite
+
+ENV GOOGLE_ANALYTICS_TRACKING_ID=${GOOGLE_ANALYTICS_TRACKING_ID}
 # RUN npm install -g serve
 # RUN yarn build
 
