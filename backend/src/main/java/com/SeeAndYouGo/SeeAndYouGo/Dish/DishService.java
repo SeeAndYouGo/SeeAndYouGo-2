@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,10 +29,12 @@ public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
     private final RestaurantService restaurantService;
+    private final Integer PAGE_START = 1;
+    private final Integer PAGE_END = 3;
 
     @Transactional
-    public void saveAndCacheWeekDish(Integer page) throws Exception{
-        String wifiInfo = fetchDishInfoToString(page);
+    public void saveAndCacheWeekDish() throws Exception{
+        String wifiInfo = fetchDishInfoToString();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate friday  = LocalDate.now().with(DayOfWeek.SUNDAY);
@@ -73,7 +74,7 @@ public class DishService {
             if(objDate.isAfter(monday) && objDate.isBefore(friday) || objDate.isEqual(monday) || objDate.isEqual(friday)) {
                 // 식당, 날짜, DEPT, 메뉴타입을 기준으로 해당하는 식당을 찾는다.
                 // Dish를 생성한다.
-                Restaurant restaurant = restaurantService.getRestaurantIfExistElseCreate(restaurantName, objDate.toString());
+                Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
                 Dish dish = new Dish(menuName, dept, objDate.toString(), DishType.SIDE, restaurant, menuType, price);
                 dishes.add(dish);
             }else continue;
@@ -91,24 +92,22 @@ public class DishService {
     }
 
     @Transactional
-    public void saveAndCacheTodayDish() throws Exception{
+    public void saveAndCacheTodayDish(LocalDate today) throws Exception{
         // 가장 먼저 해당 식당에 메뉴가 있는지 확인을 해봐야한다. 만약 있다면 갱신해야함.
         // Dish에 있다면 해당 Dish를 삭제하고, 다시 만들자.
         // 이 때, Restaurant은 만드는 것이 아닌 가져오는 것임.
-        LocalDate localDate = LocalDate.now();
 
-        if(restaurantService.checkRestaurantInDate(localDate.toString())){
-            restaurantService.deleteRestaurants(localDate.toString());
+        // 오늘 메뉴가 DB에 저장되어 있는지 확인
+        if(restaurantService.checkRestaurantInDate(today.toString())){
+            restaurantService.deleteRestaurants(today.toString());
         }
 
-        String wifiInfo = fetchDishInfoToString(1);
+
+        String wifiInfo = fetchDishInfoToString();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
-
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
 
         List<Dish> dishes = new ArrayList<>();
@@ -132,17 +131,16 @@ public class DishService {
 
             int price = 0;
             String priceStr = menuObject.get("MENU_PRC").getAsString();
-            if(priceStr.length()!=0)
-                price = Integer.parseInt(priceStr);
+            if(priceStr.length()!=0) price = Integer.parseInt(priceStr);
 
             String dateStr = menuObject.get("FOOM_YMD").getAsString();
             LocalDate objDate = LocalDate.parse(dateStr, formatter);
 
-            if(objDate.isEqual(localDate)) {
+            if(objDate.isEqual(today)) {
                 // 식당, 날짜, DEPT, 메뉴타입을 기준으로 해당하는 식당을 찾는다.
                 // Dish를 생성한다.
                 // 여기서는 무조건 레스토랑이 생성되지 않고 찾아와짐.
-                Restaurant restaurant = restaurantService.getRestaurantIfExistElseCreate(restaurantName, objDate.toString());
+                Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
                 Dish dish = new Dish(menuName, dept, objDate.toString(), DishType.SIDE, restaurant, menuType, price);
                 dishes.add(dish);
             }else continue;
@@ -156,40 +154,40 @@ public class DishService {
                 }
             }
         }
-
         dishRepository.saveAll(dishes);
     }
 
 
 
-    private String fetchDishInfoToString(Integer page) throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=D6E3BE404CC745B885E81D6BD5FE90CD6A59E572"; // API 엔드포인트
+    private String fetchDishInfoToString() throws Exception {
+        StringBuilder rawMenu = new StringBuilder();
 
-        // URL 생성
-        URL url = new URL(apiUrl);
+        for(int page = PAGE_START; page <= PAGE_END; page++) {
+            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page=" + page + "&AUTH_KEY=3CF4EB2CDE7F4593AD96C3EBEC8218AFCF9F15F1";
 
-        // HttpURLConnection 설정
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+            // URL 생성
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
-        // 응답 코드 확인
-        int responseCode = connection.getResponseCode();
-        String responseData = new String();
+            // 응답 코드 확인
+            int responseCode = connection.getResponseCode();
+            String responseData = new String();
 
-        // 응답 내용 읽기
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            StringBuilder response = new StringBuilder();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                StringBuilder response = new StringBuilder();
 
-            while ((line = reader.readLine()) != null) response.append(line);
+                while ((line = reader.readLine()) != null) response.append(line);
 
-            reader.close();
-            responseData = response.toString();
+                reader.close();
+                rawMenu.append(response);
+            }
         }
 
-        return responseData;
+        return rawMenu.toString();
     }
 
 

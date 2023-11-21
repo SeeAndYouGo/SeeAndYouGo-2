@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,21 +14,11 @@ import java.util.List;
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
-    @Transactional
-    public Restaurant getRestaurantIfExistElseCreate(String name, String date) {
-        // 토 or 일요일에 이 함수가 실행되면 restaurant는 생성될 것이고,
+
+    public Restaurant getRestaurant(String name, String date) {
         // 평일에 이 함수가 실행되면 restaurant는 찾아와질 것임.
-        if(checkRestaurantInDate(name, date)){
-            return restaurantRepository.findTodayRestaurant(name, date);
-        }else{
-            Restaurant restaurant = new Restaurant(name, date);
-            restaurantRepository.save(restaurant);
-            return restaurant;
-        }
+        return restaurantRepository.findTodayRestaurant(name, date);
     }
-
-
-
 
     public boolean checkRestaurantInDate(String name, String date) {
         Long aLong = restaurantRepository.countNumberOfDataInDate(name, date);
@@ -40,7 +31,6 @@ public class RestaurantService {
     }
 
     public void deleteRestaurants(String date) {
-        System.out.println("11231453"+date);
         restaurantRepository.deleteRestaurantsMatchedDate(date);
     }
 
@@ -53,7 +43,19 @@ public class RestaurantService {
         else if (name.contains("2")) return "2학생회관";
         else if (name.contains("3")) return "3학생회관";
         else if (name.contains("4")) return "상록회관";
-        else if (name.contains("5") ||name.contains("생활과학대") ) return "생활과학대";
+        else if (name.contains("5") || name.contains("생활과학대") ) return "생활과학대";
         return name;
+    }
+
+    public void createWeeklyRestaurant(LocalDate nearestMonday) {
+
+        // 날짜를 인자로 받아와서, 해당 날짜의 월요일과 해당 날짜의 금요일까지의 식당 객체를 생성.
+        for (LocalDate date = nearestMonday; date.getDayOfWeek() != DayOfWeek.SATURDAY; date = date.plusDays(1)) {
+            createRestaurantsInDate(date);
+        }
+    }
+
+    private void createRestaurantsInDate(LocalDate date) {
+
     }
 }

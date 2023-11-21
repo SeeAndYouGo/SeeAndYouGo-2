@@ -41,10 +41,6 @@ public class ConnectionService {
 
     @Transactional
     public void saveAndCacheConnection() throws Exception{
-        if(dishRepository.countNumberOfData() == 0){
-            dishController.week();
-        }
-
         String wifiInfo = fetchConnectionInfoToString();
 
         JsonParser jsonParser = new JsonParser();
@@ -156,7 +152,7 @@ public class ConnectionService {
     }
 
     private String fetchConnectionInfoToString() throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=D6E3BE404CC745B885E81D6BD5FE90CD6A59E572";
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=3CF4EB2CDE7F4593AD96C3EBEC8218AFCF9F15F1";
 
         // URL 생성
         URL url = new URL(apiUrl);

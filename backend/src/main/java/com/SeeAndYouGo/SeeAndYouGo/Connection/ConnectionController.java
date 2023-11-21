@@ -25,7 +25,6 @@ public class ConnectionController {
     }
 
     @GetMapping("/connection/cache")
-    @Scheduled(fixedRate = 60000, initialDelay = 1000)
     public void cache() throws Exception {
         connectedService.saveAndCacheConnection();
     }
