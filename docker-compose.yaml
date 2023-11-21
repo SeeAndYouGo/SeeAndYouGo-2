@@ -58,7 +58,11 @@ services:
       - seeandyougo
   frontend:
     container_name: frontend
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        GOOGLE_ANALYTICS_TRACKING_ID: ${GOOGLE_ANALYTICS_TRACKING_ID}
     restart: on-failure
     ports:
       - 3000:3000
