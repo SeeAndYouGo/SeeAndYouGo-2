@@ -63,6 +63,8 @@ public class Menu {
         restaurant.getMenuList().add(this);
     }
 
+
+
     @Override
     public String toString(){
         return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();

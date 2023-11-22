@@ -12,7 +12,7 @@ public class SeeAndYouGoApplication {
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(SeeAndYouGoApplication.class);
 		ApplicationContext context = app.run(SeeAndYouGoApplication.class, args);
-		DataLoader dataLoader = context.getBean(DataLoader.class);
-		dataLoader.run();
+//		DataLoader dataLoader = context.getBean(DataLoader.class);
+//		dataLoader.run();
 	}
 }

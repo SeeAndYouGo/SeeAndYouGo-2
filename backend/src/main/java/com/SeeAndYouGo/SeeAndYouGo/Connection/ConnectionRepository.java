@@ -26,13 +26,13 @@ public class ConnectionRepository {
     }
 
     public String findRecentTime(){
-        String res = "NULL";
+//        String res = "NULL";
         TypedQuery<String> query = em.createQuery(
                 "SELECT MAX(ct2.time) FROM Connection ct2",
                 String.class
         );
 
-        return res;
+        return query.getSingleResult();
     }
 
 

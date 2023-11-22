@@ -57,6 +57,7 @@ public class ConnectionService {
             finalResult.add(locationInfo);
         }
 
+
         Long aLong = connectionRepository.countNumberOfData();
 
         String time = extractTimeInJson(jsonObject);

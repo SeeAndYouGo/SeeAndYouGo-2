@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public class IterService {
     }
 
     @Scheduled(cron="0 0 0 * * SAT")
+    @Transactional
     public void weeklyIterative(){
         // 기본적으로 토요일에 호출되는 메섣.
 
@@ -45,20 +47,22 @@ public class IterService {
             restaurantService.createWeeklyRestaurant(nearestMonday);
 
             // 월요일부터 금요일까지의 메뉴를 캐싱한다.
-            dishService.saveAndCacheWeekDish();
+            dishService.saveAndCacheWeekDish(1);
+            dishService.saveAndCacheWeekDish(2);
+            dishService.saveAndCacheWeekDish(3);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    @Scheduled(cron="0 0 0 * * MON-FRI")
-    public void dailyIterative(){
-        try {
-            dishService.saveAndCacheTodayDish(LocalDate.now());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    @Scheduled(cron="0 0 0 * * MON-FRI")
+//    public void dailyIterative(){
+//        try {
+//            dishService.saveAndCacheTodayDish(LocalDate.now());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
     @Scheduled(fixedRate = 60000, initialDelay = 1000)
     public void continuousIterative(){
