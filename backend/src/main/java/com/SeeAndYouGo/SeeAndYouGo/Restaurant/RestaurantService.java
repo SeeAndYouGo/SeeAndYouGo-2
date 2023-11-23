@@ -97,7 +97,7 @@ public class RestaurantService {
         List<Restaurant> restaurants = new ArrayList<>();
         try {
             // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("/Users/singyeongjun/Desktop/SeeAndYouGo/backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json")));
+            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
 
             // Parse the JSON data
             JsonParser jsonParser = new JsonParser();
