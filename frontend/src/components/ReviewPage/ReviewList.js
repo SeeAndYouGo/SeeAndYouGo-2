@@ -171,7 +171,7 @@ const ReviewList = ({ idx, nowDept }) => {
 							isTotal={idx === 0 ? true : false}
 							menuName={nowReview.menuName}
 						/>
-					);
+					) : null;
 				})}
 			</div>
 			<div className="blankSpace">&nbsp;</div>
