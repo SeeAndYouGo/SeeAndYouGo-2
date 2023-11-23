@@ -77,12 +77,6 @@ const Menu = ({ value }) => {
 							{menu}
 						</p>
 					)
-					// <p
-					// 	key={index}
-					// 	style={{ margin: 0, fontSize: 15, fontWeight: 400 }}
-					// >
-					// 	{menu}
-					// </p>
 				))}
 			</div>
 		</MenuContainer>

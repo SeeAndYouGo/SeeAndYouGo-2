@@ -28,12 +28,13 @@ function App() {
 		];
 
 		// const jsonFilePaths = [
-		// 	"assets/json/restaurant1.json",
-		// 	"assets/json/restaurant2.json",
-		// 	"assets/json/restaurant3.json",
-		// 	"assets/json/restaurant3.json",
-		// 	"assets/json/restaurant3.json",
+		// 	"http://27.96.131.182/api/connection/restaurant1",
+		// 	"http://27.96.131.182/api/connection/restaurant2",
+		// 	"http://27.96.131.182/api/connection/restaurant3",
+		// 	"http://27.96.131.182/api/connection/restaurant4",
+		// 	"http://27.96.131.182/api/connection/restaurant5",
 		// ];
+    
 		Promise.all(
 			jsonFilePaths.map((path) =>
 				fetch(path).then((response) => response.json())

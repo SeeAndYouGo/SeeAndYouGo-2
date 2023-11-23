@@ -1,7 +1,7 @@
 [
     { 
         "restaurant": "2학생회관",
-        "dept": "교직원",
+        "dept": "STAFF",
         "madeTime": "2023-10-14 14:03:00",
         "writer": "배고픈 학생1",
         "rate": 4.0,
@@ -10,7 +10,7 @@
     },
     { 
         "restaurant": "2학생회관",
-        "dept": "학생",
+        "dept": "STUDENT",
         "madeTime": "2023-10-14 12:30:00",
         "writer": "오늘도리뷰쓴다",
         "rate": 3.0,
@@ -19,16 +19,16 @@
     },
     { 
         "restaurant": "2학생회관",
-        "dept": "학생",
+        "dept": "STUDENT",
         "madeTime": "2023-10-14 14:13:00",
         "writer": "댓글안씀",
-        "rate": 3.0,
+        "rate": 3.5,
         "comment": "",
         "image": "ReviewSample2.jpg"
     },
     { 
         "restaurant": "2학생회관",
-        "dept": "교직원",
+        "dept": "STAFF",
         "madeTime": "2023-10-14 14:00:00",
         "writer": "배고픈 학생3",
         "rate": 4.0,
@@ -37,7 +37,7 @@
     },
     { 
         "restaurant": "2학생회관",
-        "dept": "교직원",
+        "dept": "STAFF",
         "madeTime": "2023-10-14 12:13:00",
         "writer": "익명",
         "rate": 5.0,
@@ -46,7 +46,7 @@
     },
     { 
         "restaurant": "3학생회관",
-        "dept": "학생",
+        "dept": "STUDENT",
         "madeTime": "2023-10-14 13:13:00",
         "writer": "맛없으면씀",
         "rate": 1.0,

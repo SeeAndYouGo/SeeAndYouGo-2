@@ -2,13 +2,13 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.BufferedReader;
@@ -29,6 +29,7 @@ public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
     private final RestaurantService restaurantService;
+    private final RestaurantRepository restaurantRepository;
     private final Integer PAGE_START = 1;
     private final Integer PAGE_END = 3;
 
@@ -76,19 +77,42 @@ public class DishService {
                 // Dish를 생성한다.
                 Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
                 Dish dish = new Dish(menuName, dept, objDate.toString(), DishType.SIDE, restaurant, menuType, price);
+                if(page != 1){
+                    Dish dish1 = searchAndAddDish(restaurant, dept, dish);
+                    dishRepository.save(dish1);
+                }
                 dishes.add(dish);
             }else continue;
         }
-        // 오늘 날짜의 Dish를 만들었으면, 이걸 기준으로 Menu를 만든다.
-        List<Menu> menus = menuService.createMenuWithDishs(dishes);
-        for (Dish dish : dishes) {
-            for (Menu menu : menus) {
-                if(menu.getDishList().contains(dish)){
-                    dish.setMenu(menu);
+
+//        if(page == 1) {
+            // 오늘 날짜의 Dish를 만들었으면, 이걸 기준으로 Menu를 만든다.
+            List<Menu> menus = menuService.createMenuWithDishs(dishes);
+            for (Dish dish : dishes) {
+                for (Menu menu : menus) {
+                    if (menu.getDishList().contains(dish)) {
+                        dish.setMenu(menu);
+                    }
                 }
+//            }
+            dishRepository.saveAll(dishes);
+        }
+    }
+
+    @Transactional
+    private Dish searchAndAddDish(Restaurant restaurant, Dept dept, Dish dish) {
+        if (dish.getName().equals( "배추김치")){
+            int i = 0;
+        }
+        List<Menu> menuList = restaurant.getMenuList();
+        for (Menu menu : menuList) {
+            if(menu.getDept().equals(dept)){
+
+                dish.setMenu(menu);
             }
         }
-        dishRepository.saveAll(dishes);
+
+        return dish;
     }
 
 //    @Transactional

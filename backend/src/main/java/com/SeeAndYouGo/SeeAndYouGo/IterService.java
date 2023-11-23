@@ -64,7 +64,7 @@ public class IterService {
 //        }
 //    }
 
-    @Scheduled(fixedRate = 60000, initialDelay = 1000)
+    @Scheduled(fixedRate = 60000, initialDelay = 5000)
     public void continuousIterative(){
         try {
             connectionService.saveAndCacheConnection();

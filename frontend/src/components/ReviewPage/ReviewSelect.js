@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import ReviewList from "./ReviewList";
-import ReviewMenuInfo from "./ReviewMenuInfo";
+import ReviewInfo from "./ReviewInfo";
 
 const TabMenu = styled.ul`
 	color: black;
@@ -43,8 +43,7 @@ const reviewArray = [
 		name: "2학",
 		content: (
 			<>
-				<ReviewMenuInfo idx={2} />
-				<ReviewList idx={2}/>
+				<ReviewInfo idx={2} />
 			</>
 		),
 	},
@@ -52,8 +51,7 @@ const reviewArray = [
 		name: "3학",
 		content: (
 			<>
-				<ReviewMenuInfo idx={3} />
-				<ReviewList idx={3}/>
+				<ReviewInfo idx={3} />
 			</>
 		),
 	},
@@ -61,8 +59,7 @@ const reviewArray = [
 		name: "상록회관",
 		content: (
 			<>
-				<ReviewMenuInfo idx={4} />
-				<ReviewList idx={4}/>
+				<ReviewInfo idx={4} />
 			</>
 		),
 	},
@@ -70,8 +67,7 @@ const reviewArray = [
 		name: "생과대",
 		content: (
 			<>
-				<ReviewMenuInfo idx={5} />
-				<ReviewList idx={5}/>
+				<ReviewInfo idx={5} />
 			</>
 		),
 	},

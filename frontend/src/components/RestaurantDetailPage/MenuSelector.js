@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { Cascader } from "rsuite";
 
-const MenuSelector = () => {
+const MenuSelector = ({ onSelectMenu }) => {
     const [menuData, setMenuData] = useState([]);
+
+    const handleMenuClick = (value) => {
+        onSelectMenu(value);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,7 +35,7 @@ const MenuSelector = () => {
                 placeholder="메뉴를 선택해주세요"
                 data={menuData}
                 onChange={(value) => {
-                    setMenuName(value);
+                    handleMenuClick(value);
                 }}
             />
         </div>

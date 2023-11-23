@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
 import React, { useEffect } from "react";
-import Menu from "../MainPage/Menu";
+import Menu from "./Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import ReviewWrite from "./ReviewWrite";
@@ -42,7 +42,6 @@ const Desc = styled.div`
 	text-align: center;
 `;
 
-// TODO 학생 식당, 교직원 식당 구분해서 출력하도록 하기
 const TypeSelect = ({ idx }) => {
 	const [currentTab, clickTab] = useState(0);
 	const [staffMenu, setStaffMenu] = useState([]);
@@ -127,38 +126,34 @@ const TypeSelect = ({ idx }) => {
 				{idx === 2 || idx === 3 ? <TabMenuUl /> : null}
 				{studentMenu.map((nowValue, index) => {
 					return (
-						<>
-							<Desc key={index}>
-								{currentTab === index ? (
-									<>
-										<Menu value={nowValue} />
-										<ReviewWrite
-											restaurantName={idx}
-											deptName={"STUDENT"}
-											nowMainMenu={nowValue[0]}
-										/>
-									</>
-								) : null}
-							</Desc>
-						</>
+						<Desc key={index}>
+							{currentTab === index ? (
+								<>
+									<Menu value={nowValue} />
+									<ReviewWrite
+										restaurantName={idx}
+										deptName={"STUDENT"}
+										nowMainMenu={nowValue.dishList[0]}
+									/>
+								</>
+							) : null}
+						</Desc>
 					);
 				})}
 				{staffMenu.map((nowValue, index) => {
 					return (
-						<>
-							<Desc key={index}>
-								{currentTab === index + 1 ? (
-									<>
-										<Menu value={nowValue} />
-										<ReviewWrite
-											restaurantName={idx}
-											deptName={"STAFF"}
-											nowMainMenu={nowValue[0]}
-										/>
-									</>
-								) : null}
-							</Desc>
-						</>
+						<Desc key={index}>
+							{currentTab === index + 1 ? (
+								<>
+									<Menu value={nowValue} />
+									<ReviewWrite
+										restaurantName={idx}
+										deptName={"STAFF"}
+										nowMainMenu={nowValue.dishList[0]}
+									/>
+								</>
+							) : null}
+						</Desc>
 					);
 				})}
 			</div>

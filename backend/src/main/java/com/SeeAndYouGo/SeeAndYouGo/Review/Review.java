@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 @Setter
 public class Review {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     public Long id;
     @Column(name = "writer")

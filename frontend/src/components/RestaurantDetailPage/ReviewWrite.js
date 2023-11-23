@@ -1,14 +1,17 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
 import StarsRating from "react-star-rate";
+import MenuSelector from "./MenuSelector";
+import axios from 'axios';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
 	background: #fff;
 	padding: 15px;
 	border-radius: 20px;
-	margin: 10px 0 20px 0;
+	margin-top: 10px;
 	float: left;
 
 	& .rs-picker-toggle-placeholder,
@@ -50,6 +53,14 @@ const ReviewWriteInput = styled.input`
 		font-size: 12px;
 	}
 `;
+const ReviewWriteCamera = styled.label`
+	color: #d9d9d9;
+	font-size: 22px;
+	position: absolute;
+	right: 10px;
+	line-height: 35px;
+	cursor: pointer;
+`;
 
 const ReviewWriteButton = styled.button`
 	width: 100%;
@@ -64,7 +75,7 @@ const ReviewWriteButton = styled.button`
 	font-weight: 400;
 	cursor: pointer;
 `;
-const ReviewWriteNameChekbox = styled.input`
+const ReviewWriteNameCheckbox = styled.input`
 	float: left;
 	width: 15px;
 	height: 15px;
@@ -76,63 +87,88 @@ const ReviewWriteNameChekbox = styled.input`
 	transform: translateY(-50%);
 `;
 
-const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
+const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 	const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
-	const [writerName, setwriterName] = useState("");
+	const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
+	const [selectedMenu, setSelectedMenu] = useState("");
+	const [image, setImage] = useState();
+	const [imageName, setImageName] = useState('');
+
+	const onChangeImage = (e) => {
+        setImage(e.target.files[0]);
+        if (e.target.files[0] == null) {
+            setImageName('');
+            return;
+        }
+        setImageName(e.target.files[0].name);
+    };
+
+	const handleSelectMenu = (value) => {
+		setSelectedMenu(value);
+	};
 
 	const ReviewSubmit = async (e) => {
 		e.preventDefault();
 
-        const myObject = {
-            restaurant: restaurantName,
-            dept: deptName,
-            menuName: nowMainMenu,
-            rate: starVal,
-            writer: writerName === "" ? "익명" : writerName,
-            comment: comment
-        }
+		const myObject = {
+			restaurant: restaurantName,
+			dept: deptName,
+			menuName: restaurantName === 1 ? selectedMenu : nowMainMenu,
+			rate: starVal,
+			writer: writerName === "" ? "익명" : writerName,
+			comment: comment,
+		};
+		// console.log("전송확인", myObject);
 
-		// const formdata = new FormData();
-		// // 식당이름 restaurant
-		// formdata.append("restaurant", restaurantName);
-		// // 식당구분 dept
-		// formdata.append("dept", deptName);
-        // // 메뉴이름 menuName
-		// formdata.append("menuName", nowMainMenu);
-		// // 평점 rate
-		// formdata.append("rate", starVal);
-        // // 작성자 writer
-		// formdata.append("writer", writerName);
-		// // 리뷰 comment
-		// formdata.append("comment", comment);
+		const formdata = new FormData();
+		// 식당이름 restaurant
+		formdata.append("restaurant", restaurantName);
+		// 식당구분 dept
+		formdata.append("dept", deptName);
+		// 메뉴이름 menuName
+		formdata.append("menuName", nowMainMenu);
+		// 평점 rate
+		formdata.append("rate", starVal);
+		// 작성자 writer
+		formdata.append("writer", writerName);
+		// 리뷰 comment
+		formdata.append("comment", comment);
+		formdata.append("image", image);
 
 		// var requestOptions = {
 		// 	method: "POST",
 		// 	body: formdata,
 		// 	redirect: "follow",
 		// };
-        
-        // console.log(formdata);
 
-		fetch("http://27.96.131.182/api/review", {
-            method: "POST",
+		// console.log(formdata);
+		let entries = formdata.entries();
+        for (const pair of entries) {
+            console.log(pair[0]+ ', ' + pair[1]); 
+        }
+
+        axios.post('http://localhost:8080/api/review', formdata, {
             headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(myObject),
+                "Content-Type": "multipart/form-data"
+            }
         })
-			.then((response) => response.json())
-			.then(() => { 
-                alert("리뷰가 등록되었습니다.");
-                window.location.reload();
-            })
+			.then((response) => {
+				console.log(response)
+		        alert("리뷰가 등록되었습니다.");
+				console.log(response.data)
+		        window.location.reload();
+		    })
 			.catch((error) => console.log("error", error));
 	};
 
 	return (
 		<ReviewWriteContainer>
+			{restaurantName === 1 ? (
+				<MenuSelector onSelectMenu={handleSelectMenu} />
+			) : null}
+
 			<div style={{ width: "50%", float: "left" }}>
 				<p style={{ margin: "0", float: "left", fontSize: 15 }}>별점</p>
 				<ReviewStarRating>
@@ -156,10 +192,15 @@ const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
 					익명
 				</p>
 
-				<ReviewWriteNameChekbox
+				<ReviewWriteNameCheckbox
 					type="checkbox"
 					onChange={() => {
 						setChecked(!checked);
+					}}
+					onClick={(e) => {
+						if (e.target.checked) {
+							setWriterName("");
+						}
 					}}
 				/>
 
@@ -168,9 +209,6 @@ const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
 						disabled
 						value={"익명"}
 						type="text"
-                        onClick={() => {
-                            setwriterName("익명");
-                        }}
 						maxLength={6}
 						style={{
 							height: 30,
@@ -184,11 +222,12 @@ const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
 					<ReviewWriteInput
 						type="text"
 						onChange={(name) => {
-							setwriterName(name.target.value);
+							setWriterName(name.target.value);
 						}}
 						maxLength={6}
 						placeholder={"닉네임"}
-                        value={writerName}
+						value={writerName}
+
 						style={{
 							height: 30,
 							float: "left",
@@ -207,11 +246,22 @@ const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
 						float: "left",
 					}}
 				>
+					{/* <input type="file" id="Review-file-input" hidden></input> */}
+					<input 
+						hidden 
+						type="file" 
+						accept="image/*" 
+						id="Review-file-input"
+						onChange={onChangeImage} 
+					/>
 					<ReviewWriteInput
 						type="text"
 						onChange={(val) => setComment(val.target.value)}
 						placeholder="리뷰를 남겨주세요 :)"
 					/>
+					<ReviewWriteCamera htmlFor="Review-file-input">
+						<FontAwesomeIcon icon={faCamera} />
+					</ReviewWriteCamera>
 				</div>
 				{starVal !== 0 ? (
 					<ReviewWriteButton onClick={ReviewSubmit}>
@@ -227,11 +277,17 @@ const ReviewWriteForm = ({restaurantName, deptName, nowMainMenu}) => {
 	);
 };
 
-const ReviewWrite = ({restaurantName, deptName, nowMainMenu}) => {
+const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
 	return (
 		<div style={{ float: "left", marginTop: 20 }}>
-			<p style={{ fontSize: 18, margin: 0 }}>오늘의 메뉴 리뷰 남기기</p>
-			<ReviewWriteForm restaurantName={restaurantName} deptName={deptName} nowMainMenu={nowMainMenu}/>
+			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
+				오늘의 메뉴 리뷰 남기기
+			</p>
+			<ReviewWriteForm
+				restaurantName={restaurantName}
+				deptName={restaurantName === 1 ? "STUDENT" : deptName}
+				nowMainMenu={nowMainMenu}
+			/>
 		</div>
 	);
 };

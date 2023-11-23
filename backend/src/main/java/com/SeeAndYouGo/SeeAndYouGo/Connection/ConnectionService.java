@@ -7,6 +7,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,6 +30,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.Connection.Connection.createNewConnect
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
     private final RestaurantRepository restaurantRepository;
+    private final RestaurantService restaurantService;
     private final DishRepository dishRepository;
     private final DishController dishController;
 
@@ -73,7 +75,7 @@ public class ConnectionService {
             String rawName = asJsonObject.get("name").toString();
             String name = removeQuotes(rawName);
             // 오늘 날짜의 학생식당에 해당하는 DB 값이 있는지 확인하고 있다면 가져오고, 없다면 생성하자.
-            Restaurant restaurant = getRestaurantIfExistElseCreate(name, today);
+            Restaurant restaurant = restaurantService.getRestaurant(name, today);
 
             // 만약 여기에 데이터가 없다면, restaurant를 새로 생성. 있다면, restaurant의 connection에 add하자.
             Integer connected = asJsonObject.get("connected").getAsInt();
@@ -98,16 +100,16 @@ public class ConnectionService {
         return result.toString();
     }
 
-    private Restaurant getRestaurantIfExistElseCreate(String name, String today) {
-        Long aLong = restaurantRepository.countNumberOfDataInDate(name, today);
-        if(aLong > 0) {
-            return restaurantRepository.findTodayRestaurant(name, today);
-        }else{
-            Restaurant restaurant = new Restaurant(name, today);
-            restaurantRepository.save(restaurant);
-            return restaurant;
-        }
-    }
+//    private Restaurant getRestaurantIfExistElseCreate(String name, String today) {
+//        Long aLong = restaurantRepository.countNumberOfDataInDate(name, today);
+//        if(aLong > 0) {
+//            return restaurantRepository.findTodayRestaurant(name, today);
+//        }else{
+//            Restaurant restaurant = new Restaurant(name, today);
+//            restaurantRepository.save(restaurant);
+//            return restaurant;
+//        }
+//    }
 
     private String extractTimeInJson(JsonObject jsonObject) {
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");

@@ -23,6 +23,7 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository;
+    private final MenuRepository2 menuRepository2;
 
     public List<Menu> getOneDayRestaurantMenu(String placeName, String date) {
         String parseRestaurantName = parseRestaurantName(placeName);
@@ -107,6 +108,14 @@ public class MenuService {
         return name;
     }
 
+    public Menu createMenuIfNotExists(Integer price, String date, Dept dept, Restaurant restaurant, MenuType menuType){
+        List<Menu> menus = menuRepository2.findByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType);
+        if(menus.size() == 0){
+            return new Menu(price, date, dept, menuType, restaurant);
+        }
+        return menus.get(0);
+    }
+
     @Transactional
     public List<Menu> createMenuWithDishs(List<Dish> dishes) {
         Map<String, Menu> responseMap = new HashMap<>();
@@ -120,7 +129,7 @@ public class MenuService {
                 int price = dish.getPrice();
                 String date = dish.getDate();
                 Restaurant restaurant = dish.getRestaurant();
-                Menu menu = new Menu(price, date, dept, menuType, restaurant);
+                Menu menu = createMenuIfNotExists(price, date, dept, restaurant, menuType);
                 responseMap.put(key, menu);
             }
 
