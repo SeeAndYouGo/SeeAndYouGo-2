@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useState } from "react";
 import StarsRating from "react-star-rate";
 import MenuSelector from "./MenuSelector";
-import axios from 'axios'
+import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
@@ -248,12 +248,12 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 				>
 					{/* <input type="file" id="Review-file-input" hidden></input> */}
 					<input 
-                                hidden 
-                                type="file" 
-                                accept="image/*" 
-								id="Review-file-input"
-                                onChange={onChangeImage} 
-                            />
+						hidden 
+						type="file" 
+						accept="image/*" 
+						id="Review-file-input"
+						onChange={onChangeImage} 
+					/>
 					<ReviewWriteInput
 						type="text"
 						onChange={(val) => setComment(val.target.value)}

@@ -3,6 +3,8 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { faBowlFood } from "@fortawesome/free-solid-svg-icons";
+import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 
 const ReviewItemContainer = styled.div`
@@ -58,7 +60,9 @@ const RestaurantName = styled.p`
 	font-weight: 500;
 	color: #555555;
 	margin: 0;
-	float: left;
+	float: right;
+	width: 100%;
+	text-align: right;
 
 	& > .colorTag1 {color: #ff0000;}
 	& > .colorTag2 {color: #ff8000;}
@@ -68,26 +72,28 @@ const RestaurantName = styled.p`
 `;
 
 const DeptName = styled.p`
-	width: 60px;
-	margin: 0;
+	padding: 0 5px;
+	margin: 2px 0 0 0;
 	padding-top: 2px;
 	text-align: center;
-	background-color: #555555;
+	background-color: rgba(0, 0, 0, 0.3);
 	color: white;
 	border-radius: 5px;
-	font-size: 12px;
+	font-size: 11px;
 	text-align: center;
-	font-weight: 500;
+	font-weight: 400;
 	float: right;
 `;
+
 
 const MenuName = styled.p`
 	font-size: 12px;
 	margin: 5px 0 0 0;
 	font-weight: 500;
-	text-align: right;
-	width: 100%;
-	float: right;
+	float: left;
+	border: 1px solid #ccc;
+	padding: 3px 10px;
+	border-radius: 20px;
 `;
 
 const CalculateWriteTime = (inputTime, nowTime) => {
@@ -117,21 +123,21 @@ const ReviewItem = ({
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
-		  case '1학생회관':
-			return 1;
-		  case '2학생회관':
-			return 2;
-		  case '3학생회관':
-			return 3;
-		  case '상록회관':
-			return 4;
-		  case '생활과학대':
-			return 5;
-		  default:
-			return 0;
+			case '1학생회관':
+				return 1;
+			case '2학생회관':
+				return 2;
+			case '3학생회관':
+				return 3;
+			case '상록회관':
+				return 4;
+			case '생활과학대':
+				return 5;
+			default:
+				return 0;
 		}
-	  };
-	
+	};
+
 	return (
 		<>
 			<ReviewItemContainer>
@@ -141,35 +147,33 @@ const ReviewItem = ({
 					</ReviewItemIcon>
 					<ReviewItemProfile>
 						<p>{user}</p>
-						<div style={{marginTop: 2}}>
-							<ReviewItemStar style={{ fontWeight: 500}}>
+						<div style={{ marginTop: 2 }}>
+							<ReviewItemStar style={{ fontWeight: 500 }}>
 								<FontAwesomeIcon icon={solidStar} />
 								{rate % 1 === 0 ? rate + ".0" : rate}
 							</ReviewItemStar>
 							<span style={{ fontWeight: 400 }}>
 								{CalculateWriteTime(targetTime, time)}
 							</span>
-							
+
 						</div>
-						
+
 					</ReviewItemProfile>
 					{isTotal && (
-						<div style={{float:"right", width:"45%" }}>
+						<div style={{ float: "right", width: "45%" }}>
+
 							<RestaurantName>
-								<span className={"colorTag"+getRestuarantIndex(restaurant)}>●&nbsp;</span>
+								<span className={"colorTag" + getRestuarantIndex(restaurant)}>●&nbsp;</span>
 								{restaurant}
 							</RestaurantName>
-							<DeptName>
-								{dept === "STAFF"
-									? "교직원식당"
-									: "학생식당"}
-							</DeptName>
-							{menuName && (
-								<MenuName>
-									<span style={{color: "#777", fontWeight: 400}}>메뉴 </span> 
-									{menuName}
-								</MenuName>
-							)}
+
+							{getRestuarantIndex(restaurant) !== 1 ? (
+								<DeptName>
+									{dept === "STAFF"
+										? "교직원식당"
+										: "학생식당"}
+								</DeptName>
+							) : null}
 						</div>
 					)}
 				</div>
@@ -186,6 +190,15 @@ const ReviewItem = ({
 								marginTop: 5,
 							}}
 						/>
+					)}
+				</div>
+				<div style={{width:"100%", float: "left"}}>
+					{menuName && (
+						<MenuName>
+							{menuName}&nbsp;
+							<FontAwesomeIcon icon={faSpoon} />
+
+						</MenuName>
 					)}
 				</div>
 			</ReviewItemContainer>
