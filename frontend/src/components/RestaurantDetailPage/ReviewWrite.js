@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import React, { useState } from "react";
 import StarsRating from "react-star-rate";
 import MenuSelector from "./MenuSelector";
+import axios from 'axios'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
@@ -92,6 +93,17 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 	const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
+	const [image, setImage] = useState();
+	const [imageName, setImageName] = useState('');
+
+	const onChangeImage = (e) => {
+        setImage(e.target.files[0]);
+        if (e.target.files[0] == null) {
+            setImageName('');
+            return;
+        }
+        setImageName(e.target.files[0].name);
+    };
 
 	const handleSelectMenu = (value) => {
 		setSelectedMenu(value);
@@ -108,21 +120,22 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 			writer: writerName === "" ? "익명" : writerName,
 			comment: comment,
 		};
-		console.log("전송확인", myObject);
+		// console.log("전송확인", myObject);
 
-		// const formdata = new FormData();
-		// // 식당이름 restaurant
-		// formdata.append("restaurant", restaurantName);
-		// // 식당구분 dept
-		// formdata.append("dept", deptName);
-		// // 메뉴이름 menuName
-		// formdata.append("menuName", nowMainMenu);
-		// // 평점 rate
-		// formdata.append("rate", starVal);
-		// // 작성자 writer
-		// formdata.append("writer", writerName);
-		// // 리뷰 comment
-		// formdata.append("comment", comment);
+		const formdata = new FormData();
+		// 식당이름 restaurant
+		formdata.append("restaurant", restaurantName);
+		// 식당구분 dept
+		formdata.append("dept", deptName);
+		// 메뉴이름 menuName
+		formdata.append("menuName", nowMainMenu);
+		// 평점 rate
+		formdata.append("rate", starVal);
+		// 작성자 writer
+		formdata.append("writer", writerName);
+		// 리뷰 comment
+		formdata.append("comment", comment);
+		formdata.append("image", image);
 
 		// var requestOptions = {
 		// 	method: "POST",
@@ -131,20 +144,23 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 		// };
 
 		// console.log(formdata);
+		let entries = formdata.entries();
+        for (const pair of entries) {
+            console.log(pair[0]+ ', ' + pair[1]); 
+        }
 
-		// fetch("http://27.96.131.182/api/review", {
-		//     method: "POST",
-		//     headers: {
-		//         "Content-Type": "application/json",
-		//     },
-		//     body: JSON.stringify(myObject),
-		// })
-		// 	.then((response) => response.json())
-		// 	.then(() => {
-		//         alert("리뷰가 등록되었습니다.");
-		//         window.location.reload();
-		//     })
-		// 	.catch((error) => console.log("error", error));
+        axios.post('http://localhost:8080/api/review', formdata, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+			.then((response) => {
+				console.log(response)
+		        alert("리뷰가 등록되었습니다.");
+				console.log(response.data)
+		        window.location.reload();
+		    })
+			.catch((error) => console.log("error", error));
 	};
 
 	return (
@@ -230,7 +246,14 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 						float: "left",
 					}}
 				>
-					<input type="file" id="Review-file-input" hidden></input>
+					{/* <input type="file" id="Review-file-input" hidden></input> */}
+					<input 
+                                hidden 
+                                type="file" 
+                                accept="image/*" 
+								id="Review-file-input"
+                                onChange={onChangeImage} 
+                            />
 					<ReviewWriteInput
 						type="text"
 						onChange={(val) => setComment(val.target.value)}

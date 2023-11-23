@@ -177,7 +177,7 @@ const ReviewItem = ({
 					<ReviewItemContent>{content}</ReviewItemContent>
 					{img === "" ? null : (
 						<img
-							src={`/assets/images/${img}`}
+							src={`${img}`}
 							alt="Loading.."
 							style={{
 								maxHeight: 80,

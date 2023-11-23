@@ -88,27 +88,38 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/review")
-    public ResponseEntity<Long> postReview(@RequestBody ReviewRequestDto requestDto) {
+    public ResponseEntity<Long> postReview(
+            @RequestParam("restaurant") String restaurant,
+            @RequestParam("dept") String dept,
+            @RequestParam("menuName") String menuName,
+            @RequestParam("rate") Double rate,
+            @RequestParam("writer") String writer,
+            @RequestParam("comment") String comment,
+            @RequestParam("image") MultipartFile image) {
         Review review = new Review();
-        // NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
+         NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
-        // if (imgFile != null){
-        //     imgUrl = NCloudObjectStorage.imgUpload(imgFile.getInputStream(), imgFile.getContentType());
-        // }
+         if (image != null){
+             try {
+                 imgUrl = NCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
+             } catch (Exception e) {
+                 throw new RuntimeException(e);
+             }
+         }
 
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 
-        review.setWriter(requestDto.getWriter());
-        review.setReviewRate(requestDto.getRate());
-        review.setComment(requestDto.getComment());
+        review.setWriter(writer);
+        review.setReviewRate(rate);
+        review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
 
 
         review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
-        Long reviewId = reviewService.registerReview(review, requestDto.getRestaurant(), requestDto.getDept());
+        Long reviewId = reviewService.registerReview(review, restaurant, dept);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

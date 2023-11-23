@@ -112,7 +112,7 @@ const ReviewItem = ({ user, time, content, img, rate, dept }) => {
 			>
 				{img === "" ? null : (
 					<img
-						src={`/assets/images/${img}`}
+						src={`${img}`}
 						alt="Loading.."
 						style={{
 							maxHeight: 80,
@@ -133,7 +133,7 @@ const TopReview = ({ idx }) => {
 	useEffect(() => {
 		const fetchData = async () => {
 			// const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
-			const nowUrl = `http://27.96.131.182/api/topReview/restaurant${idx}`;
+			const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
 			// const nowUrl = "/assets/json/restaurant1Review.json";
 			const res = await fetch(nowUrl, {
 				headers: {
