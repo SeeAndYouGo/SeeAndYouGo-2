@@ -6,9 +6,9 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 
 const ReviewItemContainer = styled.div`
-	width: 100%;
+	width: 330px;
 	background: #fff;
-	padding: 7px 15px;
+	padding: 5px 15px;
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
@@ -50,6 +50,19 @@ const ReviewItemContent = styled.p`
 	margin: 5px 0 0 0;
 `;
 
+const DeptName = styled.p`
+	width: 60px;
+	margin: 10px 0px 10px 10px;
+	padding-top: 2px;
+	text-align: center;
+	background-color: #555555;
+	color: white;
+	border-radius: 5px;
+	font-size: 12px;
+	text-align: center;
+	font-weight: 500;
+`;
+
 const CalculateWriteTime = (inputTime, nowTime) => {
 	const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
 	if (checkMinutes < 60) {
@@ -61,7 +74,7 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 	}
 };
 
-const ReviewItem = ({ user, time, content, img, rate }) => {
+const ReviewItem = ({ user, time, content, img, rate, dept }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 
@@ -83,6 +96,12 @@ const ReviewItem = ({ user, time, content, img, rate }) => {
 						{CalculateWriteTime(targetTime, time)}
 					</span>
 				</ReviewItemProfile>
+				<div style={{ display: "flex", float: "right" }}>
+					<DeptName>
+						{dept === "STAFF" ? "교직원" : "학생"}
+					</DeptName>
+				</div>
+
 			</div>
 			<div className="Row2" style={{ float: "left", width: "100%" }}>
 				<ReviewItemContent>{content}</ReviewItemContent>
@@ -131,18 +150,36 @@ const TopReview = ({ idx }) => {
 	}, []);
 
 	return (
-		<div style={{ float: "left", marginTop: 20 }}>
-			<p style={{ fontSize: 18, margin: 0 }}>오늘의 리뷰 미리보기</p>
-			{reviewArr.map((el, index) => (
-				<ReviewItem
-					key={index}
-					user={el.writer}
-					time={el.madeTime}
-					rate={el.rate}
-					content={el.comment}
-					img={el.imgLink}
-				/>
-			))}
+		<div style={{ width: "100%", float: "left" }}>
+			<p style={{ fontSize: 18, marginBottom: 10 }}>
+				오늘의 리뷰 미리보기
+			</p>
+			{reviewArr.length === 0 ? (
+				<>
+					<p
+						style={{
+							marginTop: 20,
+							width: "100%",
+							fontSize: 16,
+							textAlign: "center",
+						}}
+					>
+						첫 리뷰의 주인공이 되어주세요!!
+					</p>
+				</>
+			) : (
+				reviewArr.map((el, index) => (
+					<ReviewItem
+						key={index}
+						user={el.writer}
+						time={el.madeTime}
+						rate={el.rate}
+						content={el.comment}
+						img={el.imgLink}
+						dept={el.dept}
+					/>
+				))
+			)}
 		</div>
 	);
 };

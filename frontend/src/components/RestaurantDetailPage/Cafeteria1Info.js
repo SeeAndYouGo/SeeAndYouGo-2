@@ -112,7 +112,6 @@ const Cafeteria1Info = () => {
 	const [menus, setMenus] = useState("");
 
 	const toggleMenu = (type) => {
-		console.log(type);
 		if (menus === type) {
 			setMenus("");
 		} else {

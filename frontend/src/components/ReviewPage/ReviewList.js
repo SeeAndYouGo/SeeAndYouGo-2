@@ -55,10 +55,15 @@ const SortingSelect = styled.select`
 `;
 
 // TODO totalReview인 경우에 식당 name, dept 리뷰 칸에 표기해주기
-const ReviewList = ({ idx }) => {
+const ReviewList = ({ idx, nowDept }) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
+
+	const initialSetting = () => {
+		setIsChecked(false);
+		setSortOrder("latest");
+	};
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -77,7 +82,12 @@ const ReviewList = ({ idx }) => {
 			return result;
 		};
 		fetchData().then((data) => {
-			setReview(data);
+			// 최신순으로 정렬된 상태로 저장
+			const sortedData = [...data].sort(
+				(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
+			);
+			setReview(sortedData);
+			initialSetting();
 		});
 	}, [idx]);
 
@@ -85,7 +95,7 @@ const ReviewList = ({ idx }) => {
 		setIsChecked(!isChecked);
 	};
 
-	// 리뷰 정렬 구현하는 곳으로 지금은 최신 순, 오래된 순만 구현된 상황
+	// 리뷰 정렬 구현하는 곳
 	const handleSortChange = (event) => {
 		const selectedSortOrder = event.target.value;
 		setSortOrder(selectedSortOrder);
@@ -115,6 +125,7 @@ const ReviewList = ({ idx }) => {
 				<CheckBoxInput
 					type="checkbox"
 					id="check"
+					checked={isChecked}
 					onChange={toggleOnlyImageReviewVisiblity}
 				/>
 				<CheckBoxLabel htmlFor="check" />
@@ -132,11 +143,22 @@ const ReviewList = ({ idx }) => {
 				</SortingSelect>
 
 				{review.map((nowReview, nowIndex) => {
-					if (isChecked && nowReview.image === "") {
-						console.log(typeof(nowReview.rate))
+					if (isChecked && nowReview.imgLink === "") {
 						return null;
 					}
-					return (
+					return idx === 0 ? (
+						<ReviewItem
+							user={nowReview.writer}
+							time={nowReview.madeTime}
+							rate={nowReview.rate}
+							content={nowReview.comment}
+							img={nowReview.imgLink}
+							restaurant={nowReview.restaurant}
+							dept={nowReview.dept}
+							key={nowIndex}
+							isTotal={idx === 0 ? true : false}
+						/>
+					) : nowDept === nowReview.dept ? (
 						<ReviewItem
 							user={nowReview.writer}
 							time={nowReview.madeTime}

@@ -64,19 +64,32 @@ const Menu = ({ value }) => {
 				<Price>{value.price}</Price>
 			</div>
 			<div style={{ textAlign: "center" }}>
-				{value.dishList.map((menu, index) =>
-					index === 0 ? (
-						<MainMenuContainer key={index}>
-							<FontAwesomeIcon icon={faUtensils} fontSize={25} />
-							<MainMenu key={menu}>{menu}</MainMenu>
-						</MainMenuContainer>
-					) : (
-						<p
-							key={index}
-							style={{ margin: 0, fontSize: 15, fontWeight: 400 }}
-						>
-							{menu}
-						</p>
+				{value.dishList.length === 0 ? (
+					<MainMenuContainer>
+						<MainMenu>메뉴 없음</MainMenu>
+					</MainMenuContainer>
+				) : (
+					value.dishList.map((menu, index) =>
+						index === 0 ? (
+							<MainMenuContainer key={index}>
+								<FontAwesomeIcon
+									icon={faUtensils}
+									fontSize={25}
+								/>
+								<MainMenu key={menu}>{menu}</MainMenu>
+							</MainMenuContainer>
+						) : (
+							<p
+								key={index}
+								style={{
+									margin: 0,
+									fontSize: 15,
+									fontWeight: 400,
+								}}
+							>
+								{menu}
+							</p>
+						)
 					)
 				)}
 			</div>

@@ -50,6 +50,13 @@ const MenuItem = styled.p`
 	margin: 0px 0px 10px 0px;
 `;
 
+const NoMenuInfo = styled.p`
+	align-items: center;
+	font-size: 14px;
+	font-weight: 500;
+	margin: 0px;
+`;
+
 // Row 2번째에서의 메뉴 이름과 가격
 const Menu = ({ menuDept, menuPrice, menuName }) => {
 	return (
@@ -175,7 +182,11 @@ const Cafeteria = ({ idx, value }) => {
 			{idx === 1 ? null : (
 				<SecondRow>
 					{studentMenu.map((val, index) => {
-						return (
+						return val.dishList.length === 0 ? (
+							<div key={index}>
+								<NoMenuInfo>메뉴 없음</NoMenuInfo>
+							</div>
+						) : (
 							<Menu
 								key={index}
 								menuDept={val.dept}
@@ -186,7 +197,11 @@ const Cafeteria = ({ idx, value }) => {
 					})}
 					{idx === 2 || idx === 3
 						? staffMenu.map((val, index) => {
-								return (
+								return val.dishList.length === 0 ? (
+									<div>
+										<NoMenuInfo>메뉴 없음</NoMenuInfo>
+									</div>
+								) : (
 									<Menu
 										key={index}
 										menuDept={val.dept}
@@ -194,7 +209,7 @@ const Cafeteria = ({ idx, value }) => {
 										menuName={val.dishList[0]}
 									/>
 								);
-						})
+						  })
 						: null}
 				</SecondRow>
 			)}
