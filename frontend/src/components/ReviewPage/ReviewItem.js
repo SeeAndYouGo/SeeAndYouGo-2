@@ -12,6 +12,7 @@ const ReviewItemContainer = styled.div`
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
+	position: relative;
 `;
 const ReviewItemIcon = styled.p`
 	float: left;
@@ -56,11 +57,19 @@ const RestaurantName = styled.p`
 	font-size: 12px;
 	font-weight: 500;
 	color: #555555;
+	margin: 0;
+	float: left;
+
+	& > .colorTag1 {color: #ff0000;}
+	& > .colorTag2 {color: #ff8000;}
+	& > .colorTag3 {color: #F4AA19;}
+	& > .colorTag4 {color: #07903E;}
+	& > .colorTag5 {color: #2274EE;}
 `;
 
 const DeptName = styled.p`
 	width: 60px;
-	margin: 10px 0px 10px 10px;
+	margin: 0;
 	padding-top: 2px;
 	text-align: center;
 	background-color: #555555;
@@ -69,6 +78,16 @@ const DeptName = styled.p`
 	font-size: 12px;
 	text-align: center;
 	font-weight: 500;
+	float: right;
+`;
+
+const MenuName = styled.p`
+	font-size: 12px;
+	margin: 5px 0 0 0;
+	font-weight: 500;
+	text-align: right;
+	width: 100%;
+	float: right;
 `;
 
 const CalculateWriteTime = (inputTime, nowTime) => {
@@ -91,10 +110,28 @@ const ReviewItem = ({
 	img,
 	rate,
 	isTotal,
+	menuName
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 
+	const getRestuarantIndex = (restaurantName) => {
+		switch (restaurantName) {
+		  case '1학생회관':
+			return 1;
+		  case '2학생회관':
+			return 2;
+		  case '3학생회관':
+			return 3;
+		  case '상록회관':
+			return 4;
+		  case '생활과학대':
+			return 5;
+		  default:
+			return 0;
+		}
+	  };
+	
 	return (
 		<>
 			<ReviewItemContainer>
@@ -104,8 +141,8 @@ const ReviewItem = ({
 					</ReviewItemIcon>
 					<ReviewItemProfile>
 						<p>{user}</p>
-						<div>
-							<ReviewItemStar style={{ fontWeight: 500 }}>
+						<div style={{marginTop: 2}}>
+							<ReviewItemStar style={{ fontWeight: 500}}>
 								<FontAwesomeIcon icon={solidStar} />
 								{rate % 1 === 0 ? rate + ".0" : rate}
 							</ReviewItemStar>
@@ -117,17 +154,24 @@ const ReviewItem = ({
 						
 					</ReviewItemProfile>
 					{isTotal && (
-								<div style={{display: "flex", float:"right" }}>
-									<RestaurantName>
-										{restaurant}
-									</RestaurantName>
-									<DeptName>
-										{dept === "STAFF"
-											? "교직원식당"
-											: "학생식당"}
-									</DeptName>
-								</div>
+						<div style={{float:"right", width:"45%" }}>
+							<RestaurantName>
+								<span className={"colorTag"+getRestuarantIndex(restaurant)}>●&nbsp;</span>
+								{restaurant}
+							</RestaurantName>
+							<DeptName>
+								{dept === "STAFF"
+									? "교직원식당"
+									: "학생식당"}
+							</DeptName>
+							{menuName && (
+								<MenuName>
+									<span style={{color: "#777", fontWeight: 400}}>메뉴 </span> 
+									{menuName}
+								</MenuName>
 							)}
+						</div>
+					)}
 				</div>
 				<div className="Row2" style={{ float: "left", width: "100%" }}>
 					<ReviewItemContent>{content}</ReviewItemContent>

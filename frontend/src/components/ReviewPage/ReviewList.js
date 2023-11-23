@@ -64,9 +64,9 @@ const ReviewList = ({ idx }) => {
 		const fetchData = async () => {
 			// const nowUrl =
 			// 	idx === 0 ? "http://localhost:8080/api/totalReview" : `http://localhost:8080/api/review/restaurant${idx}`;
-			const nowUrl =
-				idx === 0 ? "http://27.96.131.182/api/totalReview" : `http://27.96.131.182/api/review/restaurant${idx}`;
-			// const nowUrl = "/assets/json/restaurant1Review.json"
+			// const nowUrl =
+			// 	idx === 0 ? "http://27.96.131.182/api/totalReview" : `http://27.96.131.182/api/review/restaurant${idx}`;
+			const nowUrl = "/assets/json/restaurant1Review.json"
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -147,6 +147,7 @@ const ReviewList = ({ idx }) => {
 							dept={nowReview.dept}
 							key={nowIndex}
 							isTotal={idx === 0 ? true : false}
+							menuName={nowReview.menuName}
 						/>
 					);
 				})}
