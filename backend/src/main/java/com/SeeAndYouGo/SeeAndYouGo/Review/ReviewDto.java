@@ -10,15 +10,17 @@ public class ReviewDto {
     private String restaurant;
     private String writer;
     private Dept dept;
+    private String menuName;
     private String madeTime;
     private String comment;
     private String imgLink;
     private Double rate;
 
-    public ReviewDto(String restaurant, String writer, Dept dept, String madeTime, String comment, String imgLink, Double rate) {
+    public ReviewDto(String restaurant, String writer, Dept dept, String menuName, String madeTime, String comment, String imgLink, Double rate) {
         this.restaurant = restaurant;
         this.writer = writer;
         this.dept = dept;
+        this.menuName = menuName;
         this.madeTime = madeTime;
         this.comment = comment;
         this.imgLink = imgLink;
@@ -26,6 +28,6 @@ public class ReviewDto {
     }
     public static ReviewDto of(Review review) {
         return new ReviewDto(review.getRestaurant().getName(), review.writer, review.menu.getDept(),
-                review.madeTime.toString(), review.comment, review.imgLink, review.reviewRate);
+                review.getMenu().getMenuName(), review.madeTime.toString(), review.comment, review.imgLink, review.reviewRate);
     }
 }

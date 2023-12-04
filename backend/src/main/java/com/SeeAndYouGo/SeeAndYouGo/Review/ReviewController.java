@@ -95,7 +95,7 @@ public class ReviewController {
             @RequestParam("rate") Double rate,
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
-            @RequestParam("image") MultipartFile image) {
+            @RequestParam(name="image", required = false) MultipartFile image) {
         Review review = new Review();
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";

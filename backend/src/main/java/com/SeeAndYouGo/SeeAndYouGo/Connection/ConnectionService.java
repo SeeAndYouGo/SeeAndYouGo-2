@@ -155,7 +155,7 @@ public class ConnectionService {
     }
 
     private String fetchConnectionInfoToString() throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=3CF4EB2CDE7F4593AD96C3EBEC8218AFCF9F15F1";
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=87F832F8CD2D46DF90D528AEE7FC0DB7E32B306A";
 
         // URL 생성
         URL url = new URL(apiUrl);

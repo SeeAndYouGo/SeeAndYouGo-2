@@ -63,7 +63,9 @@ public class Menu {
         restaurant.getMenuList().add(this);
     }
 
-
+    public String getMenuName(){
+        return this.dishList.get(0).getName();
+    }
 
     @Override
     public String toString(){
