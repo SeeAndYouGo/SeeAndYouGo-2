@@ -1,12 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo;
 
-import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static java.time.DayOfWeek.*;
@@ -64,9 +61,15 @@ public class IterService {
 //        }
 //    }
 
-    @Scheduled(fixedRate = 60000, initialDelay = 5000)
+    @Scheduled(cron = "40 0/5 7-20 * * *")
     public void continuousIterative(){
         try {
+            LocalTime now = LocalTime.now();
+            LocalTime startTime = LocalTime.of(7, 30);
+            LocalTime endTime = LocalTime.of(19, 30);
+            if (now.isBefore(startTime) || now.isAfter(endTime)) {
+                return;
+            }
             connectionService.saveAndCacheConnection();
         } catch (Exception e) {
             System.out.println(e.getMessage());
