@@ -9,8 +9,8 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowUrl = "http://localhost:8080/api/weeklyMenu";
-			const nowUrl = "http://27.96.131.182/api/weeklyMenu";
+			const nowUrl = "/api/weeklyMenu";
+			// const nowUrl = "http://27.96.131.182/api/weeklyMenu";
 			// const nowUrl = "/assets/json/tempMenuList.json";
 			const res = await fetch(nowUrl, {
 				headers: {
@@ -59,8 +59,8 @@ const AdminMainMenu = () => {
 
 		if (nullCount === nullLength) {
 			// 여기에 POST로 전송하도록 합니다.
-			// const nowUrl = "http://localhost:8080/api/mainMenu";
-			const nowUrl = "http://27.96.131.182/api/mainMenu";
+			const nowUrl = "/api/mainMenu";
+			// const nowUrl = "http://27.96.131.182/api/mainMenu";
 			// const nowUrl = "http://localhost:8080/api/mainMenu";
 			fetch(nowUrl, {
 				method: "PUT",

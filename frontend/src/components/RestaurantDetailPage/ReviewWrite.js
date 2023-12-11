@@ -87,22 +87,20 @@ const ReviewWriteNameCheckbox = styled.input`
 	transform: translateY(-50%);
 `;
 
-const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
+const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
 	const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
 	const [image, setImage] = useState();
-	const [imageName, setImageName] = useState('');
+	// 이미지 이름 필요 없다고 생각되어 일단 삭제
 
 	const onChangeImage = (e) => {
         setImage(e.target.files[0]);
         if (e.target.files[0] == null) {
-            setImageName('');
             return;
         }
-        setImageName(e.target.files[0].name);
     };
 
 	const handleSelectMenu = (value) => {
@@ -112,15 +110,6 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 	const ReviewSubmit = async (e) => {
 		e.preventDefault();
 
-		const myObject = {
-			restaurant: restaurantName,
-			dept: deptName,
-			menuName: restaurantName === 1 ? selectedMenu : nowMainMenu,
-			rate: starVal,
-			writer: writerName === "" ? "익명" : writerName,
-			comment: comment,
-		};
-		// console.log("전송확인", myObject);
 
 		const formdata = new FormData();
 		// 식당이름 restaurant
@@ -128,28 +117,24 @@ const ReviewWriteForm = ({ restaurantName, deptName, nowMainMenu }) => {
 		// 식당구분 dept
 		formdata.append("dept", deptName);
 		// 메뉴이름 menuName
-		formdata.append("menuName", nowMainMenu);
+		// 1학 부분을 위해 selectedMenu 넣은건데 확인 필요합니다.
+		formdata.append("menuName", selectedMenu);
 		// 평점 rate
 		formdata.append("rate", starVal);
 		// 작성자 writer
-		formdata.append("writer", writerName);
+		formdata.append("writer", writerName === "" ? "익명" : writerName);
 		// 리뷰 comment
 		formdata.append("comment", comment);
+		// 이미지 추가
 		formdata.append("image", image);
-
-		// var requestOptions = {
-		// 	method: "POST",
-		// 	body: formdata,
-		// 	redirect: "follow",
-		// };
-
-		// console.log(formdata);
+		
+		// formdata 확인
 		let entries = formdata.entries();
         for (const pair of entries) {
-            console.log(pair[0]+ ', ' + pair[1]); 
+            console.log(pair[0]+ ': ' + pair[1]); 
         }
-
-        axios.post('http://localhost:8080/api/review', formdata, {
+		
+        axios.post('/api/review', formdata, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }

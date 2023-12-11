@@ -3,7 +3,6 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { faBowlFood } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 

@@ -2,7 +2,7 @@ FROM node:18.17.1-slim
 
 WORKDIR /app
 COPY . .
-ARG GOOGLE_ANALYTICS_TRACKING_ID
+# ARG GOOGLE_ANALYTICS_TRACKING_ID
 
 RUN yarn install
 RUN yarn add react-router-dom
@@ -14,11 +14,11 @@ RUN yarn add -D @emotion/babel-preset-css-prop
 RUN yarn add react-star-rate
 RUN yarn add rsuite
 
-ENV REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID ${GOOGLE_ANALYTICS_TRACKING_ID}
-# RUN npm install -g serve
-# RUN yarn build
-
+# ENV REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID ${GOOGLE_ANALYTICS_TRACKING_ID}
+RUN npm install -g serve
+RUN yarn build
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+# CMD ["yarn", "start"]
+CMD ["serve", "-s", "build"]

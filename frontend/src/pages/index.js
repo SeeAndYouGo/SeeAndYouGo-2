@@ -7,24 +7,16 @@ import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
 
 // 시간 정보가 포함된 식단 인원 정보 request
-function App() {
+function Index() {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
-		// const jsonFilePaths = [
-		// 	"/api/connection/restaurant1",
-		// 	"/api/connection/restaurant2",
-		// 	"/api/connection/restaurant3",
-		// 	"/api/connection/restaurant4",
-		// 	"/api/connection/restaurant5",
-		// ];
-
 		const jsonFilePaths = [
-			"http://27.96.131.182/api/connection/restaurant1",
-			"http://27.96.131.182/api/connection/restaurant2",
-			"http://27.96.131.182/api/connection/restaurant3",
-			"http://27.96.131.182/api/connection/restaurant4",
-			"http://27.96.131.182/api/connection/restaurant5",
+			"/api/connection/restaurant1",
+			"/api/connection/restaurant2",
+			"/api/connection/restaurant3",
+			"/api/connection/restaurant4",
+			"/api/connection/restaurant5",
 		];
 
 		// const jsonFilePaths = [
@@ -33,6 +25,14 @@ function App() {
 		// 	"http://27.96.131.182/api/connection/restaurant3",
 		// 	"http://27.96.131.182/api/connection/restaurant4",
 		// 	"http://27.96.131.182/api/connection/restaurant5",
+		// ];
+
+		// const jsonFilePaths = [
+		// 	"/assets/json/restaurant1.json",
+		// 	"/assets/json/restaurant2.json",
+		// 	"/assets/json/restaurant3.json",
+		// 	"/assets/json/restaurant3.json",
+		// 	"/assets/json/restaurant3.json",
 		// ];
     
 		Promise.all(
@@ -46,7 +46,7 @@ function App() {
 
 	return (
 		<div className="App">
-			<a
+			{/* <a
 				href="https://docs.google.com/forms/d/e/1FAIpQLSfGeuHsAH4fXrazXBLzSn1J7z3ux8in1OQInDH2LYHQnRiU5Q/viewform"
 				target="_blank"
 				rel="noreferrer noopener"
@@ -56,7 +56,7 @@ function App() {
 					src="/assets/images/survey.png"
 					alt="Survey"
 				/>
-			</a>
+			</a> */}
 			<Header />
 			{restaurantData.map((val, idx) =>
 				idx === 0 ? (
@@ -79,4 +79,4 @@ function App() {
 	);
 }
 
-export default App;
+export default Index;

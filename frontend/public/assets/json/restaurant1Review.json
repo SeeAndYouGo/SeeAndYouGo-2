@@ -1,31 +1,33 @@
 [
     { 
         "restaurant": "1학생회관",
-        "dept": "교직원",
-        "madeTime": "2023-10-14 14:03:00",
+        "dept": "1",
+        "madeTime": "2023-11-24 10:53:00",
         "writer": "배고픈 학생1",
         "rate": 4.0,
         "comment": "맛있어요...!",
-        "image": "ReviewSample1.jpg",
+        "imgLink": "",
         "menuName" : "치킨가라아게샐러드"
     },
     {
         "restaurant": "2학생회관",
         "dept": "STUDENT",
-        "madeTime": "2023-10-14 14:13:00",
+        "madeTime": "2023-11-24 10:23:00",
         "writer": "배고픈 학생2",
         "rate": 5.0,
         "comment": "맛있어요!",
-        "imgLink": ""
+        "imgLink": "",
+        "menuName": ""
     },
     { 
         "restaurant": "3학생회관",
         "dept": "STAFF",
-        "madeTime": "2023-10-14 14:33:00",
+        "madeTime": "2023-11-24 10:39:00",
         "writer": "배고픈 학생3",
         "rate": 3.5,
         "comment": "낫배드",
-        "imgLink": ""
+        "imgLink": "",
+        "menuName": ""
     }
 ]
 

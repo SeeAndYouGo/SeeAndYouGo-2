@@ -132,9 +132,9 @@ const TopReview = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
+			const nowUrl = `/api/topReview/restaurant${idx}`;
 			// const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
-			const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
-			// const nowUrl = "/assets/json/restaurant1Review.json";
+			// const nowUrl = "/assets/json/topReview.json";
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -147,7 +147,7 @@ const TopReview = ({ idx }) => {
 		fetchData().then((data) => {
 			setReviewArr(data);
 		});
-	}, []);
+	}, [idx]);
 
 	return (
 		<div style={{ width: "100%", float: "left" }}>

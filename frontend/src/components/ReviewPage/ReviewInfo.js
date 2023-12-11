@@ -38,7 +38,7 @@ const MenuInfo = ({ mainMenu, subMenu }) => {
 	);
 };
 
-const ReviewMenuInfo = ({ idx }) => {
+const ReviewInfo = ({ idx }) => {
 	const [menuData, setMenuData] = useState([]);
 	const [radioValue, setRadioValue] = useState("menu1");
 
@@ -48,9 +48,9 @@ const ReviewMenuInfo = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowUrl = `/api/dailyMenu/restaurant${idx}`;
+			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
 			// const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
-			const nowUrl = "/assets/json/myMenu.json";
+			// const nowUrl = `/assets/json/menu${idx}.json`;
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
@@ -73,7 +73,7 @@ const ReviewMenuInfo = ({ idx }) => {
 
 	return (
 		<>
-			<div>
+			{idx !== 1 ? <div>
 				{idx === 2 || idx === 3 ? (
 					<>
 						<MyRadio
@@ -132,10 +132,10 @@ const ReviewMenuInfo = ({ idx }) => {
 						}
 					})}
 				</div>
-				{<ReviewList idx={idx} nowDept={radioValue === "menu1" ? "STUDENT":"STAFF"}/>}
-			</div>
+			</div>: null}
+			{<ReviewList idx={idx} nowDept={radioValue === "menu1" ? "STUDENT":"STAFF"}/>}
 		</>
 	);
 };
 
-export default ReviewMenuInfo;
+export default ReviewInfo;

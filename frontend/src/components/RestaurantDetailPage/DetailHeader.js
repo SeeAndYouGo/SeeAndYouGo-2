@@ -72,9 +72,9 @@ const DetailHeader = ({ idx }) => {
 
 	useEffect(()=> {
 		const fetchData = async () => {
-			// const nowUrl = `/api/connection/restaurant${idx}`;
-			const nowUrl = `http://27.96.131.182/api/connection/restaurant${idx}`;
-			// const nowUrl = "/assets/json/myMenu.json";
+			const nowUrl = `/api/connection/restaurant${idx}`;
+			// const nowUrl = `http://27.96.131.182/api/connection/restaurant${idx}`;
+			// const nowUrl = `/assets/json/restaurant2.json`;
 			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
