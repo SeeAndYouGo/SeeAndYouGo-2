@@ -9,7 +9,6 @@ spring:
     url: jdbc:mysql://mysql_db:3306/mysql_db?useSSL=false&allowPublicKeyRetrieval=true
     username: seeandyougo
     password: seeandyougo
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,10 +20,11 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
-
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  profiles:
+    include: KEY-PROD
 
 logging.level:
   org.hibernate.SQL: debug

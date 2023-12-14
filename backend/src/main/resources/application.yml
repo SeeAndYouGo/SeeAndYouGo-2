@@ -18,6 +18,8 @@
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  profiles:
+    include: KEY-LOCAL
 
 logging.level:
   org.hibernate.SQL: debug
