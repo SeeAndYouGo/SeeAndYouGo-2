@@ -1,13 +1,17 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth;
 
+import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.*;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class OAuthService {
@@ -17,6 +21,16 @@ public class OAuthService {
 
     @Value("${KAKAO_REDIRECT_URI}")
     private String KAKAO_REDIRECT_URI;
+
+    @Autowired
+    private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
+
+
+    public OAuthService(UserRepository userRepository, TokenProvider tokenProvider) {
+        this.userRepository = userRepository;
+        this.tokenProvider = tokenProvider;
+    }
 
     public String getKakaoAccessToken(String code) {
         String accessToken;
@@ -49,7 +63,7 @@ public class OAuthService {
             }
             System.out.println("[kakao login token] response body: " + result);
 
-            // JSON의 access token 확인하기
+            // JSON 파싱 후 access token 확인하기
             JsonElement jsonElement = JsonParser.parseString(result.toString());
             accessToken = jsonElement.getAsJsonObject().get("access_token").getAsString();
             System.out.println("[kakao login token] access_token: " + accessToken);
@@ -62,5 +76,65 @@ public class OAuthService {
         }
 
         return accessToken;
+    }
+
+    public HashMap<String, Object> getUserKakaoInfo(String accessToken) {
+        HashMap<String, Object> userInfo = new HashMap<>();
+        try {
+            // GET: 카카오 사용자 정보 가져오기
+            URL userInfoURL = new URL("https://kapi.kakao.com/v2/user/me");
+            HttpURLConnection connection = (HttpURLConnection) userInfoURL.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+
+            // 응답코드 200 : 가져온 유저 정보 확인 & userInfo 리턴값(HashMap) 생성
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            StringBuilder result = new StringBuilder();
+            while ((line = br.readLine()) != null) {
+                result.append(line);
+            }
+
+            JsonObject jsonObject = JsonParser.parseString(result.toString()).getAsJsonObject();
+            String id = jsonObject.get("id").getAsString();
+            JsonObject properties = jsonObject.get("properties").getAsJsonObject();
+            JsonObject kakaoAccount = jsonObject.get("kakao_account").getAsJsonObject();
+            String nickname = properties.get("nickname").getAsString();
+            JsonElement emailElement = kakaoAccount.getAsJsonObject().get("email");
+            if(emailElement != null) {
+                String email = emailElement.getAsString();
+                userInfo.put("email", email);
+            }
+            userInfo.put("nickname", nickname);
+            userInfo.put("id", id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return userInfo;
+    }
+
+    public String kakaoLogin(String accessToken) {
+        // (1) accessToken을 통해 카카오의 유저정보를 가져온다. 특히 kakao identifier를 통하여 기존 유저 정보 존재여부를 따진다.
+        HashMap<String, Object> userInfo = getUserKakaoInfo(accessToken);  // id, nickname, email
+
+        String kakaoId = userInfo.get("id").toString();
+        List<User> users = userRepository.findBySocialId(kakaoId);
+        UserDto userDto = new UserDto(kakaoId, userInfo.get("email").toString(), userInfo.get("nickname").toString());
+        if (users == null) {
+            signUp(userDto);
+        }
+
+        // (2) jwt 토큰을 생성한다 by Email!
+        // TODO: 예제의 createToken 파라미터를 String(즉 user Email)로 임의로 수정헀음. 작동 확인 해봐야 할듯.
+        return tokenProvider.createToken(userDto.getEmail());
+    }
+
+    private void signUp(UserDto dto) {
+        try {
+            userRepository.save(new User(dto.getEmail(), dto.getNickname(), dto.getSocialId(), Social.KAKAO));
+        } catch (Exception e) {
+            // 유저 가입 실패
+            e.printStackTrace();
+        }
     }
 }
