@@ -14,14 +14,17 @@ import java.time.LocalDate;
 public class DataLoader implements CommandLineRunner {
 
     private final IterService iterService;
+    private final ConnectionService connectionService;
 
     @Autowired
-    public DataLoader(IterService iterService) {
+    public DataLoader(IterService iterService, ConnectionService connectionService) {
         this.iterService = iterService;
+        this.connectionService = connectionService;
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
         iterService.weeklyIterative();
+        connectionService.saveAndCacheConnection();
     }
 }
