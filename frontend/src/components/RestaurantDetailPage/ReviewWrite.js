@@ -2,9 +2,10 @@ import styled from "@emotion/styled";
 import React, { useState } from "react";
 import StarsRating from "react-star-rate";
 import MenuSelector from "./MenuSelector";
-import axios from 'axios';
+import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import * as config from "../../config";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -97,11 +98,11 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	// 이미지 이름 필요 없다고 생각되어 일단 삭제
 
 	const onChangeImage = (e) => {
-        setImage(e.target.files[0]);
-        if (e.target.files[0] == null) {
-            return;
-        }
-    };
+		setImage(e.target.files[0]);
+		if (e.target.files[0] == null) {
+			return;
+		}
+	};
 
 	const handleSelectMenu = (value) => {
 		setSelectedMenu(value);
@@ -109,7 +110,6 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 	const ReviewSubmit = async (e) => {
 		e.preventDefault();
-
 
 		const formdata = new FormData();
 		// 식당이름 restaurant
@@ -127,24 +127,25 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		formdata.append("comment", comment);
 		// 이미지 추가
 		formdata.append("image", image);
-		
+
 		// formdata 확인
 		let entries = formdata.entries();
-        for (const pair of entries) {
-            console.log(pair[0]+ ': ' + pair[1]); 
-        }
-		
-        axios.post('/api/review', formdata, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+		for (const pair of entries) {
+			console.log(pair[0] + ": " + pair[1]);
+		}
+
+		axios
+			.post(config.DEPLOYMENT_BASE_URL+"/review", formdata, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			})
 			.then((response) => {
-				console.log(response)
-		        alert("리뷰가 등록되었습니다.");
-				console.log(response.data)
-		        window.location.reload();
-		    })
+				console.log(response);
+				alert("리뷰가 등록되었습니다.");
+				console.log(response.data);
+				window.location.reload();
+			})
 			.catch((error) => console.log("error", error));
 	};
 
@@ -212,7 +213,6 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						maxLength={6}
 						placeholder={"닉네임"}
 						value={writerName}
-
 						style={{
 							height: 30,
 							float: "left",
@@ -231,13 +231,12 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						float: "left",
 					}}
 				>
-					{/* <input type="file" id="Review-file-input" hidden></input> */}
-					<input 
-						hidden 
-						type="file" 
-						accept="image/*" 
+					<input
+						hidden
+						type="file"
+						accept="image/*"
 						id="Review-file-input"
-						onChange={onChangeImage} 
+						onChange={onChangeImage}
 					/>
 					<ReviewWriteInput
 						type="text"

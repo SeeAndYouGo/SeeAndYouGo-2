@@ -5,6 +5,7 @@ import Menu from "./Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import ReviewWrite from "./ReviewWrite";
+import * as config from "../../config";
 
 const TabMenu = styled.ul`
 	color: black;
@@ -49,10 +50,12 @@ const TypeSelect = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `/assets/json/menu${idx}.json`;
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/dailyMenu/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},

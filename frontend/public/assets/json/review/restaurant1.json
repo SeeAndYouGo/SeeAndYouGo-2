@@ -1,8 +1,8 @@
 [
     { 
         "restaurant": "1학생회관",
-        "dept": "1",
-        "madeTime": "2023-11-24 10:53:00",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:53:00",
         "writer": "배고픈 학생1",
         "rate": 4.0,
         "comment": "맛있어요...!",
@@ -10,25 +10,23 @@
         "menuName" : "치킨가라아게샐러드"
     },
     {
-        "restaurant": "2학생회관",
+        "restaurant": "1학생회관",
         "dept": "STUDENT",
-        "madeTime": "2023-11-24 10:23:00",
+        "madeTime": "2023-11-24 12:01:00",
         "writer": "배고픈 학생2",
         "rate": 5.0,
         "comment": "맛있어요!",
         "imgLink": "",
-        "menuName": ""
+        "menuName": "고기플러스알밥"
     },
     { 
-        "restaurant": "3학생회관",
-        "dept": "STAFF",
-        "madeTime": "2023-11-24 10:39:00",
+        "restaurant": "1학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:11:00",
         "writer": "배고픈 학생3",
         "rate": 3.5,
-        "comment": "낫배드",
+        "comment": "이것만큼 가격이 착한게 없음",
         "imgLink": "",
-        "menuName": ""
+        "menuName": "떡만두라면"
     }
 ]
-
-

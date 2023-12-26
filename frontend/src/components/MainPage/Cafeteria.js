@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyProgress from "./MyProgress";
+import * as config from "../../config";
 
 // 2번째 Row (메뉴 이름과 가격 정보)
 const SecondRow = styled.div`
@@ -123,27 +124,27 @@ const Cafeteria = ({ idx, value }) => {
 	`;
 
 	const [status, setStatus] = useState("원활");
-	const [rate, setRate] = useState(0);
 	const [staffMenu, setStaffMenu] = useState([]);
 	const [studentMenu, setStudentMenu] = useState([]);
 
 	useEffect(() => {
-		if (rate >= 66) {
+		if (value >= 66) {
 			setStatus("혼잡");
-		} else if (rate >= 33) {
+		} else if (value >= 33) {
 			setStatus("보통");
 		} else {
 			setStatus("원활");
 		}
-		setRate(value);
 
 		if (idx === 1) return;
 
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `/assets/json/menu${idx}.json`;
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/dailyMenu/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -164,7 +165,7 @@ const Cafeteria = ({ idx, value }) => {
 			);
 			setStudentMenu(studentMenuData);
 		});
-	}, [value, rate, idx]);
+	}, [value, idx]);
 
 	return (
 		<CafeteriaContainer>
@@ -173,7 +174,7 @@ const Cafeteria = ({ idx, value }) => {
 				<span style={{ fontWeight: 500, fontSize: 11, marginLeft: 20 }}>
 					{status}
 				</span>
-				<MyProgress value={rate} />
+				<MyProgress value={value} />
 				<FontAwesomeIcon
 					icon={faChevronRight}
 					style={{ color: "#b0b0b0", marginLeft: 10 }}

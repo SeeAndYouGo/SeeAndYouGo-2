@@ -5,6 +5,7 @@ import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -63,11 +64,21 @@ const RestaurantName = styled.p`
 	width: 100%;
 	text-align: right;
 
-	& > .colorTag1 {color: #ff0000;}
-	& > .colorTag2 {color: #ff8000;}
-	& > .colorTag3 {color: #F4AA19;}
-	& > .colorTag4 {color: #07903E;}
-	& > .colorTag5 {color: #2274EE;}
+	& > .colorTag1 {
+		color: #ff0000;
+	}
+	& > .colorTag2 {
+		color: #ff8000;
+	}
+	& > .colorTag3 {
+		color: #f4aa19;
+	}
+	& > .colorTag4 {
+		color: #07903e;
+	}
+	& > .colorTag5 {
+		color: #2274ee;
+	}
 `;
 
 const DeptName = styled.p`
@@ -83,7 +94,6 @@ const DeptName = styled.p`
 	font-weight: 400;
 	float: right;
 `;
-
 
 const MenuName = styled.p`
 	font-size: 12px;
@@ -115,22 +125,22 @@ const ReviewItem = ({
 	img,
 	rate,
 	isTotal,
-	menuName
+	menuName,
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
-			case '1학생회관':
+			case "1학생회관":
 				return 1;
-			case '2학생회관':
+			case "2학생회관":
 				return 2;
-			case '3학생회관':
+			case "3학생회관":
 				return 3;
-			case '상록회관':
+			case "상록회관":
 				return 4;
-			case '생활과학대':
+			case "생활과학대":
 				return 5;
 			default:
 				return 0;
@@ -154,15 +164,19 @@ const ReviewItem = ({
 							<span style={{ fontWeight: 400 }}>
 								{CalculateWriteTime(targetTime, time)}
 							</span>
-
 						</div>
-
 					</ReviewItemProfile>
 					{isTotal && (
 						<div style={{ float: "right", width: "45%" }}>
-
 							<RestaurantName>
-								<span className={"colorTag" + getRestuarantIndex(restaurant)}>●&nbsp;</span>
+								<span
+									className={
+										"colorTag" +
+										getRestuarantIndex(restaurant)
+									}
+								>
+									●&nbsp;
+								</span>
 								{restaurant}
 							</RestaurantName>
 
@@ -180,7 +194,11 @@ const ReviewItem = ({
 					<ReviewItemContent>{content}</ReviewItemContent>
 					{img === "" ? null : (
 						<img
-							src={`${img}`}
+							src={
+								config.NOW_STATUS === 0
+									? `/assets/images/${img}`
+									: `${img}`
+							}
 							alt="Loading.."
 							style={{
 								maxHeight: 80,
@@ -191,12 +209,11 @@ const ReviewItem = ({
 						/>
 					)}
 				</div>
-				<div style={{width:"100%", float: "left"}}>
+				<div style={{ width: "100%", float: "left" }}>
 					{menuName && (
 						<MenuName>
 							{menuName}&nbsp;
 							<FontAwesomeIcon icon={faSpoon} />
-
 						</MenuName>
 					)}
 				</div>

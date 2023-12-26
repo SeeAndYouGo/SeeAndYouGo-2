@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import ReviewList from "./ReviewList";
+import * as config from "../../config";
 
 const MyRadio = styled.input`
 	margin-left: 10px;
@@ -48,10 +49,12 @@ const ReviewInfo = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `http://27.96.131.182/api/dailyMenu/restaurant${idx}`;
-			// const nowUrl = `/assets/json/menu${idx}.json`;
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/dailyMenu/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},

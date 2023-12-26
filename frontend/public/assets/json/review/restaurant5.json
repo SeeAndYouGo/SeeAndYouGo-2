@@ -1,0 +1,32 @@
+[
+    { 
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:50:00",
+        "writer": "익명",
+        "rate": 1.5,
+        "comment": "파스타는 비추...",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:13:00",
+        "writer": "멀다 멀어",
+        "rate": 3.0,
+        "comment": "그냥 그래요!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:51:00",
+        "writer": "학생",
+        "rate": 3.5,
+        "comment": "낫배드",
+        "imgLink": "",
+        "menuName": ""
+    }
+]

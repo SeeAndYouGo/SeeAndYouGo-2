@@ -1,0 +1,32 @@
+[
+    { 
+        "restaurant": "3학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:53:00",
+        "writer": "익명",
+        "rate": 4.0,
+        "comment": "맛있어요...!",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "3학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:59:00",
+        "writer": "고독한 예술인",
+        "rate": 3.0,
+        "comment": "그냥 낫배드?",
+        "imgLink": "ReviewSample3.jpg",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "3학생회관",
+        "dept": "STAFF",
+        "madeTime": "2023-11-24 12:21:00",
+        "writer": "교직원입니다",
+        "rate": 4.5,
+        "comment": "잔추국수 괜찮습니다",
+        "imgLink": "",
+        "menuName": ""
+    }
+]

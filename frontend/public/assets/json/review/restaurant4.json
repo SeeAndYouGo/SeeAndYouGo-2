@@ -1,0 +1,32 @@
+[
+    { 
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:53:00",
+        "writer": "농농농",
+        "rate": 4.0,
+        "comment": "맛있다?",
+        "imgLink": "ReviewSample1.jpg",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:42:00",
+        "writer": "익명",
+        "rate": 5.0,
+        "comment": "상록회관은 항상 굿!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:30:00",
+        "writer": "학생1",
+        "rate": 4.5,
+        "comment": "평타 이상은 합니다",
+        "imgLink": "",
+        "menuName": ""
+    }
+]

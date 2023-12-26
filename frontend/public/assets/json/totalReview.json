@@ -1,58 +1,152 @@
 [
     { 
-        "restaurant": "2학생회관",
-        "dept": "STAFF",
-        "madeTime": "2023-10-14 14:03:00",
+        "restaurant": "1학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:53:00",
         "writer": "배고픈 학생1",
         "rate": 4.0,
-        "comment": "맛있어요!",
-        "image": "ReviewSample1.jpg"
+        "comment": "맛있어요...!",
+        "imgLink": "",
+        "menuName" : "치킨가라아게샐러드"
     },
-    { 
-        "restaurant": "2학생회관",
+    {
+        "restaurant": "1학생회관",
         "dept": "STUDENT",
-        "madeTime": "2023-10-14 12:30:00",
-        "writer": "오늘도리뷰쓴다",
-        "rate": 3.0,
-        "comment": "굿",
-        "image": ""
-    },
-    { 
-        "restaurant": "2학생회관",
-        "dept": "STUDENT",
-        "madeTime": "2023-10-14 14:13:00",
-        "writer": "댓글안씀",
-        "rate": 3.5,
-        "comment": "",
-        "image": "ReviewSample2.jpg"
-    },
-    { 
-        "restaurant": "2학생회관",
-        "dept": "STAFF",
-        "madeTime": "2023-10-14 14:00:00",
-        "writer": "배고픈 학생3",
-        "rate": 4.0,
-        "comment": "낫배드",
-        "image": "ReviewSample3.jpg"
-    },
-    { 
-        "restaurant": "2학생회관",
-        "dept": "STAFF",
-        "madeTime": "2023-10-14 12:13:00",
-        "writer": "익명",
+        "madeTime": "2023-11-24 12:01:00",
+        "writer": "배고픈 학생2",
         "rate": 5.0,
-        "comment": "오늘 개맛있음",
-        "image": "ReviewSample5.jpg"
+        "comment": "맛있어요!",
+        "imgLink": "",
+        "menuName": "고기플러스알밥"
+    },
+    { 
+        "restaurant": "1학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:11:00",
+        "writer": "배고픈 학생3",
+        "rate": 3.5,
+        "comment": "이것만큼 가격이 착한게 없음",
+        "imgLink": "",
+        "menuName": "떡만두라면"
+    },
+    { 
+        "restaurant": "2학생회관",
+        "dept": "STAFF",
+        "madeTime": "2023-11-24 12:53:00",
+        "writer": "익명",
+        "rate": 2.0,
+        "comment": "별로..",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "2학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:23:00",
+        "writer": "2학만 간다",
+        "rate": 5.0,
+        "comment": "백숙 굿굿굿!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "2학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 13:39:00",
+        "writer": "익명",
+        "rate": 4.5,
+        "comment": "굿이요",
+        "imgLink": "",
+        "menuName": ""
     },
     { 
         "restaurant": "3학생회관",
         "dept": "STUDENT",
-        "madeTime": "2023-10-14 13:13:00",
-        "writer": "맛없으면씀",
-        "rate": 1.0,
-        "comment": "노맛",
-        "image": ""
+        "madeTime": "2023-11-24 11:53:00",
+        "writer": "익명",
+        "rate": 4.0,
+        "comment": "맛있어요...!",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "3학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:59:00",
+        "writer": "고독한 예술인",
+        "rate": 3.0,
+        "comment": "그냥 낫배드?",
+        "imgLink": "ReviewSample3.jpg",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "3학생회관",
+        "dept": "STAFF",
+        "madeTime": "2023-11-24 12:21:00",
+        "writer": "교직원입니다",
+        "rate": 4.5,
+        "comment": "잔추국수 괜찮습니다",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:53:00",
+        "writer": "농농농",
+        "rate": 4.0,
+        "comment": "맛있다?",
+        "imgLink": "ReviewSample1.jpg",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:42:00",
+        "writer": "익명",
+        "rate": 5.0,
+        "comment": "상록회관은 항상 굿!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "4학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:30:00",
+        "writer": "학생1",
+        "rate": 4.5,
+        "comment": "평타 이상은 합니다",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 11:50:00",
+        "writer": "익명",
+        "rate": 1.5,
+        "comment": "파스타는 비추...",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:13:00",
+        "writer": "멀다 멀어",
+        "rate": 3.0,
+        "comment": "그냥 그래요!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "5학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:51:00",
+        "writer": "학생",
+        "rate": 3.5,
+        "comment": "낫배드",
+        "imgLink": "",
+        "menuName": ""
     }
 ]
-
-

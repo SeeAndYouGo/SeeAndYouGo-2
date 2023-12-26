@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import * as config from "../../config";
 
 const Table = styled.table`
 	width: 80%;
@@ -24,11 +25,12 @@ const ModalMenuTable = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/weeklyMenu/restaurant${idx}`;
-			// const nowUrl = `http://localhost:8080/api/weeklyMenu/restaurant${idx}`;
-			// const tempNum = idx === 2 || idx === 3 ? 10 : 5;
-			// const nowUrl = `/assets/json/weeklyMenu${tempNum}.json`;
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/weeklyMenu/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -70,7 +72,7 @@ const ModalMenuTable = ({ idx }) => {
 							return (
 								<tr key={index}>
 									<th
-										key={index+1}
+										key={index + 1}
 										style={{
 											padding: "5px",
 											border: "1px solid black",
@@ -79,7 +81,7 @@ const ModalMenuTable = ({ idx }) => {
 										{days[index]}
 									</th>
 									<td
-										key={index+2}
+										key={index + 2}
 										style={{
 											padding: "5px 20px",
 											border: "1px solid black",

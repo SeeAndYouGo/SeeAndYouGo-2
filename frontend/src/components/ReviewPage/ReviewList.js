@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import ReviewItem from "./ReviewItem";
+import * as config from "../../config";
 
 const CheckBoxInput = styled.input`
 	display: none;
@@ -66,12 +67,16 @@ const ReviewList = ({ idx, nowDept }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl =
-				idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
-			// const nowUrl =
-			// idx === 0 ? "http://27.96.131.182/api/totalReview" : `http://27.96.131.182/api/review/restaurant${idx}`;
-			// const nowUrl = "/assets/json/restaurant1Review.json"
-			const res = await fetch(nowUrl, {
+			const url =
+				idx === 0
+					? config.BASE_URL +
+					  "/totalReview" +
+					  (config.NOW_STATUS === 0 ? ".json" : "")
+					: config.BASE_URL +
+					  `/review/restaurant${idx}` +
+					  (config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},

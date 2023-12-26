@@ -5,40 +5,33 @@ import Cafeteria from "../components/MainPage/Cafeteria";
 import "../App.css";
 import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
+import * as config from "../config";
 
 // 시간 정보가 포함된 식단 인원 정보 request
 function Index() {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
-		const jsonFilePaths = [
-			"/api/connection/restaurant1",
-			"/api/connection/restaurant2",
-			"/api/connection/restaurant3",
-			"/api/connection/restaurant4",
-			"/api/connection/restaurant5",
+		const url = [
+			config.BASE_URL +
+				"/connection/restaurant1" +
+				(config.NOW_STATUS === 0 ? ".json" : ""),
+			config.BASE_URL +
+				"/connection/restaurant2" +
+				(config.NOW_STATUS === 0 ? ".json" : ""),
+			config.BASE_URL +
+				"/connection/restaurant3" +
+				(config.NOW_STATUS === 0 ? ".json" : ""),
+			config.BASE_URL +
+				"/connection/restaurant4" +
+				(config.NOW_STATUS === 0 ? ".json" : ""),
+			config.BASE_URL +
+				"/connection/restaurant5" +
+				(config.NOW_STATUS === 0 ? ".json" : ""),
 		];
 
-		// const jsonFilePaths = [
-		// 	"http://27.96.131.182/api/connection/restaurant1",
-		// 	"http://27.96.131.182/api/connection/restaurant2",
-		// 	"http://27.96.131.182/api/connection/restaurant3",
-		// 	"http://27.96.131.182/api/connection/restaurant4",
-		// 	"http://27.96.131.182/api/connection/restaurant5",
-		// ];
-
-		// const jsonFilePaths = [
-		// 	"/assets/json/restaurant1.json",
-		// 	"/assets/json/restaurant2.json",
-		// 	"/assets/json/restaurant3.json",
-		// 	"/assets/json/restaurant3.json",
-		// 	"/assets/json/restaurant3.json",
-		// ];
-    
 		Promise.all(
-			jsonFilePaths.map((path) =>
-				fetch(path).then((response) => response.json())
-			)
+			url.map((path) => fetch(path).then((response) => response.json()))
 		)
 			.then((dataArray) => setRestaurantData(dataArray))
 			.catch((error) => console.error("Error fetching JSON:", error));

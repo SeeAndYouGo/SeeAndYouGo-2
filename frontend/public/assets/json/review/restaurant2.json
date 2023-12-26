@@ -1,0 +1,32 @@
+[
+    { 
+        "restaurant": "2학생회관",
+        "dept": "STAFF",
+        "madeTime": "2023-11-24 12:53:00",
+        "writer": "익명",
+        "rate": 2.0,
+        "comment": "별로..",
+        "imgLink": "",
+        "menuName" : ""
+    },
+    {
+        "restaurant": "2학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 12:23:00",
+        "writer": "2학만 간다",
+        "rate": 5.0,
+        "comment": "백숙 굿굿굿!",
+        "imgLink": "",
+        "menuName": ""
+    },
+    { 
+        "restaurant": "2학생회관",
+        "dept": "STUDENT",
+        "madeTime": "2023-11-24 13:39:00",
+        "writer": "익명",
+        "rate": 4.5,
+        "comment": "굿이요",
+        "imgLink": "",
+        "menuName": ""
+    }
+]
