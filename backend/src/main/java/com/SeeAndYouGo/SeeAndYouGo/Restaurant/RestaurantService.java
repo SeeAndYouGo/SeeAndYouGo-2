@@ -35,14 +35,14 @@ public class RestaurantService {
     public Restaurant getRestaurant(String name, String date) {
         // 평일에 이 함수가 실행되면 restaurant는 찾아와질 것임.
 //        return restaurantRepository.findTodayRestaurant(name, date);
-//        if(checkRestaurantInDate(name, date)){
+        if(checkRestaurantInDate(name, date)){
             return restaurantRepository.findTodayRestaurant(name, date);
-//        }
-//        else{
-//            Restaurant restaurant = new Restaurant(name, date);
-//            restaurantRepository.save(restaurant);
-//            return restaurant;
-//        }
+        }
+        else{
+            Restaurant restaurant = new Restaurant(name, date);
+            restaurantRepository.save(restaurant);
+            return restaurant;
+        }
     }
 
     public boolean checkRestaurantInDate(String name, String date) {

@@ -20,8 +20,8 @@ public class IterService {
     private final DishService dishService;
     private final RestaurantService restaurantService;
     private final ConnectionService connectionService;
-    private final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
-    private final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
+    private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
+    private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
     @Autowired
     public IterService(DishService dishService, RestaurantService restaurantService, ConnectionService connectionService) {
@@ -44,9 +44,13 @@ public class IterService {
             restaurantService.createWeeklyRestaurant(nearestMonday);
 
             // 월요일부터 금요일까지의 메뉴를 캐싱한다.
+            System.out.println("아싸바리1");
             dishService.saveAndCacheWeekDish(1);
+            System.out.println("아싸바리2");
             dishService.saveAndCacheWeekDish(2);
+            System.out.println("아싸바리3");
             dishService.saveAndCacheWeekDish(3);
+            System.out.println("아싸바리4");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -76,12 +80,23 @@ public class IterService {
         }
     }
 
-    private LocalDate getNearestMonday(LocalDate now) {
+    public static LocalDate getNearestMonday(LocalDate now) {
         if(weekday.contains(now.getDayOfWeek())){
             // 평일이면 해당 주 월요일 반환
             return now.with(MONDAY);
         }
         // 주말이라면 다음 주 월요일 반환
         return now.with(MONDAY).plusWeeks(1);
+    }
+
+    public static LocalDate getFridayOfWeek(LocalDate inputDate) {
+        // 해당 날짜의 요일을 얻습니다.
+        DayOfWeek dayOfWeek = inputDate.getDayOfWeek();
+
+        // 현재 날짜에서 금요일까지의 차이를 계산합니다.
+        int daysUntilFriday = DayOfWeek.FRIDAY.getValue() - dayOfWeek.getValue() + (dayOfWeek.getValue() >= DayOfWeek.FRIDAY.getValue() ? 7 : 0);
+
+        // 입력된 날짜에서 금요일까지의 날짜를 반환합니다.
+        return inputDate.plusDays(daysUntilFriday);
     }
 }
