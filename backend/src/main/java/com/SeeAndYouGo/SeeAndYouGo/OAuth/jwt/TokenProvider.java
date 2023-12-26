@@ -1,6 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt;
 
-
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
+
 @Component
 @Slf4j
 public class TokenProvider implements InitializingBean {
