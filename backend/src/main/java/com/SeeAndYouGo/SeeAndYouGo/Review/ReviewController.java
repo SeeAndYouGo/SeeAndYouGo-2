@@ -119,7 +119,7 @@ public class ReviewController {
 
         review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
-        Long reviewId = reviewService.registerReview(review, restaurant, dept);
+        Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

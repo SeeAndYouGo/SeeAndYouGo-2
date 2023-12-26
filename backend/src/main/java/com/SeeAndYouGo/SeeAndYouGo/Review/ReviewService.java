@@ -24,7 +24,7 @@ public class ReviewService {
     private final MenuService menuService;
 
     @Transactional
-    public Long registerReview(Review review, String restaurantName, String dept) {
+    public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
         restaurantName = menuService.parseRestaurantName(restaurantName);
         Restaurant restaurant = restaurantRepository.findTodayRestaurant(restaurantName, LocalDate.now().toString());
         if (restaurant == null) {
@@ -34,13 +34,19 @@ public class ReviewService {
         review.setRestaurant(restaurant);
         Dept changeStringToDept = Dept.valueOf(dept);
         Menu menu;
-        menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept);
+        menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
         review.setMenu(menu);
         reviewRepository.save(review);
         return review.getId();
     }
 
-    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept) {
+    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
+        if(restaurant.getName().contains("1")){
+            for (Menu menu : restaurant.getMenuList()) {
+                if(menu.getMenuName().equals(menuName)) return menu;
+            }
+        }
+
         for (Menu menu : restaurant.getMenuList()) {
             if(menu.getDept().equals(dept))
                 return menu;
