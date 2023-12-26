@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.*;
 
@@ -64,6 +65,12 @@ public class Menu {
     }
 
     public String getMenuName(){
+        for (Dish dish : this.dishList) {
+            if(dish.getDishType().equals(DishType.MAIN)){
+                return dish.getName();
+            }
+        }
+
         return this.dishList.get(0).getName();
     }
 
