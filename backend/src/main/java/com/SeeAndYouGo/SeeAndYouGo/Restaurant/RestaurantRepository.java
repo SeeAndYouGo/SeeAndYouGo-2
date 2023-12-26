@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -95,5 +96,4 @@ public class RestaurantRepository {
         query.setParameter("date", date);
         return query.setMaxResults(1).getSingleResult();
     }
-
 }

@@ -6,6 +6,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository2;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
+    private final RestaurantRepository2 restaurantRepository2;
     private final MenuRepository menuRepository;
     private final DishRepository dishRepository;
 
@@ -133,5 +135,9 @@ public class RestaurantService {
         }
 
         return restaurants;
+    }
+
+    public boolean existWeekRestaurant(LocalDate nearestMonday) {
+        return restaurantRepository2.existsByDate(nearestMonday.toString());
     }
 }

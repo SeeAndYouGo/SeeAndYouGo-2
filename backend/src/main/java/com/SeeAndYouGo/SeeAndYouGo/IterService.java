@@ -40,17 +40,15 @@ public class IterService {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
 
         try {
-            // 해당 주의 식당을 만든다.
-            restaurantService.createWeeklyRestaurant(nearestMonday);
+            if(!restaurantService.existWeekRestaurant(nearestMonday)) {
+                // 해당 주의 식당을 만든다.
+                restaurantService.createWeeklyRestaurant(nearestMonday);
 
-            // 월요일부터 금요일까지의 메뉴를 캐싱한다.
-            System.out.println("아싸바리1");
-            dishService.saveAndCacheWeekDish(1);
-            System.out.println("아싸바리2");
-            dishService.saveAndCacheWeekDish(2);
-            System.out.println("아싸바리3");
-            dishService.saveAndCacheWeekDish(3);
-            System.out.println("아싸바리4");
+                // 월요일부터 금요일까지의 메뉴를 캐싱한다.
+                dishService.saveAndCacheWeekDish(1);
+                dishService.saveAndCacheWeekDish(2);
+                dishService.saveAndCacheWeekDish(3);
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

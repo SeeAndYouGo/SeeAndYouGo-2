@@ -9,12 +9,10 @@ const AdminMainMenu = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url =
-				config.BASE_URL +
-				"/weeklyMenu" +
-				(config.NOW_STATUS === 0 ? ".json" : "");
-
-			const res = await fetch(url, {
+			const nowUrl = "/api/weeklyMenu";
+			// const nowUrl = "http://27.96.131.182/api/weeklyMenu";
+			// const nowUrl = "/assets/json/tempMenuList.json";
+			const res = await fetch(nowUrl, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -52,10 +50,15 @@ const AdminMainMenu = () => {
 	const handleSubmit = () => {
 		const nullCount = mainResult.filter((val) => val === null).length;
 
-		if (menuList.length === mainResult.length - nullCount) {
-			// 여기에 PUT으로 전송하도록 합니다.
-			const url = config.DEPLOYMENT_BASE_URL + "/mainMenu";
-			fetch(url, {
+		console.log("count", nullCount);
+		console.log("length", nullLength);
+
+		if (nullCount === nullLength) {
+			// 여기에 POST로 전송하도록 합니다.
+			const nowUrl = "/api/mainMenu";
+			// const nowUrl = "http://27.96.131.182/api/mainMenu";
+			// const nowUrl = "http://localhost:8080/api/mainMenu";
+			fetch(nowUrl, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
