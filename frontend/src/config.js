@@ -6,6 +6,6 @@ export const DEVELOPMENT_BASE_URL = "/assets/json";
 export const DEPLOYMENT_BASE_URL = "/api";
 
 // 0: development, 1: deployment
-export const NOW_STATUS = 0;
+export const NOW_STATUS = 1;
 
 export const BASE_URL = NOW_STATUS === 0 ? DEVELOPMENT_BASE_URL : DEPLOYMENT_BASE_URL;

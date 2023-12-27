@@ -118,7 +118,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		formdata.append("dept", deptName);
 		// 메뉴이름 menuName
 		// 1학 부분을 위해 selectedMenu 넣은건데 확인 필요합니다.
-		formdata.append("menuName", selectedMenu);
+		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
 		// 평점 rate
 		formdata.append("rate", starVal);
 		// 작성자 writer

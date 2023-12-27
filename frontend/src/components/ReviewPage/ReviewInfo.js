@@ -1,15 +1,5 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import ReviewList from "./ReviewList";
-import * as config from "../../config";
-
-const MyRadio = styled.input`
-	margin-left: 10px;
-	accent-color: black;
-	-ms-transform: scale(1.5) /* IE 9 */;
-	-webkit-transform: scale(1.5) /* Chrome, Safari, Opera */;
-	transform: scale(1.5);
-`;
 
 const MenuInfo = ({ mainMenu, subMenu }) => {
 	const subMenuString = subMenu.join(", ");
@@ -39,104 +29,35 @@ const MenuInfo = ({ mainMenu, subMenu }) => {
 	);
 };
 
-const ReviewInfo = ({ idx }) => {
-	const [menuData, setMenuData] = useState([]);
-	const [radioValue, setRadioValue] = useState("menu1");
+const ReviewInfoContainer = styled.div`
+	margin: "10px 0px";
+	padding: "15px";
+	border-radius: "10px";
+	width: "100%";
+	background-color: "white";
+`;
 
-	const initialSetting = () => {
-		setRadioValue("menu1");
-	};
+const ReviewInfo = ({ nowMenu }) => {
+	const [menuData, setMenuData] = useState([]);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			const url =
-				config.BASE_URL +
-				`/dailyMenu/restaurant${idx}` +
-				(config.NOW_STATUS === 0 ? ".json" : "");
-
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
-		};
-		fetchData().then((data) => {
-			setMenuData(data);
-			initialSetting();
-		});
-	}, [idx]);
-
-	const handleRadioChange = (event) => {
-		const nowType = event.target.value;
-		setRadioValue(nowType);
-	};
+		nowMenu && setMenuData(nowMenu);
+	}, [nowMenu]);
 
 	return (
 		<>
-			{idx !== 1 ? <div>
-				{idx === 2 || idx === 3 ? (
-					<>
-						<MyRadio
-							type="radio"
-							name="menu"
-							value="menu1"
-							id="menu1"
-							checked={radioValue === "menu1"}
-							onChange={handleRadioChange}
-						/>
-						<label htmlFor="menu1" style={{ padding: "0px 5px" }}>
-							학생식당
-						</label>
-						<MyRadio
-							style={{ accentColor: "black" }}
-							type="radio"
-							name="menu"
-							id="menu2"
-							value="menu2"
-							checked={radioValue === "menu2"}
-							onChange={handleRadioChange}
-						/>
-						<label htmlFor="menu2" style={{ padding: "0px 5px" }}>
-							교직원식당
-						</label>
-					</>
-				) : null}
-
-				<div
-					style={{
-						margin: "10px 0px",
-						padding: "15px",
-						borderRadius: "10px",
-						width: "100%",
-						backgroundColor: "white",
-					}}
-				>
-					{menuData.map((nowValue, index) => {
-						if (radioValue === "menu1") {
-							return index === 1 ? null : (
-								<div key={index}>
-									<MenuInfo
-										mainMenu={nowValue.dishList[0]}
-										subMenu={nowValue.dishList.slice(1)}
-									/>
-								</div>
-							);
-						} else {
-							return index === 0 ? null : (
-								<MenuInfo
-									mainMenu={nowValue.dishList[0]}
-									subMenu={nowValue.dishList.slice(1)}
-									key={index}
-								/>
-							);
-						}
-					})}
-				</div>
-			</div>: null}
-			{<ReviewList idx={idx} nowDept={radioValue === "menu1" ? "STUDENT":"STAFF"}/>}
+			<ReviewInfoContainer>
+				{menuData.map((nowValue, index) => {
+					return (
+						<div key={index}>
+							<MenuInfo
+								mainMenu={nowValue.dishList[0]}
+								subMenu={nowValue.dishList.slice(1)}
+							/>
+						</div>
+					);
+				})}
+			</ReviewInfoContainer>
 		</>
 	);
 };
