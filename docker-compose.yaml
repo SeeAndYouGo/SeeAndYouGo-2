@@ -15,6 +15,8 @@ services:
       MYSQL_USER: seeandyougo
       MYSQL_PASSWORD: seeandyougo
       TZ: 'Asia/Seoul'
+    volumes:
+      - ./data:/var/lib/mysql
     command:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
