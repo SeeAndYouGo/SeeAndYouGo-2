@@ -64,6 +64,7 @@ public class DishService {
 
             String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
             MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
+            if(!menuType.equals(MenuType.LUNCH)) continue;
 
             String menuName = menuObject.get("MENU_KORN_NM").getAsString();
             if(menuName.contains("매주 수요일은")) continue;
