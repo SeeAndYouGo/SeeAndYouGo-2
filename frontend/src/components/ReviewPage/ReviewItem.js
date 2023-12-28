@@ -210,7 +210,7 @@ const ReviewItem = ({
 					)}
 				</div>
 				<div style={{ width: "100%", float: "left" }}>
-					{menuName && (
+					{isTotal && menuName && (
 						<MenuName>
 							{menuName}&nbsp;
 							<FontAwesomeIcon icon={faSpoon} />

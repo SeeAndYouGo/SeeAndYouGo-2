@@ -30,11 +30,11 @@ const MenuInfo = ({ mainMenu, subMenu }) => {
 };
 
 const ReviewInfoContainer = styled.div`
-	margin: "10px 0px";
-	padding: "15px";
-	border-radius: "10px";
-	width: "100%";
-	background-color: "white";
+	margin: 10px 0px;
+	padding: 15px;
+	border-radius: 10px;
+	width: 100%;
+	background-color: white;
 `;
 
 const ReviewInfo = ({ nowMenu }) => {
