@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
-@PropertySource("classpath:application-KEY-LOCAL.yml") // TODO: 수정 대상.. 왜 자동으로 안 될까요?
-
+@ConfigurationProperties(value = "kakao")
+@PropertySource("classpath:key.yml")
 public class OAuthService {
 
-    @Value("${KAKAO_REST_API_KEY}")
+    @Value("${REST_API_KEY}")
     private String KAKAO_REST_API_KEY;
 
-    @Value("${KAKAO_REDIRECT_URI}")
+    @Value("${REDIRECT_URI}")
     private String KAKAO_REDIRECT_URI;
 
     @Autowired
