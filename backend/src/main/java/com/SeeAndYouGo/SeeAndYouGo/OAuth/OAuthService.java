@@ -16,6 +16,7 @@ import java.util.List;
 
 @Service
 @PropertySource("classpath:application-KEY-LOCAL.yml") // TODO: 수정 대상.. 왜 자동으로 안 될까요?
+
 public class OAuthService {
 
     @Value("${KAKAO_REST_API_KEY}")
@@ -80,8 +81,8 @@ public class OAuthService {
         return accessToken;
     }
 
-    public HashMap<String, Object> getUserKakaoInfo(String accessToken) {
-        HashMap<String, Object> userInfo = new HashMap<>();
+    public UserIdentityDto getUserKakaoInfo(String accessToken) {
+        UserIdentityDto userInfo = null;
         try {
             // GET: 카카오 사용자 정보 가져오기
             URL userInfoURL = new URL("https://kapi.kakao.com/v2/user/me");
@@ -89,7 +90,7 @@ public class OAuthService {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Authorization", "Bearer " + accessToken);
 
-            // 응답코드 200 : 가져온 유저 정보 확인 & userInfo 리턴값(HashMap) 생성
+            // 응답코드 200 이후
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             StringBuilder result = new StringBuilder();
@@ -98,17 +99,20 @@ public class OAuthService {
             }
 
             JsonObject jsonObject = JsonParser.parseString(result.toString()).getAsJsonObject();
+
+            // TODO: 일단 id만 가져오지만 추후 email등 적용 가능성 ↑
             String id = jsonObject.get("id").getAsString();
-            JsonObject properties = jsonObject.get("properties").getAsJsonObject();
-            JsonObject kakaoAccount = jsonObject.get("kakao_account").getAsJsonObject();
-            String nickname = properties.get("nickname").getAsString();
-            JsonElement emailElement = kakaoAccount.getAsJsonObject().get("email");
-            if(emailElement != null) {
-                String email = emailElement.getAsString();
-                userInfo.put("email", email);
-            }
-            userInfo.put("nickname", nickname);
-            userInfo.put("id", id);
+//            JsonObject properties = jsonObject.get("properties").getAsJsonObject();
+//            JsonObject kakaoAccount = jsonObject.get("kakao_account").getAsJsonObject();
+//            String nickname = properties.get("nickname").getAsString();
+//            JsonElement emailElement = kakaoAccount.getAsJsonObject().get("email");
+//            if(emailElement != null) {
+//                String email = emailElement.getAsString();
+//                userInfo.put("email", email);
+//            }
+//            userInfo.put("nickname", nickname);
+            return userInfo.builder()
+                    .id(id).build();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,24 +120,24 @@ public class OAuthService {
     }
 
     public String kakaoLogin(String accessToken) {
-        // (1) accessToken을 통해 카카오의 유저정보를 가져온다. 특히 kakao identifier를 통하여 기존 유저 정보 존재여부를 따진다.
-        HashMap<String, Object> userInfo = getUserKakaoInfo(accessToken);  // id, nickname, email
+        // (1) accessToken을 통해 카카오의 유저정보를 가져온다.
+        // TODO: 일단 id만 가져오지만 추후 email등 적용 가능성 ↑
+        UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
 
-        String kakaoId = userInfo.get("id").toString();
+        String kakaoId = userIdentityDto.getId();
         List<User> users = userRepository.findBySocialId(kakaoId);
-        UserDto userDto = new UserDto(kakaoId, userInfo.get("email").toString(), userInfo.get("nickname").toString());
-        if (users == null) {
-            signUp(userDto);
+        if (users.size() == 0) {
+            signUp(userIdentityDto);
         }
 
-        // (2) jwt 토큰을 생성한다 by Email!
-        // TODO: 예제의 createToken 파라미터를 String(즉 user Email)로 임의로 수정헀음. 작동 확인 해봐야 할듯.
-        return tokenProvider.createToken(userDto.getEmail());
+        // (2) jwt 토큰을 생성한다 by ID!
+        return tokenProvider.createToken(userIdentityDto.getId());
     }
 
-    private void signUp(UserDto dto) {
+    private void signUp(UserIdentityDto dto) {
         try {
-            userRepository.save(new User(dto.getEmail(), dto.getNickname(), dto.getSocialId(), Social.KAKAO));
+            userRepository.save(new User("anyemail", "anynickname", dto.getId(), Social.KAKAO));
+            System.out.println();
         } catch (Exception e) {
             // 유저 가입 실패
             e.printStackTrace();
