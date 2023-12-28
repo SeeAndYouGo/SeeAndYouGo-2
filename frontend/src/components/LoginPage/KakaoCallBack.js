@@ -14,10 +14,10 @@ const KakaoCallBack = () => {
 		const getJWTToken = async (authorizationCode) => {
 			const url =
 				config.DEPLOYMENT_BASE_URL +
-				`/auth/kakao?code=${authorizationCode}`;
+				`/oauth/kakao?code=${authorizationCode}`;
 			// 일단 POST 요청으로 보내보기
 			const response = await axios({
-				method: "POST",
+				method: "GET",
 				url: url,
 				data: {
 					authorizationCode: authorizationCode,
@@ -32,9 +32,9 @@ const KakaoCallBack = () => {
 		};
 		getJWTToken(code)
 			.then((data) => {
-				console.log("JWT Token 확인합니다", data);
+				console.log("JWT Token 확인합니다", data.token);
 				alert("로그인에 성공했습니다.")
-				localStorage.setItem("loginToken", data);
+				localStorage.setItem("loginToken", data.token);
 				navigator("/");
 			})
 			.catch((err) => {

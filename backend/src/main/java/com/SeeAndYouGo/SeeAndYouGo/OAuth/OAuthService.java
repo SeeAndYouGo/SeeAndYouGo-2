@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth;
 
+import com.SeeAndYouGo.SeeAndYouGo.OAuth.dto.UserIdentityDto;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
 import java.util.List;
 
 @Service

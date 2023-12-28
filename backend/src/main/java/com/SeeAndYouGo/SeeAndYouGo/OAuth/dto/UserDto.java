@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth;
+package com.SeeAndYouGo.SeeAndYouGo.OAuth.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
