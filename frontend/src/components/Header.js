@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useState } from "react";
-import SideBar from "../SideBar";
+import SideBar from "./SideBar";
 import { Link } from "react-router-dom";
 
 const HeaderContainer = styled.div`
