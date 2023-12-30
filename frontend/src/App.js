@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Header from "./components/MainPage/Header";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Index from "./pages/index";
 import View from "./pages/viewPage";
 import ReviewPage from "./pages/ReviewPage";
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
+			<Footer />
     </>
   );
 };

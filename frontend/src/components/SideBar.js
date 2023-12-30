@@ -117,11 +117,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
               </Link>
             </AccountWrap>
-            {/* <Link to="/LogOut" style={{color: "black", textDecoration: "none"}} onClick={toggleMenu}>
-              <LogoutBtn>로그아웃</LogoutBtn>
-            </Link> */}
           </p>
-
         </Title>
         <MenuList>
           <Link to="/MyPage" onClick={toggleMenu} style={{marginBottom: 10}}>
