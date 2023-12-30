@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Header from "../components/MainPage/Header";
 import UpdateLog from "../components/MainPage/UpdateLog";
 import Cafeteria from "../components/MainPage/Cafeteria";
 import "../App.css";
 import { Link } from "react-router-dom";
-import Navigation from "../components/Navigation";
+// import Navigation from "../components/Navigation";
 import * as config from "../config";
 
 // 시간 정보가 포함된 식단 인원 정보 request
@@ -50,7 +49,6 @@ function Index() {
 					alt="Survey"
 				/>
 			</a> */}
-			<Header />
 			{restaurantData.map((val, idx) =>
 				idx === 0 ? (
 					<UpdateLog key={idx} updateTime={val.dateTime} />
@@ -67,7 +65,7 @@ function Index() {
 					</Link>
 				);
 			})}
-			<Navigation />
+			{/* <Navigation /> */}
 		</div>
 	);
 }
