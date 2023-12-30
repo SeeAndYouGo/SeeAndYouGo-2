@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Navigation from "../components/Navigation";
+// import Navigation from "../components/Navigation";
 import * as config from "../config";
 
 const AdminMainMenu = () => {
@@ -124,7 +124,7 @@ const AdminMainMenu = () => {
 				제출하기
 			</button>
 			<div style={{ height: "100px" }}></div>
-			<Navigation />
+			{/* <Navigation /> */}
 		</>
 	);
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import ReviewHeader from "../components/ReviewPage/ReviewHeader";
 import ReviewSelect from "../components/ReviewPage/ReviewSelect";
-import Navigation from "../components/Navigation";
+// import Navigation from "../components/Navigation";
 
 const ReviewPage = () => {
 	return (
@@ -9,7 +9,7 @@ const ReviewPage = () => {
 			<div className="App3">
 				<ReviewHeader />
 				<ReviewSelect />
-				<Navigation />
+				{/* <Navigation /> */}
 			</div>
 		</>
 		

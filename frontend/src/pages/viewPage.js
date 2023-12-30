@@ -3,7 +3,7 @@ import "../App.css";
 import { useParams } from "react-router-dom";
 import DetailHeader from "../components/RestaurantDetailPage/DetailHeader";
 import TypeSelect from "../components/RestaurantDetailPage/TypeSelect";
-import Navigation from "../components/Navigation";
+// import Navigation from "../components/Navigation";
 import Cafeteria1Info from "../components/RestaurantDetailPage/Cafeteria1Info";
 import TopReview from "../components/RestaurantDetailPage/TopReview";
 import ReviewWrite from "../components/RestaurantDetailPage/ReviewWrite";
@@ -26,7 +26,7 @@ function View() {
 				
 				: <TypeSelect  idx={restaurant} />}
 				<TopReview idx={restaurant}/>
-				<Navigation />
+				{/* <Navigation /> */}
 			</div>
 		</>
 	);
