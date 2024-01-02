@@ -78,3 +78,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,react,java
+
+backend/src/main/resources/application-KEY-LOCAL.yml
+backend/src/main/resources/application-KEY-PROD.yml
