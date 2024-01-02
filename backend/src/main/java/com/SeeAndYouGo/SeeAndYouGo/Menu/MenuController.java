@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Review.NCloudObjectStorage;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Review.ReviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

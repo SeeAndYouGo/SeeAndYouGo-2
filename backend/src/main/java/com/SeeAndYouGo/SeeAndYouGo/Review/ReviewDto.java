@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReviewDto {
+    private Long Id;
     private String restaurant;
     private String writer;
     private Dept dept;
@@ -16,7 +17,8 @@ public class ReviewDto {
     private String imgLink;
     private Double rate;
 
-    public ReviewDto(String restaurant, String writer, Dept dept, String menuName, String madeTime, String comment, String imgLink, Double rate) {
+    public ReviewDto(Long id, String restaurant, String writer, Dept dept, String menuName, String madeTime, String comment, String imgLink, Double rate) {
+        this.Id = id;
         this.restaurant = restaurant;
         this.writer = writer;
         this.dept = dept;
@@ -27,7 +29,7 @@ public class ReviewDto {
         this.rate = rate;
     }
     public static ReviewDto of(Review review) {
-        return new ReviewDto(review.getRestaurant().getName(), review.writer, review.menu.getDept(),
+        return new ReviewDto(review.getId(), review.getRestaurant().getName(), review.writer, review.menu.getDept(),
                 review.getMenu().getMenuName(), review.madeTime.toString(), review.comment, review.imgLink, review.reviewRate);
     }
 }

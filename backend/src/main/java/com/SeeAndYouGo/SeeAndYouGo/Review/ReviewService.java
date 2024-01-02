@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuService menuService;
+    private final ReviewRepository2 reviewRepository2;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
@@ -122,6 +124,17 @@ public class ReviewService {
 
     public List<Review> findRestaurantReviews(String restaurant, String date) {
         return reviewRepository.findReviewsByRestaurantAndDate(restaurant, date);
+    }
+
+    @Transactional
+    public Integer updateReportCount(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).get();
+        return review.incrementReportCount();
+    }
+
+    @Transactional
+    public void deleteById(Long reviewId) {
+        reviewRepository2.deleteById(reviewId);
     }
 //    public void delete(Review review) {
 //        reviewRepository.delete(review);
