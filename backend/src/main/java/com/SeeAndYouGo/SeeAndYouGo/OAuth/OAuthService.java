@@ -83,7 +83,6 @@ public class OAuthService {
     }
 
     public UserIdentityDto getUserKakaoInfo(String accessToken) {
-        UserIdentityDto userInfo = null;
         try {
             // GET: 카카오 사용자 정보 가져오기
             URL userInfoURL = new URL("https://kapi.kakao.com/v2/user/me");
@@ -99,30 +98,24 @@ public class OAuthService {
                 result.append(line);
             }
 
+            // 받아온 유저정보에서 id와 email을 가져온다.
             JsonObject jsonObject = JsonParser.parseString(result.toString()).getAsJsonObject();
-
-            // TODO: 일단 id만 가져오지만 추후 email등 적용 가능성 ↑
             String id = jsonObject.get("id").getAsString();
-//            JsonObject properties = jsonObject.get("properties").getAsJsonObject();
-//            JsonObject kakaoAccount = jsonObject.get("kakao_account").getAsJsonObject();
-//            String nickname = properties.get("nickname").getAsString();
-//            JsonElement emailElement = kakaoAccount.getAsJsonObject().get("email");
-//            if(emailElement != null) {
-//                String email = emailElement.getAsString();
-//                userInfo.put("email", email);
-//            }
-//            userInfo.put("nickname", nickname);
-            return userInfo.builder()
-                    .id(id).build();
+            String email = jsonObject.get("kakao_account").getAsJsonObject().get("email").getAsString();
+            System.out.println(email);
+
+            return UserIdentityDto.builder()
+                    .id(id)
+                    .email(email)
+                    .build();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return userInfo;
+        return null;
     }
 
     public String kakaoLogin(String accessToken) {
         // (1) accessToken을 통해 카카오의 유저정보를 가져온다.
-        // TODO: 일단 id만 가져오지만 추후 email등 적용 가능성 ↑
         UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
 
         String kakaoId = userIdentityDto.getId();
@@ -137,7 +130,7 @@ public class OAuthService {
 
     private void signUp(UserIdentityDto dto) {
         try {
-            userRepository.save(new User("anyemail", "anynickname", dto.getId(), Social.KAKAO));
+            userRepository.save(new User(dto.getEmail(), "anynickname", dto.getId(), Social.KAKAO));
             System.out.println();
         } catch (Exception e) {
             // 유저 가입 실패

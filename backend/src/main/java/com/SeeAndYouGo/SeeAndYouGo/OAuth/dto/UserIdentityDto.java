@@ -9,4 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserIdentityDto {
     private final String id;
+    private final String email;
 }
