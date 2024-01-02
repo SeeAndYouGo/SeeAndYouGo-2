@@ -1,7 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,8 +28,8 @@ public class Menu {
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
 
-//    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
-//    private List<Review> reviewList = new ArrayList<>();
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
+    private List<Review> reviewList = new ArrayList<>();
 
     private String date;
     private Long likeCount;
@@ -64,6 +66,12 @@ public class Menu {
     }
 
     public String getMenuName(){
+        for (Dish dish : this.dishList) {
+            if(dish.getDishType().equals(DishType.MAIN)){
+                return dish.getName();
+            }
+        }
+
         return this.dishList.get(0).getName();
     }
 

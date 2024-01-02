@@ -11,7 +11,9 @@ const MenuSelector = ({ onSelectMenu }) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await fetch(`/assets/json/Restaurant1Menu.json`, {
+            // 여기 1학에서 불러올 수 있도록 수정해야하나요?
+            const url = "/assets/json/Restaurant1Menu.json";
+            const res = await fetch(url, {
                 headers: {
                     "Content-Type": "application/json",
                 },

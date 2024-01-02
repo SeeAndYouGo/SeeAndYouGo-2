@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.IterService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
@@ -29,6 +30,7 @@ public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
     private final RestaurantService restaurantService;
+//    private final IterService iterService;
     private final RestaurantRepository restaurantRepository;
     private final Integer PAGE_START = 1;
     private final Integer PAGE_END = 3;
@@ -37,8 +39,10 @@ public class DishService {
     public void saveAndCacheWeekDish(Integer page) throws Exception{
         String wifiInfo = fetchDishInfoToString(page);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
-        LocalDate friday  = LocalDate.now().with(DayOfWeek.SUNDAY);
+//        LocalDate monday = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate monday = IterService.getNearestMonday(LocalDate.now());
+        LocalDate friday = IterService.getFridayOfWeek(monday);
+//        LocalDate friday  = LocalDate.now().with(DayOfWeek.SUNDAY);
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
@@ -60,6 +64,7 @@ public class DishService {
 
             String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
             MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
+            if(!menuType.equals(MenuType.LUNCH)) continue;
 
             String menuName = menuObject.get("MENU_KORN_NM").getAsString();
             if(menuName.contains("매주 수요일은")) continue;
@@ -186,7 +191,7 @@ public class DishService {
     private String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=87F832F8CD2D46DF90D528AEE7FC0DB7E32B306A";
+            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=608E298EA9644E9F9E73501C92984DDBE9B55331";
 
             // URL 생성
             URL url = new URL(apiUrl);

@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Review.NCloudObjectStorage;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Review.ReviewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +36,11 @@ public class MenuController {
     private String getTodayDate() {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
+        if(currentDate.getDayOfWeek().equals(DayOfWeek.SATURDAY)){
+            currentDate = currentDate.plusDays(2);
+        }else if(currentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)){
+            currentDate = currentDate.plusDays(1);
+        }
         return currentDate.format(formatter);
     }
 

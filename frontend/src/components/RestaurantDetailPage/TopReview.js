@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
 	width: 330px;
@@ -97,11 +98,8 @@ const ReviewItem = ({ user, time, content, img, rate, dept }) => {
 					</span>
 				</ReviewItemProfile>
 				<div style={{ display: "flex", float: "right" }}>
-					<DeptName>
-						{dept === "STAFF" ? "교직원" : "학생"}
-					</DeptName>
+					<DeptName>{dept === "STAFF" ? "교직원" : "학생"}</DeptName>
 				</div>
-
 			</div>
 			<div className="Row2" style={{ float: "left", width: "100%" }}>
 				<ReviewItemContent>{content}</ReviewItemContent>
@@ -132,10 +130,11 @@ const TopReview = ({ idx }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/topReview/restaurant${idx}`;
-			// const nowUrl = `http://localhost:8080/api/topReview/restaurant${idx}`;
-			// const nowUrl = "/assets/json/topReview.json";
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/topReview/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},

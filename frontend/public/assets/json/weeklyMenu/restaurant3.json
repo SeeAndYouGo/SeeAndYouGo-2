@@ -1,0 +1,142 @@
+[
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "월요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STUDENT",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "화요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STUDENT",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "수요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STUDENT",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "목요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STUDENT",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "금요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STUDENT",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "교 월요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STAFF",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "교 화요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STAFF",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "교 수요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STAFF",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "교 목요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STAFF",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    },
+    {
+        "restaurantName": "상록회관",
+        "dishList": [
+            "교 금요일 메인",
+            "바람떡",
+            "열무김치",
+            "추가밥",
+            "갈비만두"
+        ],
+        "price": 6000,
+        "dept": "STAFF",
+        "date": "2023-10-30",
+        "menuType": "LUNCH"
+    }
+]

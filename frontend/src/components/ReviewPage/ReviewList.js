@@ -54,7 +54,7 @@ const SortingSelect = styled.select`
 	}
 `;
 
-const ReviewList = ({ idx, nowDept }) => {
+const ReviewList = ({ idx, nowReviewList }) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
@@ -65,30 +65,14 @@ const ReviewList = ({ idx, nowDept }) => {
 	};
 
 	useEffect(() => {
-		const fetchData = async () => {
-			const nowUrl =
-				idx === 0 ? "/api/totalReview" : `/api/review/restaurant${idx}`;
-			// const nowUrl =
-			// idx === 0 ? "http://27.96.131.182/api/totalReview" : `http://27.96.131.182/api/review/restaurant${idx}`;
-			// const nowUrl = "/assets/json/restaurant1Review.json"
-			const res = await fetch(nowUrl, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
-		};
-		fetchData().then((data) => {
-			// 최신순으로 정렬된 상태로 저장
-			const sortedData = [...data].sort(
-				(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
+		nowReviewList &&
+			setReview(
+				[...nowReviewList].sort(
+					(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
+				)
 			);
-			setReview(sortedData);
-			initialSetting();
-		});
-	}, [idx]);
+		initialSetting();
+	}, [idx, nowReviewList]);
 
 	const toggleOnlyImageReviewVisiblity = () => {
 		setIsChecked(!isChecked);
@@ -145,7 +129,7 @@ const ReviewList = ({ idx, nowDept }) => {
 					if (isChecked && nowReview.imgLink === "") {
 						return null;
 					}
-					return idx === 0 ? (
+					return (
 						<ReviewItem
 							user={nowReview.writer}
 							time={nowReview.madeTime}
@@ -158,20 +142,7 @@ const ReviewList = ({ idx, nowDept }) => {
 							isTotal={idx === 0 ? true : false}
 							menuName={nowReview.menuName}
 						/>
-					) : nowDept === nowReview.dept ? (
-						<ReviewItem
-							user={nowReview.writer}
-							time={nowReview.madeTime}
-							rate={nowReview.rate}
-							content={nowReview.comment}
-							img={nowReview.imgLink}
-							restaurant={nowReview.restaurant}
-							dept={nowReview.dept}
-							key={nowIndex}
-							isTotal={idx === 0 ? true : false}
-							menuName={nowReview.menuName}
-						/>
-					) : null;
+					);
 				})}
 			</div>
 			<div className="blankSpace">&nbsp;</div>

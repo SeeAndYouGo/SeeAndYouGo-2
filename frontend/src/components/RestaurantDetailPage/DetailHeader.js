@@ -9,6 +9,7 @@ import Modal from "../Modal";
 import ModalLocation from "./ModalLocation";
 import ModalMenuTable from "./ModalMenuTable";
 import { Link } from "react-router-dom";
+import * as config from "../../config";
 
 const CafeteriaName = styled.div`
 	display: flex;
@@ -70,12 +71,14 @@ const DetailHeader = ({ idx }) => {
 	const [visible2, setVisible2] = useState(false);
 	const [rate, setRate] = useState(0);
 
-	useEffect(()=> {
+	useEffect(() => {
 		const fetchData = async () => {
-			const nowUrl = `/api/connection/restaurant${idx}`;
-			// const nowUrl = `http://27.96.131.182/api/connection/restaurant${idx}`;
-			// const nowUrl = `/assets/json/restaurant2.json`;
-			const res = await fetch(nowUrl, {
+			const url =
+				config.BASE_URL +
+				`/connection/restaurant${idx}` +
+				(config.NOW_STATUS === 0 ? ".json" : "");
+
+			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -121,7 +124,10 @@ const DetailHeader = ({ idx }) => {
 
 			{idx === 1 ? (
 				<>
-					<Location style={{marginLeft:"90px"}} onClick={() => setVisible1(true)}>
+					<Location
+						style={{ marginLeft: "90px" }}
+						onClick={() => setVisible1(true)}
+					>
 						<FontAwesomeIcon icon={faMapLocationDot} />
 						<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
 					</Location>
