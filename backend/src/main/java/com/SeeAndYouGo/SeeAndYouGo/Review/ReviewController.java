@@ -23,6 +23,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final MenuService menuService;
+    private static final Integer REPORT_CRITERION = 10;
 
     // 탑 리뷰 조회
     @GetMapping("/topReview/{restaurant}")
@@ -57,6 +58,17 @@ public class ReviewController {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         return getReviewDtos(restaurantReviews);
+    }
+
+    @PutMapping("/report/{reviewId}")
+    public ResponseEntity judgeDeleteReview(@PathVariable Long reviewId){
+        Integer reportCount = reviewService.updateReportCount(reviewId);
+
+        if(reportCount >= REPORT_CRITERION){
+            reviewService.deleteById(reviewId);
+        }
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     // // 리뷰 게시
