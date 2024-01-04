@@ -5,6 +5,7 @@ import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import * as config from "../../config";
+import Report from "../Report";
 
 const ReviewItemContainer = styled.div`
 	width: 330px;
@@ -13,6 +14,7 @@ const ReviewItemContainer = styled.div`
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
+	position: relative;
 `;
 const ReviewItemIcon = styled.p`
 	float: left;
@@ -75,7 +77,7 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 	}
 };
 
-const ReviewItem = ({ user, time, content, img, rate, dept }) => {
+const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 
@@ -120,6 +122,15 @@ const ReviewItem = ({ user, time, content, img, rate, dept }) => {
 						}}
 					/>
 				)}
+			</div>
+			<div
+				style={{
+					position: "absolute",
+					right: 15,
+					bottom: 10,
+				}}
+			>
+				<Report reportTarget={reviewId} />
 			</div>
 		</ReviewItemContainer>
 	);
@@ -176,6 +187,7 @@ const TopReview = ({ idx }) => {
 						content={el.comment}
 						img={el.imgLink}
 						dept={el.dept}
+						reviewId={el.reviewId}
 					/>
 				))
 			)}
