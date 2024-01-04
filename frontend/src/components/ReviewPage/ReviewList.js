@@ -141,6 +141,7 @@ const ReviewList = ({ idx, nowReviewList }) => {
 							key={nowIndex}
 							isTotal={idx === 0 ? true : false}
 							menuName={nowReview.menuName}
+							reviewId={nowReview.reviewId}
 						/>
 					);
 				})}

@@ -6,6 +6,7 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import * as config from "../../config";
+import Report from "../Report";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -126,6 +127,7 @@ const ReviewItem = ({
 	rate,
 	isTotal,
 	menuName,
+	reviewId,
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
@@ -190,7 +192,10 @@ const ReviewItem = ({
 						</div>
 					)}
 				</div>
-				<div className="Row2" style={{ float: "left", width: "100%" }}>
+				<div
+					className="Row2"
+					style={{ float: "left", width: "100%", marginTop: 5 }}
+				>
 					<ReviewItemContent>{content}</ReviewItemContent>
 					{img === "" ? null : (
 						<img
@@ -209,13 +214,20 @@ const ReviewItem = ({
 						/>
 					)}
 				</div>
-				<div style={{ width: "100%", float: "left" }}>
-					{isTotal && menuName && (
-						<MenuName>
-							{menuName}&nbsp;
-							<FontAwesomeIcon icon={faSpoon} />
-						</MenuName>
-					)}
+				{isTotal && menuName && (
+					<MenuName>
+						{menuName}&nbsp;
+						<FontAwesomeIcon icon={faSpoon} />
+					</MenuName>
+				)}
+				<div
+					style={{
+						position: "absolute",
+						right: 15,
+						bottom: 10,
+					}}
+				>
+					<Report reportTarget={reviewId} />
 				</div>
 			</ReviewItemContainer>
 		</>
