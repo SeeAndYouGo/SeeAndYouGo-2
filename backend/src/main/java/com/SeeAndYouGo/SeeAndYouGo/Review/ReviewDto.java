@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReviewDto {
-    private Long Id;
+    private Long reviewId;
     private String restaurant;
     private String writer;
     private Dept dept;
@@ -17,8 +17,8 @@ public class ReviewDto {
     private String imgLink;
     private Double rate;
 
-    public ReviewDto(Long id, String restaurant, String writer, Dept dept, String menuName, String madeTime, String comment, String imgLink, Double rate) {
-        this.Id = id;
+    public ReviewDto(Long reviewId, String restaurant, String writer, Dept dept, String menuName, String madeTime, String comment, String imgLink, Double rate) {
+        this.reviewId = reviewId;
         this.restaurant = restaurant;
         this.writer = writer;
         this.dept = dept;
