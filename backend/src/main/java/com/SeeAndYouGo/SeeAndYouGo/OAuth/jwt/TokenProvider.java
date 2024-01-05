@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -99,5 +100,19 @@ public class TokenProvider implements InitializingBean {
             logger.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+
+    public String decode(String jwtToken) {
+        String[] chunks = jwtToken.split("\\.");
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+
+        String payload = new String(decoder.decode(chunks[1]));
+
+        return extractEmail(payload);
+    }
+
+    private String extractEmail(String payload) {
+        return payload.split(",")[1].split("\"")[3];
     }
 }

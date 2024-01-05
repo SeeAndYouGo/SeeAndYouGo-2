@@ -1,7 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.dto.UserIdentityDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.Social;
+import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-
 import java.io.*;
 import java.net.*;
 import java.util.List;
@@ -118,19 +120,21 @@ public class OAuthService {
         // (1) accessToken을 통해 카카오의 유저정보를 가져온다.
         UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
 
-        String kakaoId = userIdentityDto.getId();
-        List<User> users = userRepository.findBySocialId(kakaoId);
+//        String kakaoId = userIdentityDto.getId();
+        String email = userIdentityDto.getEmail();
+        List<User> users = userRepository.findByEmail(email);
+//        List<User> users = userRepository.findBySocialId(kakaoId);
         if (users.size() == 0) {
             signUp(userIdentityDto);
         }
 
-        // (2) jwt 토큰을 생성한다 by ID!
-        return tokenProvider.createToken(userIdentityDto.getId());
+        // (2) jwt 토큰을 생성한다 by Email!
+        return tokenProvider.createToken(userIdentityDto.getEmail());
     }
 
     private void signUp(UserIdentityDto dto) {
         try {
-            userRepository.save(new User(dto.getEmail(), "anynickname", dto.getId(), Social.KAKAO));
+            userRepository.save(new User(dto.getEmail(), null,  Social.KAKAO));
             System.out.println();
         } catch (Exception e) {
             // 유저 가입 실패
