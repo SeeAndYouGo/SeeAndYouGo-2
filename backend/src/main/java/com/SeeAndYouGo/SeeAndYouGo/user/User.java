@@ -1,13 +1,10 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth;
+package com.SeeAndYouGo.SeeAndYouGo.user;
 
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -15,16 +12,20 @@ import javax.persistence.Id;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
     private String email;
     private String nickname;
-    private String socialId;  // kakao identifier
+    @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
 
-    public User(String email, String nickname, String socialId, Social socialType) {
+    public User(String email, String nickname, Social socialType) {
         this.email = email;
         this.nickname = nickname;
-        this.socialId = socialId;
         this.socialType = socialType;
+    }
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

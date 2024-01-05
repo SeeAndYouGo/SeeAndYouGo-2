@@ -1,20 +1,17 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.dto.TokenDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class OAuthController {
 
     @Autowired
     private final OAuthService oauthService;
-
-    public OAuthController(OAuthService oauthService) {
-        this.oauthService = oauthService;
-    }
 
     @GetMapping("/api/oauth/kakao")
 
