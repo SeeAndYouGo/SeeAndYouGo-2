@@ -219,6 +219,7 @@ public class DishService {
 
     @Transactional
     public void updateMainDish(List<MainDishResponse> mainDishResponses) {
+
         for (MainDishResponse mainDishResponse : mainDishResponses) {
             String mainDishName = mainDishResponse.getMainDishName();
             String date = mainDishResponse.getDate();
@@ -227,7 +228,7 @@ public class DishService {
 
             Dish dish = dishRepository.findByDishIdentifier(restaurantName, mainDishName, dept, date);
             dish.setDishType(DishType.MAIN);
-            dishRepository.save(dish);
+//            dishRepository.save(dish);
         }
     }
 }

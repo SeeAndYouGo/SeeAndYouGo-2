@@ -5,6 +5,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -15,8 +17,8 @@ public class DishController {
     private final DishService dishService;
 
     @PutMapping("/mainMenu")
-    public String updateMainDish(@RequestBody List<MainDishResponse> mainDishResponses){
-
+    public String updateMainDish(@RequestBody LinkedList<MainDishResponse> mainDishResponses){
+        mainDishResponses.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponses);
         return "Data updated successfully";
     }

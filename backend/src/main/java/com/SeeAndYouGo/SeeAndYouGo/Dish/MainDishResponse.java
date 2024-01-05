@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 import lombok.*;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
