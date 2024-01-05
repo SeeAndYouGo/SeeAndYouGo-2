@@ -14,7 +14,7 @@ const KakaoCallBack = () => {
 		const getJWTToken = async (authorizationCode) => {
 			const url =
 				config.DEPLOYMENT_BASE_URL +
-				`/auth/kakao?code=${authorizationCode}`;
+				`/oauth/kakao?code=${authorizationCode}`;
 			// 일단 POST 요청으로 보내보기
 			const response = await axios({
 				method: "GET",
