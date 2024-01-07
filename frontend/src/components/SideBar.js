@@ -10,7 +10,7 @@ const SideBarWrap = styled.div`
   top: 0;
   right: 0;
   height: 100%;
-  z-index: 1;
+  z-index: 10;
   right: -100%;
   transition: all 0.3s ease-in-out;
   &.open {
@@ -111,7 +111,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
             <AccountWrap>
               <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
                 <span style={{marginLeft: 10, float: "left", fontSize: 20}}>로그인&nbsp;</span>
-                <span class="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
+                <span className="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
               </Link>
               <Link to="/JoinPage" style={{color: "#777", fontSize: 14, display: "block", float: "right"}} onClick={toggleMenu}>
                 <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
