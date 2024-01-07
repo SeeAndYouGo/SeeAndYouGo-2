@@ -1,7 +1,7 @@
 import React from "react";
 
-const Login = () => {
-	// alert(`hello ${process.env.REACT_APP_KAKAO_REDIRECT_URI}, ${process.env.REACT_APP_KAKAO_REST_API_KEY}`);
+const LoginPage = () => {
+	// kakao login 동작
 	const REDIRECT_URI = process.env.REACT_APP_KAKAO_REDIRECT_URI;
 	const CLIENT_ID = process.env.REACT_APP_KAKAO_RESTAPI_KEY;
 
@@ -9,15 +9,15 @@ const Login = () => {
 	const handleLogin = () => {
 		window.location.href = kakaoURL;
 	};
+
 	return (
 		<>
-			<div style={{ margin: "30px ", textAlign: "center"}}>
-				<p>
-					SeeAndYouGo에 오신 것을 환영합니다.
-				</p>
+			{/* kakao login 동작 */}
+			<div style={{ marginTop: 100, width: "100%", textAlign: "center" }}>
+				<p>SeeAndYouGo에 오신 것을 환영합니다.</p>
 			</div>
-			<div style={{textAlign: "center"}}>
-				<button style={{display: "inline-block"}}>
+			<div style={{ textAlign: "center" }}>
+				<button style={{ display: "inline-block" }}>
 					<img
 						onClick={handleLogin}
 						src="/assets/images/kakao_login_medium_narrow.png"
@@ -29,4 +29,4 @@ const Login = () => {
 	);
 };
 
-export default Login;
+export default LoginPage;
