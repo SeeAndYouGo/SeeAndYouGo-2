@@ -8,14 +8,13 @@ const KakaoCallBack = () => {
 	const navigator = useNavigate();
 	const params = new URL(document.location.toString()).searchParams;
 	const code = params.get("code");
-	console.log("code확인: ", code);
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
 			const url =
 				config.DEPLOYMENT_BASE_URL +
 				`/oauth/kakao?code=${authorizationCode}`;
-			// 일단 POST 요청으로 보내보기
+
 			const response = await axios({
 				method: "GET",
 				url: url,
@@ -32,16 +31,41 @@ const KakaoCallBack = () => {
 		};
 		getJWTToken(code)
 			.then((data) => {
-				console.log("JWT Token 확인합니다", data.token);
-				alert("로그인에 성공했습니다.")
-				localStorage.setItem("loginToken", data.token);
-				navigator("/");
+				localStorage.setItem("token", data.token);
+
+				if (data.message === "join") {
+					// 회원가입인 경우 닉네임 설정 창으로 이동
+					alert("회원가입을 축하합니다!\n닉네임을 설정해주세요.");
+					// 밑에 navigator 닉네임 설정화면으로 수정 필요
+					navigator("/Register");
+				} else {
+					// 이미 등록된 회원인 경우 닉네임 가져오기
+					const fetchData = async () => {
+						const urlForNickname =
+							config.BASE_URL +
+							`/user/nickname/${data.token}` +
+							(config.NOW_STATUS === 0 ? ".json" : "");
+
+						const res = await fetch(urlForNickname, {
+							headers: {
+								"Content-Type": "application/json",
+							},
+							method: "GET",
+						});
+						const result = await res.json();
+						return result;
+					};
+					fetchData().then((res) => {
+						localStorage.setItem("nickname", res.nickname);
+					});
+					alert("로그인에 성공했습니다.");
+					navigator("/");
+				}
 			})
 			.catch((err) => {
 				console.log(err);
 				alert("로그인에 실패했습니다.");
-				localStorage.setItem("loginToken", "not setting");
-				navigator("/Login");
+				navigator("/LoginPage");
 			});
 	}, [code, navigator]);
 
@@ -49,7 +73,7 @@ const KakaoCallBack = () => {
 		<div className="LoginHandeler">
 			<p>로그인 중입니다.</p>
 			<p>잠시만 기다려주세요.</p>
-			{/* 로그인 중 로딩 상황 보여주기 */}
+			{/* 로그인 중 로딩 상황(애니메이션?) 보여주기 */}
 		</div>
 	);
 };
