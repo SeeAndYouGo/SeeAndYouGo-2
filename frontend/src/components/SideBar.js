@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 
@@ -84,14 +84,31 @@ const LogoutBtn = styled.span`
   font-size: 14px;
   line-height: 22px;
   font-weight: 400;
+  cursor: pointer;
+  display: block;
+  float: right;
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
   const outside = useRef();
+  const [loginState, setLoginState] = useState(false);
+  const [nickname, setNickname] = useState("");
 
   const toggleMenu = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const checkLogin = () => {
+      if (localStorage.getItem("token")) {
+        setLoginState(true);
+        setNickname(localStorage.getItem("nickname") ? localStorage.getItem("nickname") : "");
+      } else {
+        setLoginState(false);
+      }
+    };
+    checkLogin();
+  }, []);
 
   return (
     <SideBarWrap ref={outside} className={isOpen ? 'open' : ''}>
@@ -108,14 +125,33 @@ const SideBar = ({isOpen, setIsOpen}) => {
         <Title>
           <p style={{height: "100%"}}>
             <span className="material-symbols-outlined" style={{fontSize:40, lineHeight: "60px", float: "left"}}>account_circle</span>
+            
             <AccountWrap>
-              <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
-                <span style={{marginLeft: 10, float: "left", fontSize: 20}}>로그인&nbsp;</span>
-                <span class="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
-              </Link>
-              <Link to="/JoinPage" style={{color: "#777", fontSize: 14, display: "block", float: "right"}} onClick={toggleMenu}>
-                <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
-              </Link>
+              {
+                loginState ? (
+                  <>
+                    <span style={{marginLeft: 10, float: "left", fontSize: 20}}>{nickname === "" ? "익명" : nickname}&nbsp;님</span>
+                    <LogoutBtn onClick={() => {
+                      if (window.confirm("로그아웃 하시겠습니까?") === false) return;
+                      localStorage.removeItem("token");
+                      localStorage.removeItem("nickname");
+                      setLoginState(false);
+                    }}>로그아웃</LogoutBtn>
+                  </>
+                  ) : (
+                  <>
+                    <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
+                      <span style={{marginLeft: 10, float: "left", fontSize: 20}}>로그인&nbsp;</span>
+                      <span class="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
+                    </Link>
+                    <Link to="/JoinPage" style={{color: "#777", fontSize: 14, display: "block", float: "right"}} onClick={toggleMenu}>
+                      <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
+                    </Link>
+                  </>
+                 )
+              
+              }
+              
             </AccountWrap>
           </p>
         </Title>
