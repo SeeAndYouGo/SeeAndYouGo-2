@@ -3,11 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository2;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,18 +25,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
-    private final RestaurantRepository2 restaurantRepository2;
     private final MenuRepository menuRepository;
     private final DishRepository dishRepository;
 
-
     public Restaurant getRestaurant(String name, String date) {
         // 평일에 이 함수가 실행되면 restaurant는 찾아와질 것임.
-//        return restaurantRepository.findTodayRestaurant(name, date);
         if(checkRestaurantInDate(name, date)){
-            return restaurantRepository.findTodayRestaurant(name, date);
-        }
-        else{
+            return restaurantRepository.findByNameAndDate(name, date).get(0);
+        } else{
             Restaurant restaurant = new Restaurant(name, date);
             restaurantRepository.save(restaurant);
             return restaurant;
@@ -48,21 +40,12 @@ public class RestaurantService {
     }
 
     public boolean checkRestaurantInDate(String name, String date) {
-        Long aLong = restaurantRepository.countNumberOfDataInDate(name, date);
+        Long aLong = restaurantRepository.countByNameAndDate(name, date);
         return aLong > 0 ? true : false;
-    }
-
-    public boolean checkRestaurantInDate(String date) {
-        Long aLong = restaurantRepository.countNumberOfDataInDate(date);
-        return aLong > 0 ? true : false;
-    }
-
-    public void deleteRestaurants(String date) {
-        restaurantRepository.deleteRestaurantsMatchedDate(date);
     }
 
     public List<Restaurant> findAllRestaurantByDate(String place, String date) {
-        return restaurantRepository.findTodayAllRestaurant(parseRestaurantName(place), date);
+        return restaurantRepository.findByNameAndDate(parseRestaurantName(place), date);
     }
 
     public String parseRestaurantName(String name) {
@@ -138,6 +121,6 @@ public class RestaurantService {
     }
 
     public boolean existWeekRestaurant(LocalDate nearestMonday) {
-        return restaurantRepository2.existsByDate(nearestMonday.toString());
+        return restaurantRepository.existsByDate(nearestMonday.toString());
     }
 }

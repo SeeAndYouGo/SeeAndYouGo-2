@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo;
+package com.SeeAndYouGo.SeeAndYouGo.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

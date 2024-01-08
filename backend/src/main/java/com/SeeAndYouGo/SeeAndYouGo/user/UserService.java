@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-
     public boolean checkAvailableNickname(String nickname) {
         return userRepository.countByNickname(nickname) == 0;
     }
@@ -19,7 +18,6 @@ public class UserService {
     public void updateNickname(String email, String nickname) {
         User user = userRepository.findByEmail(email).get(0);
         user.changeNickname(nickname);
-//        userRepository.save()
     }
 
     public String getNicknameByEmail(String email) {
