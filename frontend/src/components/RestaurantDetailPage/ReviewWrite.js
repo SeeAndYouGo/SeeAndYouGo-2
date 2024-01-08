@@ -27,13 +27,11 @@ const ReviewWriteContainer = styled.form`
 const ReviewStarRating = styled.span`
 	float: left;
 	color: #d9d9d9;
-	margin-top: -5px;
-	margin-left: 10px;
 	> ul {
-		font-size: 20px;
+		font-size: 25px;
 	}
 	> ul > li {
-		margin-right: 3px;
+		margin-right: 5px;
 	}
 `;
 const ReviewWriteInput = styled.input`
@@ -89,9 +87,9 @@ const ReviewWriteNameCheckbox = styled.input`
 `;
 
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
-	const [checked, setChecked] = useState(false);
+	// const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
-	const [writerName, setWriterName] = useState("");
+	// const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
 	const [image, setImage] = useState();
@@ -122,7 +120,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		// 평점 rate
 		formdata.append("rate", starVal);
 		// 작성자 writer
-		formdata.append("writer", writerName === "" ? "익명" : writerName);
+		// formdata.append("writer", writerName === "" ? "익명" : writerName);
 		// 리뷰 comment
 		formdata.append("comment", comment);
 		// 이미지 추가
@@ -151,12 +149,13 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{restaurantName === 1 ? (
+
+{restaurantName === 1 ? (
 				<MenuSelector onSelectMenu={handleSelectMenu} />
 			) : null}
 
-			<div style={{ width: "50%", float: "left" }}>
-				<p style={{ margin: "0", float: "left", fontSize: 15 }}>별점</p>
+			<div style={{ width: "100%", float: "left" }}>
+				<p style={{ width: "100%", margin: "10px 0 0 0", float: "left", fontSize: 15 }}>별점</p>
 				<ReviewStarRating>
 					<StarsRating
 						value={starVal}
@@ -166,63 +165,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 					/>
 				</ReviewStarRating>
 			</div>
-			<div style={{ width: "100%", float: "left", height: 30 }}>
-				<p
-					style={{
-						margin: "0px 0px 5px 0px",
-						float: "left",
-						fontSize: 15,
-						lineHeight: "35px",
-					}}
-				>
-					익명
-				</p>
 
-				<ReviewWriteNameCheckbox
-					type="checkbox"
-					onChange={() => {
-						setChecked(!checked);
-					}}
-					onClick={(e) => {
-						if (e.target.checked) {
-							setWriterName("");
-						}
-					}}
-				/>
-
-				{checked ? (
-					<ReviewWriteInput
-						disabled
-						value={"익명"}
-						type="text"
-						maxLength={6}
-						style={{
-							height: 30,
-							float: "left",
-							width: "30%",
-							lineHeight: 25,
-							paddingRight: 0,
-						}}
-					/>
-				) : (
-					<ReviewWriteInput
-						type="text"
-						onChange={(name) => {
-							setWriterName(name.target.value);
-						}}
-						maxLength={6}
-						placeholder={"닉네임"}
-						value={writerName}
-						style={{
-							height: 30,
-							float: "left",
-							width: "30%",
-							lineHeight: 25,
-							paddingRight: 0,
-						}}
-					/>
-				)}
-			</div>
 			<div style={{ width: "100%", float: "left", marginTop: 5 }}>
 				<div
 					style={{
@@ -263,7 +206,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
 	return (
-		<div style={{ float: "left", marginTop: 20 }}>
+		<div style={{ width:"100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
 				오늘의 메뉴 리뷰 남기기
 			</p>

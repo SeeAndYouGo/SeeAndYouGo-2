@@ -13,7 +13,7 @@ import LoginPage from "./pages/LoginPage";
 // import RouteChangeTracker from "./RouteChangeTracker";
 
 const HeaderWrapper = styled.div`
-	z-index: 1;
+	z-index: 10;
 	width: 100%;
 	height: 50px;
 	background-color: #333;

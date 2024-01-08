@@ -10,7 +10,7 @@ const SideBarWrap = styled.div`
   top: 0;
   right: 0;
   height: 100%;
-  z-index: 1;
+  z-index: 10;
   right: -100%;
   transition: all 0.3s ease-in-out;
   &.open {
@@ -151,7 +151,6 @@ const SideBar = ({isOpen, setIsOpen}) => {
                  )
               
               }
-              
             </AccountWrap>
           </p>
         </Title>

@@ -28,7 +28,7 @@ const MenuSelector = ({ onSelectMenu }) => {
     }, []);
 
     return (
-        <div style={{ display: "block", marginBottom: 10 }}>
+        <div style={{ width:"100%", float: "left", display: "block", margin: "5px 0" }}>
             <p style={{ margin: "0", float: "left", fontSize: 15 }}>
                 메뉴 선택
             </p>
