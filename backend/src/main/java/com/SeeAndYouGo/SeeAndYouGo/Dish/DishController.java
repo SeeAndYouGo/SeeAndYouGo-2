@@ -29,11 +29,4 @@ public class DishController {
         dishService.saveAndCacheWeekDish(2);
         dishService.saveAndCacheWeekDish(3);
     }
-
-//    @GetMapping("/day")
-//    public void day() throws Exception {
-//        dishService.saveAndCacheTodayDish(LocalDate.now());
-//    }
-
-
 }

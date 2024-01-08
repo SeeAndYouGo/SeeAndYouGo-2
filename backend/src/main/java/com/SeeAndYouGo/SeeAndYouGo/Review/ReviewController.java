@@ -29,10 +29,8 @@ public class ReviewController {
     @GetMapping("/topReview/{restaurant}")
     public List<ReviewDto> getTopReviews(@PathVariable String restaurant) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
-
         String date = LocalDate.now().toString();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-
         List<ReviewDto> response = getReviewDtos(reviews);
 
         return response;
@@ -71,33 +69,6 @@ public class ReviewController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    // // 리뷰 게시
-    // @PostMapping(value = "/review", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    // public ResponseEntity<Long> postReview(@RequestPart(value = "review") ReviewRequestDto requestDto, @RequestPart(value = "image",required = false) MultipartFile imgFile) throws Exception {
-    //     Review review = new Review();
-    //     NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
-    //     String imgUrl = "";
-    //     if (imgFile != null){
-    //         imgUrl = NCloudObjectStorage.imgUpload(imgFile.getInputStream(), imgFile.getContentType());
-    //     }
-
-    //     // 원하는 날짜 및 시간 형식을 정의합니다.
-    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-
-    //     review.setWriter(requestDto.getWriter());
-    //     review.setReviewRate(requestDto.getRate());
-    //     review.setComment(requestDto.getComment());
-    //     review.setImgLink(imgUrl);
-    //     review.setLikeCount(0);
-
-
-    //     review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
-
-    //     Long reviewId = reviewService.registerReview(review, requestDto.getRestaurant(), requestDto.getDept());
-
-    //     return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
-    // }
-
     // 리뷰 게시
     @PostMapping(value = "/review")
     public ResponseEntity<Long> postReview(
@@ -127,23 +98,10 @@ public class ReviewController {
         review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
-
-
         review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
-
-    // 리뷰 삭제
-//    @DeleteMapping("/review/{reviewId}")
-//    public ResponseEntity<String> deleteReview(@PathVariable Long reviewId) {
-//        Review review = reviewService.findOne(reviewId);
-//        if (review == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        reviewService.delete(review);
-//        return ResponseEntity.ok("Review deleted successfully.");
-//    }
 }

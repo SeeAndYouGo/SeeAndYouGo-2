@@ -23,7 +23,6 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository;
-    private final MenuRepository2 menuRepository2;
 
     public List<Menu> getOneDayRestaurantMenu(String placeName, String date) {
         String parseRestaurantName = parseRestaurantName(placeName);
@@ -33,7 +32,7 @@ public class MenuService {
             parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd")).toString();
         }catch(Exception e){}
 
-        Restaurant restaurant = restaurantRepository.findTodayRestaurant(parseRestaurantName, parsedDate);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, parsedDate).get(0);
         List<Menu> menus = extractNotLunch(restaurant.getMenuList());
 
         return sortMainDish(menus);
@@ -71,21 +70,6 @@ public class MenuService {
         return weekMenuList;
     }
 
-//    private List<Menu>[] extractNotLunch(List<Menu>[] weekMenuList) {
-//        List<Menu>[] weekMenusLunch = new List[weekMenuList.length];
-//
-//        int idx = 0;
-//        for (List<Menu> menusLunch : weekMenusLunch) {
-//
-//            for (Menu menu : menusLunch) {
-//                if(!containDinner(menu))
-//                    menusLunch.remove(menu);
-//            }
-//            weekMenusLunch[idx++] = menusLunch;
-//        }
-//        return weekMenusLunch;
-//    }
-
     private static boolean containDinner(Menu menu) {
         return menu.getMenuType().equals(MenuType.LUNCH);
     }
@@ -109,7 +93,7 @@ public class MenuService {
     }
 
     public Menu createMenuIfNotExists(Integer price, String date, Dept dept, Restaurant restaurant, MenuType menuType){
-        List<Menu> menus = menuRepository2.findByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType);
+        List<Menu> menus = menuRepository.findByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType);
         if(menus.size() == 0){
             return new Menu(price, date, dept, menuType, restaurant);
         }

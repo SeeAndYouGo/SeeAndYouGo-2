@@ -1,19 +1,12 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishController;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.BufferedReader;
@@ -29,10 +22,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.Connection.Connection.createNewConnect
 @RequiredArgsConstructor
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
-    private final RestaurantRepository restaurantRepository;
     private final RestaurantService restaurantService;
-    private final DishRepository dishRepository;
-    private final DishController dishController;
 
     public Connection getRecentConnected(String restaurantName){
         String changeRestaurantName = changeRestaurantName(restaurantName);
@@ -99,17 +89,6 @@ public class ConnectionService {
         }
         return result.toString();
     }
-
-//    private Restaurant getRestaurantIfExistElseCreate(String name, String today) {
-//        Long aLong = restaurantRepository.countNumberOfDataInDate(name, today);
-//        if(aLong > 0) {
-//            return restaurantRepository.findTodayRestaurant(name, today);
-//        }else{
-//            Restaurant restaurant = new Restaurant(name, today);
-//            restaurantRepository.save(restaurant);
-//            return restaurant;
-//        }
-//    }
 
     private String extractTimeInJson(JsonObject jsonObject) {
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
