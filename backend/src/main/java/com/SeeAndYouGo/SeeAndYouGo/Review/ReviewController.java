@@ -1,12 +1,14 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDto;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,17 +25,18 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final MenuService menuService;
+    private final TokenProvider tokenProvider;
     private static final Integer REPORT_CRITERION = 10;
 
     // 탑 리뷰 조회
     @GetMapping("/topReview/{restaurant}")
-    public List<ReviewDto> getTopReviews(@PathVariable String restaurant) {
+    public ResponseEntity<List<ReviewDto>> getTopReviews(@PathVariable String restaurant) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = LocalDate.now().toString();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
         List<ReviewDto> response = getReviewDtos(reviews);
 
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     private static List<ReviewDto> getReviewDtos(List<Review> reviews) {
@@ -43,19 +46,19 @@ public class ReviewController {
     }
 
     @GetMapping("/totalReview")
-    public List<ReviewDto> getAllReviews() {
+    public ResponseEntity<List<ReviewDto>> getAllReviews() {
         String date = LocalDate.now().toString();
         List<Review> allReviews = reviewService.findAllReviews(date);
 
-        return getReviewDtos(allReviews);
+        return ResponseEntity.ok(getReviewDtos(allReviews));
     }
 
     @GetMapping("/review/{restaurant}")
-    public List<ReviewDto> getRestaurantReviews(@PathVariable String restaurant) {
+    public ResponseEntity<List<ReviewDto>> getRestaurantReviews(@PathVariable String restaurant) {
         String date = LocalDate.now().toString();
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
-        return getReviewDtos(restaurantReviews);
+        return ResponseEntity.ok(getReviewDtos(restaurantReviews));
     }
 
     @PutMapping("/report/{reviewId}")
@@ -92,8 +95,8 @@ public class ReviewController {
 
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-
-        review.setWriter(writer);
+        String email = tokenProvider.decode(writer);
+        review.setWriter(email);
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
@@ -103,5 +106,38 @@ public class ReviewController {
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/reviews/{token}")
+    public ResponseEntity<List<ReviewDto>> getReviewsByUser(@PathVariable String token){
+        String userEmail = tokenProvider.decode(token);
+        List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
+
+        return ResponseEntity.ok(getReviewDtos(reviews));
+    }
+
+    @DeleteMapping("/reviews/{reviewId}/{token}")
+    public ResponseEntity<ReviewDeleteResponseDto> deleteReview(
+            @PathVariable("reviewId") Long reviewId,
+            @PathVariable("token") String token){
+
+        ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
+                .success(false)
+                .build();
+        String userEmail;
+        try{
+            userEmail = tokenProvider.decode(token);
+        }catch (ArrayIndexOutOfBoundsException e){
+            return ResponseEntity.ok(responseDto);
+        }
+
+        boolean isWriter = reviewService.deleteReview(userEmail, reviewId);
+        if(isWriter){
+            responseDto = ReviewDeleteResponseDto.builder()
+                    .success(true)
+                    .build();
+        }
+
+        return ResponseEntity.ok(responseDto);
     }
 }

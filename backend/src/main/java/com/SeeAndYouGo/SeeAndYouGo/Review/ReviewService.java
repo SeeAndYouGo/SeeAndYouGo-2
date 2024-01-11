@@ -91,4 +91,26 @@ public class ReviewService {
     public void deleteById(Long reviewId) {
         reviewRepository.deleteById(reviewId);
     }
+
+    public List<Review> findReviewsByWriter(String userEmail) {
+        return reviewRepository.findByWriter(userEmail);
+    }
+
+    /**
+     * 리뷰 작성자와 요청자가 일치하는지 검증 후, 리뷰를 삭제한다.
+     * @param userEmail
+     * @param reviewId
+     * @return
+     */
+    @Transactional
+    public boolean deleteReview(String userEmail, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).get();
+
+        if(review.writer.equals(userEmail)){
+            deleteById(reviewId);
+            return true;
+        }
+
+        return false;
+    }
 }
