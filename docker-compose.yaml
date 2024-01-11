@@ -15,6 +15,8 @@ services:
       MYSQL_USER: seeandyougo
       MYSQL_PASSWORD: seeandyougo
       TZ: 'Asia/Seoul'
+    ports:
+      - 3306:3306
     volumes:
       - ./data:/var/lib/mysql
     command:
@@ -33,7 +35,6 @@ services:
         ACCESS_KEY: ${ACCESS_KEY}
         SECRET_KEY: ${SECRET_KEY}
     restart: always
-
     ports:
       - 8080:8080
     volumes:
