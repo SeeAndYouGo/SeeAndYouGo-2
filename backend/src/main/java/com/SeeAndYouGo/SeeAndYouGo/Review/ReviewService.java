@@ -19,6 +19,7 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final MenuService menuService;
     private final ReviewRepository reviewRepository;
+    private final ReviewHistoryRepository reviewHistoryRepository;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
@@ -89,7 +90,10 @@ public class ReviewService {
 
     @Transactional
     public void deleteById(Long reviewId) {
+        Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
+        ReviewHistory reviewHistory = review.toReviewHistory();
+        reviewHistoryRepository.save(reviewHistory);
     }
 
     public List<Review> findReviewsByWriter(String userEmail) {
