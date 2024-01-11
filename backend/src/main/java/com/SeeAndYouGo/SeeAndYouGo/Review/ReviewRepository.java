@@ -27,4 +27,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "order by r.madeTime desc")
     List<Review> findReviewsByRestaurantAndDate(@Param("restaurantName") String restaurantName, @Param("date") String date);
 
+    List<Review> findByWriter(String userEmail);
 }
