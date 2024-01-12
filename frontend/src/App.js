@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Index from "./pages/index";
 import View from "./pages/viewPage";
+import SetNicknamePage from "./pages/SetNicknamePage";
 import ReviewPage from "./pages/ReviewPage";
 import AdminMainMenu from "./pages/AdminMainMenu";
 import KakaoCallBack from "./components/LoginPage/KakaoCallBack";
@@ -38,6 +39,7 @@ const App = () => {
           <Route exact path="/Admin/MainMenu" element={<AdminMainMenu />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/LoginPage" element={<LoginPage />} />
+          <Route exact path="/SetNicknamePage" element={<SetNicknamePage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
