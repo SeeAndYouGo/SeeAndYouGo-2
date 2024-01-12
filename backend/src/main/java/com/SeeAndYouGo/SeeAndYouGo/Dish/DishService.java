@@ -41,7 +41,8 @@ public class DishService {
 
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
 
-        List<Dish> dishes = new ArrayList<>();
+        // 페이지(파라미터)에 있는 dish 정보 리스트
+        List<DishDto> dishDtos = new ArrayList<>();
 
         // "OutBlock" 배열 순회
         for (JsonElement element : resultArray) {
@@ -69,41 +70,38 @@ public class DishService {
             String dateStr = menuObject.get("FOOM_YMD").getAsString();
             LocalDate objDate = LocalDate.parse(dateStr, formatter);
 
+            // DishDto 구성하기
             if(objDate.isAfter(monday) && objDate.isBefore(friday) || objDate.isEqual(monday) || objDate.isEqual(friday)) {
                 // 식당, 날짜, DEPT, 메뉴타입을 기준으로 해당하는 식당을 찾는다.
-                // Dish를 생성한다.
                 Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
-                Dish dish = new Dish(menuName, dept, objDate.toString(), DishType.SIDE, restaurant, menuType, price);
-                if(page != 1){
-                    Dish dish1 = searchAndAddDish(restaurant, dept, dish);
-                    dishRepository.save(dish1);
+                DishDto dishDto = DishDto.builder()
+                        .name(menuName)
+                        .dept(dept)
+                        .date(objDate.toString())
+                        .dishType(DishType.SIDE)
+                        .restaurant(restaurant)
+                        .menuType(menuType)
+                        .price(price)
+                        .build();
+
+//                어떤 문제가 될까? 모르겠지만 일단 주석처리하기로 했다.
+//                if(page != 1){
+//                    Dish dish1 = searchAndAddDish(restaurant, dept, dish);
+//                    dishRepository.save(dish1);
+//                }
+
+                // DB에 없던 dish면 등록하기
+                if (dishRepository.findByName(dishDto.getName()) == null) {
+                    dishRepository.save(new Dish(dishDto.getName(), dishDto.getDishType()));
                 }
-                dishes.add(dish);
+                dishDtos.add(dishDto);
             }
-        }
 
             // 오늘 날짜의 Dish를 만들었으면, 이걸 기준으로 Menu를 만든다.
-            List<Menu> menus = menuService.createMenuWithDishs(dishes);
-            for (Dish dish : dishes) {
-                for (Menu menu : menus) {
-                    if (menu.getDishList().contains(dish)) {
-                        dish.setMenu(menu);
-                    }
-                }
-            dishRepository.saveAll(dishes);
-        }
-    }
-
-    @Transactional
-    private Dish searchAndAddDish(Restaurant restaurant, Dept dept, Dish dish) {
-        List<Menu> menuList = restaurant.getMenuList();
-        for (Menu menu : menuList) {
-            if(menu.getDept().equals(dept)){
-                dish.setMenu(menu);
+            if (dishDtos.size() > 0) {
+                menuService.createMenuWithDishs(dishDtos);
             }
         }
-
-        return dish;
     }
 
     private String fetchDishInfoToString(Integer page) throws Exception {
@@ -134,17 +132,13 @@ public class DishService {
         return rawMenu.toString();
     }
 
-
     @Transactional
     public void updateMainDish(List<MainDishResponse> mainDishResponses) {
 
         for (MainDishResponse mainDishResponse : mainDishResponses) {
             String mainDishName = mainDishResponse.getMainDishName();
-            String date = mainDishResponse.getDate();
-            Dept dept = Dept.valueOf(mainDishResponse.getDept());
-            String restaurantName = mainDishResponse.getRestaurantName();
 
-            Dish dish = dishRepository.findByRestaurant_NameAndNameAndDeptAndDate(restaurantName, mainDishName, dept, date);
+            Dish dish = dishRepository.findByName(mainDishName);
             dish.setDishType(DishType.MAIN);
         }
     }

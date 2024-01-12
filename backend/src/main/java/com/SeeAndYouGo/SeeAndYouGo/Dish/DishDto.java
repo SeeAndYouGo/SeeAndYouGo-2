@@ -8,15 +8,23 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class DishDto {
-    private Long id;
     private String name;
-    private Menu menu;
     private Dept dept;
     private Restaurant restaurant;
     private DishType dishType;
     private int price;
     private String date;
     private MenuType menuType;
+
+    @Builder
+    public DishDto(String name, Dept dept, Restaurant restaurant, DishType dishType, int price, String date, MenuType menuType) {
+        this.name = name;
+        this.dept = dept;
+        this.restaurant = restaurant;
+        this.dishType = dishType;
+        this.price = price;
+        this.date = date;
+        this.menuType = menuType;
+    }
 }

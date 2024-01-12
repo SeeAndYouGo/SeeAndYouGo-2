@@ -1,15 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import javax.persistence.*;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Dish {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dish_id")
@@ -17,6 +13,11 @@ public class Dish {
     private String name;
     @Enumerated(EnumType.STRING)
     private DishType dishType;
+
+    public Dish(String name, DishType dishType) {
+        this.name = name;
+        this.dishType = dishType;
+    }
 
     @Override
     public String toString(){

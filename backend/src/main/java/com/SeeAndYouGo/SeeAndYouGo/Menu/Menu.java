@@ -21,7 +21,7 @@ public class Menu {
 
     private Integer price;
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<Dish> dishList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,23 +37,6 @@ public class Menu {
     private Dept dept;
     @Enumerated(EnumType.STRING)
     private MenuType menuType;
-
-    // 메뉴 문자열을 설정하는 메서드
-//    public void setMenu(List<Dish> dishList) {
-//        StringBuilder menuBuilder = new StringBuilder();
-//        for (Dish dish : dishList) {
-//            menuBuilder.append(dish.getName()).append("-");
-//        }
-//        this.name = menuBuilder.toString();
-//    }
-
-    // 메뉴 문자열을 반환하는 메서드
-//    public String getMenu() {
-//        return menu;
-//    }
-
-
-    // 생성자
 
     public Menu(Integer price, String date, Dept dept, MenuType menuType, Restaurant restaurant) {
         this.price = price;
@@ -71,7 +54,6 @@ public class Menu {
                 return dish.getName();
             }
         }
-
         return this.dishList.get(0).getName();
     }
 
