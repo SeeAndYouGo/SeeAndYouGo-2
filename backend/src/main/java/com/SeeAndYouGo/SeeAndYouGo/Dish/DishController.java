@@ -17,7 +17,7 @@ public class DishController {
     private final DishService dishService;
 
     @PutMapping("/mainMenu")
-    public String updateMainDish(@RequestBody LinkedList<MainDishResponse> mainDishResponses){
+    public String updateMainDish(@RequestBody LinkedList<MainDishResponse> mainDishResponses){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponses.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponses);
         return "Data updated successfully";

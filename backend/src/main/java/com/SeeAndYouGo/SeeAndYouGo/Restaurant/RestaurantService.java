@@ -67,7 +67,7 @@ public class RestaurantService {
     }
 
     @Transactional
-    private void createRestaurantsInDate(LocalDate date) {
+    public void createRestaurantsInDate(LocalDate date) {
         List<Restaurant>  restaurants = createRestaurantOnJson(date);
         restaurants.add(new Restaurant("2학생회관", date.toString()));
         restaurants.add(new Restaurant("3학생회관", date.toString()));
@@ -78,7 +78,7 @@ public class RestaurantService {
     }
 
     @Transactional
-    private List<Restaurant> createRestaurantOnJson(LocalDate date) {
+    public List<Restaurant> createRestaurantOnJson(LocalDate date) {
         List<Restaurant> restaurants = new ArrayList<>();
         try {
             // Read the JSON file
@@ -94,7 +94,6 @@ public class RestaurantService {
             Restaurant restaurant = new Restaurant(restaurantName, date.toString());
             restaurants.add(restaurant);
 
-            List<Dish> dishes = new ArrayList<>();
             List<Menu> menus = new ArrayList<>();
 
             // Extract menuName
@@ -103,15 +102,15 @@ public class RestaurantService {
                 String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
                 Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
 
-                Dish dish = new Dish(name, Dept.STUDENT, date.toString(), DishType.MAIN, restaurant, MenuType.LUNCH, price);
+                if (dishRepository.findByName(name) == null) {
+                    dishRepository.save(new Dish(name, DishType.MAIN));
+                }
+                Dish dish = dishRepository.findByName(name);
                 Menu menu = new Menu(price, date.toString(), Dept.STUDENT, MenuType.LUNCH, restaurant);
-                dish.setMenu(menu);
-                menu.setDishList(List.of(dish));
 
-                dishes.add(dish);
+                menu.setDishList(List.of(dish));
                 menus.add(menu);
             }
-            dishRepository.saveAll(dishes);
             menuRepository.saveAll(menus);
         } catch (IOException e) {
             e.printStackTrace();

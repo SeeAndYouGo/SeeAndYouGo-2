@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishDto;
+import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
@@ -21,6 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MenuService {
 
+    private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository;
 
@@ -44,6 +47,8 @@ public class MenuService {
         for (Menu menu : menus) {
             List<Dish> dishList = new ArrayList<>();
             for (Dish dish : menu.getDishList()) {
+                if(dishList.contains(dish))
+                    continue;
                 if(dish.getDishType().equals(DishType.MAIN))
                     dishList.add(0, dish);
                 else
@@ -101,26 +106,32 @@ public class MenuService {
     }
 
     @Transactional
-    public List<Menu> createMenuWithDishs(List<Dish> dishes) {
-        Map<String, Menu> responseMap = new HashMap<>();
+    public List<Menu> createMenuWithDishs(List<DishDto> dishDtos) {
+        if (dishDtos.size() == 0) {
+            return null;
+        }
 
-        for (Dish dish : dishes) {
-            String key = dish.getRestaurant().getName() + dish.getDept().toString() + dish.getDishType().toString() + dish.getDate()+dish.getMenuType().toString();
+        Map<String, Menu> responseMap = new HashMap<>();
+        for (DishDto dishDto : dishDtos) {
+            String key = dishDto.getRestaurant().getName() + dishDto.getDept().toString() + dishDto.getDishType().toString() + dishDto.getDate()+dishDto.getMenuType().toString();
 
             if (!responseMap.containsKey(key)) {
-                Dept dept = dish.getDept();
-                MenuType menuType = dish.getMenuType();
-                int price = dish.getPrice();
-                String date = dish.getDate();
-                Restaurant restaurant = dish.getRestaurant();
+                Dept dept = dishDto.getDept();
+                MenuType menuType = dishDto.getMenuType();
+                int price = dishDto.getPrice();
+                String date = dishDto.getDate();
+                Restaurant restaurant = dishDto.getRestaurant();
                 Menu menu = createMenuIfNotExists(price, date, dept, restaurant, menuType);
                 responseMap.put(key, menu);
             }
 
             Menu menu = responseMap.get(key);
-            menu.getDishList().add(dish);
+            Dish dish = dishRepository.findByName(dishDto.getName());
+            List<Dish> dishList = menu.getDishList();
+            if (!dishList.contains(dish)) {
+                dishList.add(dish);
+            }
         }
-
         List<Menu> menus = new ArrayList<>(responseMap.values());
         menuRepository.saveAll(menus);
 
