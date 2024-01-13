@@ -9,6 +9,7 @@ import AdminMainMenu from "./pages/AdminMainMenu";
 import KakaoCallBack from "./components/LoginPage/KakaoCallBack";
 import styled from "@emotion/styled";
 import LoginPage from "./pages/LoginPage";
+import MyReviewPage from "./pages/MyReviewPage";
 // import LoadingPage from "./pages/LoadingPage";
 // import RouteChangeTracker from "./RouteChangeTracker";
 
@@ -38,6 +39,7 @@ const App = () => {
           <Route exact path="/Admin/MainMenu" element={<AdminMainMenu />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/LoginPage" element={<LoginPage />} />
+          <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
