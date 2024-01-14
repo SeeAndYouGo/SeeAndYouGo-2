@@ -4,7 +4,7 @@ import React, { useState } from "react";
 const FooterWrapper = styled.div`
   width: 100%;
   height: 50px;
-  background-color: #333;
+  background-color: #222;
   text-align: center;
   position: absolute;
   bottom: 0;
