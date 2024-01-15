@@ -6,7 +6,7 @@ import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import * as config from "../../config";
-import Report from "../Report";
+import DropDown from "../DropDown";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -83,9 +83,8 @@ const RestaurantName = styled.p`
 `;
 
 const DeptName = styled.p`
-	padding: 0 5px;
+	padding: 1px 5px;
 	margin: 2px 0 0 0;
-	padding-top: 2px;
 	text-align: center;
 	background-color: rgba(0, 0, 0, 0.3);
 	color: white;
@@ -227,7 +226,7 @@ const ReviewItem = ({
 						bottom: 10,
 					}}
 				>
-					<Report reportTarget={reviewId} />
+					<DropDown targetId={reviewId}/>
 				</div>
 			</ReviewItemContainer>
 		</>
