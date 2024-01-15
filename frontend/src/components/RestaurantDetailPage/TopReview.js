@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import * as config from "../../config";
-import Report from "../Report";
+import DropDown from "../DropDown";
 
 const ReviewItemContainer = styled.div`
 	width: 330px;
@@ -66,6 +67,16 @@ const DeptName = styled.p`
 	font-weight: 500;
 `;
 
+const MenuName = styled.p`
+	font-size: 12px;
+	margin: 5px 0 0 0;
+	font-weight: 500;
+	float: left;
+	border: 1px solid #ccc;
+	padding: 3px 10px;
+	border-radius: 20px;
+`;
+
 const CalculateWriteTime = (inputTime, nowTime) => {
 	const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
 	if (checkMinutes < 60) {
@@ -77,7 +88,17 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 	}
 };
 
-const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
+const ReviewItem = ({
+	restaurant,
+	user,
+	time,
+	content,
+	img,
+	rate,
+	dept,
+	reviewId,
+	menuName,
+}) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 
@@ -99,9 +120,13 @@ const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
 						{CalculateWriteTime(targetTime, time)}
 					</span>
 				</ReviewItemProfile>
-				<div style={{ display: "flex", float: "right" }}>
-					<DeptName>{dept === "STAFF" ? "교직원" : "학생"}</DeptName>
-				</div>
+				{restaurant === "1학생회관" ? null : (
+					<div style={{ display: "flex", float: "right" }}>
+						<DeptName>
+							{dept === "STAFF" ? "교직원" : "학생"}
+						</DeptName>
+					</div>
+				)}
 			</div>
 			<div className="Row2" style={{ float: "left", width: "100%" }}>
 				<ReviewItemContent>{content}</ReviewItemContent>
@@ -112,7 +137,11 @@ const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
 			>
 				{img === "" ? null : (
 					<img
-						src={`${img}`}
+						src={
+							config.NOW_STATUS === 0
+								? `/assets/images/${img}`
+								: `${img}`
+						}
 						alt="Loading.."
 						style={{
 							maxHeight: 80,
@@ -123,6 +152,13 @@ const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
 					/>
 				)}
 			</div>
+			{restaurant === "1학생회관" ? (
+				<MenuName>
+					{menuName}&nbsp;
+					<FontAwesomeIcon icon={faSpoon} />
+				</MenuName>
+			) : null}
+
 			<div
 				style={{
 					position: "absolute",
@@ -130,7 +166,7 @@ const ReviewItem = ({ user, time, content, img, rate, dept, reviewId }) => {
 					bottom: 10,
 				}}
 			>
-				<Report reportTarget={reviewId} />
+				<DropDown targetId={reviewId} />
 			</div>
 		</ReviewItemContainer>
 	);
@@ -181,6 +217,7 @@ const TopReview = ({ idx }) => {
 				reviewArr.map((el, index) => (
 					<ReviewItem
 						key={index}
+						restaurant={el.restaurant}
 						user={el.writer}
 						time={el.madeTime}
 						rate={el.rate}
@@ -188,6 +225,7 @@ const TopReview = ({ idx }) => {
 						img={el.imgLink}
 						dept={el.dept}
 						reviewId={el.reviewId}
+						menuName={el.menuName}
 					/>
 				))
 			)}
