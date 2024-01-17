@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useState } from "react";
 import axios from "axios";
 import * as config from "../config";
-
+import Toast from "../components/Toast";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -17,6 +17,9 @@ font-size: 12px;
 font-weight: 400;
 width: 100%;
 
+&.success {
+  border: 1px solid #00cc00;
+}
 &::placeholder {
   font-weight: 400;
   font-size: 12px;
@@ -57,12 +60,24 @@ const SetButton = styled.button`
   float: left;
   font-weight: 400;
   cursor: pointer;
+
+  &.success {
+    background: #222;
+  }
+  &.error {
+    background: #e9e9e9;
+    color: #999;
+  }
 `;
 
 const SetNicknamePage = () => {
 	const [nickname, setNickname] = useState("");
+  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
+  const [toast, setToast] = useState(false);
 
-  const nicknameCheck = () => {
+  const Token = localStorage.getItem("token");
+
+  const CheckNickname = () => {
     console.log("nickname", nickname);
 
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
@@ -72,9 +87,10 @@ const SetNicknamePage = () => {
       console.log(res.redundancy);
 
       if (res.redundancy == true) {
-        alert("중복된 닉네임입니다.");
+        setToast(true);
+        setNicknameCheck(false);
       } else {
-        
+        setNicknameCheck(true);
       }
     }).catch((err) => {
       console.log(err);
@@ -83,10 +99,18 @@ const SetNicknamePage = () => {
 
   const nicknameSet = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
-
-    axios.put(url)
+    axios.put(url,{
+      token: Token,
+      nickname: nickname
+    })
     .then((res) => {
-      console.log(res.data);
+      console.log(res);
+      // if (res.data.success == true) {
+        alert("닉네임 설정이 완료되었습니다.");
+        window.location.href = "/";
+      // } else {
+      //   alert("닉네임 설정에 실패하였습니다.");
+      // }
     }).catch((err) => {
       console.log(err);
     });
@@ -94,16 +118,29 @@ const SetNicknamePage = () => {
 
 	return (
 		<div className="App3">
+      {toast ? <Toast message="이미 존재하는 닉네임입니다." type="error" setToast={setToast} /> : null}
+      
       <div className="setNicknameWrapper" style={{background: "#fff", padding: "30px 20px", borderRadius: 20, float: "left"}}>
         <p style={{margin: "0 0 10px 0", fontSize: 20}}>닉네임 설정</p>
         <p style={{fontSize: 12, color: "#555", fontWeight: 300, margin: "0 0 20px 0"}}>커뮤니티 활동을 위한 닉네임을 설정해주세요. 건너뛰기 클릭시 익명으로 처리됩니다.</p>
         <InputWrapper>
-          <NicknameInput type="text" placeholder="닉네임 입력" minLength={2} maxLength={6} onChange={(val) => setNickname(val.target.value)}></NicknameInput>
-          <button onClick={nicknameCheck}>중복확인</button>
+          <NicknameInput 
+            type="text" 
+            placeholder="닉네임 입력"
+            className={nicknameCheck ? "success" : "null"}
+            minLength={2} maxLength={6} 
+            onChange={(val) => setNickname(val.target.value)
+          }>
+          </NicknameInput>
+          <button onClick={CheckNickname}>중복확인</button>
           <p style={{fontSize: 12, float: "left", color: "#999", fontWeight: 300, margin: "5px 0 0 0"}}>* 닉네임은 2~6자 사이로 설정가능합니다.</p>
         </InputWrapper>
         <SetButton style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
-        <SetButton onClick={nicknameSet}>설정완료</SetButton>
+        {
+          nicknameCheck ? 
+          <SetButton className="success">설정완료</SetButton> : 
+          <SetButton disabled onClick={nicknameSet} className="error">설정완료</SetButton>
+        }
       </div>
 		</div>
 	);
