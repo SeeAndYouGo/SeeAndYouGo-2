@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import lombok.*;
@@ -21,8 +22,9 @@ public class Menu {
 
     private Integer price;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<Dish> dishList = new ArrayList<>();
+//    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menu")
+    private List<MenuDish> menuDishes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
@@ -49,16 +51,31 @@ public class Menu {
     }
 
     public String getMenuName(){
-        for (Dish dish : this.dishList) {
+        for (MenuDish menuDish : this.menuDishes) {
+            Dish dish = menuDish.getDish();
             if(dish.getDishType().equals(DishType.MAIN)){
                 return dish.getName();
             }
         }
-        return this.dishList.get(0).getName();
+        return this.menuDishes.get(0).getDish().getName();
     }
 
-    @Override
-    public String toString(){
-        return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();
+    public void setDishList(List<Dish> dishes) {
+        for (Dish dish : dishes) {
+            this.menuDishes.add(new MenuDish(this, dish));
+        }
     }
+
+    public List<Dish> getDishList() {
+        List<Dish> dishes = new ArrayList<>();
+        for(MenuDish menuDish : this.menuDishes){
+            dishes.add(menuDish.getDish());
+        }
+        return dishes;
+    }
+
+//    @Override
+//    public String toString(){
+//        return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();
+//    }
 }
