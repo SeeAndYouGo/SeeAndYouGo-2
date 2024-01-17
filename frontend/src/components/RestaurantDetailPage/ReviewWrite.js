@@ -28,26 +28,35 @@ const ReviewStarRating = styled.span`
 	float: left;
 	color: #d9d9d9;
 	> ul {
-		font-size: 25px;
+		font-size: 22px;
 	}
 	> ul > li {
 		margin-right: 5px;
 	}
 `;
-const ReviewWriteInput = styled.input`
-	color: #999;
-	border: 1px solid #d9d9d9;
+const ReviewWriteInputWrapper = styled.div`
+	height: 100px;
+	width: 100%;
+	float: left;
+	margin-bottom: 10px;
+	border: solid 1px #e5e5e5;
+	position: relative;
 	border-radius: 10px;
-	padding: 0 10px;
-	padding-right: 35px;
-	height: 35px;
+`;
+const ReviewWriteInput = styled.textarea`
+	border: none;
+	background: none;
+	resize: none;
+	color: #999;
+	padding: 10px;
+	height: 50px;
 	outline: none;
 	float: right;
 	font-size: 12px;
 	font-weight: 400;
 	width: 100%;
-
 	&::placeholder {
+		color: #888;
 		font-weight: 400;
 		font-size: 12px;
 	}
@@ -56,9 +65,12 @@ const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
 	position: absolute;
-	right: 10px;
-	line-height: 35px;
+	padding: 3px 7px;
 	cursor: pointer;
+	border: solid 1px #eee;
+	border-radius: 5px;
+	bottom: 10px;
+	left: 10px;
 `;
 
 const ReviewWriteButton = styled.button`
@@ -84,6 +96,13 @@ const ReviewWriteNameCheckbox = styled.input`
 	position: relative;
 	top: 50%;
 	transform: translateY(-50%);
+`;
+const ReviewWriteRatingLabel = styled.p`
+	margin: 0 10px 0 0;
+	line-height: 30px;
+	float: left;
+	font-size: 15px;
+	text-align: left;
 `;
 
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
@@ -150,12 +169,8 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	return (
 		<ReviewWriteContainer>
 
-{restaurantName === 1 ? (
-				<MenuSelector onSelectMenu={handleSelectMenu} />
-			) : null}
-
 			<div style={{ width: "100%", float: "left" }}>
-				<p style={{ width: "100%", margin: "10px 0 0 0", float: "left", fontSize: 15 }}>별점</p>
+				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 				<ReviewStarRating>
 					<StarsRating
 						value={starVal}
@@ -166,7 +181,11 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 				</ReviewStarRating>
 			</div>
 
-			<div style={{ width: "100%", float: "left", marginTop: 5 }}>
+			{restaurantName === 1 ? (
+				<MenuSelector onSelectMenu={handleSelectMenu} />
+			) : null}
+
+			<div style={{ width: "100%", float: "left"}}>
 				<div
 					style={{
 						position: "relative",
@@ -181,14 +200,17 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						id="Review-file-input"
 						onChange={onChangeImage}
 					/>
-					<ReviewWriteInput
-						type="text"
-						onChange={(val) => setComment(val.target.value)}
-						placeholder="리뷰를 남겨주세요 :)"
-					/>
-					<ReviewWriteCamera htmlFor="Review-file-input">
-						<FontAwesomeIcon icon={faCamera} />
-					</ReviewWriteCamera>
+					<ReviewWriteInputWrapper>
+						<ReviewWriteInput
+							type="text"
+							onChange={(val) => setComment(val.target.value)}
+							placeholder="리뷰를 남겨주세요 :)"
+						/>
+						<ReviewWriteCamera htmlFor="Review-file-input">
+							<FontAwesomeIcon icon={faCamera} />
+						</ReviewWriteCamera>
+					</ReviewWriteInputWrapper>
+
 				</div>
 				{starVal !== 0 ? (
 					<ReviewWriteButton onClick={ReviewSubmit}>

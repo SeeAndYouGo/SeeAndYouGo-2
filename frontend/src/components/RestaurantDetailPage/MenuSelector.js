@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "rsuite/dist/rsuite-no-reset.min.css";
+import styled from "@emotion/styled";
 import { Cascader } from "rsuite";
+
+const MenuSelectorContainer = styled.div`
+    width: 100%;
+    float: left;
+    display: block;
+    margin: 0 0 5px 0;
+    & .rs-picker-toggle {
+        border-radius: 10px;
+    }
+`;
 
 const MenuSelector = ({ onSelectMenu }) => {
     const [menuData, setMenuData] = useState([]);
@@ -28,10 +39,10 @@ const MenuSelector = ({ onSelectMenu }) => {
     }, []);
 
     return (
-        <div style={{ width:"100%", float: "left", display: "block", margin: "5px 0" }}>
-            <p style={{ margin: "0", float: "left", fontSize: 15 }}>
+        <MenuSelectorContainer>
+            {/* <p style={{ margin: "0", float: "left", fontSize: 15 }}>
                 메뉴 선택
-            </p>
+            </p> */}
             <Cascader
                 style={{ width: "100%", marginTop: 5 }}
                 placeholder="메뉴를 선택해주세요"
@@ -40,7 +51,7 @@ const MenuSelector = ({ onSelectMenu }) => {
                     handleMenuClick(value);
                 }}
             />
-        </div>
+        </MenuSelectorContainer>
     );
 };
 

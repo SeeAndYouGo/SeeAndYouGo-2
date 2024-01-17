@@ -2,22 +2,23 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
 @Setter
-public class Review {
+public class ReviewHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id")
+    @Column(name = "review_history_id")
     public Long id;
+
+    public Long reviewId;
 
     public String writer;
 
@@ -42,23 +43,17 @@ public class Review {
     @ColumnDefault("0")
     public Integer reportCount = 0;
 
-    public Integer incrementReportCount(){
-        reportCount++;
-        return reportCount;
-    }
-
-    public ReviewHistory toReviewHistory(){
-        return ReviewHistory.builder()
-                .reviewId(id)
-                .writer(this.writer)
-                .madeTime(this.madeTime)
-                .likeCount(this.likeCount)
-                .menu(this.menu)
-                .comment(this.comment)
-                .imgLink(this.imgLink)
-                .reviewRate(this.reviewRate)
-                .restaurant(this.restaurant)
-                .reportCount(this.reportCount)
-                .build();
+    @Builder
+    public ReviewHistory(Long reviewId, String writer, String madeTime, Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate, Restaurant restaurant, Integer reportCount) {
+        this.reviewId = reviewId;
+        this.writer = writer;
+        this.madeTime = madeTime;
+        this.likeCount = likeCount;
+        this.menu = menu;
+        this.comment = comment;
+        this.imgLink = imgLink;
+        this.reviewRate = reviewRate;
+        this.restaurant = restaurant;
+        this.reportCount = reportCount;
     }
 }

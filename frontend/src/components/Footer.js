@@ -4,7 +4,7 @@ import React, { useState } from "react";
 const FooterWrapper = styled.div`
   width: 100%;
   height: 50px;
-  background-color: #333;
+  background-color: #222;
   text-align: center;
   position: absolute;
   bottom: 0;
@@ -30,7 +30,7 @@ const Footer = () => {
           <span className="material-symbols-outlined" style={{fontSize: 15, float: "left", marginRight: 5, }}>mail</span>
           skj4244@naver.com
         </p>
-        <p style={{color: "#777", fontSize: 10, paddingTop: 5, width: "100%"}}>© 2023 SeeAndYouGo v2.0</p>
+        <p style={{color: "#777", fontSize: 10, paddingTop: 5, width: "100%"}}>© 2023 SeeAndYouGo v2.0.1</p>
       </ContentWrapper>
     </FooterWrapper>
   );

@@ -98,6 +98,16 @@ const SideBar = ({isOpen, setIsOpen}) => {
     setIsOpen(false);
   };
 
+  const loginForMemberContents = (e) => {
+    // toggleMenu();
+    if (loginState) {
+      toggleMenu()  
+    }else {
+      e.preventDefault(); 
+      alert("로그인이 필요한 서비스입니다.")
+    }
+  };
+
   useEffect(() => {
     const checkLogin = () => {
       if (localStorage.getItem("token")) {
@@ -123,7 +133,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
           </span>
         </div>
         <Title>
-          <p style={{height: "100%"}}>
+          <div style={{height: "100%"}}>
             <span className="material-symbols-outlined" style={{fontSize:40, lineHeight: "60px", float: "left"}}>account_circle</span>
             
             <AccountWrap>
@@ -142,32 +152,49 @@ const SideBar = ({isOpen, setIsOpen}) => {
                   <>
                     <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
                       <span style={{marginLeft: 10, float: "left", fontSize: 20}}>로그인&nbsp;</span>
-                      <span class="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
+                      <span className="material-symbols-outlined" style={{float: "left"}}>arrow_forward_ios</span>
                     </Link>
                     <Link to="/JoinPage" style={{color: "#777", fontSize: 14, display: "block", float: "right"}} onClick={toggleMenu}>
                       <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
                     </Link>
                   </>
-                 )
-              
+                  )
               }
             </AccountWrap>
-          </p>
+          </div>
         </Title>
+        <div style={{marginBottom: 10}}>
+          <span>
+            •&nbsp;MEMBER
+          </span>
+        </div>
         <MenuList>
-          <Link to="/MyPage" onClick={toggleMenu} style={{marginBottom: 10}}>
+          <Link to="/MyReviewPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
             <MenuName>
-              <span className="material-symbols-outlined" style={{fontSize: 25, marginTop: -1}}>person</span>
-              <span>마이페이지</span>
+              <span className="material-symbols-outlined" style={{fontSize: 25, marginTop: -1}}>rate_review</span>
+              <span>작성한 리뷰</span>
             </MenuName>
           </Link>
+          <Link to="/MyMenuPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <MenuName>
+              <span className="material-symbols-outlined" style={{fontSize: 25}}>favorite</span>
+              <span>찜한 메뉴</span>
+            </MenuName>
+          </Link>
+        </MenuList>
+        <div style={{marginBottom: 10}}>
+          <span>
+            •&nbsp;SERVICE
+          </span>
+        </div>
+        <MenuList>
           <Link to="/ReviewPage" onClick={toggleMenu} style={{marginBottom: 10}}>
             <MenuName>
               <span className="material-symbols-outlined" style={{fontSize: 25, marginTop: -1}}>chat</span>
               <span>리뷰페이지</span>
             </MenuName>
           </Link>
-          <Link to="/NoticePage" onClick={toggleMenu}>
+          <Link to="/NoticePage" onClick={toggleMenu} style={{marginBottom: 10}}>
             <MenuName>
               <span className="material-symbols-outlined" style={{fontSize: 25, marginTop: -1}}>info</span>
               <span>공지사항</span>

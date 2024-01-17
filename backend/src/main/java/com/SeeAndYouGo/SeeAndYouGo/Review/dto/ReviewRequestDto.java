@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

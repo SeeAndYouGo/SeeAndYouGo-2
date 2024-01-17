@@ -8,16 +8,16 @@
             "맑은우동국물"
         ],
         "restaurantName": "2학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-14 14:00:00"
+        "dept": "STUDENT",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
             null
         ],
         "restaurantName": "2학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-25"
+        "dept": "STAFF",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
@@ -27,8 +27,8 @@
             "메뉴4"
         ],
         "restaurantName": "3학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-25"
+        "dept": "STUDENT",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
@@ -37,8 +37,8 @@
             "메뉴3"
         ],
         "restaurantName": "3학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-25"
+        "dept": "STAFF",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
@@ -50,8 +50,8 @@
             "추가밥"
         ],
         "restaurantName": "4학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-25"
+        "dept": "STUDENT",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
@@ -62,8 +62,8 @@
             "돈까스"
         ],
         "restaurantName": "5학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-25"
+        "dept": "STUDENT",
+        "date": "2024-01-25"
     },
     {
         "dishList": [
@@ -74,16 +74,16 @@
             "맑은우동국물"
         ],
         "restaurantName": "2학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-26"
+        "dept": "STUDENT",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
             null
         ],
         "restaurantName": "2학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-26"
+        "dept": "STAFF",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
@@ -93,8 +93,8 @@
             "메뉴4"
         ],
         "restaurantName": "3학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-26"
+        "dept": "STUDENT",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
@@ -103,8 +103,8 @@
             "메뉴3"
         ],
         "restaurantName": "3학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-26"
+        "dept": "STAFF",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
@@ -116,8 +116,8 @@
             "추가밥"
         ],
         "restaurantName": "4학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-26"
+        "dept": "STUDENT",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
@@ -128,8 +128,8 @@
             "돈까스"
         ],
         "restaurantName": "5학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-26"
+        "dept": "STUDENT",
+        "date": "2024-01-26"
     },
     {
         "dishList": [
@@ -140,16 +140,16 @@
             "맑은우동국물"
         ],
         "restaurantName": "2학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-27"
+        "dept": "STUDENT",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
             null
         ],
         "restaurantName": "2학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-27"
+        "dept": "STAFF",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
@@ -159,8 +159,8 @@
             "메뉴4"
         ],
         "restaurantName": "3학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-27"
+        "dept": "STUDENT",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
@@ -169,8 +169,8 @@
             "메뉴3"
         ],
         "restaurantName": "3학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-27"
+        "dept": "STAFF",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
@@ -182,8 +182,8 @@
             "추가밥"
         ],
         "restaurantName": "4학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-27"
+        "dept": "STUDENT",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
@@ -194,8 +194,8 @@
             "돈까스"
         ],
         "restaurantName": "5학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-27"
+        "dept": "STUDENT",
+        "date": "2024-01-27"
     },
     {
         "dishList": [
@@ -206,16 +206,16 @@
             "맑은우동국물"
         ],
         "restaurantName": "2학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-28"
+        "dept": "STAFF",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
             null
         ],
         "restaurantName": "2학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-28"
+        "dept": "STUDENT",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
@@ -225,8 +225,8 @@
             "메뉴4"
         ],
         "restaurantName": "3학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-28"
+        "dept": "STAFF",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
@@ -235,8 +235,8 @@
             "메뉴3"
         ],
         "restaurantName": "3학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-28"
+        "dept": "STUDENT",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
@@ -248,8 +248,8 @@
             "추가밥"
         ],
         "restaurantName": "4학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-28"
+        "dept": "STUDENT",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
@@ -260,8 +260,8 @@
             "돈까스"
         ],
         "restaurantName": "5학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-28"
+        "dept": "STUDENT",
+        "date": "2024-01-28"
     },
     {
         "dishList": [
@@ -272,16 +272,16 @@
             "맑은우동국물"
         ],
         "restaurantName": "2학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-29"
+        "dept": "STAFF",
+        "date": "2024-01-29"
     },
     {
         "dishList": [
             null
         ],
         "restaurantName": "2학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-29"
+        "dept": "STUDENT",
+        "date": "2024-01-29"
     },
     {
         "dishList": [
@@ -291,8 +291,8 @@
             "메뉴4"
         ],
         "restaurantName": "3학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-29"
+        "dept": "STUDENT",
+        "date": "2024-01-29"
     },
     {
         "dishList": [
@@ -301,8 +301,8 @@
             "메뉴3"
         ],
         "restaurantName": "3학생회관",
-        "dept": "교직원식당",
-        "dateTime": "2023-10-29"
+        "dept": "STAFF",
+        "date": "2024-01-29"
     },
     {
         "dishList": [
@@ -314,8 +314,8 @@
             "추가밥"
         ],
         "restaurantName": "4학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-29"
+        "dept": "STUDENT",
+        "date": "2024-01-29"
     },
     {
         "dishList": [
@@ -326,7 +326,7 @@
             "돈까스"
         ],
         "restaurantName": "5학생회관",
-        "dept": "학생식당",
-        "dateTime": "2023-10-29"
+        "dept": "STUDENT",
+        "date": "2024-01-29"
     }
 ]

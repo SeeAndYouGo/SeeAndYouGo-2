@@ -10,6 +10,7 @@ import AdminMainMenu from "./pages/AdminMainMenu";
 import KakaoCallBack from "./components/LoginPage/KakaoCallBack";
 import styled from "@emotion/styled";
 import LoginPage from "./pages/LoginPage";
+import MyReviewPage from "./pages/MyReviewPage";
 // import LoadingPage from "./pages/LoadingPage";
 // import RouteChangeTracker from "./RouteChangeTracker";
 
@@ -17,7 +18,7 @@ const HeaderWrapper = styled.div`
 	z-index: 10;
 	width: 100%;
 	height: 50px;
-	background-color: #333;
+	background-color: #222;
 	position: fixed;
 	top: 0;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -40,6 +41,7 @@ const App = () => {
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/LoginPage" element={<LoginPage />} />
           <Route exact path="/SetNicknamePage" element={<SetNicknamePage />} />
+          <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
