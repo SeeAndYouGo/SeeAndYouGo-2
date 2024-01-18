@@ -10,8 +10,8 @@ import KakaoCallBack from "./components/LoginPage/KakaoCallBack";
 import styled from "@emotion/styled";
 import LoginPage from "./pages/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage";
+import RouteChangeTracker from "./RouteChangeTracker";
 // import LoadingPage from "./pages/LoadingPage";
-// import RouteChangeTracker from "./RouteChangeTracker";
 
 const HeaderWrapper = styled.div`
 	z-index: 10;
@@ -24,7 +24,8 @@ const HeaderWrapper = styled.div`
 `;
 
 const App = () => {
-  // RouteChangeTracker();
+  RouteChangeTracker();
+
   return (
     // <LoadingPage />
     <>
