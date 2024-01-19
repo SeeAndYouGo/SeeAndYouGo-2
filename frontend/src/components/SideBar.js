@@ -92,6 +92,9 @@ const JoinBtn = styled.span`
 `;
 
 const LogoutBtn = styled.span`
+  top: 50%;
+  transform: translateY(-50%);
+  position: relative;
   padding: 0 10px;
   border: solid 1px red;
   border-radius: 5px;
@@ -157,7 +160,11 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 {
                   loginState ? (
                     <>
-                      <span style={{marginLeft: 10, float: "left", fontSize: 20}}>{nickname === "" ? "익명" : nickname}&nbsp;님</span>
+                      <span 
+                        style={{marginLeft: 10, float: "left", fontSize: 18, lineHeight: "50px"}}
+                      >
+                        {nickname === "" ? "익명" : nickname}&nbsp;님
+                      </span>
                       <LogoutBtn onClick={() => {
                         if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                         localStorage.removeItem("token");
