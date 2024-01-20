@@ -1,10 +1,16 @@
 package com.SeeAndYouGo.SeeAndYouGo.OAuth;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TokenDto {
-    private final String token;
+    private String token;
+    private String message; // login, join 중 하나
+
+    @Builder
+    public TokenDto(String token, String message) {
+        this.token = token;
+        this.message = message;
+    }
 }

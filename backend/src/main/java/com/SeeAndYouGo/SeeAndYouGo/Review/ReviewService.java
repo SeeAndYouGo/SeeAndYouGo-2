@@ -97,7 +97,7 @@ public class ReviewService {
     }
 
     public List<Review> findReviewsByWriter(String userEmail) {
-        return reviewRepository.findByWriter(userEmail);
+        return reviewRepository.findByWriterEmail(userEmail);
     }
 
     /**
@@ -110,7 +110,7 @@ public class ReviewService {
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
 
-        if(review.writer.equals(userEmail)){
+        if(review.writerEmail.equals(userEmail)){
             deleteById(reviewId);
             return true;
         }

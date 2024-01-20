@@ -20,7 +20,9 @@ public class ReviewHistory {
 
     public Long reviewId;
 
-    public String writer;
+    public String writerEmail;
+    public String writerNickname;
+
 
     public String madeTime;
 
@@ -44,9 +46,13 @@ public class ReviewHistory {
     public Integer reportCount = 0;
 
     @Builder
-    public ReviewHistory(Long reviewId, String writer, String madeTime, Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate, Restaurant restaurant, Integer reportCount) {
+    public ReviewHistory(Long id, Long reviewId, String writerEmail, String writerNickname, String madeTime,
+                         Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate,
+                         Restaurant restaurant, Integer reportCount) {
+        this.id = id;
         this.reviewId = reviewId;
-        this.writer = writer;
+        this.writerEmail = writerEmail;
+        this.writerNickname = writerNickname;
         this.madeTime = madeTime;
         this.likeCount = likeCount;
         this.menu = menu;
