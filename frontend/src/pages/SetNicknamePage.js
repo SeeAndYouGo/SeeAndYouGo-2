@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as config from "../config";
 import Toast from "../components/Toast";
+import { useNavigate } from "react-router-dom";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -18,7 +19,7 @@ font-weight: 400;
 width: 100%;
 
 &.success {
-  border: 1px solid #00cc00;
+  border: 1px solid #52d017;
 }
 &::placeholder {
   font-weight: 400;
@@ -70,18 +71,17 @@ const SetButton = styled.button`
   }
 `;
 
-const SetNicknamePage = () => {
+const SetNickname = () => {
+	const navigator = useNavigate();
+
 	const [nickname, setNickname] = useState("");
-  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
+  const [nicknameCheck, setNicknameCheck] = useState(true); // 중복확인 버튼 클릭 여부
   const [toast, setToast] = useState(false);
 
   const Token = localStorage.getItem("token");
 
   const CheckNickname = () => {
-    console.log("nickname", nickname);
-
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
-
     axios.get(url)
     .then((res) => {
       console.log(res.redundancy);
@@ -107,10 +107,8 @@ const SetNicknamePage = () => {
       console.log(res);
       // if (res.data.success == true) {
         alert("닉네임 설정이 완료되었습니다.");
-        window.location.href = "/";
-      // } else {
-      //   alert("닉네임 설정에 실패하였습니다.");
-      // }
+        navigator("/");
+
     }).catch((err) => {
       console.log(err);
     });
@@ -146,4 +144,4 @@ const SetNicknamePage = () => {
 	);
 };
 
-export default SetNicknamePage;
+export default SetNickname;
