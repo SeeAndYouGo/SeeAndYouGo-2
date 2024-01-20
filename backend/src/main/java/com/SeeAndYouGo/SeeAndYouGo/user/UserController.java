@@ -42,7 +42,8 @@ public class UserController {
         String nickname = userService.getNicknameByEmail(email);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                                            .nickname(nickname).build();
+                                            .nickname(nickname)
+                                    .build();
 
         return ResponseEntity.ok(userResponseDto);
     }
