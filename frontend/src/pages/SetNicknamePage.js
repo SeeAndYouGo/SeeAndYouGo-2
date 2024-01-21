@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as config from "../config";
 import Toast from "../components/Toast";
-import { useNavigate } from "react-router-dom";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -72,21 +71,17 @@ const SetButton = styled.button`
 `;
 
 const SetNickname = () => {
-	const navigator = useNavigate();
-
 	const [nickname, setNickname] = useState("");
-  const [nicknameCheck, setNicknameCheck] = useState(true); // 중복확인 버튼 클릭 여부
+  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
   const [toast, setToast] = useState(false);
 
-  const Token = localStorage.getItem("token");
 
   const CheckNickname = () => {
+    console.log(nickname);
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
     axios.get(url)
     .then((res) => {
-      console.log(res.redundancy);
-
-      if (res.redundancy == true) {
+      if (res.data.redundancy == true) {
         setToast(true);
         setNicknameCheck(false);
       } else {
@@ -97,20 +92,21 @@ const SetNickname = () => {
     });
   }
 
-  const nicknameSet = () => {
+  const NicknameSet = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
+    const Token = localStorage.getItem("token");
+    console.log(Token, nickname)
+    
     axios.put(url,{
       token: Token,
       nickname: nickname
     })
     .then((res) => {
-      console.log(res);
       // if (res.data.success == true) {
-        alert("닉네임 설정이 완료되었습니다.");
-        navigator("/");
-
+      alert("닉네임 설정이 완료되었습니다.");
+      window.location.href = "/";
     }).catch((err) => {
-      console.log(err);
+      console.log(JSON.stringify(err));
     });
   }
 
@@ -136,8 +132,8 @@ const SetNickname = () => {
         <SetButton style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
         {
           nicknameCheck ? 
-          <SetButton className="success">설정완료</SetButton> : 
-          <SetButton disabled onClick={nicknameSet} className="error">설정완료</SetButton>
+          <SetButton onClick={NicknameSet} className="success">설정완료</SetButton> : 
+          <SetButton disabled className="error">설정완료</SetButton>
         }
       </div>
 		</div>
