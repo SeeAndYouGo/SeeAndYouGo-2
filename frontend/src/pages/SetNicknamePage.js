@@ -95,18 +95,30 @@ const SetNickname = () => {
   const NicknameSet = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
     const Token = localStorage.getItem("token");
-    console.log(Token, nickname)
+
+    const nicknameRequestJson = {
+      "token": Token,
+      "nickname": nickname
+    }
+    console.log(nicknameRequestJson)
+    // console.log(Token)
+    // console.log(nickname)
     
-    axios.put(url,{
-      token: Token,
-      nickname: nickname
-    })
+    // axios.put(url, JSON.stringify(nicknameRequestJson))
+		fetch(url, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(nicknameRequestJson),
+		})
     .then((res) => {
+      
       // if (res.data.success == true) {
       alert("닉네임 설정이 완료되었습니다.");
       window.location.href = "/";
     }).catch((err) => {
-      console.log(JSON.stringify(err));
+      console.log(err)
     });
   }
 
