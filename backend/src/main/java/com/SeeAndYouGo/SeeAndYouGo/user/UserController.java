@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.user;
 
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,9 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public ResponseEntity changeNickname(
-            @RequestParam("token") String jwtToken,
-            @RequestParam("nickname") String nickname){
-        String email = tokenProvider.decode(jwtToken);
-        userService.updateNickname(email, nickname);
+    public ResponseEntity changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
+        String email = tokenProvider.decode(nicknameRequest.getToken());
+        userService.updateNickname(email, nicknameRequest.getNickname());
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
