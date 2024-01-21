@@ -15,6 +15,7 @@ RUN yarn add react-star-rate
 RUN yarn add rsuite
 RUN yarn add axios
 RUN yarn add react-icons
+RUN yarn add react-ga4
 
 # ENV REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID ${GOOGLE_ANALYTICS_TRACKING_ID}
 RUN npm install -g serve
