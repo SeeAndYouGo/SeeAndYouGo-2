@@ -1,11 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -27,5 +25,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "order by r.madeTime desc")
     List<Review> findReviewsByRestaurantAndDate(@Param("restaurantName") String restaurantName, @Param("date") String date);
 
-    List<Review> findByWriter(String userEmail);
+    List<Review> findByWriterEmail(String userEmail);
 }

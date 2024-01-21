@@ -19,7 +19,8 @@ public class Review {
     @Column(name = "review_id")
     public Long id;
 
-    public String writer;
+    public String writerEmail;
+    public String writerNickname;
 
     public String madeTime;
 
@@ -50,7 +51,8 @@ public class Review {
     public ReviewHistory toReviewHistory(){
         return ReviewHistory.builder()
                 .reviewId(id)
-                .writer(this.writer)
+                .writerEmail(this.writerEmail)
+                .writerNickname(this.writerNickname)
                 .madeTime(this.madeTime)
                 .likeCount(this.likeCount)
                 .menu(this.menu)

@@ -114,6 +114,8 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	const [image, setImage] = useState();
 	// 이미지 이름 필요 없다고 생각되어 일단 삭제
 
+	const token = localStorage.getItem("token");
+
 	const onChangeImage = (e) => {
 		setImage(e.target.files[0]);
 		if (e.target.files[0] == null) {
@@ -140,6 +142,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		formdata.append("rate", starVal);
 		// 작성자 writer
 		// formdata.append("writer", writerName === "" ? "익명" : writerName);
+		formdata.append("writer", token);
 		// 리뷰 comment
 		formdata.append("comment", comment);
 		// 이미지 추가

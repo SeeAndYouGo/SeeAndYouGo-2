@@ -37,7 +37,7 @@ const KakaoCallBack = () => {
 					// 회원가입인 경우 닉네임 설정 창으로 이동
 					alert("회원가입을 축하합니다!\n닉네임을 설정해주세요.");
 					// 밑에 navigator 닉네임 설정화면으로 수정 필요
-					navigator("/Register");
+					navigator("/SetNickname");
 				} else {
 					// 이미 등록된 회원인 경우 닉네임 가져오기
 					const fetchData = async () => {

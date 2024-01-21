@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final MenuService menuService;
     private final TokenProvider tokenProvider;
+    private final UserService userService;
     private static final Integer REPORT_CRITERION = 10;
 
     // 탑 리뷰 조회
@@ -96,7 +98,9 @@ public class ReviewController {
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
         String email = tokenProvider.decode(writer);
-        review.setWriter(email);
+        String nickname = userService.findNickname(email);
+        review.setWriterEmail(email);
+        review.setWriterNickname(nickname);
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
