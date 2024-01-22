@@ -20,7 +20,7 @@ const ReviewHeader = () => {
                 <Link to={`/`}>
                     <FontAwesomeIcon icon={faAngleLeft} />
                 </Link>
-                <p style={{margin:"0px", marginLeft:10}}>오늘의 리뷰</p>
+                <p style={{margin:"0px", marginLeft:10}}>메뉴 리뷰</p>
             </HeaderContainer>
 		</>
 	);

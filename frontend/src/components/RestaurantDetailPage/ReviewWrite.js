@@ -233,7 +233,7 @@ const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
 	return (
 		<div style={{ width:"100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
-				오늘의 메뉴 리뷰 남기기
+				메뉴 리뷰 남기기
 			</p>
 			<ReviewWriteForm
 				restaurantName={restaurantName}
