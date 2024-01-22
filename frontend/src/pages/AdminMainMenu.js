@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import * as config from "../config";
+import Toast from "../components/Toast";
 
 const SubmitButton = styled.button`
 	background: white;
@@ -15,6 +16,28 @@ const SubmitButton = styled.button`
 `;
 
 const AdminMainMenu = () => {
+	const [isAdmin, setIsAdmin] = useState(false);
+	const [password, setPassword] = useState("");
+	const [toast, setToast] = useState(false);
+
+	const handlePasswordChange = (e) => {
+		setPassword(e.target.value);
+	};
+
+	const handleAdminLogin = () => {
+		if (password === process.env.REACT_APP_ADMIN_PASSWORD) {
+			setIsAdmin(true);
+		} else {
+			setToast(true);
+		}
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === "Enter") {
+			handleAdminLogin();
+		}
+	};
+
 	const initialArray = Array(30).fill(null);
 	// 백엔드로부터 가져온 데이터
 	const [menuList, setMenuList] = useState([]);
@@ -47,6 +70,7 @@ const AdminMainMenu = () => {
 					const tempArray = [...prevArray];
 					const tempObject = {
 						mainDishName: val.dishList[0],
+						subDishList: val.dishList.slice(1),
 						restaurantName: val.restaurantName,
 						dept: val.dept,
 						date: val.date,
@@ -66,9 +90,20 @@ const AdminMainMenu = () => {
 		e
 	) => {
 		setMainResult((prevArray) => {
+			if (e.target.value === prevArray[e.target.name].mainDishName) {
+				return prevArray;
+			}
+			const selectedIndex = prevArray[e.target.name].subDishList.indexOf(
+				e.target.value
+			);
+			const tempsubDishList = [...prevArray[e.target.name].subDishList];
+			tempsubDishList[selectedIndex] =
+				prevArray[e.target.name].mainDishName;
+
 			const tempArray = [...prevArray];
 			const tempObject = {
 				mainDishName: e.target.value,
+				subDishList: tempsubDishList,
 				restaurantName: selectedRestaurantName,
 				dept: selectedDept,
 				date: selectedDateTime,
@@ -82,9 +117,8 @@ const AdminMainMenu = () => {
 	const handleSubmit = () => {
 		// 전송할 데이터 정리
 		const sendData = [];
-		mainResult.map((val) => 
-			val.mainDishName !== null ? 
-				sendData.push(val) : null
+		mainResult.map((val) =>
+			val.mainDishName !== undefined ? sendData.push(val) : null
 		);
 		console.log("전송 데이터 확인", sendData);
 
@@ -108,55 +142,79 @@ const AdminMainMenu = () => {
 
 	return (
 		<>
-			<div className="AdminPage">
-				<div style={{ textAlign: "center", marginTop: 70 }}>
-					<span>비밀 주소입니다. 어떻게 오셨죠?</span>
+			{!isAdmin ? (
+				<div style={{ marginTop: 70 }}>
+					<label>
+						비밀번호:&nbsp;
+						<input
+							type="password"
+							value={password}
+							onChange={handlePasswordChange}
+							onKeyDown={handleKeyPress}
+						/>
+					</label>
+					<SubmitButton onClick={handleAdminLogin}>
+						로그인
+					</SubmitButton>
 				</div>
-				{menuList.map((val, index) => {
-					return val.dishList[0] === null ? null : (
-						<div key={index}>
-							<p>
-								{val.date} / {val.restaurantName} /{" "}
-								{val.dept === "STAFF" ? "교직원" : "학생"}
-							</p>
-							{val.dishList.map((val2, index2) => {
-								return (
-									<div key={index2}>
-										<label>
-											<input
-												type="radio"
-												name={index}
-												value={val2}
-												id={val2}
-												onChange={(e) =>
-													handleChange(
-														val.restaurantName,
-														val.dept,
-														val.date,
-														e
-													)
-												}
-											/>
-											{val2}
-										</label>
-									</div>
-								);
-							})}
-						</div>
-					);
-				})}
-			</div>
-			<SubmitButton
-				type="confirm"
-				onClick={() => {
-					if (window.confirm("제출하시겠습니까?")) {
-						handleSubmit();
-					}
-				}}
-			>
-				전송
-			</SubmitButton>
-			<div style={{ height: "100px" }}></div>
+			) : (
+				<div className="AdminPage">
+					<div style={{ textAlign: "center", marginTop: 70 }}>
+						<span>비밀 주소입니다. 어떻게 오셨죠?</span>
+					</div>
+					{menuList.map((val, index) => {
+						return val.dishList.length === 0 ? null : (
+							<div key={index}>
+								<p>
+									{val.date} / {val.restaurantName} /{" "}
+									{val.dept === "STAFF" ? "교직원" : "학생"}
+								</p>
+								{val.dishList.map((val2, index2) => {
+									return (
+										<div key={index2}>
+											<label>
+												<input
+													type="radio"
+													name={index}
+													value={val2}
+													id={val2}
+													onChange={(e) =>
+														handleChange(
+															val.restaurantName,
+															val.dept,
+															val.date,
+															e
+														)
+													}
+												/>
+												{val2}
+											</label>
+										</div>
+									);
+								})}
+							</div>
+						);
+					})}
+					<SubmitButton
+						type="confirm"
+						onClick={() => {
+							if (window.confirm("제출하시겠습니까?")) {
+								handleSubmit();
+							}
+						}}
+					>
+						전송
+					</SubmitButton>
+					<div style={{ height: "100px" }}></div>
+				</div>
+			)}
+			{toast ? (
+				<Toast
+					message="비밀번호가 틀렸습니다."
+					type="error"
+					setToast={setToast}
+				/>
+			) : null}
 		</>
 	);
 };
