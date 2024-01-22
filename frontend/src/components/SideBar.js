@@ -152,45 +152,39 @@ const SideBar = ({isOpen, setIsOpen}) => {
               close
             </span>
           </div>
-          <Title>
-            <div style={{height: "100%"}}>
-              <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
+          {
+            loginState ? (
+              <Title>
+                <div style={{height: "100%"}}>
+                  <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
+                  <AccountWrap>
+                    <span style={{marginLeft: 10, float: "left", fontSize: 18, lineHeight: "50px"}}>
+                      {nickname === "" ? "익명" : nickname}&nbsp;님
+                    </span>
+                    <LogoutBtn onClick={() => {
+                      if (window.confirm("로그아웃 하시겠습니까?") === false) return;
+                      localStorage.removeItem("token");
+                      localStorage.removeItem("nickname");
+                      setLoginState(false);
+                    }}>로그아웃</LogoutBtn>
+                  </AccountWrap>
+                </div>
+              </Title>
+            ) :(
+              <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
+                <Title>
+                  <div style={{height: "100%"}}>
+                    <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
+                    <AccountWrap>
+                      <span style={{marginLeft: 5, float: "left", fontSize: 16, lineHeight: "50px"}}>로그인&nbsp;</span>
+                      <span className="material-symbols-outlined" style={{float: "right", lineHeight: "50px", fontSize: 18}}>arrow_forward_ios</span>
+                    </AccountWrap>
+                  </div>
+                </Title>
+              </Link>
+            )
+          }
 
-              <AccountWrap>
-                {
-                  loginState ? (
-                    <>
-                      <span 
-                        style={{marginLeft: 10, float: "left", fontSize: 18, lineHeight: "50px"}}
-                      >
-                        {nickname === "" ? "익명" : nickname}&nbsp;님
-                      </span>
-                      <LogoutBtn onClick={() => {
-                        if (window.confirm("로그아웃 하시겠습니까?") === false) return;
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("nickname");
-                        setLoginState(false);
-                      }}>로그아웃</LogoutBtn>
-                    </>
-                    ) : (
-                    <>
-                      <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
-                        <span style={{marginLeft: 5, float: "left", fontSize: 16, lineHeight: "50px"}}>로그인&nbsp;</span>
-                        <span className="material-symbols-outlined" style={{float: "left", lineHeight: "50px", fontSize: 18}}>arrow_forward_ios</span>
-                      </Link>
-                      <Link 
-                        to="/JoinPage" 
-                        style={{fontSize: 14, display: "block", position:"relative", top:"50%", transform:"translateY(-50%)", float:"right"}}
-                        onClick={toggleMenu}
-                      >
-                        <JoinBtn style={{float: "left", fontWeight: 400}}>회원가입</JoinBtn>
-                      </Link>
-                    </>
-                    )
-                }
-              </AccountWrap>
-            </div>
-          </Title>
           <div style={{marginBottom: 10}}>
             <span>
               •&nbsp;MEMBER
