@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
@@ -7,6 +7,8 @@ import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import * as config from "../../config";
 import DropDown from "../DropDown";
+import Modal from "../Modal";
+import ModalImageZoom from "./ModalImageZoom";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -105,6 +107,14 @@ const MenuName = styled.p`
 	border-radius: 20px;
 `;
 
+const ReviewImage = styled.img`
+	max-height: 80px;
+	max-width: 80px;
+	float: left;
+	margin-top: 5;
+	cursor: zoom-in;
+`;
+
 const CalculateWriteTime = (inputTime, nowTime) => {
 	const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
 	if (checkMinutes < 60) {
@@ -130,6 +140,7 @@ const ReviewItem = ({
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
+	const [imgVisible, setImgVisible] = useState(false);
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
@@ -197,21 +208,32 @@ const ReviewItem = ({
 				>
 					<ReviewItemContent>{content}</ReviewItemContent>
 					{img === "" ? null : (
-						<img
+						<ReviewImage
 							src={
 								config.NOW_STATUS === 0
 									? `/assets/images/${img}`
 									: `${img}`
 							}
 							alt="Loading.."
-							style={{
-								maxHeight: 80,
-								maxWidth: 80,
-								float: "left",
-								marginTop: 5,
+							onClick={() => {
+								setImgVisible(true);
 							}}
 						/>
 					)}
+					<Modal
+						visible={imgVisible}
+						onClose={() => {
+							setImgVisible(false);
+						}}
+					>
+						<ModalImageZoom
+							imgLink={
+								config.NOW_STATUS === 0
+									? `/assets/images/${img}`
+									: `${img}`
+							}
+						/>
+					</Modal>
 				</div>
 				{isTotal && menuName && (
 					<MenuName>
@@ -226,7 +248,7 @@ const ReviewItem = ({
 						bottom: 10,
 					}}
 				>
-					<DropDown targetId={reviewId}/>
+					<DropDown targetId={reviewId} />
 				</div>
 			</ReviewItemContainer>
 		</>
