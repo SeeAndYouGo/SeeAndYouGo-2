@@ -91,6 +91,7 @@ const SortingSelect = styled.select`
 `;
 
 const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
+	// console.log(nowReviewList)
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");

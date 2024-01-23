@@ -210,7 +210,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/ReviewPage" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/ReviewPage/0" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>

@@ -37,7 +37,7 @@ const App = () => {
         <Routes>
           <Route exact path="/" element={<Index />} />
           <Route exact path="/View/:restaurant" element={<View />} />
-          <Route exact path="/ReviewPage" element={<ReviewPage />} />
+          <Route exact path="/ReviewPage/:restaurant" element={<ReviewPage />} />
           <Route exact path="/Admin/MainMenu" element={<AdminMainMenu />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/LoginPage" element={<LoginPage />} />

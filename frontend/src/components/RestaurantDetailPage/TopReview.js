@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 import moment from "moment";
 import * as config from "../../config";
 import DropDown from "../DropDown";
@@ -74,6 +75,18 @@ const MenuName = styled.p`
 	float: left;
 	border: 1px solid #ccc;
 	padding: 3px 10px;
+	border-radius: 20px;
+`;
+
+const NoReviewMessage = styled.p`
+	margin-top: 10px;
+	font-weight: 400;
+	width: 100%;
+	font-size: 14px;
+	text-align: center;
+	color: #777;
+	padding: 15px 0;
+	background: #fff;
 	border-radius: 20px;
 `;
 
@@ -198,21 +211,17 @@ const TopReview = ({ idx }) => {
 	return (
 		<div style={{ width: "100%", float: "left" }}>
 			<p style={{ fontSize: 18, marginBottom: 10 }}>
-				오늘의 리뷰 미리보기
+				리뷰 미리보기
+			<Link 
+				to={`/ReviewPage/${idx}`}
+				style={{float:"right", fontWeight: 400, fontSize: 14, color: "royalblue"}}>
+					전체보기 >
+			</Link>
 			</p>
 			{reviewArr.length === 0 ? (
-				<>
-					<p
-						style={{
-							marginTop: 20,
-							width: "100%",
-							fontSize: 16,
-							textAlign: "center",
-						}}
-					>
-						첫 리뷰의 주인공이 되어주세요!!
-					</p>
-				</>
+				<NoReviewMessage>
+					첫 리뷰의 주인공이 되어주세요!
+				</NoReviewMessage>
 			) : (
 				reviewArr.map((el, index) => (
 					<ReviewItem
