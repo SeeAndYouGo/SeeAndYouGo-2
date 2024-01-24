@@ -22,8 +22,7 @@ public class Menu {
 
     private Integer price;
 
-//    @ManyToMany(cascade = CascadeType.ALL)
-    @OneToMany(mappedBy = "menu")
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)  // Menu를 저장할 때 연관된 MenuDish가 자동으로 저장되어야 함
     private List<MenuDish> menuDishes = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

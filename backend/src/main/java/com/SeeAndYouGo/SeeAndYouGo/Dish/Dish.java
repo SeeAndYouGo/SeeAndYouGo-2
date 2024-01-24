@@ -1,7 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import lombok.*;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter @Setter
@@ -13,6 +16,10 @@ public class Dish {
     private String name;
     @Enumerated(EnumType.STRING)
     private DishType dishType;
+
+    @OneToMany(mappedBy = "dish")
+    private List<MenuDish> menuDishes = new ArrayList<>();
+
 
     public Dish(String name, DishType dishType) {
         this.name = name;
