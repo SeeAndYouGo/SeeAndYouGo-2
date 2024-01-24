@@ -64,13 +64,12 @@ const AdminMainMenu = () => {
 			console.log("가져온 데이터 확인", data);
 			// menuList에 저장
 			setMenuList(data);
-			// 일단 index 0번의 값으로 mainResult를 초기화
+
 			data.map((val, index) =>
 				setMainResult((prevArray) => {
 					const tempArray = [...prevArray];
 					const tempObject = {
-						mainDishName: val.dishList[0],
-						subDishList: val.dishList.slice(1),
+						subDishList: val.dishList,
 						restaurantName: val.restaurantName,
 						dept: val.dept,
 						date: val.date,
@@ -93,23 +92,42 @@ const AdminMainMenu = () => {
 			if (e.target.value === prevArray[e.target.name].mainDishName) {
 				return prevArray;
 			}
-			const selectedIndex = prevArray[e.target.name].subDishList.indexOf(
-				e.target.value
-			);
-			const tempsubDishList = [...prevArray[e.target.name].subDishList];
-			tempsubDishList[selectedIndex] =
-				prevArray[e.target.name].mainDishName;
 
 			const tempArray = [...prevArray];
-			const tempObject = {
-				mainDishName: e.target.value,
-				subDishList: tempsubDishList,
-				restaurantName: selectedRestaurantName,
-				dept: selectedDept,
-				date: selectedDateTime,
-			};
+			if (prevArray[e.target.name].mainDishName === undefined) {
+				// 처음으로 버튼 클릭한 경우
+				const tempSubDishList = [
+					...prevArray[e.target.name].subDishList,
+				].filter((val) => val !== e.target.value);
+				const tempObject = {
+					mainDishName: e.target.value,
+					subDishList: tempSubDishList,
+					restaurantName: selectedRestaurantName,
+					dept: selectedDept,
+					date: selectedDateTime,
+				};
+				tempArray[e.target.name] = tempObject;
+			} else {
+				// 라디오 버튼 변경한 경우
+				const selectedIndex = prevArray[
+					e.target.name
+				].subDishList.indexOf(e.target.value);
+				const tempSubDishList = [
+					...prevArray[e.target.name].subDishList,
+				];
+				tempSubDishList[selectedIndex] =
+					prevArray[e.target.name].mainDishName;
 
-			tempArray[e.target.name] = tempObject;
+				const tempObject = {
+					mainDishName: e.target.value,
+					subDishList: tempSubDishList,
+					restaurantName: selectedRestaurantName,
+					dept: selectedDept,
+					date: selectedDateTime,
+				};
+				tempArray[e.target.name] = tempObject;
+			}
+
 			return tempArray;
 		});
 	};
@@ -143,7 +161,7 @@ const AdminMainMenu = () => {
 	return (
 		<>
 			{!isAdmin ? (
-				<div style={{ marginTop: 70 }}>
+				<div style={{ margin: "80px 5px 0 5px" }}>
 					<label>
 						비밀번호:&nbsp;
 						<input
@@ -210,7 +228,7 @@ const AdminMainMenu = () => {
 			)}
 			{toast ? (
 				<Toast
-					message="비밀번호가 틀렸습니다."
+					message="비밀번호가 틀립니다."
 					type="error"
 					setToast={setToast}
 				/>
