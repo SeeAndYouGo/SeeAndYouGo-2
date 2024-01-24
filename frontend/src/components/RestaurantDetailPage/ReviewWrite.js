@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import StarsRating from "react-star-rate";
 import MenuSelector from "./MenuSelector";
 import axios from "axios";
@@ -35,7 +35,7 @@ const ReviewStarRating = styled.span`
 	}
 `;
 const ReviewWriteInputWrapper = styled.div`
-	height: 100px;
+	height: 120px;
 	width: 100%;
 	float: left;
 	margin-bottom: 10px;
@@ -49,7 +49,7 @@ const ReviewWriteInput = styled.textarea`
 	resize: none;
 	color: #999;
 	padding: 10px;
-	height: 50px;
+	height: 60px;
 	outline: none;
 	float: right;
 	font-size: 12px;
@@ -64,13 +64,12 @@ const ReviewWriteInput = styled.textarea`
 const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
-	position: absolute;
-	padding: 3px 7px;
+	padding: 7px 12px;
 	cursor: pointer;
-	border: solid 1px #eee;
+	border: dashed 1px #e5e5e5;
 	border-radius: 5px;
-	bottom: 10px;
-	left: 10px;
+	float: left;
+	margin: 5px 5px 0 10px;
 `;
 
 const ReviewWriteButton = styled.button`
@@ -78,13 +77,17 @@ const ReviewWriteButton = styled.button`
 	margin-top: 10px;
 	font-size: 12px;
 	background: #d9d9d9;
-	color: "#777";
+	color: #777;
 	border-radius: 10px;
 	border: none;
 	height: 30px;
 	float: left;
 	font-weight: 400;
 	cursor: pointer;
+	&.success {
+		background: #222;
+		color: white;
+	}
 `;
 const ReviewWriteNameCheckbox = styled.input`
 	float: left;
@@ -104,6 +107,32 @@ const ReviewWriteRatingLabel = styled.p`
 	font-size: 15px;
 	text-align: left;
 `;
+const ReviewPreviewImage = styled.img`
+	max-width: 220px;
+	height: 42.5px;
+	border-radius: 5px;
+	float: left;
+	margin-top: 5px;
+	border: dashed 1px #e5e5e5;
+`;
+const ReviewImageDelete = styled.div`
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	color: #fff;
+	position: absolute;
+	top: -2px;
+	right: -7px;
+	background: #ccc;
+	cursor: pointer;
+	border-radius: 20px;
+	& > span {
+		width: 100%;
+		text-align: center;
+		line-height: 18px;
+		font-size: 14px;
+	}
+`;
 
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	// const [checked, setChecked] = useState(false);
@@ -111,16 +140,28 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	// const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
-	const [image, setImage] = useState();
-	// 이미지 이름 필요 없다고 생각되어 일단 삭제
+	const [image, setImage] = useState(); 
+	const [imageURL, setImageURL] = useState("");
+	const imageRef = useRef(null);
 
-	const token = localStorage.getItem("token");
+	const token = localStorage.getItem("token") ? localStorage.getItem("token") : "";
 
 	const onChangeImage = (e) => {
-		setImage(e.target.files[0]);
-		if (e.target.files[0] == null) {
-			return;
+		const reader = new FileReader();
+		if (e.target.files[0]) {
+			reader.readAsDataURL(e.target.files[0]);
+			setImage(e.target.files[0]);
 		}
+
+		reader.onloadend = (e) => {
+			setImageURL(e.target.result);
+		};
+	};
+	
+	const deleteImage = () => {
+		setImage(null);
+		setImageURL("");
+		imageRef.current.value = null;
 	};
 
 	const handleSelectMenu = (value) => {
@@ -202,6 +243,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						accept="image/*"
 						id="Review-file-input"
 						onChange={onChangeImage}
+						ref={imageRef}
 					/>
 					<ReviewWriteInputWrapper>
 						<ReviewWriteInput
@@ -212,11 +254,19 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						<ReviewWriteCamera htmlFor="Review-file-input">
 							<FontAwesomeIcon icon={faCamera} />
 						</ReviewWriteCamera>
+						{imageURL ? 
+							<div className="PrevWrapper" style={{float:"left", position:"relative"}}>
+								<ReviewPreviewImage src={imageURL} />
+								<ReviewImageDelete onClick={deleteImage}>
+									<span className="material-symbols-outlined">close</span>
+								</ReviewImageDelete>
+							</div>
+						: null}
 					</ReviewWriteInputWrapper>
 
 				</div>
 				{starVal !== 0 ? (
-					<ReviewWriteButton onClick={ReviewSubmit}>
+					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
 						작성
 					</ReviewWriteButton>
 				) : (
@@ -233,7 +283,7 @@ const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
 	return (
 		<div style={{ width:"100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
-				오늘의 메뉴 리뷰 남기기
+				메뉴 리뷰 남기기
 			</p>
 			<ReviewWriteForm
 				restaurantName={restaurantName}

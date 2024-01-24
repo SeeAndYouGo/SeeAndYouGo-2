@@ -30,8 +30,9 @@ const TabMenu = styled.ul`
 
 const reviewTitleArray = ["전체", "1학", "2학", "3학", "상록회관", "생과대"];
 
-const ReviewSelect = () => {
-	const [currentTab, clickTab] = useState(0);
+const ReviewSelect = ({idx = 0}) => {
+
+	const [currentTab, clickTab] = useState(idx);
 
 	const [reviewArray, setReviewArray] = useState([]);
 	const [menuArray, setMenuArray] = useState([]);
@@ -63,8 +64,11 @@ const ReviewSelect = () => {
 				fetch(path).then((response) => response.json())
 			)
 		)
-			.then((dataArray) => setReviewArray(dataArray))
-			.catch((error) => console.error("Error fetching JSON:", error));
+		.then((dataArray) => {
+			console.log(dataArray)
+			return setReviewArray(dataArray)
+		})
+		.catch((error) => console.error("Error fetching JSON:", error));
 
 		const menuUrl = [
 			config.BASE_URL +
@@ -86,8 +90,8 @@ const ReviewSelect = () => {
 				fetch(path).then((response) => response.json())
 			)
 		)
-			.then((dataArray) => setMenuArray(dataArray))
-			.catch((error) => console.error("Error fetching JSON:", error));
+		.then((dataArray) => setMenuArray(dataArray))
+		.catch((error) => console.error("Error fetching JSON:", error));
 	}, []);
 
 	const selectMenuHandler = (index) => {
@@ -118,20 +122,25 @@ const ReviewSelect = () => {
 				<TabMenuUl />
 				<div className="desc">
 					{currentTab < 2 ? ( // 전체, 1학 탭
+						reviewArray.length > 0 &&
 						<ReviewList
 							idx={currentTab}
 							nowReviewList={reviewArray[currentTab]}
 						/>
 					) : currentTab > 3 ? ( // 상록회관, 생과대 탭
 						<>
-							<ReviewInfo nowMenu={menuArray[currentTab - 2]} />
-							<ReviewList
-								idx={currentTab}
-								nowReviewList={reviewArray[currentTab]}
-							/>
+							{menuArray.length > 0 && <ReviewInfo nowMenu={menuArray[currentTab - 2]} />}
+							{
+								reviewArray.length > 0 && 
+								<ReviewList
+									idx={currentTab}
+									nowReviewList={reviewArray[currentTab]}
+								/>
+							}
 						</>
 					) : (
 						// 2학, 3학 탭
+						reviewArray.length > 0 && menuArray.length > 0 &&
 						<ReviewListType2
 							nowReviewList={reviewArray[currentTab]}
 							nowMenu={menuArray[currentTab - 2]}

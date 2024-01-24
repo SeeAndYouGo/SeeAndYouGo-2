@@ -15,8 +15,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.SeeAndYouGo.SeeAndYouGo.Connection.Connection.createNewConnection;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -70,7 +68,12 @@ public class ConnectionService {
             // 만약 여기에 데이터가 없다면, restaurant를 새로 생성. 있다면, restaurant의 connection에 add하자.
             Integer connected = asJsonObject.get("connected").getAsInt();
 
-            Connection connection = createNewConnection(connected, time, restaurant);
+            Connection connection = Connection.builder()
+                                    .connected(connected)
+                                    .time(time)
+                                    .restaurant(restaurant)
+                                    .build();
+
             connectionRepository.save(connection);
         }
     }

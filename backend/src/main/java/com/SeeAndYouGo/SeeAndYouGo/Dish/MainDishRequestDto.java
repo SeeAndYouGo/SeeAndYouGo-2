@@ -2,13 +2,14 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-public class MainDishResponse {
+public class MainDishRequestDto {
     private String restaurantName;
     private String dept;
     private String date; // YYYY-mm-DD
     private String mainDishName;
+    private List<String> subDishList;
 }

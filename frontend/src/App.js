@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import LoginPage from "./pages/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage";
 import RouteChangeTracker from "./RouteChangeTracker";
+import NoticePage from "./pages/NoticePage";
 // import LoadingPage from "./pages/LoadingPage";
 
 const HeaderWrapper = styled.div`
@@ -37,12 +38,13 @@ const App = () => {
         <Routes>
           <Route exact path="/" element={<Index />} />
           <Route exact path="/View/:restaurant" element={<View />} />
-          <Route exact path="/ReviewPage" element={<ReviewPage />} />
+          <Route exact path="/ReviewPage/:restaurant" element={<ReviewPage />} />
           <Route exact path="/Admin/MainMenu" element={<AdminMainMenu />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/LoginPage" element={<LoginPage />} />
           <Route exact path="/SetNickname" element={<SetNickname />} />
           <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
+          <Route exact path="/NoticePage" element={<NoticePage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>

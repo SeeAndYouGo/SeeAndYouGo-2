@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
 
+    @Builder
     public User(String email, String nickname, Social socialType) {
         this.email = email;
         this.nickname = nickname;

@@ -138,8 +138,11 @@ public class OAuthService {
 
     private void signUp(UserIdentityDto dto) {
         try {
-            userRepository.save(new User(dto.getEmail(), null,  Social.KAKAO));
-            System.out.println();
+            userRepository.save(User.builder()
+                            .email(dto.getEmail())
+                            .nickname(null)
+                            .socialType(Social.KAKAO)
+                            .build());
         } catch (Exception e) {
             // 유저 가입 실패
             e.printStackTrace();
