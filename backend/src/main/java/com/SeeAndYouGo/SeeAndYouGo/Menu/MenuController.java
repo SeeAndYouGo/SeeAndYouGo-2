@@ -19,7 +19,7 @@ public class MenuController {
     private final MenuService menuService;
 
     @GetMapping("/dailyMenu/{restaurant}")
-    public ResponseEntity<List<MenuResponse>> restaurantMenuDay(@PathVariable("restaurant") String place) {
+    public ResponseEntity<List<MenuResponseDto>> restaurantMenuDay(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
 
@@ -37,46 +37,35 @@ public class MenuController {
         return currentDate.format(formatter);
     }
 
-    private List<MenuResponse> parseOneDayRestaurantMenu(List<Menu> oneDayRestaurantMenu) {
-        List<MenuResponse> menuResponses = new ArrayList<>();
+    private List<MenuResponseDto> parseOneDayRestaurantMenu(List<Menu> oneDayRestaurantMenu) {
+        List<MenuResponseDto> menuResponsDtos = new ArrayList<>();
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
-            MenuResponse menuResponse = new MenuResponse();
-            menuResponse.setRestaurantName(dayRestaurantMenu.getRestaurant().getName());
-            menuResponse.setPrice(dayRestaurantMenu.getPrice());
-            menuResponse.setDept(dayRestaurantMenu.getDept().toString());
-            menuResponse.setMenuType(dayRestaurantMenu.getMenuType().toString());
-            menuResponse.setDate(dayRestaurantMenu.getDate().toString());
-            List<String> dishesString = new ArrayList<>();
-            for (Dish dish : dayRestaurantMenu.getDishList())
-                dishesString.add(dish.toString());
-            menuResponse.setDishList(dishesString);
-            menuResponses.add(menuResponse);
+            MenuResponseDto menuResponseDto = new MenuResponseDto(dayRestaurantMenu);
+            menuResponsDtos.add(menuResponseDto);
         }
-        return menuResponses;
+        return menuResponsDtos;
     }
 
     @GetMapping("/weeklyMenu/{restaurant}")
-    @ResponseBody
-    public ResponseEntity<List<MenuResponse>> restaurantMenuWeek(@PathVariable("restaurant") String place) {
+    public ResponseEntity<List<MenuResponseDto>> restaurantMenuWeek(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
-        List<MenuResponse> menuListArr = new ArrayList<>();
+        List<MenuResponseDto> menuListArr = new ArrayList<>();
 
         for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
-            List<MenuResponse> menuResponses = parseOneDayRestaurantMenu(dayRestaurantMenu);
-            for (MenuResponse menuResponse : menuResponses) {
-                menuListArr.add(menuResponse);
+            List<MenuResponseDto> menuResponsDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
+            for (MenuResponseDto menuResponseDto : menuResponsDtos) {
+                menuListArr.add(menuResponseDto);
             }
         }
         return ResponseEntity.ok(menuListArr);
     }
 
     @GetMapping("/weeklyMenu")
-    @ResponseBody
-    public ResponseEntity<List<MenuResponse>> allRestaurantMenuWeek() {
+    public ResponseEntity<List<MenuResponseDto>> allRestaurantMenuWeek() {
         String date = getTodayDate();
-        List<MenuResponse> menuListArr = new ArrayList<>();
-        List<Menu>[] oneWeekRestaurantMenu = new List[4];
+        List<MenuResponseDto> menuListArr = new ArrayList<>();
+        List<Menu>[] oneWeekRestaurantMenu;
         String place;
 
         for(int i=2; i<=5; i++) {
@@ -84,9 +73,9 @@ public class MenuController {
             oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
 
             for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
-                List<MenuResponse> menuResponses = parseOneDayRestaurantMenu(dayRestaurantMenu);
-                for (MenuResponse menuResponse : menuResponses) {
-                    menuListArr.add(menuResponse);
+                List<MenuResponseDto> menuResponsDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
+                for (MenuResponseDto menuResponseDto : menuResponsDtos) {
+                    menuListArr.add(menuResponseDto);
                 }
             }
         }

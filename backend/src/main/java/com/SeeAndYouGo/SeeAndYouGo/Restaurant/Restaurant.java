@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,19 +27,19 @@ public class Restaurant {
     private String date;
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Connection> connectionList = new ArrayList<>();
-    private Double restaurantRate;
+    private Double restaurantRate = 0.0;
     private Double latitude;
     private Double longitude;
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Review> reviewList = new ArrayList<>();
 
+    @Builder
     public Restaurant(String name, String date) {
         this.setName(name);
         this.setDate(date);
         setLatitude(name);
         setLongitude(name);
         setCapacity(name);
-        this.restaurantRate = 0.0;
     }
 
     private void setLatitude(String name){

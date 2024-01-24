@@ -14,6 +14,7 @@ public class Dish {
     @Enumerated(EnumType.STRING)
     private DishType dishType;
 
+    @Builder
     public Dish(String name, DishType dishType) {
         this.name = name;
         this.dishType = dishType;

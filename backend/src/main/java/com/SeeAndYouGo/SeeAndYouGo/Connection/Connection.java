@@ -1,10 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import javax.persistence.*;
 
 @Getter
@@ -24,12 +22,13 @@ public class Connection {
     private Restaurant restaurant;
 
     // ####### 생성 메서드 ############
-    public static Connection createNewConnection(Integer connected, String time, Restaurant restaurant) {
-        Connection connection = new Connection();
-        connection.setConnected(connected);
-        connection.setTime(time);
-        connection.setRestaurant(restaurant);
-        return connection;
+
+
+    @Builder
+    public Connection(Integer connected, String time, Restaurant restaurant) {
+        this.connected = connected;
+        this.time = time;
+        this.restaurant = restaurant;
     }
 
     public void setRestaurant(Restaurant restaurant) {

@@ -9,10 +9,4 @@ import lombok.NoArgsConstructor;
 public class UserNicknameRequest {
     private String token;
     private String nickname;
-
-    @Builder
-    public UserNicknameRequest(String token, String nickname) {
-        this.token = token;
-        this.nickname = nickname;
-    }
 }
