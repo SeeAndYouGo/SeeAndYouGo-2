@@ -7,21 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ReviewRequestDto {
+public class ReviewRequestDto { // review 등록 때, 프론트에서 json과 image를 넘겨준다면, 쓸 DTO
     public String restaurant;
+    public String dept;
+    public String menuName;
+    public Double rate;
     public String writer;
     public String comment;
-    public Double rate;
-    public String dept;
-
-//    public ReviewRequestDto(String restaurant, String writer, String comment, Double rate) {
-//        this.restaurant = restaurant;
-//        this.writer = writer;
-//        this.comment = comment;
-//        this.rate = rate;
-//    }
-//    public static ReviewDto of(Review review) {
-//        return new ReviewDto(review.getRestaurant().getName(), review.writer,
-//                review.madeTime.toString(), review.comment, review.imgLink, review.reviewRate);
-//    }
 }

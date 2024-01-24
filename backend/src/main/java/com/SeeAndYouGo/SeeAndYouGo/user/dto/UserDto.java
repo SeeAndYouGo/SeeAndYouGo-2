@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class UserDto {
+public class UserDto { // 이건 왜 있지...?
     private final String socialId;
 
     private final String email;

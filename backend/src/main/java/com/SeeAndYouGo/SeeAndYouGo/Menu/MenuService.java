@@ -100,7 +100,13 @@ public class MenuService {
     public Menu createMenuIfNotExists(Integer price, String date, Dept dept, Restaurant restaurant, MenuType menuType){
         List<Menu> menus = menuRepository.findByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType);
         if(menus.size() == 0){
-            return new Menu(price, date, dept, menuType, restaurant);
+            return Menu.builder()
+                    .price(price)
+                    .date(date)
+                    .dept(dept)
+                    .menuType(menuType)
+                    .restaurant(restaurant)
+                    .build();
         }
         return menus.get(0);
     }

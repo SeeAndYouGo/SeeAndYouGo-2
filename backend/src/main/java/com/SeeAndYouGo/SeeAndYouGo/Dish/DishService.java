@@ -92,7 +92,7 @@ public class DishService {
 
                 // DB에 없던 dish면 등록하기
                 if (dishRepository.findByName(dishDto.getName()) == null) {
-                    dishRepository.save(new Dish(dishDto.getName(), dishDto.getDishType()));
+                    dishRepository.save(dishDto.toDish());
                 }
                 dishDtos.add(dishDto);
             }
@@ -133,13 +133,18 @@ public class DishService {
     }
 
     @Transactional
-    public void updateMainDish(List<MainDishResponse> mainDishResponses) {
+    public void updateMainDish(List<MainDishRequestDto> mainDishRequestDtos) {
 
-        for (MainDishResponse mainDishResponse : mainDishResponses) {
-            String mainDishName = mainDishResponse.getMainDishName();
+        for (MainDishRequestDto mainDishRequestDto : mainDishRequestDtos) {
+            String mainDishName = mainDishRequestDto.getMainDishName();
 
             Dish dish = dishRepository.findByName(mainDishName);
             dish.setDishType(DishType.MAIN);
+
+            for (String subDishName : mainDishRequestDto.getSubDishList()) {
+                Dish subDish = dishRepository.findByName(subDishName);
+                subDish.setDishType(DishType.SIDE);
+            }
         }
     }
 }

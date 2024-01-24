@@ -27,4 +27,11 @@ public class DishDto {
         this.date = date;
         this.menuType = menuType;
     }
+
+    public Dish toDish(){
+        return Dish.builder()
+                .name(this.getName())
+                .dishType(this.getDishType())
+                .build();
+    }
 }
