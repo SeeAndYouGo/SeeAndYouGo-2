@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import LoginPage from "./pages/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage";
 import RouteChangeTracker from "./RouteChangeTracker";
+import NoticePage from "./pages/NoticePage";
 // import LoadingPage from "./pages/LoadingPage";
 
 const HeaderWrapper = styled.div`
@@ -43,6 +44,7 @@ const App = () => {
           <Route exact path="/LoginPage" element={<LoginPage />} />
           <Route exact path="/SetNickname" element={<SetNickname />} />
           <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
+          <Route exact path="/NoticePage" element={<NoticePage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
