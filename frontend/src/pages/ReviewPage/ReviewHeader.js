@@ -1,8 +1,8 @@
 import React from "react";
+import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
-import styled from "@emotion/styled";
 
 const HeaderContainer = styled.div`
 	display: flex;

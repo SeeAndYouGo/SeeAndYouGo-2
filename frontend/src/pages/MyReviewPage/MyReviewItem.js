@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "@emotion/styled";
 import moment from "moment";
-import * as config from "../../config";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;

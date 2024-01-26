@@ -1,9 +1,8 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import React, { useEffect } from "react";
-import Menu from "./Menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import Menu from "./Menu";
 import ReviewWrite from "./ReviewWrite";
 import * as config from "../../config";
 

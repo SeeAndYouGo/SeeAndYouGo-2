@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import MyReviewItem from "../components/MyReviewPage/MyReviewItem";
-import * as config from "../config";
+import MyReviewItem from "./MyReviewItem";
+import * as config from "../../config";
 
 const MyReviewPage = () => {
 	const [reviewArr, setReviewArr] = useState([]);

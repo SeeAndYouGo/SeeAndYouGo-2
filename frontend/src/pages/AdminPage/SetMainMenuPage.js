@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import * as config from "../config";
-import Toast from "../components/Toast";
+import Toast from "../../components/Toast";
+import * as config from "../../config";
 
 const SubmitButton = styled.button`
 	background: white;
@@ -15,7 +15,7 @@ const SubmitButton = styled.button`
 	font-weight: 500;
 `;
 
-const AdminMainMenu = () => {
+const SetMainMenuPage = () => {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [password, setPassword] = useState("");
 	const [toast, setToast] = useState(false);
@@ -237,4 +237,4 @@ const AdminMainMenu = () => {
 	);
 };
 
-export default AdminMainMenu;
+export default SetMainMenuPage;
