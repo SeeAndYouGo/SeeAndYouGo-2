@@ -1,14 +1,14 @@
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
 import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useState } from "react";
-import Modal from "../Modal";
+import Modal from "../../components/Modal";
 import ModalLocation from "./ModalLocation";
 import ModalMenuTable from "./ModalMenuTable";
-import { Link } from "react-router-dom";
 import * as config from "../../config";
 
 const CafeteriaName = styled.div`

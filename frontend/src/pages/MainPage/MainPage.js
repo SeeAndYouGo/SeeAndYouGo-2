@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import UpdateLog from "../components/MainPage/UpdateLog";
-import Cafeteria from "../components/MainPage/Cafeteria";
-import "../App.css";
+import "../../App.css";
 import { Link } from "react-router-dom";
-// import Navigation from "../components/Navigation";
-import * as config from "../config";
+import UpdateLog from "./UpdateLog";
+import Cafeteria from "./Cafeteria";
+import * as config from "../../config";
 
 // 시간 정보가 포함된 식단 인원 정보 request
-function Index() {
+const MainPage = () => {
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
@@ -65,9 +64,8 @@ function Index() {
 					</Link>
 				);
 			})}
-			{/* <Navigation /> */}
 		</div>
 	);
 }
 
-export default Index;
+export default MainPage;

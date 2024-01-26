@@ -1,8 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import ReviewHeader from "../components/ReviewPage/ReviewHeader";
-import ReviewSelect from "../components/ReviewPage/ReviewSelect";
-// import Navigation from "../components/Navigation";
+import ReviewHeader from "./ReviewHeader";
+import ReviewSelect from "./ReviewSelect";
 
 const ReviewPage = () => {
 	const params = useParams();
@@ -12,7 +11,6 @@ const ReviewPage = () => {
 			<div className="App3">
 				<ReviewHeader />
 				<ReviewSelect idx={restaurant} />
-				{/* <Navigation /> */}
 			</div>
 		</>
 		

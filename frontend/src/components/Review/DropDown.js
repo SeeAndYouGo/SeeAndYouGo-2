@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import useDetectClose from "../hooks/useDetectClose";
+import useDetectClose from "../../hooks/useDetectClose";
 import ReviewReport from "./ReviewReport";
 import ReviewDelete from "./ReviewDelete";
 

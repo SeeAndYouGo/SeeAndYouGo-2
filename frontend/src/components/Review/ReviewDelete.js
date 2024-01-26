@@ -1,6 +1,6 @@
 import React from "react";
-import * as config from "../config";
 import styled from "@emotion/styled";
+import * as config from "../../config";
 
 const RemoveButton = styled.span`
 	width: 25px;

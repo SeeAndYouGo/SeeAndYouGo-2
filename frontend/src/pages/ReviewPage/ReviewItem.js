@@ -1,14 +1,14 @@
-import styled from "@emotion/styled";
 import React, { useState } from "react";
+import styled from "@emotion/styled";
+import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
-import moment from "moment";
-import * as config from "../../config";
-import DropDown from "../DropDown";
-import Modal from "../Modal";
+import DropDown from "../../components/Review/DropDown";
+import Modal from "../../components/Modal";
 import ModalImageZoom from "./ModalImageZoom";
+import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;

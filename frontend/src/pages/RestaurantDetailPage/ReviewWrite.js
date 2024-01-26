@@ -1,10 +1,10 @@
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import React, { useEffect, useRef, useState } from "react";
-import StarsRating from "react-star-rate";
-import MenuSelector from "./MenuSelector";
 import axios from "axios";
+import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import MenuSelector from "./MenuSelector";
 import * as config from "../../config";
 
 const ReviewWriteContainer = styled.form`
@@ -89,17 +89,17 @@ const ReviewWriteButton = styled.button`
 		color: white;
 	}
 `;
-const ReviewWriteNameCheckbox = styled.input`
-	float: left;
-	width: 15px;
-	height: 15px;
-	margin-left: 5px;
-	margin-right: 10px;
-	margin-top: 3px;
-	position: relative;
-	top: 50%;
-	transform: translateY(-50%);
-`;
+// const ReviewWriteNameCheckbox = styled.input`
+// 	float: left;
+// 	width: 15px;
+// 	height: 15px;
+// 	margin-left: 5px;
+// 	margin-right: 10px;
+// 	margin-top: 3px;
+// 	position: relative;
+// 	top: 50%;
+// 	transform: translateY(-50%);
+// `;
 const ReviewWriteRatingLabel = styled.p`
 	margin: 0 10px 0 0;
 	line-height: 30px;

@@ -1,5 +1,5 @@
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 
 const MenuInfo = ({ mainMenu, subMenu }) => {
 	const subMenuString = subMenu.join(", ");

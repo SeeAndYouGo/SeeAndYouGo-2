@@ -1,13 +1,13 @@
-import styled from "@emotion/styled";
 import React, { useState, useEffect } from "react";
+import styled from "@emotion/styled";
+import { Link } from "react-router-dom";
+import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
-import moment from "moment";
+import DropDown from "../../components/Review/DropDown";
 import * as config from "../../config";
-import DropDown from "../DropDown";
 
 const ReviewItemContainer = styled.div`
 	width: 330px;
@@ -215,7 +215,7 @@ const TopReview = ({ idx }) => {
 			<Link 
 				to={`/ReviewPage/${idx}`}
 				style={{float:"right", fontWeight: 400, fontSize: 14, color: "royalblue"}}>
-					전체보기 >
+					전체보기 {'>'}
 			</Link>
 			</p>
 			{reviewArr.length === 0 ? (

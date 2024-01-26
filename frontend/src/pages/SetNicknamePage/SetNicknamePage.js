@@ -1,8 +1,8 @@
-import styled from "@emotion/styled";
 import React, { useState } from "react";
+import styled from "@emotion/styled";
 import axios from "axios";
-import * as config from "../config";
-import Toast from "../components/Toast";
+import Toast from "../../components/Toast";
+import * as config from "../../config";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -70,7 +70,7 @@ const SetButton = styled.button`
   }
 `;
 
-const SetNickname = () => {
+const SetNicknamePage = () => {
 	const [nickname, setNickname] = useState("");
   const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
   const [toast, setToast] = useState(false);
@@ -81,7 +81,7 @@ const SetNickname = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
     axios.get(url)
     .then((res) => {
-      if (res.data.redundancy == true) {
+      if (res.data.redundancy === true) {
         setToast(true);
         setNicknameCheck(false);
       } else {
@@ -152,4 +152,4 @@ const SetNickname = () => {
 	);
 };
 
-export default SetNickname;
+export default SetNicknamePage;

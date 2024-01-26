@@ -1,5 +1,5 @@
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyProgress from "./MyProgress";
