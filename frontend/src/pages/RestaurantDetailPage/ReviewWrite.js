@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +15,7 @@ const ReviewWriteContainer = styled.form`
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
+	position: relative;
 
 	& .rs-picker-toggle-placeholder,
 	& .rs-picker-search-bar-input {
@@ -134,17 +136,46 @@ const ReviewImageDelete = styled.div`
 	}
 `;
 
+const NotLogin = styled.div`
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+	background-color: rgba(20, 20, 20, 0.3);
+	z-index: 6;
+	border-radius: 20px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	font-size: 20px;
+	text-decoration: underline;
+`;
+
+const GoToLogin = styled.span`
+	cursor: pointer;
+	
+	:hover {
+		color: red;
+		opacity: 0.7;
+	}	
+`;
+
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	// const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
 	// const [writerName, setWriterName] = useState("");
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
-	const [image, setImage] = useState(); 
+	const [image, setImage] = useState();
 	const [imageURL, setImageURL] = useState("");
 	const imageRef = useRef(null);
+	const navigator = useNavigate();
 
-	const token = localStorage.getItem("token") ? localStorage.getItem("token") : "";
+	const token = localStorage.getItem("token")
+		? localStorage.getItem("token")
+		: "";
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -157,7 +188,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 			setImageURL(e.target.result);
 		};
 	};
-	
+
 	const deleteImage = () => {
 		setImage(null);
 		setImageURL("");
@@ -172,21 +203,13 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		e.preventDefault();
 
 		const formdata = new FormData();
-		// 식당이름 restaurant
 		formdata.append("restaurant", restaurantName);
-		// 식당구분 dept
 		formdata.append("dept", deptName);
-		// 메뉴이름 menuName
 		// 1학 부분을 위해 selectedMenu 넣은건데 확인 필요합니다.
 		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
-		// 평점 rate
 		formdata.append("rate", starVal);
-		// 작성자 writer
-		// formdata.append("writer", writerName === "" ? "익명" : writerName);
 		formdata.append("writer", token);
-		// 리뷰 comment
 		formdata.append("comment", comment);
-		// 이미지 추가
 		formdata.append("image", image);
 
 		// formdata 확인
@@ -196,7 +219,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		}
 
 		axios
-			.post(config.DEPLOYMENT_BASE_URL+"/review", formdata, {
+			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -212,7 +235,12 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 	return (
 		<ReviewWriteContainer>
-
+			{ // 로그인 안했을 때
+				!token && 
+					<NotLogin>
+						<GoToLogin onClick={() => { navigator("/LoginPage")}}>로그인이 필요합니다 !!</GoToLogin>
+					</NotLogin>
+			}
 			<div style={{ width: "100%", float: "left" }}>
 				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 				<ReviewStarRating>
@@ -229,7 +257,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 				<MenuSelector onSelectMenu={handleSelectMenu} />
 			) : null}
 
-			<div style={{ width: "100%", float: "left"}}>
+			<div style={{ width: "100%", float: "left" }}>
 				<div
 					style={{
 						position: "relative",
@@ -254,19 +282,26 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						<ReviewWriteCamera htmlFor="Review-file-input">
 							<FontAwesomeIcon icon={faCamera} />
 						</ReviewWriteCamera>
-						{imageURL ? 
-							<div className="PrevWrapper" style={{float:"left", position:"relative"}}>
+						{imageURL ? (
+							<div
+								className="PrevWrapper"
+								style={{ float: "left", position: "relative" }}
+							>
 								<ReviewPreviewImage src={imageURL} />
 								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">close</span>
+									<span className="material-symbols-outlined">
+										close
+									</span>
 								</ReviewImageDelete>
 							</div>
-						: null}
+						) : null}
 					</ReviewWriteInputWrapper>
-
 				</div>
 				{starVal !== 0 ? (
-					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
+					<ReviewWriteButton
+						className="success"
+						onClick={ReviewSubmit}
+					>
 						작성
 					</ReviewWriteButton>
 				) : (
@@ -281,7 +316,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
 	return (
-		<div style={{ width:"100%", float: "left", marginTop: 20 }}>
+		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
 				메뉴 리뷰 남기기
 			</p>
