@@ -28,8 +28,6 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Connection> connectionList = new ArrayList<>();
     private Double restaurantRate = 0.0;
-    private Double latitude;
-    private Double longitude;
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Review> reviewList = new ArrayList<>();
 
@@ -37,17 +35,7 @@ public class Restaurant {
     public Restaurant(String name, String date) {
         this.setName(name);
         this.setDate(date);
-        setLatitude(name);
-        setLongitude(name);
         setCapacity(name);
-    }
-
-    private void setLatitude(String name){
-        if(name.contains("1학")) latitude = 1.1;
-        else if(name.contains("2학")) latitude = 2.2;
-        else if(name.contains("3학")) latitude = 3.3;
-        else if(name.contains("상록")) latitude = 4.4;
-        else if(name.contains("생활")) latitude = 5.5;
     }
 
     private void setCapacity(String name){
@@ -56,14 +44,6 @@ public class Restaurant {
         else if(name.contains("3학")) capacity = 273;
         else if(name.contains("상록")) capacity = 140;
         else if(name.contains("생활")) capacity = 190;
-    }
-
-    private void setLongitude(String name){
-        if(name.contains("1학")) longitude = 1.1;
-        else if(name.contains("2학")) longitude = 2.2;
-        else if(name.contains("3학")) longitude = 3.3;
-        else if(name.contains("상록")) longitude = 4.4;
-        else if(name.contains("생활")) longitude = 5.5;
     }
 
     private void setRestaurantRate(List<Review> reviewList){
