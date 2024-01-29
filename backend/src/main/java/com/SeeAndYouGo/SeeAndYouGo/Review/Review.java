@@ -17,48 +17,33 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    public Long id;
+    private Long id;
 
-    public String writer;
+    private String writerEmail;
+    private String writerNickname;
 
-    public String madeTime;
+    private String madeTime;
 
-    public Integer likeCount;
+    private Integer likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
-    public Menu menu;
+    private Menu menu;
 
-    public String comment;
+    private String comment;
 
-    public String imgLink;
+    private String imgLink;
 
-    public Double reviewRate;
+    private Double reviewRate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
-    public Restaurant restaurant;
+    private Restaurant restaurant;
 
-    @ColumnDefault("0")
-    public Integer reportCount = 0;
+    private Integer reportCount = 0;
 
     public Integer incrementReportCount(){
         reportCount++;
         return reportCount;
-    }
-
-    public ReviewHistory toReviewHistory(){
-        return ReviewHistory.builder()
-                .reviewId(id)
-                .writer(this.writer)
-                .madeTime(this.madeTime)
-                .likeCount(this.likeCount)
-                .menu(this.menu)
-                .comment(this.comment)
-                .imgLink(this.imgLink)
-                .reviewRate(this.reviewRate)
-                .restaurant(this.restaurant)
-                .reportCount(this.reportCount)
-                .build();
     }
 }

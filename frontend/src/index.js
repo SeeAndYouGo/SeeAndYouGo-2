@@ -4,10 +4,10 @@ import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 // import reportWebVitals from './reportWebVitals';
-// import ReactGA from 'react-ga4';
-// const TRACKING_ID = process.env.REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID;
-// console.log(TRACKING_ID);
-// ReactGA.initialize(TRACKING_ID);
+import ReactGA from 'react-ga4';
+
+const TRACKING_ID = process.env.REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID;
+ReactGA.initialize(TRACKING_ID);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

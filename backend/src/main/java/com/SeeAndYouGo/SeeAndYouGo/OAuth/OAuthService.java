@@ -116,26 +116,33 @@ public class OAuthService {
         return null;
     }
 
-    public String kakaoLogin(String accessToken) {
+    public TokenDto kakaoLogin(String accessToken) {
         // (1) accessToken을 통해 카카오의 유저정보를 가져온다.
         UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
-
-//        String kakaoId = userIdentityDto.getId();
+        String message = "login";
         String email = userIdentityDto.getEmail();
         List<User> users = userRepository.findByEmail(email);
-//        List<User> users = userRepository.findBySocialId(kakaoId);
         if (users.size() == 0) {
             signUp(userIdentityDto);
+            message = "join";
         }
 
         // (2) jwt 토큰을 생성한다 by Email!
-        return tokenProvider.createToken(userIdentityDto.getEmail());
+        String token = tokenProvider.createToken(userIdentityDto.getEmail());
+
+        return TokenDto.builder()
+                .token(token)
+                .message(message)
+                .build();
     }
 
     private void signUp(UserIdentityDto dto) {
         try {
-            userRepository.save(new User(dto.getEmail(), null,  Social.KAKAO));
-            System.out.println();
+            userRepository.save(User.builder()
+                            .email(dto.getEmail())
+                            .nickname(null)
+                            .socialType(Social.KAKAO)
+                            .build());
         } catch (Exception e) {
             // 유저 가입 실패
             e.printStackTrace();

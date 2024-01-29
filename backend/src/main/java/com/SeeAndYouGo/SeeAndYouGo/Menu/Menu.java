@@ -33,17 +33,18 @@ public class Menu {
     private List<Review> reviewList = new ArrayList<>();
 
     private String date;
-    private Long likeCount;
+
+    private Long likeCount = 0L;
     @Enumerated(EnumType.STRING)
     private Dept dept;
     @Enumerated(EnumType.STRING)
     private MenuType menuType;
 
+    @Builder
     public Menu(Integer price, String date, Dept dept, MenuType menuType, Restaurant restaurant) {
         this.price = price;
         this.date = date;
         this.dept = dept;
-        this.likeCount = 0L;
         this.menuType = menuType;
         this.restaurant = restaurant;
         restaurant.getMenuList().add(this);

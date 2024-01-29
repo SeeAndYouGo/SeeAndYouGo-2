@@ -22,6 +22,11 @@ public class UserService {
 
     public String getNicknameByEmail(String email) {
         User user = userRepository.findByEmail(email).get(0);
-        return user.getNickname();
+        return user.getNickname() == null ? "익명" : user.getNickname();
+    }
+
+    public String findNickname(String email) {
+        User user = userRepository.findByEmail(email).get(0);
+        return user.getNickname() == null ? "익명" : user.getNickname();
     }
 }

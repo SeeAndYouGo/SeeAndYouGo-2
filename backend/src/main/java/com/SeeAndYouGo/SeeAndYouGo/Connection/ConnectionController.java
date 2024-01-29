@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,15 +12,9 @@ public class ConnectionController {
     private final ConnectionService connectedService;
 
     @GetMapping("/connection/{restaurant}")
-    public ResponseEntity<ConnectionResponse> congestionRequest(@PathVariable("restaurant") String place) throws Exception {
+    public ResponseEntity<ConnectionResponseDto> congestionRequest(@PathVariable("restaurant") String place) throws Exception {
         Connection recentConnection = connectedService.getRecentConnected(place);
-
-        ConnectionResponse connectionResponse = new ConnectionResponse();
-        connectionResponse.setRestaurantName(recentConnection.getRestaurant().getName());
-        connectionResponse.setCapacity(recentConnection.getRestaurant().getCapacity());
-        connectionResponse.setConnected(recentConnection.getConnected());
-        connectionResponse.setDateTime(recentConnection.getTime());
-        return ResponseEntity.ok(connectionResponse);
+        return ResponseEntity.ok(new ConnectionResponseDto(recentConnection));
     }
 
     @GetMapping("/connection/cache")

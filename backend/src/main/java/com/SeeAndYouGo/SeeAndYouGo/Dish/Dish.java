@@ -21,6 +21,7 @@ public class Dish {
     private List<MenuDish> menuDishes = new ArrayList<>();
 
 
+    @Builder
     public Dish(String name, DishType dishType) {
         this.name = name;
         this.dishType = dishType;

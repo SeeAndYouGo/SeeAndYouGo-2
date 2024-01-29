@@ -3,16 +3,20 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,27 +30,28 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final MenuService menuService;
     private final TokenProvider tokenProvider;
+    private final UserService userService;
     private static final Integer REPORT_CRITERION = 10;
 
     // 탑 리뷰 조회
     @GetMapping("/topReview/{restaurant}")
-    public ResponseEntity<List<ReviewDto>> getTopReviews(@PathVariable String restaurant) {
+    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable String restaurant) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = LocalDate.now().toString();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewDto> response = getReviewDtos(reviews);
+        List<ReviewResponseDto> response = getReviewDtos(reviews);
 
         return ResponseEntity.ok(response);
     }
 
-    private static List<ReviewDto> getReviewDtos(List<Review> reviews) {
-        List<ReviewDto> response = new ArrayList<>();
-        reviews.forEach(review -> response.add(ReviewDto.of(review)));
+    private static List<ReviewResponseDto> getReviewDtos(List<Review> reviews) {
+        List<ReviewResponseDto> response = new ArrayList<>();
+        reviews.forEach(review -> response.add(new ReviewResponseDto(review)));
         return response;
     }
 
     @GetMapping("/totalReview")
-    public ResponseEntity<List<ReviewDto>> getAllReviews() {
+    public ResponseEntity<List<ReviewResponseDto>> getAllReviews() {
         String date = LocalDate.now().toString();
         List<Review> allReviews = reviewService.findAllReviews(date);
 
@@ -54,7 +59,7 @@ public class ReviewController {
     }
 
     @GetMapping("/review/{restaurant}")
-    public ResponseEntity<List<ReviewDto>> getRestaurantReviews(@PathVariable String restaurant) {
+    public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable String restaurant) {
         String date = LocalDate.now().toString();
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
@@ -82,10 +87,10 @@ public class ReviewController {
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
             @RequestParam(name="image", required = false) MultipartFile image) {
-        Review review = new Review();
+
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
-         if (image != null){
+         if (image != null) {
              try {
                  imgUrl = NCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
              } catch (Exception e) {
@@ -93,10 +98,13 @@ public class ReviewController {
              }
          }
 
+        Review review = new Review();
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
         String email = tokenProvider.decode(writer);
-        review.setWriter(email);
+        String nickname = userService.findNickname(email);
+        review.setWriterEmail(email);
+        review.setWriterNickname(nickname);
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
@@ -109,7 +117,7 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews/{token}")
-    public ResponseEntity<List<ReviewDto>> getReviewsByUser(@PathVariable String token){
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable String token){
         String userEmail = tokenProvider.decode(token);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 

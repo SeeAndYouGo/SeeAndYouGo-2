@@ -103,10 +103,20 @@ public class RestaurantService {
                 Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
 
                 if (dishRepository.findByName(name) == null) {
-                    dishRepository.save(new Dish(name, DishType.MAIN));
+                    dishRepository.save(Dish.builder()
+                                        .name(name)
+                                        .dishType(DishType.MAIN)
+                                        .build());
                 }
+
                 Dish dish = dishRepository.findByName(name);
-                Menu menu = new Menu(price, date.toString(), Dept.STUDENT, MenuType.LUNCH, restaurant);
+                Menu menu = Menu.builder()
+                                .price(price)
+                                .date(date.toString())
+                                .dept(Dept.STUDENT)
+                                .menuType(MenuType.LUNCH)
+                                .restaurant(restaurant)
+                                .build();
 
                 menu.setDishList(List.of(dish));
                 menus.add(menu);

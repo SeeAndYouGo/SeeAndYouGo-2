@@ -20,7 +20,9 @@ public class ReviewHistory {
 
     public Long reviewId;
 
-    public String writer;
+    public String writerEmail;
+    public String writerNickname;
+
 
     public String madeTime;
 
@@ -40,20 +42,19 @@ public class ReviewHistory {
     @JoinColumn(name = "restaurant_id")
     public Restaurant restaurant;
 
-    @ColumnDefault("0")
-    public Integer reportCount = 0;
+    public Integer reportCount;
 
-    @Builder
-    public ReviewHistory(Long reviewId, String writer, String madeTime, Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate, Restaurant restaurant, Integer reportCount) {
-        this.reviewId = reviewId;
-        this.writer = writer;
-        this.madeTime = madeTime;
-        this.likeCount = likeCount;
-        this.menu = menu;
-        this.comment = comment;
-        this.imgLink = imgLink;
-        this.reviewRate = reviewRate;
-        this.restaurant = restaurant;
-        this.reportCount = reportCount;
+    public ReviewHistory(Review review){
+        this.reviewId = review.getId();
+        this.writerEmail = review.getWriterEmail();
+        this.writerNickname = review.getWriterNickname();
+        this.madeTime = review.getMadeTime();
+        this.likeCount = review.getLikeCount();
+        this.menu = review.getMenu();
+        this.comment = review.getComment();
+        this.imgLink = review.getImgLink();
+        this.reviewRate = review.getReviewRate();
+        this.restaurant = review.getRestaurant();
+        this.reportCount = review.getReportCount();
     }
 }

@@ -14,11 +14,9 @@ public class OAuthController {
     private final OAuthService oauthService;
 
     @GetMapping("/api/oauth/kakao")
-
-    @ResponseBody
     public ResponseEntity<TokenDto> kakaoLoginOauth(@RequestParam String code) {  // (1) 인가 코드를 받는다.
         String accessToken = oauthService.getKakaoAccessToken(code);            // (2) 카카오로부터 access token 을 받는다.
-        TokenDto token = new TokenDto(oauthService.kakaoLogin(accessToken));    // (3) access token 을 통해 유저정보를 확인 후
+        TokenDto token = oauthService.kakaoLogin(accessToken);    // (3) access token 을 통해 유저정보를 확인 후
                                                                                 //     로그인(회원가입) 진행한다.
                                                                                 //     그리고 우리 서비스 전용 jwt token 을 리턴!
         return ResponseEntity.ok(token);
