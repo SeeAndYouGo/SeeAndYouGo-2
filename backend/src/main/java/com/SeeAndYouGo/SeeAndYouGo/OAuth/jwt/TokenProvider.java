@@ -103,7 +103,7 @@ public class TokenProvider implements InitializingBean {
     }
 
 
-    public String decode(String jwtToken) throws ArrayIndexOutOfBoundsException{
+    public String decodeToEmail(String jwtToken) throws ArrayIndexOutOfBoundsException{
         String[] chunks = jwtToken.split("\\.");
         Base64.Decoder decoder = Base64.getUrlDecoder();
 
