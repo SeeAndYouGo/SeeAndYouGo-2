@@ -1,7 +1,9 @@
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/slice/UserSlice";
 
 const Background = styled.div`
   width: 100%;
@@ -108,9 +110,13 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
+  const dispatch = useDispatch();
   const outside = useRef();
-  const [loginState, setLoginState] = useState(false);
-  const [nickname, setNickname] = useState("");
+  // const [loginState, setLoginState] = useState(false);
+  // const [nickname, setNickname] = useState("");
+  const user = useSelector((state) => state.user.value);
+  const nickname = user.nickname;
+  const loginState = user.loginState;
 
   const toggleMenu = () => {
     setIsOpen(false);
@@ -126,17 +132,17 @@ const SideBar = ({isOpen, setIsOpen}) => {
     }
   };
 
-  useEffect(() => {
-    const checkLogin = () => {
-      if (localStorage.getItem("token")) {
-        setLoginState(true);
-        setNickname(localStorage.getItem("nickname") ? localStorage.getItem("nickname") : "");
-      } else {
-        setLoginState(false);
-      }
-    };
-    checkLogin();
-  }, []);
+  // useEffect(() => {
+  //   const checkLogin = () => {
+  //     if (localStorage.getItem("token")) {
+  //       setLoginState(true);
+  //       setNickname(localStorage.getItem("nickname") ? localStorage.getItem("nickname") : "");
+  //     } else {
+  //       setLoginState(false);
+  //     }
+  //   };
+  //   checkLogin();
+  // }, []);
 
   return (
     <>
@@ -163,9 +169,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                     </span>
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
-                      localStorage.removeItem("token");
-                      localStorage.removeItem("nickname");
-                      setLoginState(false);
+                      dispatch(logout());
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>
                 </div>
@@ -210,7 +214,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/ReviewPage/0" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/ReviewPage" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>

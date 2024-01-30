@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "./MenuSelector";
 import * as config from "../../config";
+import { useSelector } from "react-redux";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -173,9 +174,11 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	const imageRef = useRef(null);
 	const navigator = useNavigate();
 
-	const token = localStorage.getItem("token")
-		? localStorage.getItem("token")
-		: "";
+	const token = useSelector((state) => state.user.value.token);
+
+	// const token = localStorage.getItem("token")
+	// 	? localStorage.getItem("token")
+	// 	: "";
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
