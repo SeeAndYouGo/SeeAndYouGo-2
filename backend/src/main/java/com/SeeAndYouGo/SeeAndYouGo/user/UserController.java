@@ -29,7 +29,7 @@ public class UserController {
 
     @PutMapping("/nickname")
     public ResponseEntity changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
-        String email = tokenProvider.decode(nicknameRequest.getToken());
+        String email = tokenProvider.decodeToEmail(nicknameRequest.getToken());
         userService.updateNickname(email, nicknameRequest.getNickname());
 
         return ResponseEntity.ok(HttpStatus.OK);
@@ -37,7 +37,7 @@ public class UserController {
 
     @GetMapping("/nickname/{token}")
     public ResponseEntity<UserResponseDto> getNickname(@PathVariable String token){
-        String email = tokenProvider.decode(token);
+        String email = tokenProvider.decodeToEmail(token);
         String nickname = userService.getNicknameByEmail(email);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()

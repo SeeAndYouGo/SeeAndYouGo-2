@@ -24,7 +24,7 @@ public class Review {
 
     private String madeTime;
 
-    private Integer likeCount;
+    private Long likeCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")

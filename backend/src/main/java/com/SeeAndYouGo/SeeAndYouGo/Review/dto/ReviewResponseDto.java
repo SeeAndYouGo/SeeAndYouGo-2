@@ -17,8 +17,10 @@ public class ReviewResponseDto {
     private String comment;
     private String imgLink;
     private Double rate;
+    private boolean isLike;
+    private Long likeCount;
 
-    public ReviewResponseDto(Review review) {
+    public ReviewResponseDto(Review review, boolean isLike) {
         this.reviewId = review.getId();
         this.restaurant = review.getRestaurant().getName();
         this.writer = review.getWriterNickname();
@@ -28,5 +30,7 @@ public class ReviewResponseDto {
         this.comment = review.getComment();
         this.imgLink = review.getImgLink();
         this.rate = review.getReviewRate();
+        this.isLike = isLike;
+        this.likeCount = review.getLikeCount();
     }
 }
