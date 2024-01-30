@@ -101,6 +101,7 @@ public class ReviewController {
             @RequestParam("rate") Double rate,
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
+            @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
@@ -119,7 +120,13 @@ public class ReviewController {
         String email = tokenProvider.decodeToEmail(writer);
         String nickname = userService.findNickname(email);
         review.setWriterEmail(email);
-        review.setWriterNickname(nickname);
+
+        if(anonymous){
+            review.setWriterNickname("익명");
+        }else{
+            review.setWriterNickname(nickname);
+        }
+
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
