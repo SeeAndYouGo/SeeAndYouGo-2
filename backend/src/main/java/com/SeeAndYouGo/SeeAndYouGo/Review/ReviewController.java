@@ -38,7 +38,7 @@ public class ReviewController {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = LocalDate.now().toString();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+        List<Review> reviews = reviewService.findRestaurantReviews(restaurantName, date);
         List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
         return ResponseEntity.ok(response);
     }
@@ -101,7 +101,7 @@ public class ReviewController {
             @RequestParam("rate") Double rate,
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
-            @RequestParam("anonymous") boolean anonymous,
+//            @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
@@ -121,17 +121,17 @@ public class ReviewController {
         String nickname = userService.findNickname(email);
         review.setWriterEmail(email);
 
-        if(anonymous){
-            review.setWriterNickname("익명");
-        }else{
+//        if(anonymous){
+//            review.setWriterNickname("익명");
+//        }else{
             review.setWriterNickname(nickname);
-        }
+//        }
 
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+        review.setMadeTime(LocalDateTime.of(2024, 1, 30, 2, 31, 31).format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 

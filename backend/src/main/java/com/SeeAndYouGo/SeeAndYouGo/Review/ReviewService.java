@@ -1,16 +1,18 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +23,7 @@ public class ReviewService {
     private final MenuService menuService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
+    private final MenuDishRepository menuDishRepository;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
@@ -75,13 +78,35 @@ public class ReviewService {
         review.setComment(newContent);
     }
 
-    public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
-        return reviewRepository.findTop5ReviewsByRestaurantAndDate(restaurantName, date);
+    public List<Review> findRestaurantReviews(String restaurantName, String date) {
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
+        List<Review> reviewsOfSameMainDish = new ArrayList<>();
+
+        for (Menu menu : restaurant.getMenuList()) {
+            List<Review> reviews = getReviewsByMainDish(menu.getMainDish());
+            reviewsOfSameMainDish.addAll(reviews);
+        }
+
+        return reviewsOfSameMainDish;
+//        return reviewRepository.findTop5ReviewsByRestaurantAndDate(restaurantName, date);
     }
 
-    public List<Review> findRestaurantReviews(String restaurant, String date) {
-        return reviewRepository.findReviewsByRestaurantAndDate(restaurant, date);
+    private List<Review> getReviewsByMainDish(Dish mainDish) {
+        List<Review> reviewsOfSameMainDish = new ArrayList<>();
+
+        for (Menu menu : mainDish.getMenus()) {
+            reviewsOfSameMainDish.addAll(menu.getReviewList());
+        }
+
+        return reviewsOfSameMainDish;
     }
+
+//    public List<Review> findRestaurantReviews(String restaurantName, String date) {
+//        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
+//
+//
+//        return reviewRepository.findReviewsByRestaurantAndDate(restaurantName, date);
+//    }
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {

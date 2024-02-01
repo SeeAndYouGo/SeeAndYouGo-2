@@ -75,6 +75,16 @@ public class Menu {
         return dishes;
     }
 
+    public Dish getMainDish(){
+        for(MenuDish menuDish : this.menuDishes){
+            if(menuDish.getDish().getDishType().equals(DishType.MAIN)){
+                return menuDish.getDish();
+            }
+        }
+
+        return this.menuDishes.get(0).getDish();
+    }
+
 //    @Override
 //    public String toString(){
 //        return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();
