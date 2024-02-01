@@ -1,6 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.Keyword;
 
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
@@ -33,6 +32,7 @@ public class KeywordService {
         Keyword keyword = keywordRepository.findByName(keywordName);
         User user = userRepository.findByEmail(email).get(0);
         user.addKeyword(keyword);
+        userRepository.save(user);
 
         return KeywordResponseDto.toDTO(user.getKeywords());
     }
