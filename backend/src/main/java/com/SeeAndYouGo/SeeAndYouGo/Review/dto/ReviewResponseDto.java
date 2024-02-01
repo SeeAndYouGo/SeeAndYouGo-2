@@ -18,7 +18,7 @@ public class ReviewResponseDto {
     private String imgLink;
     private Double rate;
     private boolean isLike;
-    private Long likeCount;
+    private Integer likeCount;
 
     public ReviewResponseDto(Review review, boolean isLike) {
         this.reviewId = review.getId();
