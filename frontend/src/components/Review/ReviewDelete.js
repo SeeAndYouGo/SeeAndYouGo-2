@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import * as config from "../../config";
+import { useSelector } from "react-redux";
 
 const RemoveButton = styled.span`
 	width: 25px;
@@ -12,9 +13,11 @@ const RemoveButton = styled.span`
 
 // 삭제하기 기능
 const ReviewDelete = ({ deleteTarget }) => {
+	const nowToken = useSelector((state) => state.user.value.token);
+
 	// deleteTarget: 삭제할 리뷰의 id
 	const handleSubmit = () => {
-		const nowToken = localStorage.getItem("token");
+		// const nowToken = localStorage.getItem("token");
 		const url =
 			config.DEPLOYMENT_BASE_URL + `/reviews/${deleteTarget}/${nowToken}`;
 
