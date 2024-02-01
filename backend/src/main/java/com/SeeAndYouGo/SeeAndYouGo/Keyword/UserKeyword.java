@@ -23,7 +23,6 @@ public class UserKeyword {
     @JoinColumn(name = "keyword_id")
     private Keyword keyword;
 
-
     public UserKeyword(User user, Keyword keyword) {
         this.user = user;
         this.keyword = keyword;
