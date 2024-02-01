@@ -113,7 +113,7 @@ public class MenuService {
     }
 
     @Transactional
-    public List<Menu> createMenuWithDishs(List<DishDto> dishDtos) {
+    public List<Menu> createMenuWithDishes(List<DishDto> dishDtos) {
         if (dishDtos.size() == 0) {
             return null;
         }
