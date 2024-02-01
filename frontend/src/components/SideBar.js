@@ -175,7 +175,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 </div>
               </Title>
             ) :(
-              <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
+              <Link to="/login-page" onClick={toggleMenu} style={{display: "block"}}>
                 <Title>
                   <div style={{height: "100%"}}>
                     <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
@@ -195,13 +195,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/MyReviewPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            <Link to="/MyMenuPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <Link to="/my-menu-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20}}>favorite</span>
                 <span>찜한 메뉴</span>
@@ -214,13 +214,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/ReviewPage/0" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>
               </MenuName>
             </Link>
-            <Link to="/NoticePage" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/notice-page" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>info</span>
                 <span>공지사항</span>

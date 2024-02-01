@@ -141,7 +141,7 @@ const Cafeteria = ({ idx, value }) => {
 		const fetchData = async () => {
 			const url =
 				config.BASE_URL +
-				`/dailyMenu/restaurant${idx}` +
+				`/daily-menu/restaurant${idx}` +
 				(config.NOW_STATUS === 0 ? ".json" : "");
 
 			const res = await fetch(url, {

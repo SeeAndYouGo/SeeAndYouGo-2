@@ -12,7 +12,7 @@ const MyReviewPage = () => {
 			// const nowToken = localStorage.getItem("token");
 			const url =
 				config.NOW_STATUS === 0
-					? config.BASE_URL + "/totalReview.json"
+					? config.BASE_URL + "/total-review.json"
 					: config.BASE_URL + `/reviews/${nowToken}`;
 			const res = await fetch(url, {
 				headers: {

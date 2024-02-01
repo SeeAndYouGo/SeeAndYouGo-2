@@ -55,7 +55,7 @@ const MainPage = () => {
 			)}
 			{restaurantData.map((val, idx) => {
 				return (
-					<Link to={`/View/${idx + 1}`} key={idx + 1}>
+					<Link to={`/view/${idx + 1}`} key={idx + 1}>
 						<Cafeteria
 							idx={idx + 1}
 							key={idx}
