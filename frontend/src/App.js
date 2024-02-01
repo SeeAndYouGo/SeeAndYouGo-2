@@ -13,6 +13,7 @@ import KakaoCallBack from "./pages/LoginPage/KakaoCallBack";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
+import MyKeywordPage from "./pages/MyKeywordPage/MyKeywordPage";
 
 const HeaderWrapper = styled.div`
 	z-index: 10;
@@ -42,6 +43,7 @@ const App = () => {
           <Route exact path="/LoginPage" element={<LoginPage />} />
           <Route exact path="/SetNickname" element={<SetNicknamePage />} />
           <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
+          <Route exact path="/MyKeywordPage" element={<MyKeywordPage />} />
           <Route exact path="/NoticePage" element={<NoticePage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
