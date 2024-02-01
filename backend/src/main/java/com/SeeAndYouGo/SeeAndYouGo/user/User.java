@@ -1,11 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
 
+import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +21,9 @@ public class User {
     private String nickname;
     @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserKeyword> userKeywords = new ArrayList<>();
 
     @Builder
     public User(String email, String nickname, Social socialType) {
