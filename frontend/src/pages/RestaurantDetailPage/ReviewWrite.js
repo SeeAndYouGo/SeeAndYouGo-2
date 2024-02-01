@@ -91,24 +91,32 @@ const ReviewWriteButton = styled.button`
 		color: white;
 	}
 `;
-// const ReviewWriteNameCheckbox = styled.input`
-// 	float: left;
-// 	width: 15px;
-// 	height: 15px;
-// 	margin-left: 5px;
-// 	margin-right: 10px;
-// 	margin-top: 3px;
-// 	position: relative;
-// 	top: 50%;
-// 	transform: translateY(-50%);
-// `;
+
 const ReviewWriteRatingLabel = styled.p`
 	margin: 0 10px 0 0;
 	line-height: 30px;
 	float: left;
 	font-size: 15px;
 	text-align: left;
+	`;
+
+const ReviewWriteAnonymousLabel = styled.p`
+	margin: 0 10px 0 0;
+	line-height: 30px;
+	float: left;
+	font-size: 15px;
 `;
+
+const ReviewWriteNameCheckbox = styled.input`
+	float: left;
+	width: 16px;
+	height: 16px;
+	margin: 1px 2px 0 0;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+`;
+
 const ReviewPreviewImage = styled.img`
 	max-width: 220px;
 	height: 42.5px;
@@ -155,17 +163,16 @@ const NotLogin = styled.div`
 
 const GoToLogin = styled.span`
 	cursor: pointer;
-	
+
 	:hover {
 		color: red;
 		opacity: 0.7;
-	}	
+	}
 `;
 
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
-	// const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
-	// const [writerName, setWriterName] = useState("");
+	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
 	const [image, setImage] = useState();
@@ -209,6 +216,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
 		formdata.append("rate", starVal);
 		formdata.append("writer", token);
+		formdata.append("anonymous", anonymous);
 		formdata.append("comment", comment);
 		formdata.append("image", image);
 
@@ -235,8 +243,9 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{ // 로그인 안했을 때
-				!token && 
+			{
+				// 로그인 안했을 때
+				!token &&
 					<NotLogin>
 						<GoToLogin onClick={() => { navigator("/LoginPage")}}>로그인이 필요합니다 !!</GoToLogin>
 					</NotLogin>
@@ -251,6 +260,15 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						}}
 					/>
 				</ReviewStarRating>
+				<div style={{ float: "right", height: 30 }}>
+					<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
+					<ReviewWriteNameCheckbox
+						type="checkbox"
+						onChange={() => {
+							setAnonymous(!anonymous);
+						}}
+					/>
+				</div>
 			</div>
 
 			{restaurantName === 1 ? (
@@ -289,19 +307,14 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 							>
 								<ReviewPreviewImage src={imageURL} />
 								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">
-										close
-									</span>
+									<span className="material-symbols-outlined">close</span>
 								</ReviewImageDelete>
 							</div>
 						) : null}
 					</ReviewWriteInputWrapper>
 				</div>
 				{starVal !== 0 ? (
-					<ReviewWriteButton
-						className="success"
-						onClick={ReviewSubmit}
-					>
+					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
 						작성
 					</ReviewWriteButton>
 				) : (
