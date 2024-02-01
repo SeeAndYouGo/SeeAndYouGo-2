@@ -4,7 +4,6 @@ import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
-import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class ReviewService {
     private final MenuService menuService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
-    private final MenuDishRepository menuDishRepository;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
