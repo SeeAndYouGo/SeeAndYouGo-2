@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUtensils } from "@fortawesome/free-solid-svg-icons";
 
 const MenuContainer = styled.div`
 	width: 100%;
@@ -28,18 +26,23 @@ const TypeName = styled.p`
 	}
 `;
 
-const MainMenuContainer = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
+const KeywordContainMenu = styled.p`
+	margin: 0;
+	font-size: 18px;
 	text-align: center;
+	cursor: default;
 `;
 
-const MainMenu = styled.p`
+const NormalMenu = styled.p`
 	margin: 0;
-	padding-left: 5px;
-	font-size: 20px;
-	text-align: center;
+	font-size: 15px;
+	font-weight: 400;
+	cursor: default;
+`;
+
+const NoMenuInfo = styled.p`
+	margin: 0px;
+	font-size: 18px;
 `;
 
 const Price = styled.p`
@@ -65,32 +68,18 @@ const Menu = ({ value }) => {
 			</div>
 			<div style={{ textAlign: "center" }}>
 				{value.dishList.length === 0 ? (
-					<MainMenuContainer>
-						<MainMenu>메뉴 없음</MainMenu>
-					</MainMenuContainer>
+					<NoMenuInfo>메뉴 없음</NoMenuInfo>
 				) : (
-					value.dishList.map((menu, index) =>
-						index === 0 ? (
-							<MainMenuContainer key={index}>
-								<FontAwesomeIcon
-									icon={faUtensils}
-									fontSize={25}
-								/>
-								<MainMenu key={menu}>{menu}</MainMenu>
-							</MainMenuContainer>
+					value.dishList.map((menu, index) => {
+						const containsKeyword = value.keywordList.some((keyword) =>
+							menu.includes(keyword)
+						);
+						return containsKeyword ? (
+							<KeywordContainMenu key={index}>{menu}</KeywordContainMenu>
 						) : (
-							<p
-								key={index}
-								style={{
-									margin: 0,
-									fontSize: 15,
-									fontWeight: 400,
-								}}
-							>
-								{menu}
-							</p>
-						)
-					)
+							<NormalMenu key={index}>{menu}</NormalMenu>
+						);
+					})
 				)}
 			</div>
 		</MenuContainer>
