@@ -61,6 +61,7 @@ public class Menu {
     }
 
     public void setDishList(List<Dish> dishes) {
+        this.menuDishes = new ArrayList<>();
         for (Dish dish : dishes) {
             this.menuDishes.add(new MenuDish(this, dish));
         }
