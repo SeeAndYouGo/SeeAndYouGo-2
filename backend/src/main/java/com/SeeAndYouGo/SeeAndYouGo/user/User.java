@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserKeyword> userKeywords = new ArrayList<>();
 
     @Builder
@@ -46,8 +45,7 @@ public class User {
 
     public void deleteKeyword(Keyword keyword){
         for(UserKeyword userKeyword : this.userKeywords){
-            Keyword existingKeyword = userKeyword.getKeyword();
-            if (existingKeyword == keyword)  {
+            if (userKeyword.getKeyword().getName().equals(keyword.getName()))  {
                 this.userKeywords.remove(userKeyword);
                 break;
             }
@@ -56,7 +54,7 @@ public class User {
 
     private boolean existsKeyword(Keyword keyword) {
         for (UserKeyword userKeyword : this.getUserKeywords()){
-            if (keyword == userKeyword.getKeyword())
+            if (keyword.getName().equals(userKeyword.getKeyword().getName()))
                 return true;
         }
         return false;

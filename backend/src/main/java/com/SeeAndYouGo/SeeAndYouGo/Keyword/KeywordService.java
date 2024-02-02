@@ -6,6 +6,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -37,6 +38,7 @@ public class KeywordService {
         return KeywordResponseDto.toDTO(user.getKeywords());
     }
 
+    @Transactional
     public KeywordResponseDto deleteKeyword(String keywordName, String email) {
         Keyword keyword = keywordRepository.findByName(keywordName);
         if (keyword == null) {
@@ -44,7 +46,7 @@ public class KeywordService {
         }
         User user = userRepository.findByEmail(email).get(0);
         user.deleteKeyword(keyword);
+
         return KeywordResponseDto.toDTO(user.getKeywords());
     }
-
 }
