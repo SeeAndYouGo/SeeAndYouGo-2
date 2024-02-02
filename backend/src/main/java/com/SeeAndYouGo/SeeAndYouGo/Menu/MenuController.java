@@ -27,22 +27,14 @@ public class MenuController {
     private final UserKeywordRepository userKeywordRepository;
 
     private final TokenProvider tokenProvider;
-//
-//    @GetMapping("/dailyMenu/{restaurant}")
-//    public ResponseEntity<List<MenuResponseDto>> restaurantMenuDay(@PathVariable("restaurant") String place) {
-//        String date = getTodayDate();
-//        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
-//
-//        return ResponseEntity.ok(parseOneDayRestaurantMenu(oneDayRestaurantMenu));
-//    }
 
-    @GetMapping("/dailyMenu/{restaurant}/{user_id}")
-    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place, @PathVariable String user_id) {
+    @GetMapping(value = {"/dailyMenu/{restaurant}/{user_id}", "/dailyMenu/{restaurant}"})
+    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place, @PathVariable(required = false) String user_id) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
 
         List<String> keyStrings = new ArrayList<>();
-        if (user_id.length() != 0) {
+        if (user_id != null) {
             String email = tokenProvider.decodeToEmail(user_id);
             User user = userRepository.findByEmail(email).get(0);
             List<Keyword> keywords = userKeywordRepository.findByUser(user);
