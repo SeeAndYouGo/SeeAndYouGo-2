@@ -81,15 +81,15 @@ const AccountWrap = styled.div`
   position: relative;
 `;
 
-const JoinBtn = styled.span`
-  padding: 0 10px;
-  border: solid 1px #777;
-  border-radius: 5px;
-  color: #777;
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 400;
-`;
+// const JoinBtn = styled.span`
+//   padding: 0 10px;
+//   border: solid 1px #777;
+//   border-radius: 5px;
+//   color: #777;
+//   font-size: 14px;
+//   line-height: 22px;
+//   font-weight: 400;
+// `;
 
 const LogoutBtn = styled.span`
   top: 50%;
@@ -197,10 +197,10 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            <Link to="/MyMenuPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <Link to="/MyKeywordPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20}}>favorite</span>
-                <span>찜한 메뉴</span>
+                <span className="material-symbols-outlined" style={{fontSize: 20}}>collections_bookmark</span>
+                <span>나의 키워드</span>
               </MenuName>
             </Link>
           </MenuList>
