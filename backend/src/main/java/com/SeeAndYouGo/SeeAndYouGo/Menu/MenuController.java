@@ -1,15 +1,20 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.Keyword.Keyword;
+import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
+import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,13 +22,34 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MenuController {
     private final MenuService menuService;
+    private final UserRepository userRepository;
 
-    @GetMapping("/dailyMenu/{restaurant}")
-    public ResponseEntity<List<MenuResponseDto>> restaurantMenuDay(@PathVariable("restaurant") String place) {
+    private final UserKeywordRepository userKeywordRepository;
+
+    private final TokenProvider tokenProvider;
+//
+//    @GetMapping("/dailyMenu/{restaurant}")
+//    public ResponseEntity<List<MenuResponseDto>> restaurantMenuDay(@PathVariable("restaurant") String place) {
+//        String date = getTodayDate();
+//        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
+//
+//        return ResponseEntity.ok(parseOneDayRestaurantMenu(oneDayRestaurantMenu));
+//    }
+
+    @GetMapping("/dailyMenu/{restaurant}/{user_id}")
+    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place, @PathVariable String user_id) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
 
-        return ResponseEntity.ok(parseOneDayRestaurantMenu(oneDayRestaurantMenu));
+        List<String> keyStrings = new ArrayList<>();
+        if (user_id.length() != 0) {
+            String email = tokenProvider.decodeToEmail(user_id);
+            User user = userRepository.findByEmail(email).get(0);
+            List<Keyword> keywords = userKeywordRepository.findByUser(user);
+            keyStrings = keywords.stream().map(x -> x.getName()).collect(Collectors.toList());
+        }
+
+        return ResponseEntity.ok(parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings));
     }
 
     private String getTodayDate() {
@@ -44,6 +70,24 @@ public class MenuController {
             menuResponsDtos.add(menuResponseDto);
         }
         return menuResponsDtos;
+    }
+
+    private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
+        List<MenuResponseByUserDto> dtos = new ArrayList<>();
+        for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
+            List<Dish> dishList = dayRestaurantMenu.getDishList();
+            List<String> keyStrings = new ArrayList<>();
+            for(Dish dish : dishList){
+                for(String key : keywords){
+                    if (dish.getName().contains(key)){
+                        keyStrings.add(dish.getName());
+                    }
+                }
+            }
+            MenuResponseByUserDto dto = new MenuResponseByUserDto(dayRestaurantMenu, keyStrings);
+            dtos.add(dto);
+        }
+        return dtos;
     }
 
     @GetMapping("/weeklyMenu/{restaurant}")
