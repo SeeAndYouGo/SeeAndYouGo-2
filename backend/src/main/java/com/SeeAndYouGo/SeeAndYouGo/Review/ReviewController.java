@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +10,10 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,38 +29,56 @@ public class ReviewController {
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private static final Integer REPORT_CRITERION = 10;
+    private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
     // 탑 리뷰 조회
-    @GetMapping("/topReview/{restaurant}")
-    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable String restaurant) {
+    @GetMapping("/topReview/{restaurant}/{token_id}")
+    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
+                                                                 @PathVariable("token_id") String tokenId) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = LocalDate.now().toString();
+        String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewResponseDto> response = getReviewDtos(reviews);
-
+        List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
         return ResponseEntity.ok(response);
     }
 
-    private static List<ReviewResponseDto> getReviewDtos(List<Review> reviews) {
+    private static List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         List<ReviewResponseDto> response = new ArrayList<>();
-        reviews.forEach(review -> response.add(new ReviewResponseDto(review)));
+        reviews.forEach(review -> {
+            if(review.getWriterEmail().equals(userEmail)){
+                response.add(new ReviewResponseDto(review, true));
+            }else{
+                response.add(new ReviewResponseDto(review, false));
+            }
+
+        });
         return response;
     }
 
-    @GetMapping("/totalReview")
-    public ResponseEntity<List<ReviewResponseDto>> getAllReviews() {
+    @GetMapping("/totalReview/{token_id}")
+    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable("token_id") String tokenId) {
         String date = LocalDate.now().toString();
-        List<Review> allReviews = reviewService.findAllReviews(date);
+        List<Review> allReviews = new ArrayList<>();
+        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        for (String restaurantName : restaurantNames) {
+            List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
+            for (Review restaurantReview : restaurantReviews) {
+                allReviews.add(restaurantReview);
+            }
+        }
 
-        return ResponseEntity.ok(getReviewDtos(allReviews));
+        return ResponseEntity.ok(getReviewDtos(allReviews, userEmail));
     }
 
-    @GetMapping("/review/{restaurant}")
-    public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable String restaurant) {
+    @GetMapping("/review/{restaurant}/{token_id}")
+    public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
+                                                                        @PathVariable("token_id") String tokenId) {
         String date = LocalDate.now().toString();
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
-        return ResponseEntity.ok(getReviewDtos(restaurantReviews));
+        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        return ResponseEntity.ok(getReviewDtos(restaurantReviews, userEmail));
     }
 
     @PutMapping("/report/{reviewId}")
@@ -86,6 +101,7 @@ public class ReviewController {
             @RequestParam("rate") Double rate,
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
+            @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
@@ -101,10 +117,16 @@ public class ReviewController {
         Review review = new Review();
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-        String email = tokenProvider.decode(writer);
+        String email = tokenProvider.decodeToEmail(writer);
         String nickname = userService.findNickname(email);
         review.setWriterEmail(email);
-        review.setWriterNickname(nickname);
+
+        if(anonymous){
+            review.setWriterNickname("익명");
+        }else{
+            review.setWriterNickname(nickname);
+        }
+
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
@@ -118,10 +140,10 @@ public class ReviewController {
 
     @GetMapping("/reviews/{token}")
     public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable String token){
-        String userEmail = tokenProvider.decode(token);
+        String userEmail = tokenProvider.decodeToEmail(token);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 
-        return ResponseEntity.ok(getReviewDtos(reviews));
+        return ResponseEntity.ok(getReviewDtos(reviews, userEmail));
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
@@ -134,7 +156,7 @@ public class ReviewController {
                 .build();
         String userEmail;
         try{
-            userEmail = tokenProvider.decode(token);
+            userEmail = tokenProvider.decodeToEmail(token);
         }catch (ArrayIndexOutOfBoundsException e){
             return ResponseEntity.ok(responseDto);
         }

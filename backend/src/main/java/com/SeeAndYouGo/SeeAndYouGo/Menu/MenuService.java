@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishDto;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -112,7 +113,7 @@ public class MenuService {
     }
 
     @Transactional
-    public List<Menu> createMenuWithDishs(List<DishDto> dishDtos) {
+    public List<Menu> createMenuWithDishes(List<DishDto> dishDtos) {
         if (dishDtos.size() == 0) {
             return null;
         }
@@ -136,6 +137,7 @@ public class MenuService {
             List<Dish> dishList = menu.getDishList();
             if (!dishList.contains(dish)) {
                 dishList.add(dish);
+                menu.getMenuDishes().add(new MenuDish(menu, dish));
             }
         }
         List<Menu> menus = new ArrayList<>(responseMap.values());
