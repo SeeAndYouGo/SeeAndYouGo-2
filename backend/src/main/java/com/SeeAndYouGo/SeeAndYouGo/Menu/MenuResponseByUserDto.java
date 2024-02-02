@@ -16,7 +16,7 @@ public class MenuResponseByUserDto {
     private String dept;
     private String date;
     private String menuType;
-    private List<String> keywords = new LinkedList<>();
+    private List<String> keywordList = new LinkedList<>();
 
     public MenuResponseByUserDto(Menu menu, List<String> keywords){
         this.restaurantName = menu.getRestaurant().getName();
@@ -25,7 +25,7 @@ public class MenuResponseByUserDto {
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();
         this.menuType = menu.getMenuType().toString();
-        this.keywords = keywords;
+        this.keywordList = keywords;
     }
 
     private void setDishList(Menu menu){
