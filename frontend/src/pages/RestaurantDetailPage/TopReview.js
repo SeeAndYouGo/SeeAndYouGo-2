@@ -192,7 +192,7 @@ const TopReview = ({ idx }) => {
 		const fetchData = async () => {
 			const url =
 				config.BASE_URL +
-				`/topReview/restaurant${idx}` +
+				`/top-review/restaurant${idx}` +
 				(config.NOW_STATUS === 0 ? ".json" : "");
 			const res = await fetch(url, {
 				headers: {
@@ -213,7 +213,7 @@ const TopReview = ({ idx }) => {
 			<p style={{ fontSize: 18, marginBottom: 10 }}>
 				리뷰 미리보기
 			<Link 
-				to={`/ReviewPage/${idx}`}
+				to={`/review-page/${idx}`}
 				style={{float:"right", fontWeight: 400, fontSize: 14, color: "royalblue"}}>
 					전체보기 {'>'}
 			</Link>

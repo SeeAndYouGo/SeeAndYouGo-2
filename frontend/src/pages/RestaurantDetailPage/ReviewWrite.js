@@ -250,7 +250,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 				// 로그인 안했을 때
 				!token &&
 					<NotLogin>
-						<GoToLogin onClick={() => { navigator("/LoginPage")}}>로그인이 필요합니다 !!</GoToLogin>
+						<GoToLogin onClick={() => { navigator("/login-page")}}>로그인이 필요합니다 !!</GoToLogin>
 					</NotLogin>
 			}
 			<div style={{ width: "100%", float: "left" }}>

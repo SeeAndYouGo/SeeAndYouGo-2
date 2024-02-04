@@ -36,15 +36,15 @@ const App = () => {
       <div className="pageWrapper" style={{maxWidth:"360px", margin:"0 auto", marginTop: 50}}>
         <Routes>
           <Route exact path="/" element={<MainPage />} />
-          <Route exact path="/View/:restaurant" element={<RestaurantDetailPage />} />
-          <Route exact path="/ReviewPage/:restaurant" element={<ReviewPage />} />
-          <Route exact path="/Admin/MainMenu" element={<SetMainMenuPage />} />
+          <Route exact path="/view/:restaurant" element={<RestaurantDetailPage />} />
+          <Route exact path="/review-page/:restaurant" element={<ReviewPage />} />
+          <Route exact path="/admin/main-menu" element={<SetMainMenuPage />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
-          <Route exact path="/LoginPage" element={<LoginPage />} />
-          <Route exact path="/SetNickname" element={<SetNicknamePage />} />
-          <Route exact path="/MyReviewPage" element={<MyReviewPage />} />
-          <Route exact path="/MyKeywordPage" element={<MyKeywordPage />} />
-          <Route exact path="/NoticePage" element={<NoticePage />} />
+          <Route exact path="/login-page" element={<LoginPage />} />
+          <Route exact path="/set-nickname" element={<SetNicknamePage />} />
+          <Route exact path="/my-review-page" element={<MyReviewPage />} />
+          <Route exact path="/notice-page" element={<NoticePage />} />
+          <Route exact path="/my-keyword-page" element={<MyKeywordPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </div>
