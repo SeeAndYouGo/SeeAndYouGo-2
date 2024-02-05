@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { useDispatch, useSelector } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const RemoveBtn = styled.span`
@@ -8,7 +10,11 @@ const RemoveBtn = styled.span`
 	right: 7px;
 `;
 
-const MyKeywordItem = ({ keyword, setKeywordList, setToastDeleteSuccess, setToastDeleteFail }) => {
+const MyKeywordItem = ({ keyword, setKeywordList }) => {
+	const user = useSelector((state) => state.user.value);
+	const token = user.token;
+	const dispatch = useDispatch();
+
 	const handleSubmit = async () => {
 		const url = config.BASE_URL + "/keyword";
 
@@ -19,15 +25,15 @@ const MyKeywordItem = ({ keyword, setKeywordList, setToastDeleteSuccess, setToas
 			method: "DELETE",
 			body: JSON.stringify({
 				keyword: keyword,
-				user_id: localStorage.getItem("token"),
+				user_id: token,
 			}),
 		});
-		if (res.ok) {
+		if (res.ok) { // 키워드 삭제 성공
 			const result = await res.json();
 			setKeywordList(result.keywords);
-			setToastDeleteSuccess(true);
-		} else {
-			setToastDeleteFail(true);
+			dispatch(changeToastIndex(4));
+		} else { // 키워드 삭제 실패
+			dispatch(changeToastIndex(5));
 		}
 	};
 

@@ -1,9 +1,9 @@
-import React from 'react';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
+import { changeToastIndex } from '../redux/slice/ToastSlice';
 
 const Background = styled.div`
   width: 100%;
@@ -83,16 +83,6 @@ const AccountWrap = styled.div`
   position: relative;
 `;
 
-// const JoinBtn = styled.span`
-//   padding: 0 10px;
-//   border: solid 1px #777;
-//   border-radius: 5px;
-//   color: #777;
-//   font-size: 14px;
-//   line-height: 22px;
-//   font-weight: 400;
-// `;
-
 const LogoutBtn = styled.span`
   top: 50%;
   transform: translateY(-50%);
@@ -110,10 +100,9 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
+  const navigator = useNavigate();
   const dispatch = useDispatch();
   const outside = useRef();
-  // const [loginState, setLoginState] = useState(false);
-  // const [nickname, setNickname] = useState("");
   const user = useSelector((state) => state.user.value);
   const nickname = user.nickname;
   const loginState = user.loginState;
@@ -123,26 +112,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
   };
 
   const loginForMemberContents = (e) => {
-    // toggleMenu();
     if (loginState) {
       toggleMenu()  
     }else {
-      e.preventDefault(); 
-      alert("로그인이 필요한 서비스입니다.")
+      e.preventDefault();
+      dispatch(changeToastIndex(2));
     }
   };
-
-  // useEffect(() => {
-  //   const checkLogin = () => {
-  //     if (localStorage.getItem("token")) {
-  //       setLoginState(true);
-  //       setNickname(localStorage.getItem("nickname") ? localStorage.getItem("nickname") : "");
-  //     } else {
-  //       setLoginState(false);
-  //     }
-  //   };
-  //   checkLogin();
-  // }, []);
 
   return (
     <>
@@ -170,6 +146,9 @@ const SideBar = ({isOpen, setIsOpen}) => {
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       dispatch(logout());
+                      dispatch(changeToastIndex(1));
+                      navigator("/");
+                      toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>
                 </div>

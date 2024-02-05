@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import * as config from "../../config";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const RemoveButton = styled.span`
 	width: 25px;
@@ -13,11 +14,11 @@ const RemoveButton = styled.span`
 
 // 삭제하기 기능
 const ReviewDelete = ({ deleteTarget }) => {
+	const dispatch = useDispatch();
 	const nowToken = useSelector((state) => state.user.value.token);
 
 	// deleteTarget: 삭제할 리뷰의 id
 	const handleSubmit = () => {
-		// const nowToken = localStorage.getItem("token");
 		const url =
 			config.DEPLOYMENT_BASE_URL + `/reviews/${deleteTarget}/${nowToken}`;
 
@@ -31,14 +32,14 @@ const ReviewDelete = ({ deleteTarget }) => {
 			.then((res) => {
 				// 토스트 완성되면 변경 예정
 				if (res.success === true) {
-					alert("리뷰가 삭제되었습니다.");
+					dispatch(changeToastIndex(2));
 					window.location.reload();
 				} else {
-					alert("리뷰 삭제에 실패하였습니다.");
+					dispatch(changeToastIndex(4));
 				}
 			})
 			.catch(() => {
-				alert("리뷰 삭제에 실패하였습니다.");
+				dispatch(changeToastIndex(3));
 			});
 	};
 
@@ -46,7 +47,11 @@ const ReviewDelete = ({ deleteTarget }) => {
 		<>
 			<RemoveButton
 				onClick={() => {
-					if (window.confirm("본인이 작성한 리뷰만 삭제가 가능합니다.\n삭제하시겠습니까?")) {
+					if (
+						window.confirm(
+							"본인이 작성한 리뷰만 삭제가 가능합니다.\n삭제하시겠습니까?"
+						)
+					) {
 						handleSubmit();
 					} else {
 						return;

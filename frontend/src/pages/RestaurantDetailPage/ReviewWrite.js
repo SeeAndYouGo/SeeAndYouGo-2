@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "./MenuSelector";
 import * as config from "../../config";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -180,12 +181,9 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	const [imageURL, setImageURL] = useState("");
 	const imageRef = useRef(null);
 	const navigator = useNavigate();
+	const dispatch = useDispatch();
 
 	const token = useSelector((state) => state.user.value.token);
-
-	// const token = localStorage.getItem("token")
-	// 	? localStorage.getItem("token")
-	// 	: "";
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -215,7 +213,6 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		const formdata = new FormData();
 		formdata.append("restaurant", restaurantName);
 		formdata.append("dept", deptName);
-		// 1학 부분을 위해 selectedMenu 넣은건데 확인 필요합니다.
 		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
 		formdata.append("rate", starVal);
 		formdata.append("writer", token);
@@ -237,17 +234,16 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 			})
 			.then((response) => {
 				console.log(response);
-				alert("리뷰가 등록되었습니다.");
+				dispatch(changeToastIndex(5));
 				console.log(response.data);
 				window.location.reload();
 			})
-			.catch((error) => console.log("error", error));
+			.catch((error) => dispatch(changeToastIndex(6)));
 	};
 
 	return (
 		<ReviewWriteContainer>
-			{
-				// 로그인 안했을 때
+			{ // 로그인 안했을 때
 				!token &&
 					<NotLogin>
 						<GoToLogin onClick={() => { navigator("/login-page")}}>로그인이 필요합니다 !!</GoToLogin>

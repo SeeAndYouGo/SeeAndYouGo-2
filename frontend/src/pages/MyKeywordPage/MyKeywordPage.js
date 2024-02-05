@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
+import { useSelector } from "react-redux";
 import MyKeywordInput from "./MyKeywordInput";
 import MyKeywordItem from "./MyKeywordItem";
 import Toast from "../../components/Toast";
@@ -19,14 +20,20 @@ const MyKeywordList = styled.div`
 	border-radius: 10px;
 `;
 
+const toastList = [
+	["키워드가 등록되었습니다.", "success"],
+	["키워드 등록에 실패했습니다.", "error"],
+	["이미 등록된 키워드입니다.", "alert"],
+	["키워드 조건을 확인해주세요!", "alert"],
+	["키워드 삭제에 성공했습니다.", "success"],
+	["키워드 삭제에 실패했습니다.", "error"],
+];
+
 const MyKeywordPage = () => {
 	const [keywordList, setKeywordList] = useState([]);
-	const [toastSuccess, setToastSuccess] = useState(false);
-	const [toastFail, setToastFail] = useState(false);
-	const [toastExisted, setToastExisted] = useState(false);
-	const [toastImpossible, setToastImpossible] = useState(false);
-	const [toastDeleteSuccess, setToastDeleteSuccess] = useState(false);
-	const [toastDeleteFail, setToastDeleteFail] = useState(false);
+	const toastIndex = useSelector((state) => state.toast).value;
+  const user = useSelector((state) => state.user.value);
+	const token = user.token;
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -34,7 +41,7 @@ const MyKeywordPage = () => {
 				config.BASE_URL +
 				"/keyword" +
 				(config.NOW_STATUS === 1
-					? `/${localStorage.getItem("token")}`
+					? `/${token}`
 					: ".json");
 
 			const res = await fetch(url, {
@@ -45,52 +52,17 @@ const MyKeywordPage = () => {
 			});
 			const result = await res.json();
 			setKeywordList(result.keywords);
+			console.log(result);
 		};
 		fetchData();
-	}, []);
+	}, [token]);
 
 	return (
 		<>
-			{toastSuccess && (
+			{toastIndex !== null && (
 				<Toast
-					message="키워드가 등록되었습니다."
-					type="success"
-					setToast={setToastSuccess}
-				/>
-			)}
-			{toastFail && (
-				<Toast
-					message="키워드 등록에 실패했습니다."
-					type="error"
-					setToast={setToastFail}
-				/>
-			)}
-			{toastExisted && (
-				<Toast
-					message="이미 등록된 키워드입니다."
-					type="error"
-					setToast={setToastExisted}
-				/>
-			)}
-			{toastImpossible && (
-				<Toast
-					message="키워드 조건을 확인해주세요!"
-					type="error"
-					setToast={setToastImpossible}
-				/>
-			)}
-			{toastDeleteSuccess && (
-				<Toast
-					message="키워드 삭제에 성공했습니다."
-					type="success"
-					setToast={setToastDeleteSuccess}
-				/>
-			)}
-			{toastDeleteFail && (
-				<Toast
-					message="키워드 삭제에 실패했습니다."
-					type="error"
-					setToast={setToastDeleteFail}
+					message={toastList[toastIndex][0]}
+					type={toastList[toastIndex][1]}
 				/>
 			)}
 
@@ -104,14 +76,10 @@ const MyKeywordPage = () => {
 				</div>
 				<MyKeywordInput
 					setKeywordList={setKeywordList}
-					setToastSuccess={setToastSuccess}
-					setToastFail={setToastFail}
-					setToastExisted={setToastExisted}
-					setToastImpossible={setToastImpossible}
 					existedKeywordList={keywordList}
 				/>
 				<p style={{ margin: "10px 20px" }}>
-					등록된 키워드 ({keywordList.length}/10)
+					등록된 키워드 ({keywordList ? keywordList.length : 0}/10)
 				</p>
 				{keywordList.length === 0 ? (
 					<p
@@ -127,12 +95,7 @@ const MyKeywordPage = () => {
 					<MyKeywordList>
 						{keywordList.map((val, index) => (
 							<div key={index}>
-								<MyKeywordItem
-									keyword={val}
-									setKeywordList={setKeywordList}
-									setToastDeleteSuccess={setToastDeleteSuccess}
-									setToastDeleteFail={setToastDeleteFail}
-								/>
+								<MyKeywordItem keyword={val} setKeywordList={setKeywordList} />
 								<UnderLine />
 							</div>
 						))}

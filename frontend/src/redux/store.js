@@ -3,9 +3,11 @@ import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
 import { combineReducers } from 'redux'
 import UserSlice from './slice/UserSlice';
+import ToastSlice from './slice/ToastSlice';
 
 const reducers = combineReducers({
     user: UserSlice,
+    toast: ToastSlice
 });
 
 const persistConfig = {

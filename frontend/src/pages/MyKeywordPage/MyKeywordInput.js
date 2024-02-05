@@ -1,5 +1,7 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
+import { useDispatch, useSelector } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const KeywordInput = styled.input`
@@ -11,19 +13,15 @@ const KeywordInput = styled.input`
 	border: none;
 `;
 
-const MyKeywordInput = ({
-	setKeywordList,
-	setToastSuccess,
-	setToastFail,
-	setToastExisted,
-	setToastImpossible,
-	existedKeywordList
-}) => {
+const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 	const [keyword, setKeyword] = useState("");
+	const user = useSelector((state) => state.user.value);
+	const token = user.token;
+	const dispatch = useDispatch();
 
 	const handleSubmit = async () => {
-		if (existedKeywordList.includes(keyword)) {
-			setToastExisted(true);
+		if (existedKeywordList.includes(keyword)) { // 이미 등록된 키워드
+			dispatch(changeToastIndex(2));
 		} else if (keyword.length > 0 && keyword.length < 7) {
 			const url = config.BASE_URL + "/keyword";
 
@@ -34,19 +32,19 @@ const MyKeywordInput = ({
 				method: "POST",
 				body: JSON.stringify({
 					keyword: keyword,
-					user_id: localStorage.getItem("token"),
+					user_id: token,
 				}),
 			});
-			if (res.ok) {
+			if (res.ok) { // 키워드 등록 성공
 				const result = await res.json();
 				setKeywordList(result.keywords);
 				setKeyword("");
-				setToastSuccess(true);
-			} else {
-				setToastFail(true);
+				dispatch(changeToastIndex(0));
+			} else { // 키워드 등록 실패
+				dispatch(changeToastIndex(1));
 			}
-		} else {
-			setToastImpossible(true);
+		} else { // 키워드 조건 확인
+			dispatch(changeToastIndex(3));
 		}
 	};
 
