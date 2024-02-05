@@ -9,7 +9,6 @@ const MyReviewPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			// const nowToken = localStorage.getItem("token");
 			const url =
 				config.NOW_STATUS === 0
 					? config.BASE_URL + "/total-review.json"
@@ -26,7 +25,7 @@ const MyReviewPage = () => {
 		fetchData().then((result) => {
 			setReviewArr(result);
 		});
-	}, []);
+	}, [nowToken]);
 
 	return (
 		<>

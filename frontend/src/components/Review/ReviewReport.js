@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import * as config from "../../config";
+import { useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -12,6 +14,8 @@ const ReportButton = styled.span`
 
 // 아이콘 눌러 신고하기 버튼 기능
 const ReviewReport = ({ reportTarget }) => {
+	const dispatch = useDispatch();
+
 	const handleSubmit = () => {
 		const url = config.DEPLOYMENT_BASE_URL + `/report/${reportTarget}`;
 
@@ -22,9 +26,9 @@ const ReviewReport = ({ reportTarget }) => {
 			},
 		})
 			.then(() => {
-				alert("신고가 접수되었습니다! \n감사합니다.");
+				dispatch(changeToastIndex(0));
 			})
-			.catch((err) => console.log(err));
+			.catch((err) => dispatch(changeToastIndex(1)));
 	};
 
 	return (

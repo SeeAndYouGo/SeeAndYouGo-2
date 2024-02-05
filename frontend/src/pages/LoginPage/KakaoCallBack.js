@@ -4,6 +4,7 @@ import axios from "axios";
 import * as config from "../../config";
 import { useDispatch } from "react-redux";
 import { login, setNickname } from "../../redux/slice/UserSlice";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
@@ -35,15 +36,11 @@ const KakaoCallBack = () => {
 		getJWTToken(code)
 			.then((data) => {
 				dispatch(login({token: data.token, nickname: "", loginState: true}));
-				// localStorage.setItem("token", data.token);
 
-				if (data.message === "join") {
-					// 회원가입인 경우 닉네임 설정 창으로 이동
+				if (data.message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
 					alert("회원가입을 축하합니다!\n닉네임을 설정해주세요.");
-					// 밑에 navigator 닉네임 설정화면으로 수정 필요
 					navigator("/set-nickname");
-				} else {
-					// 이미 등록된 회원인 경우 닉네임 가져오기
+				} else { // 이미 등록된 회원인 경우 닉네임 가져오기
 					const fetchData = async () => {
 						const urlForNickname =
 							config.BASE_URL +
@@ -61,9 +58,8 @@ const KakaoCallBack = () => {
 					};
 					fetchData().then((res) => {
 						dispatch(setNickname(res.nickname));
-						// localStorage.setItem("nickname", res.nickname);
 					});
-					alert("로그인에 성공했습니다.");
+					dispatch(changeToastIndex(0));
 					navigator("/");
 				}
 			})
@@ -72,7 +68,7 @@ const KakaoCallBack = () => {
 				alert("로그인에 실패했습니다.");
 				navigator("/login-page");
 			});
-	}, [code, navigator]);
+	}, [code, navigator, dispatch]);
 
 	return (
 		<div className="LoginHandeler">

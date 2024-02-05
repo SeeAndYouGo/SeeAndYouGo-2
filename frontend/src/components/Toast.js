@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
+import { useDispatch } from 'react-redux';
+import { changeToInitialState } from '../redux/slice/ToastSlice';
 
 const ToastContainer = styled.div`
   position: fixed;
@@ -7,7 +9,6 @@ const ToastContainer = styled.div`
   left: 50%;
   transform: translateX(-50%);
   max-width: 300px;
-  border-solid: 1px solid red;
   z-index: 1000;
 `;
 
@@ -29,16 +30,17 @@ const ToastMessage = styled.div`
   }
 `;
 
-const Toast = ({ message, type = 'alert', setToast }) => {
+const Toast = ({ message, type = 'alert' }) => {
+  const dispatch = useDispatch();
 
   useEffect (() => {
     const timer = setTimeout(() => {
-      setToast(false);
+      dispatch(changeToInitialState());
     }, 2000);
     return () => {
       clearTimeout(timer);
     };
-  }, [setToast]);
+  }, [dispatch]);
 
   return (
     <ToastContainer>

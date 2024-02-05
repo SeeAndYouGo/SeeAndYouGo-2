@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import UpdateLog from "./UpdateLog";
 import Cafeteria from "./Cafeteria";
+import Toast from "../../components/Toast";
 import * as config from "../../config";
+
+const toastList = [
+	["로그인에 성공했습니다.", "success"],
+	["로그아웃 되었습니다.", "alert"],
+  ["로그인이 필요한 서비스입니다.", "alert"],
+];
 
 // 시간 정보가 포함된 식단 인원 정보 request
 const MainPage = () => {
+  const toastIndex = useSelector((state) => state.toast).value;
+
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	useEffect(() => {
@@ -37,17 +47,12 @@ const MainPage = () => {
 
 	return (
 		<div className="App">
-			{/* <a
-				href="https://docs.google.com/forms/d/e/1FAIpQLSfGeuHsAH4fXrazXBLzSn1J7z3ux8in1OQInDH2LYHQnRiU5Q/viewform"
-				target="_blank"
-				rel="noreferrer noopener"
-			>
-				<img
-					style={{ width: 30, height: 25, float: "right" }}
-					src="/assets/images/survey.png"
-					alt="Survey"
+			{ toastIndex !== null && (
+				<Toast
+					message={toastList[toastIndex][0]}
+					type={toastList[toastIndex][1]}
 				/>
-			</a> */}
+			)}
 			{restaurantData.map((val, idx) =>
 				idx === 0 ? (
 					<UpdateLog key={idx} updateTime={val.dateTime} />
