@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +23,9 @@ public class KeywordService {
     }
 
     public List<Keyword> getKeywords(String email) {
+        // 만약 token_id가 넘어오지 않는다면, email은 decoreToEmail()에 의해서 빈 String으로 온다.
+        if(email.equals("")) return new ArrayList<>();
+
         User user = userRepository.findByEmail(email).get(0);
         return user.getKeywords();
     }

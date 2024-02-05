@@ -1,6 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.like;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
