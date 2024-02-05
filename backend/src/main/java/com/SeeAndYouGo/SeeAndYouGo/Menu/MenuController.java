@@ -28,7 +28,7 @@ public class MenuController {
 
     private final TokenProvider tokenProvider;
 
-    @GetMapping(value = {"/dailyMenu/{restaurant}/{user_id}", "/dailyMenu/{restaurant}"})
+    @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
     public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place, @PathVariable(required = false) String user_id) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
@@ -82,7 +82,7 @@ public class MenuController {
         return dtos;
     }
 
-    @GetMapping("/weeklyMenu/{restaurant}")
+    @GetMapping("/weekly-menu/{restaurant}")
     public ResponseEntity<List<MenuResponseDto>> restaurantMenuWeek(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
@@ -97,7 +97,7 @@ public class MenuController {
         return ResponseEntity.ok(menuListArr);
     }
 
-    @GetMapping("/weeklyMenu")
+    @GetMapping("/weekly-menu")
     public ResponseEntity<List<MenuResponseDto>> allRestaurantMenuWeek() {
         String date = getTodayDate();
         List<MenuResponseDto> menuListArr = new ArrayList<>();
