@@ -32,7 +32,7 @@ public class ReviewController {
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
     // 탑 리뷰 조회
-    @GetMapping("/topReview/{restaurant}/{token_id}")
+    @GetMapping("/top-review/{restaurant}/{token_id}")
     public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
                                                                  @PathVariable("token_id") String tokenId) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
@@ -56,7 +56,7 @@ public class ReviewController {
         return response;
     }
 
-    @GetMapping("/totalReview/{token_id}")
+    @GetMapping("/total-review/{token_id}")
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable("token_id") String tokenId) {
         String date = LocalDate.now().toString();
         List<Review> allReviews = new ArrayList<>();
