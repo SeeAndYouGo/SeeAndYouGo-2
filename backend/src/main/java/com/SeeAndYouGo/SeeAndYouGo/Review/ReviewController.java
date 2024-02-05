@@ -32,7 +32,7 @@ public class ReviewController {
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
     // 탑 리뷰 조회
-    @GetMapping("/topReview/{restaurant}/{token_id}")
+    @GetMapping("/top-review/{restaurant}/{token_id}")
     public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
                                                                  @PathVariable("token_id") String tokenId) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
@@ -56,7 +56,7 @@ public class ReviewController {
         return response;
     }
 
-    @GetMapping("/totalReview/{token_id}")
+    @GetMapping("/total-review/{token_id}")
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable("token_id") String tokenId) {
         String date = LocalDate.now().toString();
         List<Review> allReviews = new ArrayList<>();
@@ -101,6 +101,7 @@ public class ReviewController {
             @RequestParam("rate") Double rate,
             @RequestParam("writer") String writer,
             @RequestParam("comment") String comment,
+            @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
          NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
@@ -119,11 +120,17 @@ public class ReviewController {
         String email = tokenProvider.decodeToEmail(writer);
         String nickname = userService.findNickname(email);
         review.setWriterEmail(email);
-        review.setWriterNickname(nickname);
+
+        if(anonymous){
+            review.setWriterNickname("익명");
+        }else{
+            review.setWriterNickname(nickname);
+        }
+
         review.setReviewRate(rate);
         review.setComment(comment);
         review.setImgLink(imgUrl);
-        review.setLikeCount(0L);
+        review.setLikeCount(0);
         review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);

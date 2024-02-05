@@ -3,6 +3,9 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import Toast from "../../components/Toast";
 import * as config from "../../config";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setNickname } from "../../redux/slice/UserSlice";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -71,14 +74,16 @@ const SetButton = styled.button`
 `;
 
 const SetNicknamePage = () => {
-	const [nickname, setNickname] = useState("");
+  const navigator = useNavigate();
+	const [nicknameValue, setNicknameValue] = useState("");
   const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
   const [toast, setToast] = useState(false);
-
+  const user = useSelector((state) => state.user.value);
+  console.log(user);
+  const dispatch = useDispatch();
 
   const CheckNickname = () => {
-    console.log(nickname);
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
+    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nicknameValue}`;
     axios.get(url)
     .then((res) => {
       if (res.data.redundancy === true) {
@@ -94,11 +99,17 @@ const SetNicknamePage = () => {
 
   const NicknameSet = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
-    const Token = localStorage.getItem("token");
+    const Token = user.token;
+    // const Token = localStorage.getItem("token");
+
+    if (nicknameValue.length < 2) {
+      alert("닉네임은 2자 이상 입력해주세요.");
+      return;
+    }
 
     const nicknameRequestJson = {
       "token": Token,
-      "nickname": nickname
+      "nickname": nicknameValue
     }
     console.log(nicknameRequestJson)
     // console.log(Token)
@@ -113,10 +124,10 @@ const SetNicknamePage = () => {
 			body: JSON.stringify(nicknameRequestJson),
 		})
     .then((res) => {
-      
-      // if (res.data.success == true) {
+      dispatch(setNickname(nicknameValue));
       alert("닉네임 설정이 완료되었습니다.");
-      window.location.href = "/";
+      navigator("/");
+      // window.location.href = "/";
     }).catch((err) => {
       console.log(err)
     });
@@ -135,7 +146,7 @@ const SetNicknamePage = () => {
             placeholder="닉네임 입력"
             className={nicknameCheck ? "success" : "null"}
             minLength={2} maxLength={6} 
-            onChange={(val) => setNickname(val.target.value)
+            onChange={(val) => setNicknameValue(val.target.value)
           }>
           </NicknameInput>
           <button onClick={CheckNickname}>중복확인</button>

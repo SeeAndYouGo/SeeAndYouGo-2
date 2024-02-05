@@ -2,12 +2,15 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import * as config from "../../config";
+import { useDispatch } from "react-redux";
+import { login, setNickname } from "../../redux/slice/UserSlice";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
 	const navigator = useNavigate();
 	const params = new URL(document.location.toString()).searchParams;
 	const code = params.get("code");
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
@@ -31,13 +34,14 @@ const KakaoCallBack = () => {
 		};
 		getJWTToken(code)
 			.then((data) => {
-				localStorage.setItem("token", data.token);
+				dispatch(login({token: data.token, nickname: "", loginState: true}));
+				// localStorage.setItem("token", data.token);
 
 				if (data.message === "join") {
 					// 회원가입인 경우 닉네임 설정 창으로 이동
 					alert("회원가입을 축하합니다!\n닉네임을 설정해주세요.");
 					// 밑에 navigator 닉네임 설정화면으로 수정 필요
-					navigator("/SetNickname");
+					navigator("/set-nickname");
 				} else {
 					// 이미 등록된 회원인 경우 닉네임 가져오기
 					const fetchData = async () => {
@@ -56,7 +60,8 @@ const KakaoCallBack = () => {
 						return result;
 					};
 					fetchData().then((res) => {
-						localStorage.setItem("nickname", res.nickname);
+						dispatch(setNickname(res.nickname));
+						// localStorage.setItem("nickname", res.nickname);
 					});
 					alert("로그인에 성공했습니다.");
 					navigator("/");
@@ -65,7 +70,7 @@ const KakaoCallBack = () => {
 			.catch((err) => {
 				console.log(err);
 				alert("로그인에 실패했습니다.");
-				navigator("/LoginPage");
+				navigator("/login-page");
 			});
 	}, [code, navigator]);
 

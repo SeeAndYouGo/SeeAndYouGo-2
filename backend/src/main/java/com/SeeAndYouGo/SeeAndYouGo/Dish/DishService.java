@@ -99,7 +99,7 @@ public class DishService {
 
             // 오늘 날짜의 Dish를 만들었으면, 이걸 기준으로 Menu를 만든다.
             if (dishDtos.size() > 0) {
-                menuService.createMenuWithDishs(dishDtos);
+                menuService.createMenuWithDishes(dishDtos);
             }
         }
     }

@@ -5,6 +5,7 @@ import { FaStar, FaStarHalf } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import * as config from "../../config";
+import { useSelector } from "react-redux";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -128,10 +129,11 @@ const MyReviewItem = ({ review }) => {
 	} = review;
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
+	const nowToken = useSelector((state) => state.user.value.token);
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
-			const nowToken = localStorage.getItem("token");
+			// const nowToken = localStorage.getItem("token");
 			const url =
 				config.DEPLOYMENT_BASE_URL + `/reviews/${reviewId}/${nowToken}`;
 

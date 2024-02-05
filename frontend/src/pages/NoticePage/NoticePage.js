@@ -172,7 +172,7 @@ const NoticePage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url = "/assets/json/updateNote.json";
+			const url = "/assets/json/update-note.json";
 			const res = await fetch(url, {
 				headers: {
 					"Content-Type": "application/json",

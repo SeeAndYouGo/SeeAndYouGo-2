@@ -48,7 +48,7 @@ const SetMainMenuPage = () => {
 		const fetchData = async () => {
 			const url =
 				config.BASE_URL +
-				"/weeklyMenu" +
+				"/weekly-menu" +
 				(config.NOW_STATUS === 0 ? ".json" : "");
 
 			const res = await fetch(url, {
@@ -140,7 +140,7 @@ const SetMainMenuPage = () => {
 		);
 		console.log("전송 데이터 확인", sendData);
 
-		const url = config.DEPLOYMENT_BASE_URL + "/mainMenu";
+		const url = config.DEPLOYMENT_BASE_URL + "/main-menu";
 		fetch(url, {
 			method: "PUT",
 			headers: {

@@ -27,7 +27,7 @@ const ModalMenuTable = ({ idx }) => {
 		const fetchData = async () => {
 			const url =
 				config.BASE_URL +
-				`/weeklyMenu/restaurant${idx}` +
+				`/weekly-menu/restaurant${idx}` +
 				(config.NOW_STATUS === 0 ? ".json" : "");
 
 			const res = await fetch(url, {
