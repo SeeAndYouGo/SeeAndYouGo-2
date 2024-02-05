@@ -104,6 +104,9 @@ public class TokenProvider implements InitializingBean {
 
 
     public String decodeToEmail(String jwtToken) throws ArrayIndexOutOfBoundsException{
+        // 사용자가 불분명할 때는 빈 string을 준다.
+        if(jwtToken == null || jwtToken.equals("null")) return "";
+
         String[] chunks = jwtToken.split("\\.");
         Base64.Decoder decoder = Base64.getUrlDecoder();
 
