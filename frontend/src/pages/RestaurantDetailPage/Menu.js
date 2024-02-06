@@ -1,4 +1,6 @@
 import styled from "@emotion/styled";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUtensils } from "@fortawesome/free-solid-svg-icons";
 
 const MenuContainer = styled.div`
 	width: 100%;
@@ -26,18 +28,32 @@ const TypeName = styled.p`
 	}
 `;
 
-const KeywordContainMenu = styled.p`
-	margin: 0;
-	font-size: 18px;
+const MainMenuContainer = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	text-align: center;
-	cursor: default;
+`;
+
+const MainMenu = styled.p`
+	margin: 0;
+	padding-left: 5px;
+	font-size: 20px;
+	text-align: center;
+
+	&.need-underline {
+		text-decoration: underline 2px;
+	}
 `;
 
 const NormalMenu = styled.p`
 	margin: 0;
 	font-size: 15px;
 	font-weight: 400;
-	cursor: default;
+
+	&.need-underline {
+		text-decoration: underline 1.5px;
+	}
 `;
 
 const NoMenuInfo = styled.p`
@@ -74,10 +90,16 @@ const Menu = ({ value }) => {
 						const containsKeyword = value.keywordList.some((keyword) =>
 							menu.includes(keyword)
 						);
-						return containsKeyword ? (
-							<KeywordContainMenu key={index}>{menu}</KeywordContainMenu>
+						const isKeyword = containsKeyword ? "need-underline" : null;
+						return index === 0 ? (
+							<MainMenuContainer key={index}>
+								<FontAwesomeIcon icon={faUtensils} fontSize={25} />
+								<MainMenu className={isKeyword}>{menu}</MainMenu>
+							</MainMenuContainer>
 						) : (
-							<NormalMenu key={index}>{menu}</NormalMenu>
+							<NormalMenu className={isKeyword} key={index}>
+								{menu}
+							</NormalMenu>
 						);
 					})
 				)}
