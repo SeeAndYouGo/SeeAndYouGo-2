@@ -45,7 +45,8 @@ public class LikeService {
                 .build();
 
         likeRepository.save(like);
-
+        review.incrementLikeCount();
+        reviewRepository.save(review);
         return LikeResponseDto.builder()
                 .isLike(true)
                 .build();
@@ -53,7 +54,8 @@ public class LikeService {
 
     private LikeResponseDto deleteLike(Review review, User user) {
         likeRepository.deleteByReviewAndUser(review, user);
-
+        review.decrementLikeCount();
+        reviewRepository.save(review);
         return LikeResponseDto.builder()
                 .isLike(false)
                 .build();
