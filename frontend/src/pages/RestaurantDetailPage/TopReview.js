@@ -227,7 +227,7 @@ const TopReview = ({ idx }) => {
 					<ReviewItem
 						key={index}
 						restaurant={el.restaurant}
-						user={el.writer}
+						userName={el.writer}
 						time={el.madeTime}
 						rate={el.rate}
 						content={el.comment}
