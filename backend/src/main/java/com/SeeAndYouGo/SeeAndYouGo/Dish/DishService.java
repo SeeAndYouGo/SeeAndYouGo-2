@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.BufferedReader;
@@ -28,6 +29,9 @@ public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
     private final RestaurantService restaurantService;
+
+    @Value("${DISH_KEY}")
+    private String DISH_KEY;
 
     @Transactional
     public void saveAndCacheWeekDish(Integer page) throws Exception{
@@ -107,7 +111,7 @@ public class DishService {
     private String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY=608E298EA9644E9F9E73501C92984DDBE9B55331";
+            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
 
             // URL 생성
             URL url = new URL(apiUrl);
