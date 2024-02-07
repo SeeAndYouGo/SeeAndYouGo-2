@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ public class ReviewController {
     private final MenuService menuService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
+    private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
@@ -43,17 +45,18 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    private static List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
+    private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
         List<ReviewResponseDto> response = new ArrayList<>();
-        reviews.forEach(review -> {
-            if(review.getWriterEmail().equals(userEmail)){
+        for(Review review: reviews){
+            if(likeService.isLike(review, userEmail)){
                 response.add(new ReviewResponseDto(review, true));
             }else{
                 response.add(new ReviewResponseDto(review, false));
             }
 
-        });
+        }
+
         return response;
     }
 

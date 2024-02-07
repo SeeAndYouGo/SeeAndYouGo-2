@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -59,5 +57,14 @@ public class LikeService {
         return LikeResponseDto.builder()
                 .isLike(false)
                 .build();
+    }
+
+    public boolean isLike(Review review, String userEmail) {
+        User user = userRepository.findByEmail(userEmail).get(0);
+        if(likeRepository.existsByReviewAndUser(review, user)){
+            return true;
+        }
+
+        return false;
     }
 }
