@@ -38,7 +38,7 @@ public class ReviewController {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = LocalDate.now().toString();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        List<Review> reviews = reviewService.findRestaurantReviews(restaurantName, date);
+        List<Review> reviews = reviewService.findRestaurantTopReviews(restaurantName, date);
         List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +58,7 @@ public class ReviewController {
     }
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
-    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable("token_id") String tokenId) {
+    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
         String date = LocalDate.now().toString();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
@@ -132,7 +132,7 @@ public class ReviewController {
         review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.of(2024, 1, 30, 2, 31, 31).format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
