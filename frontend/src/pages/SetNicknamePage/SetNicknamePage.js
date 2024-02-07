@@ -157,7 +157,7 @@ const SetNicknamePage = () => {
           <button onClick={CheckNickname}>중복확인</button>
           <p style={{fontSize: 12, float: "left", color: "#999", fontWeight: 300, margin: "5px 0 0 0"}}>* 닉네임은 2~6자 사이로 설정가능합니다.</p>
         </InputWrapper>
-        <SetButton style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
+        <SetButton onClick={() => {navigator("/")}} style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
         {
           nicknameCheck ? 
           <SetButton onClick={NicknameSet} className="success">설정완료</SetButton> : 

@@ -171,8 +171,6 @@ const ReviewItem = ({
 	const token_id = user.token;
 	const dispatch = useDispatch();
 
-	console.log("liked",liked);
-
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
 			case "1학생회관":
@@ -228,12 +226,12 @@ const ReviewItem = ({
 			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
 			}).then((res) => {
 				const isLike = JSON.parse(res.request.response).like;
-				console.log("islike",isLike)
 				if (isLike === true) { // true면 공감상태
 					setLike(false);
 				} else { // false면 공감 취소
 					setLike(true);
 				}
+				window.location.reload();
 			}).catch((err) => {
 				console.log(err);
 			});

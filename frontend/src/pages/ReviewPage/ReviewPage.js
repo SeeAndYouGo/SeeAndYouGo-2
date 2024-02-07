@@ -13,6 +13,7 @@ const toastList = [
 	["리뷰 삭제에 권한이 없습니다.", "error"],
 	["로그인이 필요한 서비스입니다.", "alert"],
 	["내가 쓴 리뷰는 공감할 수 없습니다.", "error"],
+	["리뷰를 공감하였습니다.", "success"],
 ];
 
 const ReviewPage = () => {
