@@ -58,7 +58,7 @@ public class ReviewController {
     }
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
-    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable("token_id") String tokenId) {
+    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
         String date = LocalDate.now().toString();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
