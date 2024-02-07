@@ -35,6 +35,9 @@ public class ConnectionService {
     @Transactional
     public void saveAndCacheConnection() throws Exception{
         String wifiInfo = fetchConnectionInfoToString();
+        if (wifiInfo.length() == 0) {
+            return;
+        }
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
