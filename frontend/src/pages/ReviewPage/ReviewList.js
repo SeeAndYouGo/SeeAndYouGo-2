@@ -150,6 +150,8 @@ const ReviewList = ({ idx, nowReviewList }) => {
 								isTotal={idx === 0 ? true : false}
 								menuName={nowReview.menuName}
 								reviewId={nowReview.reviewId}
+								likeCount={nowReview.likeCount}
+								liked={nowReview.like}
 							/>
 						);
 					})

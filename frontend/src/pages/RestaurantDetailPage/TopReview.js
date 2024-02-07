@@ -235,6 +235,8 @@ const TopReview = ({ idx }) => {
 						dept={el.dept}
 						reviewId={el.reviewId}
 						menuName={el.menuName}
+						likeCount={el.likeCount}
+						liked={el.like}
 					/>
 				))
 			)}

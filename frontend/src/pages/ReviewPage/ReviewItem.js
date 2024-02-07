@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import moment from "moment";
 import axios from "axios";
@@ -127,16 +127,16 @@ const ReviewLike = styled.div`
 	// float: right;
 	border: solid 1px #d9d9d9;
 	border-radius: 10px;
-	padding: 2px 8px;
+	padding: 1px 8px 0 8px;
 	font-size: 12px;
 	color: #777;
 	font-weight: 400;
 	cursor: pointer;
+	&.liked {
+		color: #ff0000;
+		border: solid 1px #ff0000;
+	}
 `;
-
-const toastList = [
-	["로그인이 필요한 서비스입니다.", "alert"]
-];
 
 const CalculateWriteTime = (inputTime, nowTime) => {
 	const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
@@ -160,14 +160,18 @@ const ReviewItem = ({
 	isTotal,
 	menuName,
 	reviewId,
+	liked,
+	likeCount
 }) => {
-	const toastIndex = useSelector((state) => state.toast.value);
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
+	const [like, setLike] = useState(false);
 	const [imgVisible, setImgVisible] = useState(false);
   const user = useSelector((state) => state.user.value);
 	const token_id = user.token;
 	const dispatch = useDispatch();
+
+	console.log("liked",liked);
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
@@ -186,8 +190,34 @@ const ReviewItem = ({
 		}
 	};
 
+	useEffect(() => {
+		setLike(liked);
+	}, []);
+
+	useEffect(() => {
+		console.log(like)
+	}, [like]);
+
+
+	// useEffect(() => {
+	// 	if (user.loginState === true) {
+	// 		axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
+	// 		}).then((res) => {
+	// 			const isLike = JSON.parse(res.request.response).like;
+	// 			console.log("init:",isLike)
+	// 			if (isLike === true) { // true면 공감상태
+	// 				// setLike(true);
+	// 			} else {
+	// 				// setLike(false);
+	// 			}
+	// 		}).catch((err) => {
+	// 			console.log(err);
+	// 		});
+	// 	}
+	// }, [])
+
 	const handleLike = () => {
-		console.log(user, token_id);
+		// review id와 token_id를 보내서 공감상태인지 아닌지 확인
 		// if (user === user.nickname) {
 		// 	dispatch(changeToastIndex(6));
 		// }
@@ -197,7 +227,13 @@ const ReviewItem = ({
 		} else {
 			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
 			}).then((res) => {
-				console.log(res);
+				const isLike = JSON.parse(res.request.response).like;
+				console.log("islike",isLike)
+				if (isLike === true) { // true면 공감상태
+					setLike(false);
+				} else { // false면 공감 취소
+					setLike(true);
+				}
 			}).catch((err) => {
 				console.log(err);
 			});
@@ -205,13 +241,6 @@ const ReviewItem = ({
 	};
 
 	return (
-		<>
-			{toastIndex !== null && (
-				<Toast
-					message={toastList[toastIndex][0]}
-					type={toastList[toastIndex][1]}
-				/>
-			)}
 			<ReviewItemContainer>
 				<div className="Row1" style={{ width: "100%", float: "left" }}>
 					<ReviewItemIcon>
@@ -289,8 +318,8 @@ const ReviewItem = ({
 						/>
 					</Modal>
 				</div>
-				<ReviewLike onClick={handleLike}>
-					<FontAwesomeIcon icon={faHeart} /> 0
+				<ReviewLike onClick={handleLike} className={like ? 'liked' : ''}>
+					<FontAwesomeIcon icon={faHeart} /> {likeCount}
 				</ReviewLike>
 				{isTotal && menuName && (
 					<MenuName>
@@ -300,7 +329,6 @@ const ReviewItem = ({
 				)}
 
 			</ReviewItemContainer>
-		</>
 	);
 };
 

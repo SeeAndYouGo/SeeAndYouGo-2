@@ -258,6 +258,9 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 										key={nowIndex}
 										isTotal={idx === 0 ? true : false}
 										menuName={nowReview.menuName}
+										likeCount={nowReview.likeCount}
+										liked={nowReview.like}
+										reviewId={nowReview.reviewId}
 									/>
 								) : null;
 							})
@@ -281,6 +284,9 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 									key={nowIndex}
 									isTotal={idx === 0 ? true : false}
 									menuName={nowReview.menuName}
+									likeCount={nowReview.likeCount}
+									liked={nowReview.like}
+									reviewId={nowReview.reviewId}
 								/>
 							) : null;
 						})
