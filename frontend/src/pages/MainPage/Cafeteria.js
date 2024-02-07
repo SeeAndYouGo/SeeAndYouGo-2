@@ -23,6 +23,15 @@ const SecondRow = styled.div`
 	}
 `;
 
+// 키워드 포함된 식단 표시
+const Highlight = styled.img`
+	position: relative;
+	top: 5px;
+	left: 5px;
+	width: 30px;
+	height: 30px;
+`;
+
 // dept 표시
 const Dept = styled.p`
 	padding: 1px 7px;
@@ -59,9 +68,32 @@ const NoMenuInfo = styled.p`
 `;
 
 // Row 2번째에서의 메뉴 이름과 가격
-const Menu = ({ menuDept, menuPrice, menuName }) => {
+const Menu = ({ menuDept, menuPrice, menuName, keywordList, dishList }) => {
+	const [isKeyword, setIsKeyword] = useState(false);
+
+	useEffect(() => {
+		if (keywordList.length === 0) return;
+
+		dishList.forEach((dish) => {
+			keywordList.forEach((keyword) => {
+				if (dish.includes(keyword)) {
+					setIsKeyword(true);
+					return;
+				}
+			});
+		});
+	}, [dishList, keywordList]);
+
 	return (
 		<div>
+			<div style={{ position: "absolute" }}>
+				{isKeyword ? (
+					<Highlight
+						src="/assets/images/highlight.png"
+						alt="highlight"
+					/>
+				) : null}
+			</div>
 			<div
 				style={{
 					display: "flex",
@@ -141,7 +173,7 @@ const Cafeteria = ({ idx, value }) => {
 		const fetchData = async () => {
 			const url =
 				config.BASE_URL +
-				`/dailyMenu/restaurant${idx}` +
+				`/daily-menu/restaurant${idx}` +
 				(config.NOW_STATUS === 0 ? ".json" : "");
 
 			const res = await fetch(url, {
@@ -193,6 +225,8 @@ const Cafeteria = ({ idx, value }) => {
 								menuDept={val.dept}
 								menuPrice={val.price}
 								menuName={val.dishList[0]}
+								keywordList={val.keywordList}
+								dishList={val.dishList}
 							/>
 						);
 					})}
@@ -208,6 +242,8 @@ const Cafeteria = ({ idx, value }) => {
 										menuDept={val.dept}
 										menuPrice={val.price}
 										menuName={val.dishList[0]}
+										keywordList={val.keywordList}
+										dishList={val.dishList}
 									/>
 								);
 						  })

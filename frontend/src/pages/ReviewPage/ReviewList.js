@@ -54,6 +54,18 @@ const SortingSelect = styled.select`
 	}
 `;
 
+const NoReviewMessage = styled.p`
+	margin-top: 10px;
+	font-weight: 400;
+	width: 100%;
+	font-size: 14px;
+	text-align: center;
+	color: #777;
+	padding: 15px 0;
+	background: #fff;
+	border-radius: 20px;
+`;
+
 const ReviewList = ({ idx, nowReviewList }) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
@@ -85,15 +97,11 @@ const ReviewList = ({ idx, nowReviewList }) => {
 
 		if (selectedSortOrder === "latest") {
 			setReview(
-				[...review].sort(
-					(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
-				)
+				[...review].sort((a, b) => new Date(b.madeTime) - new Date(a.madeTime))
 			);
 		} else if (selectedSortOrder === "earliest") {
 			setReview(
-				[...review].sort(
-					(a, b) => new Date(a.madeTime) - new Date(b.madeTime)
-				)
+				[...review].sort((a, b) => new Date(a.madeTime) - new Date(b.madeTime))
 			);
 		} else if (selectedSortOrder === "highRate") {
 			setReview([...review].sort((a, b) => b.rate - a.rate));
@@ -112,10 +120,7 @@ const ReviewList = ({ idx, nowReviewList }) => {
 					onChange={toggleOnlyImageReviewVisiblity}
 				/>
 				<CheckBoxLabel htmlFor="check" />
-				<label
-					htmlFor="check"
-					style={{ marginLeft: 5, cursor: "pointer" }}
-				>
+				<label htmlFor="check" style={{ marginLeft: 5, cursor: "pointer" }}>
 					사진 리뷰만 보기
 				</label>
 				<SortingSelect value={sortOrder} onChange={handleSortChange}>
@@ -125,26 +130,30 @@ const ReviewList = ({ idx, nowReviewList }) => {
 					<option value="highRate">별점 높은순</option>
 				</SortingSelect>
 
-				{review.map((nowReview, nowIndex) => {
-					if (isChecked && nowReview.imgLink === "") {
-						return null;
-					}
-					return (
-						<ReviewItem
-							user={nowReview.writer}
-							time={nowReview.madeTime}
-							rate={nowReview.rate}
-							content={nowReview.comment}
-							img={nowReview.imgLink}
-							restaurant={nowReview.restaurant}
-							dept={nowReview.dept}
-							key={nowIndex}
-							isTotal={idx === 0 ? true : false}
-							menuName={nowReview.menuName}
-							reviewId={nowReview.reviewId}
-						/>
-					);
-				})}
+				{review.length === 0 ? (
+					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
+				) : (
+					review.map((nowReview, nowIndex) => {
+						if (isChecked && nowReview.imgLink === "") {
+							return null;
+						}
+						return (
+							<ReviewItem
+								user={nowReview.writer}
+								time={nowReview.madeTime}
+								rate={nowReview.rate}
+								content={nowReview.comment}
+								img={nowReview.imgLink}
+								restaurant={nowReview.restaurant}
+								dept={nowReview.dept}
+								key={nowIndex}
+								isTotal={idx === 0 ? true : false}
+								menuName={nowReview.menuName}
+								reviewId={nowReview.reviewId}
+							/>
+						);
+					})
+				)}
 			</div>
 			<div className="blankSpace">&nbsp;</div>
 		</>

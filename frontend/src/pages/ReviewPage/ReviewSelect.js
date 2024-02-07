@@ -40,7 +40,7 @@ const ReviewSelect = ({idx = 0}) => {
 	useEffect(() => {
 		const reviewUrl = [
 			config.BASE_URL +
-				"/totalReview" +
+				"/total-review" +
 				(config.NOW_STATUS === 0 ? ".json" : ""),
 			config.BASE_URL +
 				"/review/restaurant1" +
@@ -65,23 +65,22 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => {
-			console.log(dataArray)
 			return setReviewArray(dataArray)
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
 
 		const menuUrl = [
 			config.BASE_URL +
-				"/dailyMenu/restaurant2" +
+				"/daily-menu/restaurant2" +
 				(config.NOW_STATUS === 0 ? ".json" : ""),
 			config.BASE_URL +
-				"/dailyMenu/restaurant3" +
+				"/daily-menu/restaurant3" +
 				(config.NOW_STATUS === 0 ? ".json" : ""),
 			config.BASE_URL +
-				"/dailyMenu/restaurant4" +
+				"/daily-menu/restaurant4" +
 				(config.NOW_STATUS === 0 ? ".json" : ""),
 			config.BASE_URL +
-				"/dailyMenu/restaurant5" +
+				"/daily-menu/restaurant5" +
 				(config.NOW_STATUS === 0 ? ".json" : ""),
 		];
 

@@ -1,7 +1,9 @@
-import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/slice/UserSlice";
+import { changeToastIndex } from '../redux/slice/ToastSlice';
 
 const Background = styled.div`
   width: 100%;
@@ -81,16 +83,6 @@ const AccountWrap = styled.div`
   position: relative;
 `;
 
-const JoinBtn = styled.span`
-  padding: 0 10px;
-  border: solid 1px #777;
-  border-radius: 5px;
-  color: #777;
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 400;
-`;
-
 const LogoutBtn = styled.span`
   top: 50%;
   transform: translateY(-50%);
@@ -108,35 +100,25 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
+  const navigator = useNavigate();
+  const dispatch = useDispatch();
   const outside = useRef();
-  const [loginState, setLoginState] = useState(false);
-  const [nickname, setNickname] = useState("");
+  const user = useSelector((state) => state.user.value);
+  const nickname = user.nickname;
+  const loginState = user.loginState;
 
   const toggleMenu = () => {
     setIsOpen(false);
   };
 
   const loginForMemberContents = (e) => {
-    // toggleMenu();
     if (loginState) {
       toggleMenu()  
     }else {
-      e.preventDefault(); 
-      alert("로그인이 필요한 서비스입니다.")
+      e.preventDefault();
+      dispatch(changeToastIndex(2));
     }
   };
-
-  useEffect(() => {
-    const checkLogin = () => {
-      if (localStorage.getItem("token")) {
-        setLoginState(true);
-        setNickname(localStorage.getItem("nickname") ? localStorage.getItem("nickname") : "");
-      } else {
-        setLoginState(false);
-      }
-    };
-    checkLogin();
-  }, []);
 
   return (
     <>
@@ -163,15 +145,16 @@ const SideBar = ({isOpen, setIsOpen}) => {
                     </span>
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
-                      localStorage.removeItem("token");
-                      localStorage.removeItem("nickname");
-                      setLoginState(false);
+                      dispatch(logout());
+                      dispatch(changeToastIndex(1));
+                      navigator("/");
+                      toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>
                 </div>
               </Title>
             ) :(
-              <Link to="/LoginPage" onClick={toggleMenu} style={{display: "block"}}>
+              <Link to="/login-page" onClick={toggleMenu} style={{display: "block"}}>
                 <Title>
                   <div style={{height: "100%"}}>
                     <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
@@ -191,16 +174,16 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/MyReviewPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            <Link to="/MyMenuPage" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20}}>favorite</span>
-                <span>찜한 메뉴</span>
+                <span className="material-symbols-outlined" style={{fontSize: 20}}>collections_bookmark</span>
+                <span>나의 키워드</span>
               </MenuName>
             </Link>
           </MenuList>
@@ -210,13 +193,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/ReviewPage/0" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>
               </MenuName>
             </Link>
-            <Link to="/NoticePage" onClick={toggleMenu} style={{marginBottom: 10}}>
+            <Link to="/notice-page" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>info</span>
                 <span>공지사항</span>

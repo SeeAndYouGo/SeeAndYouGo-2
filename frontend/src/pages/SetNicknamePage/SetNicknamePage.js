@@ -3,6 +3,10 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import Toast from "../../components/Toast";
 import * as config from "../../config";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setNickname } from "../../redux/slice/UserSlice";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -70,21 +74,36 @@ const SetButton = styled.button`
   }
 `;
 
-const SetNicknamePage = () => {
-	const [nickname, setNickname] = useState("");
-  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
-  const [toast, setToast] = useState(false);
+const toastList = [
+  ["닉네임은 2자 이상 입력해주세요", "alert"],
+  ["이미 존재하는 닉네임입니다.", "alert"],
+  ["사용 가능한 닉네임입니다.", "alert"],
+  ["닉네임 설정이 완료되었습니다.", "success"],
+  ["닉네임 설정에 실패했습니다.", "error"],
+];
 
+const SetNicknamePage = () => {
+  const navigator = useNavigate();
+	const [nicknameValue, setNicknameValue] = useState("");
+  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
+  const toastIndex = useSelector((state) => state.toast).value;
+  const user = useSelector((state) => state.user.value);
+  console.log(user);
+  const dispatch = useDispatch();
 
   const CheckNickname = () => {
-    console.log(nickname);
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nickname}`;
+    if (nicknameValue.length < 2) { // 2자 이상 입력하지 않은 경우
+      dispatch(changeToastIndex(0));
+      return;
+    }
+    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nicknameValue}`;
     axios.get(url)
     .then((res) => {
-      if (res.data.redundancy === true) {
-        setToast(true);
+      if (res.data.redundancy === true) { // 중복인 경우
+        dispatch(changeToastIndex(1));
         setNicknameCheck(false);
-      } else {
+      } else { // 중복이 아닌 경우
+        dispatch(changeToastIndex(2));
         setNicknameCheck(true);
       }
     }).catch((err) => {
@@ -94,17 +113,14 @@ const SetNicknamePage = () => {
 
   const NicknameSet = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
-    const Token = localStorage.getItem("token");
+    const Token = user.token;
 
     const nicknameRequestJson = {
       "token": Token,
-      "nickname": nickname
+      "nickname": nicknameValue
     }
     console.log(nicknameRequestJson)
-    // console.log(Token)
-    // console.log(nickname)
     
-    // axios.put(url, JSON.stringify(nicknameRequestJson))
 		fetch(url, {
 			method: "PUT",
 			headers: {
@@ -113,18 +129,18 @@ const SetNicknamePage = () => {
 			body: JSON.stringify(nicknameRequestJson),
 		})
     .then((res) => {
-      
-      // if (res.data.success == true) {
-      alert("닉네임 설정이 완료되었습니다.");
-      window.location.href = "/";
+      dispatch(setNickname(nicknameValue));
+      dispatch(changeToastIndex(3));
+      navigator("/");
     }).catch((err) => {
+      dispatch(changeToastIndex(4));
       console.log(err)
     });
   }
 
 	return (
 		<div className="App3">
-      {toast ? <Toast message="이미 존재하는 닉네임입니다." type="error" setToast={setToast} /> : null}
+      {toastIndex !== null && <Toast message={toastList[toastIndex][0]} type={toastList[toastIndex][1]} />}
       
       <div className="setNicknameWrapper" style={{background: "#fff", padding: "30px 20px", borderRadius: 20, float: "left"}}>
         <p style={{margin: "0 0 10px 0", fontSize: 20}}>닉네임 설정</p>
@@ -135,7 +151,7 @@ const SetNicknamePage = () => {
             placeholder="닉네임 입력"
             className={nicknameCheck ? "success" : "null"}
             minLength={2} maxLength={6} 
-            onChange={(val) => setNickname(val.target.value)
+            onChange={(val) => setNicknameValue(val.target.value)
           }>
           </NicknameInput>
           <button onClick={CheckNickname}>중복확인</button>

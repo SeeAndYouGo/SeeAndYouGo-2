@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "./MenuSelector";
 import * as config from "../../config";
+import { useSelector, useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -91,24 +93,32 @@ const ReviewWriteButton = styled.button`
 		color: white;
 	}
 `;
-// const ReviewWriteNameCheckbox = styled.input`
-// 	float: left;
-// 	width: 15px;
-// 	height: 15px;
-// 	margin-left: 5px;
-// 	margin-right: 10px;
-// 	margin-top: 3px;
-// 	position: relative;
-// 	top: 50%;
-// 	transform: translateY(-50%);
-// `;
+
 const ReviewWriteRatingLabel = styled.p`
 	margin: 0 10px 0 0;
 	line-height: 30px;
 	float: left;
 	font-size: 15px;
 	text-align: left;
+	`;
+
+const ReviewWriteAnonymousLabel = styled.p`
+	margin: 0 10px 0 0;
+	line-height: 30px;
+	float: left;
+	font-size: 15px;
 `;
+
+const ReviewWriteNameCheckbox = styled.input`
+	float: left;
+	width: 16px;
+	height: 16px;
+	margin: 1px 2px 0 0;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+`;
+
 const ReviewPreviewImage = styled.img`
 	max-width: 220px;
 	height: 42.5px;
@@ -155,27 +165,25 @@ const NotLogin = styled.div`
 
 const GoToLogin = styled.span`
 	cursor: pointer;
-	
+
 	:hover {
 		color: red;
 		opacity: 0.7;
-	}	
+	}
 `;
 
 const ReviewWriteForm = ({ restaurantName, deptName }) => {
-	// const [checked, setChecked] = useState(false);
 	const [starVal, setStarVal] = useState(0);
-	// const [writerName, setWriterName] = useState("");
+	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
 	const [selectedMenu, setSelectedMenu] = useState("");
 	const [image, setImage] = useState();
 	const [imageURL, setImageURL] = useState("");
 	const imageRef = useRef(null);
 	const navigator = useNavigate();
+	const dispatch = useDispatch();
 
-	const token = localStorage.getItem("token")
-		? localStorage.getItem("token")
-		: "";
+	const token = useSelector((state) => state.user.value.token);
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -205,10 +213,10 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		const formdata = new FormData();
 		formdata.append("restaurant", restaurantName);
 		formdata.append("dept", deptName);
-		// 1학 부분을 위해 selectedMenu 넣은건데 확인 필요합니다.
 		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
 		formdata.append("rate", starVal);
 		formdata.append("writer", token);
+		formdata.append("anonymous", anonymous);
 		formdata.append("comment", comment);
 		formdata.append("image", image);
 
@@ -226,19 +234,19 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 			})
 			.then((response) => {
 				console.log(response);
-				alert("리뷰가 등록되었습니다.");
+				dispatch(changeToastIndex(5));
 				console.log(response.data);
 				window.location.reload();
 			})
-			.catch((error) => console.log("error", error));
+			.catch((error) => dispatch(changeToastIndex(6)));
 	};
 
 	return (
 		<ReviewWriteContainer>
 			{ // 로그인 안했을 때
-				!token && 
+				!token &&
 					<NotLogin>
-						<GoToLogin onClick={() => { navigator("/LoginPage")}}>로그인이 필요합니다 !!</GoToLogin>
+						<GoToLogin onClick={() => { navigator("/login-page")}}>로그인이 필요합니다 !!</GoToLogin>
 					</NotLogin>
 			}
 			<div style={{ width: "100%", float: "left" }}>
@@ -251,6 +259,15 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 						}}
 					/>
 				</ReviewStarRating>
+				<div style={{ float: "right", height: 30 }}>
+					<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
+					<ReviewWriteNameCheckbox
+						type="checkbox"
+						onChange={() => {
+							setAnonymous(!anonymous);
+						}}
+					/>
+				</div>
 			</div>
 
 			{restaurantName === 1 ? (
@@ -289,19 +306,14 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 							>
 								<ReviewPreviewImage src={imageURL} />
 								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">
-										close
-									</span>
+									<span className="material-symbols-outlined">close</span>
 								</ReviewImageDelete>
 							</div>
 						) : null}
 					</ReviewWriteInputWrapper>
 				</div>
 				{starVal !== 0 ? (
-					<ReviewWriteButton
-						className="success"
-						onClick={ReviewSubmit}
-					>
+					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
 						작성
 					</ReviewWriteButton>
 				) : (

@@ -5,6 +5,7 @@ import { FaStar, FaStarHalf } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import * as config from "../../config";
+import { useSelector } from "react-redux";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -115,7 +116,7 @@ const StarRating = ({ rating }) => {
 	return <div style={{ display: "flex" }}>{renderStars()}</div>;
 };
 
-const MyReviewItem = ({ review }) => {
+const MyReviewItem = ({ review, changeToastIndex }) => {
 	const {
 		reviewId,
 		restaurant,
@@ -128,10 +129,10 @@ const MyReviewItem = ({ review }) => {
 	} = review;
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
+	const nowToken = useSelector((state) => state.user.value.token);
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
-			const nowToken = localStorage.getItem("token");
 			const url =
 				config.DEPLOYMENT_BASE_URL + `/reviews/${reviewId}/${nowToken}`;
 
@@ -143,16 +144,15 @@ const MyReviewItem = ({ review }) => {
 			})
 				.then((res) => res.json())
 				.then((res) => {
-					// 토스트 완성되면 변경 예정
 					if (res.success === true) {
-						alert("리뷰가 삭제되었습니다.");
+						changeToastIndex(0);
 						window.location.reload();
 					} else {
-						alert("리뷰 삭제에 실패하였습니다.");
+						changeToastIndex(1);
 					}
 				})
 				.catch(() => {
-					alert("리뷰 삭제에 실패하였습니다.");
+					changeToastIndex(1);
 				});
 		} else {
 			return;

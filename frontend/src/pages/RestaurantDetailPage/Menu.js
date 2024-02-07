@@ -40,6 +40,25 @@ const MainMenu = styled.p`
 	padding-left: 5px;
 	font-size: 20px;
 	text-align: center;
+
+	&.need-underline {
+		text-decoration: underline 2px;
+	}
+`;
+
+const NormalMenu = styled.p`
+	margin: 0;
+	font-size: 15px;
+	font-weight: 400;
+
+	&.need-underline {
+		text-decoration: underline 1.5px;
+	}
+`;
+
+const NoMenuInfo = styled.p`
+	margin: 0px;
+	font-size: 18px;
 `;
 
 const Price = styled.p`
@@ -65,32 +84,24 @@ const Menu = ({ value }) => {
 			</div>
 			<div style={{ textAlign: "center" }}>
 				{value.dishList.length === 0 ? (
-					<MainMenuContainer>
-						<MainMenu>메뉴 없음</MainMenu>
-					</MainMenuContainer>
+					<NoMenuInfo>메뉴 없음</NoMenuInfo>
 				) : (
-					value.dishList.map((menu, index) =>
-						index === 0 ? (
+					value.dishList.map((menu, index) => {
+						const containsKeyword = value.keywordList.some((keyword) =>
+							menu.includes(keyword)
+						);
+						const isKeyword = containsKeyword ? "need-underline" : null;
+						return index === 0 ? (
 							<MainMenuContainer key={index}>
-								<FontAwesomeIcon
-									icon={faUtensils}
-									fontSize={25}
-								/>
-								<MainMenu key={menu}>{menu}</MainMenu>
+								<FontAwesomeIcon icon={faUtensils} fontSize={25} />
+								<MainMenu className={isKeyword}>{menu}</MainMenu>
 							</MainMenuContainer>
 						) : (
-							<p
-								key={index}
-								style={{
-									margin: 0,
-									fontSize: 15,
-									fontWeight: 400,
-								}}
-							>
+							<NormalMenu className={isKeyword} key={index}>
 								{menu}
-							</p>
-						)
-					)
+							</NormalMenu>
+						);
+					})
 				)}
 			</div>
 		</MenuContainer>

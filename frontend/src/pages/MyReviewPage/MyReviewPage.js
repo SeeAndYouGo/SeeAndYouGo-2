@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import MyReviewItem from "./MyReviewItem";
 import * as config from "../../config";
+import { useSelector } from "react-redux";
 
 const MyReviewPage = () => {
 	const [reviewArr, setReviewArr] = useState([]);
+	const nowToken = useSelector((state) => state.user.value.token);
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const nowToken = localStorage.getItem("token");
 			const url =
 				config.NOW_STATUS === 0
-					? config.BASE_URL + "/totalReview.json"
+					? config.BASE_URL + "/total-review.json"
 					: config.BASE_URL + `/reviews/${nowToken}`;
 			const res = await fetch(url, {
 				headers: {
@@ -24,7 +25,7 @@ const MyReviewPage = () => {
 		fetchData().then((result) => {
 			setReviewArr(result);
 		});
-	}, []);
+	}, [nowToken]);
 
 	return (
 		<>

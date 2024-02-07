@@ -15,7 +15,7 @@ import java.util.LinkedList;
 public class DishController {
     private final DishService dishService;
 
-    @PutMapping("/mainMenu")
+    @PutMapping("/main-menu")
     public ResponseEntity updateMainDish(@RequestBody LinkedList<MainDishRequestDto> mainDishResponsDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponsDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponsDtos);
