@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.BufferedReader;
@@ -21,6 +22,8 @@ import java.net.URL;
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
     private final RestaurantService restaurantService;
+    @Value("${CONN_KEY}")
+    private String CONN_KEY;
 
     public Connection getRecentConnected(String restaurantName){
         String changeRestaurantName = changeRestaurantName(restaurantName);
@@ -137,7 +140,7 @@ public class ConnectionService {
     }
 
     private String fetchConnectionInfoToString() throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=87F832F8CD2D46DF90D528AEE7FC0DB7E32B306A";
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY="+CONN_KEY;
 
         // URL 생성
         URL url = new URL(apiUrl);
