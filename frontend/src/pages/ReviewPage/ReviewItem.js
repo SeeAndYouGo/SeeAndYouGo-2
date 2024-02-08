@@ -196,27 +196,9 @@ const ReviewItem = ({
 		console.log(like)
 	}, [like]);
 
-
-	// useEffect(() => {
-	// 	if (user.loginState === true) {
-	// 		axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
-	// 		}).then((res) => {
-	// 			const isLike = JSON.parse(res.request.response).like;
-	// 			console.log("init:",isLike)
-	// 			if (isLike === true) { // true면 공감상태
-	// 				// setLike(true);
-	// 			} else {
-	// 				// setLike(false);
-	// 			}
-	// 		}).catch((err) => {
-	// 			console.log(err);
-	// 		});
-	// 	}
-	// }, [])
-
 	const handleLike = () => {
 		// review id와 token_id를 보내서 공감상태인지 아닌지 확인
-		// if (user === user.nickname) {
+		// if (token_id === ) {
 		// 	dispatch(changeToastIndex(6));
 		// }
 		if (user.loginState === false) {
@@ -232,6 +214,8 @@ const ReviewItem = ({
 					setLike(true);
 				}
 				window.location.reload();
+
+				dispatch(changeToastIndex(7));
 			}).catch((err) => {
 				console.log(err);
 			});
