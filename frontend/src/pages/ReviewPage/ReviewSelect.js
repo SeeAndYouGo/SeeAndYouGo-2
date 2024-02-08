@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
+import { useSelector } from "react-redux";
 import ReviewList from "./ReviewList";
 import ReviewInfo from "./ReviewInfo";
 import ReviewListType2 from "./ReviewListType2";
@@ -30,35 +31,22 @@ const TabMenu = styled.ul`
 
 const reviewTitleArray = ["전체", "1학", "2학", "3학", "상록회관", "생과대"];
 
-const ReviewSelect = ({idx = 0}) => {
 
+
+const ReviewSelect = ({idx = 0}) => {
+	const token_id = useSelector((state) => state.user.value.token);
 	const [currentTab, clickTab] = useState(idx);
 
 	const [reviewArray, setReviewArray] = useState([]);
 	const [menuArray, setMenuArray] = useState([]);
 
+	const CreateReviewUrl = (restaurantUrl) => config.BASE_URL + restaurantUrl + (config.NOW_STATUS === 0 ? ".json" : (token_id !== '' ? `/${token_id}` : ""));
+	const CreateMenuUrl = (restaurantIdx) => config.BASE_URL + "/daily-menu/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
+
 	useEffect(() => {
 		const reviewUrl = [
-			config.BASE_URL +
-				"/total-review" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/review/restaurant1" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/review/restaurant2" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/review/restaurant3" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/review/restaurant4" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/review/restaurant5" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
+			CreateReviewUrl("/total-review"), CreateReviewUrl("/review/restaurant1"), CreateReviewUrl("/review/restaurant2"), CreateReviewUrl("/review/restaurant3"), CreateReviewUrl("/review/restaurant4"), CreateReviewUrl("/review/restaurant5"),
 		];
-
 		Promise.all(
 			reviewUrl.map((path) =>
 				fetch(path).then((response) => response.json())
@@ -69,21 +57,7 @@ const ReviewSelect = ({idx = 0}) => {
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
 
-		const menuUrl = [
-			config.BASE_URL +
-				"/daily-menu/restaurant2" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/daily-menu/restaurant3" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/daily-menu/restaurant4" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/daily-menu/restaurant5" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-		];
-
+		const menuUrl = [CreateMenuUrl(2), CreateMenuUrl(3), CreateMenuUrl(4), CreateMenuUrl(5)];
 		Promise.all(
 			menuUrl.map((path) =>
 				fetch(path).then((response) => response.json())

@@ -46,4 +46,14 @@ public class Review {
         reportCount++;
         return reportCount;
     }
+
+    public Integer incrementLikeCount(){
+        likeCount++;
+        return likeCount;
+    }
+
+    public Integer decrementLikeCount(){
+        likeCount--;
+        return likeCount;
+    }
 }

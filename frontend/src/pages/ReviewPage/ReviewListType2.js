@@ -248,7 +248,7 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 								}
 								return radioValue === nowReview.dept ? (
 									<ReviewItem
-										user={nowReview.writer}
+										userName={nowReview.writer}
 										time={nowReview.madeTime}
 										rate={nowReview.rate}
 										content={nowReview.comment}
@@ -258,6 +258,9 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 										key={nowIndex}
 										isTotal={idx === 0 ? true : false}
 										menuName={nowReview.menuName}
+										likeCount={nowReview.likeCount}
+										liked={nowReview.like}
+										reviewId={nowReview.reviewId}
 									/>
 								) : null;
 							})
@@ -271,7 +274,7 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 							}
 							return radioValue === nowReview.dept ? (
 								<ReviewItem
-									user={nowReview.writer}
+									userName={nowReview.writer}
 									time={nowReview.madeTime}
 									rate={nowReview.rate}
 									content={nowReview.comment}
@@ -281,6 +284,9 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 									key={nowIndex}
 									isTotal={idx === 0 ? true : false}
 									menuName={nowReview.menuName}
+									likeCount={nowReview.likeCount}
+									liked={nowReview.like}
+									reviewId={nowReview.reviewId}
 								/>
 							) : null;
 						})

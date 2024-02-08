@@ -1,19 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import moment from "moment";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import DropDown from "../../components/Review/DropDown";
 import Modal from "../../components/Modal";
 import ModalImageZoom from "./ModalImageZoom";
+import Toast from "../../components/Toast";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
 	background: #fff;
-	padding: 10px 15px;
+	padding: 15px;
 	border-radius: 20px;
 	margin-top: 10px;
 	float: left;
@@ -52,10 +57,11 @@ const ReviewItemStar = styled.span`
 `;
 
 const ReviewItemContent = styled.p`
-	width: 100%;
+	width: 70%;
 	font-size: 14px;
 	font-weight: 400;
 	margin: 5px 0;
+	float: left;
 `;
 
 const RestaurantName = styled.p`
@@ -85,11 +91,10 @@ const RestaurantName = styled.p`
 `;
 
 const DeptName = styled.p`
-	padding: 1px 5px;
 	margin: 2px 0 0 0;
 	text-align: center;
-	background-color: rgba(0, 0, 0, 0.3);
-	color: white;
+	// background-color: rgba(0, 0, 0, 0.3);
+	color: #999;
 	border-radius: 5px;
 	font-size: 11px;
 	text-align: center;
@@ -103,7 +108,7 @@ const MenuName = styled.p`
 	font-weight: 500;
 	float: left;
 	border: 1px solid #ccc;
-	padding: 3px 10px;
+	padding: 2px 10px;
 	border-radius: 20px;
 `;
 
@@ -113,6 +118,24 @@ const ReviewImage = styled.img`
 	float: left;
 	margin-top: 5;
 	cursor: zoom-in;
+`;
+
+const ReviewLike = styled.div`
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	// float: right;
+	border: solid 1px #d9d9d9;
+	border-radius: 10px;
+	padding: 1px 8px 0 8px;
+	font-size: 12px;
+	color: #777;
+	font-weight: 400;
+	cursor: pointer;
+	&.liked {
+		color: #ff0000;
+		border: solid 1px #ff0000;
+	}
 `;
 
 const CalculateWriteTime = (inputTime, nowTime) => {
@@ -127,7 +150,7 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 };
 
 const ReviewItem = ({
-	user,
+	userName,
 	restaurant,
 	dept,
 	time,
@@ -137,10 +160,16 @@ const ReviewItem = ({
 	isTotal,
 	menuName,
 	reviewId,
+	liked,
+	likeCount
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
+	const [like, setLike] = useState(false);
 	const [imgVisible, setImgVisible] = useState(false);
+  const user = useSelector((state) => state.user.value);
+	const token_id = user.token;
+	const dispatch = useDispatch();
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
@@ -159,15 +188,48 @@ const ReviewItem = ({
 		}
 	};
 
+	useEffect(() => {
+		setLike(liked);
+	}, []);
+
+	useEffect(() => {
+		console.log(like)
+	}, [like]);
+
+	const handleLike = () => {
+		// review id와 token_id를 보내서 공감상태인지 아닌지 확인
+		// if (token_id === ) {
+		// 	dispatch(changeToastIndex(6));
+		// }
+		if (user.loginState === false) {
+			dispatch(changeToastIndex(5));
+			return;
+		} else {
+			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
+			}).then((res) => {
+				const isLike = JSON.parse(res.request.response).like;
+				if (isLike === true) { // true면 공감상태
+					setLike(false);
+				} else { // false면 공감 취소
+					setLike(true);
+				}
+				window.location.reload();
+
+				dispatch(changeToastIndex(7));
+			}).catch((err) => {
+				console.log(err);
+			});
+		}
+	};
+
 	return (
-		<>
 			<ReviewItemContainer>
 				<div className="Row1" style={{ width: "100%", float: "left" }}>
 					<ReviewItemIcon>
 						<FontAwesomeIcon icon={faCircleUser} />
 					</ReviewItemIcon>
 					<ReviewItemProfile>
-						<p>{user}</p>
+						<p>{userName}</p>
 						<div style={{ marginTop: 2 }}>
 							<ReviewItemStar style={{ fontWeight: 500 }}>
 								<FontAwesomeIcon icon={solidStar} />
@@ -178,6 +240,9 @@ const ReviewItem = ({
 							</span>
 						</div>
 					</ReviewItemProfile>
+					<div style={{position: "relative",float: "right", marginLeft: 5}} >
+						<DropDown targetId={reviewId} />
+					</div>
 					{isTotal && (
 						<div style={{ float: "right", width: "45%" }}>
 							<RestaurantName>
@@ -235,23 +300,17 @@ const ReviewItem = ({
 						/>
 					</Modal>
 				</div>
+				<ReviewLike onClick={handleLike} className={like ? 'liked' : ''}>
+					<FontAwesomeIcon icon={faHeart} /> {likeCount}
+				</ReviewLike>
 				{isTotal && menuName && (
 					<MenuName>
 						{menuName}&nbsp;
 						<FontAwesomeIcon icon={faSpoon} />
 					</MenuName>
 				)}
-				<div
-					style={{
-						position: "absolute",
-						right: 15,
-						bottom: 10,
-					}}
-				>
-					<DropDown targetId={reviewId} />
-				</div>
+
 			</ReviewItemContainer>
-		</>
 	);
 };
 
