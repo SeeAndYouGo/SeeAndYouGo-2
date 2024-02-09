@@ -1,14 +1,14 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { changeToastIndex } from "../../redux/slice/ToastSlice";
 import axios from "axios";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "./MenuSelector";
 import * as config from "../../config";
-import { useSelector, useDispatch } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -28,6 +28,7 @@ const ReviewWriteContainer = styled.form`
 		font-size: 12px;
 	}
 `;
+
 const ReviewStarRating = styled.span`
 	float: left;
 	color: #d9d9d9;
@@ -38,6 +39,7 @@ const ReviewStarRating = styled.span`
 		margin-right: 5px;
 	}
 `;
+
 const ReviewWriteInputWrapper = styled.div`
 	height: 120px;
 	width: 100%;
@@ -47,6 +49,7 @@ const ReviewWriteInputWrapper = styled.div`
 	position: relative;
 	border-radius: 10px;
 `;
+
 const ReviewWriteInput = styled.textarea`
 	border: none;
 	background: none;
@@ -65,6 +68,7 @@ const ReviewWriteInput = styled.textarea`
 		font-size: 12px;
 	}
 `;
+
 const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
@@ -100,7 +104,7 @@ const ReviewWriteRatingLabel = styled.p`
 	float: left;
 	font-size: 15px;
 	text-align: left;
-	`;
+`;
 
 const ReviewWriteAnonymousLabel = styled.p`
 	margin: 0 10px 0 0;
@@ -127,6 +131,7 @@ const ReviewPreviewImage = styled.img`
 	margin-top: 5px;
 	border: dashed 1px #e5e5e5;
 `;
+
 const ReviewImageDelete = styled.div`
 	width: 18px;
 	height: 18px;
@@ -165,14 +170,13 @@ const NotLogin = styled.div`
 
 const GoToLogin = styled.span`
 	cursor: pointer;
-
 	:hover {
 		color: red;
 		opacity: 0.7;
 	}
 `;
 
-const ReviewWriteForm = ({ restaurantName, deptName }) => {
+const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -211,20 +215,14 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 		e.preventDefault();
 
 		const formdata = new FormData();
-		formdata.append("restaurant", restaurantName);
-		formdata.append("dept", deptName);
-		formdata.append("menuName", restaurantName === 1 ? selectedMenu : "");
+		formdata.append("restaurant", restaurantNum);
+		formdata.append("dept", deptNum === 1 ? "STUDENT" : "STAFF");
+		formdata.append("menuName", restaurantNum === 1 ? selectedMenu : "");
 		formdata.append("rate", starVal);
 		formdata.append("writer", token);
 		formdata.append("anonymous", anonymous);
 		formdata.append("comment", comment);
 		formdata.append("image", image);
-
-		// formdata 확인
-		let entries = formdata.entries();
-		for (const pair of entries) {
-			console.log(pair[0] + ": " + pair[1]);
-		}
 
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
@@ -232,22 +230,27 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 					"Content-Type": "multipart/form-data",
 				},
 			})
-			.then((response) => {
-				console.log(response);
+			.then(() => {
 				dispatch(changeToastIndex(5));
-				console.log(response.data);
 				window.location.reload();
 			})
-			.catch((error) => dispatch(changeToastIndex(6)));
+			.catch(() => dispatch(changeToastIndex(6)));
 	};
 
 	return (
 		<ReviewWriteContainer>
 			{ // 로그인 안했을 때
-				!token &&
+				!token && (
 					<NotLogin>
-						<GoToLogin onClick={() => { navigator("/login-page")}}>로그인이 필요합니다 !!</GoToLogin>
+						<GoToLogin
+							onClick={() => {
+								navigator("/login-page");
+							}}
+						>
+							로그인이 필요합니다 !!
+						</GoToLogin>
 					</NotLogin>
+				)
 			}
 			<div style={{ width: "100%", float: "left" }}>
 				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
@@ -270,7 +273,7 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 				</div>
 			</div>
 
-			{restaurantName === 1 ? (
+			{restaurantNum === 1 ? (
 				<MenuSelector onSelectMenu={handleSelectMenu} />
 			) : null}
 
@@ -326,17 +329,13 @@ const ReviewWriteForm = ({ restaurantName, deptName }) => {
 	);
 };
 
-const ReviewWrite = ({ restaurantName, deptName, nowMainMenu }) => {
+const ReviewWrite = ({ restaurantNum, deptNum }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWriteForm
-				restaurantName={restaurantName}
-				deptName={restaurantName === 1 ? "STUDENT" : deptName}
-				nowMainMenu={nowMainMenu}
-			/>
+			<ReviewWriteForm restaurantNum={restaurantNum} deptNum={deptNum} />
 		</div>
 	);
 };

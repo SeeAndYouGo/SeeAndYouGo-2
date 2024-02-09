@@ -3,10 +3,9 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "../../App.css";
 import DetailHeader from "./DetailHeader";
-import TypeSelect from "./TypeSelect";
-import Cafeteria1Info from "./Cafeteria1Info";
-import TopReview from "./TopReview";
+import MenuInfo from "./MenuInfo";
 import ReviewWrite from "./ReviewWrite";
+import TopReview from "./TopReview";
 import Toast from "../../components/Toast";
 
 const toastList = [
@@ -23,6 +22,7 @@ const RestaurantDetailPage = () => {
 	const params = useParams();
 	const restaurant = parseInt(params.restaurant);
 	const toastIndex = useSelector((state) => state.toast).value;
+	const nowDept = useSelector((state) => state.dept).value;
 
 	return (
 		<>
@@ -34,16 +34,14 @@ const RestaurantDetailPage = () => {
 			)}
 			<div className="App2">
 				<DetailHeader idx={restaurant} />
-				{restaurant === 1 ? (
-					<>
-						<Cafeteria1Info />
-						<ReviewWrite restaurantName={1} />
-					</>
-				) : (
-					<TypeSelect idx={restaurant} />
-				)}
-				<TopReview idx={restaurant} />
+				<MenuInfo idx={restaurant} />
+				<ReviewWrite restaurantNum={restaurant} deptNum={nowDept} />
+				<TopReview
+					idx={restaurant}
+					nowDept={nowDept === 1 ? "STUDENT" : "STAFF"}
+				/>
 			</div>
+			<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
 		</>
 	);
 };

@@ -6,8 +6,7 @@ const MenuContainer = styled.div`
 	width: 100%;
 	background-color: white;
 	border-radius: 20px;
-	margin-top: 15px;
-	padding-bottom: 25px;
+	padding-bottom: 20px;
 `;
 
 const TypeName = styled.p`
@@ -56,11 +55,6 @@ const NormalMenu = styled.p`
 	}
 `;
 
-const NoMenuInfo = styled.p`
-	margin: 0px;
-	font-size: 18px;
-`;
-
 const Price = styled.p`
 	width: 60px;
 	margin: 20px 10px;
@@ -73,21 +67,19 @@ const Price = styled.p`
 	font-weight: 400;
 `;
 
-const Menu = ({ value }) => {
+const MenuItem = ({ menuData }) => {
 	return (
 		<MenuContainer>
 			<div style={{ display: "flex" }}>
 				<TypeName>
-					{value.dept === "STAFF" ? "교직원식당" : "학생식당"}
+					{menuData.dept === "STAFF" ? "교직원식당" : "학생식당"}
 				</TypeName>
-				<Price>{value.price}</Price>
+				<Price>{menuData.price}</Price>
 			</div>
 			<div style={{ textAlign: "center" }}>
-				{value.dishList.length === 0 ? (
-					<NoMenuInfo>메뉴 없음</NoMenuInfo>
-				) : (
-					value.dishList.map((menu, index) => {
-						const containsKeyword = value.keywordList.some((keyword) =>
+				{
+					menuData.dishList.map((menu, index) => {
+						const containsKeyword = menuData.keywordList.some((keyword) =>
 							menu.includes(keyword)
 						);
 						const isKeyword = containsKeyword ? "need-underline" : null;
@@ -102,10 +94,10 @@ const Menu = ({ value }) => {
 							</NormalMenu>
 						);
 					})
-				)}
+				}
 			</div>
 		</MenuContainer>
 	);
 };
 
-export default Menu;
+export default MenuItem;
