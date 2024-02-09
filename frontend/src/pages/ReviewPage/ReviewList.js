@@ -139,7 +139,7 @@ const ReviewList = ({ idx, nowReviewList }) => {
 						}
 						return (
 							<ReviewItem
-								user={nowReview.writer}
+								userName={nowReview.writer}
 								time={nowReview.madeTime}
 								rate={nowReview.rate}
 								content={nowReview.comment}
@@ -150,6 +150,8 @@ const ReviewList = ({ idx, nowReviewList }) => {
 								isTotal={idx === 0 ? true : false}
 								menuName={nowReview.menuName}
 								reviewId={nowReview.reviewId}
+								likeCount={nowReview.likeCount}
+								liked={nowReview.like}
 							/>
 						);
 					})

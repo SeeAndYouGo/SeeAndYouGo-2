@@ -2,11 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import { PURGE } from 'redux-persist';
 
 const initialStateValue = {
-  value: {
+  // value: {
     token: "",
     nickname: "",
     loginState: false
-  }
+  // }
 };
 
 const UserSlice = createSlice({

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
+import styled from "@emotion/styled";
 
-const Cafeteria1MenuList = [
+const Restaurant1MenuList = [
 	{
 		classification: "라면&간식",
-		engName: "Ramyun&Snack",
 		menuList: [
 			["일반라면", 2500],
 			["떡만두라면", 3000],
@@ -12,11 +12,9 @@ const Cafeteria1MenuList = [
 			["공기밥", 500],
 		],
 		operatingTime: "10:00 ~ 14:00",
-		point: "* 저녁 운영 안함",
 	},
 	{
 		classification: "양식",
-		engName: "Western Food",
 		menuList: [
 			["등심왕돈까스", 5500],
 			["눈꽃치즈돈까스", 6000],
@@ -24,11 +22,9 @@ const Cafeteria1MenuList = [
 			["투움바파스타", 5800],
 		],
 		operatingTime: "11:00 ~ 14:00",
-		point: "* 저녁 운영 안함",
 	},
 	{
 		classification: "스낵",
-		engName: "Fusion Snack",
 		menuList: [
 			["고기플러스알밥", 5300],
 			["자연산치즈플러스알밥", 6000],
@@ -39,11 +35,9 @@ const Cafeteria1MenuList = [
 			["콜라/사이다", 800],
 		],
 		operatingTime: "11:00 ~ 14:30",
-		point: "* 저녁 운영 안함",
 	},
 	{
 		classification: "한식",
-		engName: "Korean Food",
 		menuList: [
 			["묵은지김치찌개", 5800],
 			["뚝배기닭갈비덮밥", 5500],
@@ -53,11 +47,9 @@ const Cafeteria1MenuList = [
 			["구운계란2개", 1000],
 		],
 		operatingTime: "11:00 ~ 14:00",
-		point: "",
 	},
 	{
 		classification: "일식",
-		engName: "Japanese Food",
 		menuList: [
 			["치킨가라아게마요", 5500],
 			["가라아게카레덮밥", 5700],
@@ -72,11 +64,9 @@ const Cafeteria1MenuList = [
 			["매운겉절이", 1000],
 		],
 		operatingTime: "11:00 ~ 19:00",
-		point: "",
 	},
 	{
 		classification: "중식",
-		engName: "Chinese Food",
 		menuList: [
 			["차돌온면", 6500],
 			["매운차돌온면", 6500],
@@ -90,25 +80,38 @@ const Cafeteria1MenuList = [
 			["공기밥", 500],
 		],
 		operatingTime: "11:00 ~ 14:00",
-		point: "",
 	},
 ];
+
+const InnerList = styled.li`
+	margin-left: -40px;
+	list-style: none;
+	border: solid black;
+	border-width: 1px 0px;
+	padding: 2px 0px;
+`;
+
+const ListContainer = styled.div`
+	background: white;
+	padding: 5px 15px;
+	border-radius: 10px;
+	margin: 8px 0px;
+	font-size: 15px;
+`;
 
 const CafeteriaSpan = ({ str1, str3, str4 }) => {
 	return (
 		<>
 			<div>
 				<span>{str1}</span>
-				<span style={{ marginLeft: "10px", float: "right" }}>
-					{str4}
-				</span>
+				<span style={{ marginLeft: "10px", float: "right" }}>{str4}</span>
 				<span style={{ float: "right" }}>{str3}</span>
 			</div>
 		</>
 	);
 };
 
-const Cafeteria1Info = () => {
+const MenuInfoForRestaurant1 = () => {
 	const [menus, setMenus] = useState("");
 
 	const toggleMenu = (type) => {
@@ -120,35 +123,20 @@ const Cafeteria1Info = () => {
 	};
 
 	return (
-		<div className="Cafeteria1">
-			<p style={{ fontSize: "18px" }}>메뉴</p>
-			{Cafeteria1MenuList.map((nowList, index1) => {
+		<div>
+			<p style={{ fontSize: "18px", margin: 0 }}>메뉴</p>
+			{Restaurant1MenuList.map((nowList, index1) => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((name) => (
-					<li
-						key={name}
-						style={{
-							marginLeft: -40,
-							listStyle: "none",
-							border: "solid black",
-							borderWidth: "1px 0px",
-							padding: "2px 0px",
-						}}
-					>
+					<InnerList key={name}>
 						<span style={{ paddingLeft: "40px" }}>{name[0]}</span>
 						<span style={{ float: "right", paddingRight: "40px" }}>
 							{name[1]}
 						</span>
-					</li>
+					</InnerList>
 				));
 				return (
-					<div
-						style={{
-							background: "white",
-							padding: "5px 15px",
-							borderRadius: "10px",
-							margin: "8px 0px",
-						}}
+					<ListContainer
 						key={index1}
 						onClick={() => toggleMenu(classification)}
 					>
@@ -158,11 +146,11 @@ const Cafeteria1Info = () => {
 							str4={menus === classification ? "△" : "▽"}
 						/>
 						{menus === classification && <ul>{listItem}</ul>}
-					</div>
+					</ListContainer>
 				);
 			})}
 		</div>
 	);
 };
 
-export default Cafeteria1Info;
+export default MenuInfoForRestaurant1;

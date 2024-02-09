@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserKeywordRepository extends JpaRepository<UserKeyword, Long> {
 
-    List<Keyword> findByUser(User user);
+    List<UserKeyword> findByUser(User user);
 
     void deleteByUserAndKeyword(User user, Keyword keyword);
 }

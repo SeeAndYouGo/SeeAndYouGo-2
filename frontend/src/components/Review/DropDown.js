@@ -51,8 +51,10 @@ const Ul = styled.ul`
 
 const ReviewItemOption = styled.span`
 	float: right;
-	border: 2px solid #ddd;
-	background: #eee;
+	margin-right: -7px;
+	color: #777;
+	// border: 2px solid #ddd;
+	// background: #eee;
 	border-radius: 10px;
 	font-size: 22px;
 	cursor: pointer;

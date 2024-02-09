@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.Keyword;
+import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -37,8 +38,8 @@ public class MenuController {
         if (user_id != null) {
             String email = tokenProvider.decodeToEmail(user_id);
             User user = userRepository.findByEmail(email).get(0);
-            List<Keyword> keywords = userKeywordRepository.findByUser(user);
-            keyStrings = keywords.stream().map(x -> x.getName()).collect(Collectors.toList());
+            List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
+            keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
         }
 
         return ResponseEntity.ok(parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings));

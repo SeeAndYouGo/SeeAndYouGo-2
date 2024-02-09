@@ -14,7 +14,7 @@ public class ConnectionController {
     @GetMapping("/connection/{restaurant}")
     public ResponseEntity<ConnectionResponseDto> congestionRequest(@PathVariable("restaurant") String place) throws Exception {
         Connection recentConnection = connectedService.getRecentConnected(place);
-        return ResponseEntity.ok(new ConnectionResponseDto(recentConnection));
+        return ResponseEntity.ok(new ConnectionResponseDto(recentConnection, place));
     }
 
     @GetMapping("/connection/cache")

@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft, faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import { faClock } from "@fortawesome/free-regular-svg-icons";
-import { faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
-import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../components/Modal";
 import ModalLocation from "./ModalLocation";
 import ModalMenuTable from "./ModalMenuTable";
@@ -22,8 +20,8 @@ const CafeteriaName = styled.div`
 const TimeInfo = styled.div`
 	font-weight: 400;
 	font-size: 10px;
-	text-align: center;
 	padding-top: 5px;
+	margin-left: 15px;
 	color: #777777;
 `;
 
@@ -33,23 +31,10 @@ const Congestion = styled.div`
 	padding-left: 5px;
 `;
 
-const Location = styled.div`
+const ModalContent = styled.div`
 	width: 50px;
 	height: 50px;
 	margin-top: 5px;
-	margin-left: 30px;
-	padding: 5px;
-	text-align: center;
-	background: white;
-	border-radius: 5px;
-	cursor: pointer;
-`;
-
-const MenuTable = styled.div`
-	width: 50px;
-	height: 50px;
-	margin-top: 5px;
-	margin-left: 5px;
 	padding: 5px;
 	text-align: center;
 	background: white;
@@ -62,7 +47,7 @@ const operatingTime = [
 	["1학생회관", ""],
 	["2학생회관", "11:00-13:30"],
 	["3학생회관", "11:00-13:30"],
-	["상록회관", "11:00-14:00"],
+	["\u00a0상록회관", "11:00-14:00"],
 	["생활과학대", "11:00-14:00"],
 ];
 
@@ -99,11 +84,8 @@ const DetailHeader = ({ idx }) => {
 					<Link to={`/`}>
 						<FontAwesomeIcon icon={faAngleLeft} />
 					</Link>
-					<p style={{ margin: "0px 0px 0px 5px" }}>
-						{operatingTime[idx][0]}{" "}
-					</p>
+					<p style={{ margin: "0px 0px 0px 5px" }}>{operatingTime[idx][0]} </p>
 				</CafeteriaName>
-
 				<TimeInfo>
 					{idx === 1 ? null : (
 						<>
@@ -121,47 +103,32 @@ const DetailHeader = ({ idx }) => {
 					{rate < 33 ? "원활" : rate < 66 ? "보통" : "혼잡"}
 				</p>
 			</Congestion>
-
-			{idx === 1 ? (
-				<>
-					<Location
-						style={{ marginLeft: "90px" }}
-						onClick={() => setVisible1(true)}
-					>
-						<FontAwesomeIcon icon={faMapLocationDot} />
-						<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
-					</Location>
-					<Modal
-						visible={visible1}
-						onClose={() => setVisible1(false)}
-					>
-						<ModalLocation restaurant={2} />
-					</Modal>
-				</>
-			) : (
-				<>
-					<Location onClick={() => setVisible1(true)}>
-						<FontAwesomeIcon icon={faMapLocationDot} />
-						<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
-					</Location>
-					<Modal
-						visible={visible1}
-						onClose={() => setVisible1(false)}
-					>
-						<ModalLocation restaurant={2} />
-					</Modal>
-					<MenuTable onClick={() => setVisible2(true)}>
-						<FontAwesomeIcon icon={faCalendarDays} />
-						<p style={{ margin: 0, fontSize: 10 }}>식단표</p>
-					</MenuTable>
-					<Modal
-						visible={visible2}
-						onClose={() => setVisible2(false)}
-					>
-						<ModalMenuTable idx={idx} />
-					</Modal>
-				</>
-			)}
+			<>
+				<ModalContent
+					style={idx === 1 ? { marginLeft: 90 } : { marginLeft: 30 }}
+					onClick={() => setVisible1(true)}
+				>
+					<FontAwesomeIcon icon={faMapLocationDot} />
+					<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
+				</ModalContent>
+				<Modal visible={visible1} onClose={() => setVisible1(false)}>
+					<ModalLocation restaurant={2} />
+				</Modal>
+				{idx !== 1 ? (
+					<>
+						<ModalContent
+							style={{ marginLeft: 5 }}
+							onClick={() => setVisible2(true)}
+						>
+							<FontAwesomeIcon icon={faCalendarDays} />
+							<p style={{ margin: 0, fontSize: 10 }}>식단표</p>
+						</ModalContent>
+						<Modal visible={visible2} onClose={() => setVisible2(false)}>
+							<ModalMenuTable idx={idx} />
+						</Modal>
+					</>
+				) : null}
+			</>
 		</div>
 	);
 };
