@@ -16,9 +16,20 @@ const Table = styled.table`
 		margin-bottom: 10px;
 	}
 `;
+
+const TableHeader = styled.th`
+	padding: 5px;
+	border: 1px solid black;
+`;
+
+const TableData = styled.td`
+	padding: 5px 20px;
+	border: 1px solid black;
+	font-weight: 400;
+`;
+
 const days = ["월요일", "화요일", "수요일", "목요일", "금요일"];
 
-// props로 menu정보를 가져오는 것이 좋아보임
 const ModalMenuTable = ({ idx }) => {
 	const [studentMain, setStudentMain] = useState([]);
 	const [staffMain, setStaffMain] = useState([]);
@@ -41,12 +52,8 @@ const ModalMenuTable = ({ idx }) => {
 		};
 		fetchData().then((data) => {
 			if (idx === 2 || idx === 3) {
-				const studentMainData = data.filter(
-					(item) => item.dept === "STUDENT"
-				);
-				const staffMainData = data.filter(
-					(item) => item.dept === "STAFF"
-				);
+				const studentMainData = data.filter((item) => item.dept === "STUDENT");
+				const staffMainData = data.filter((item) => item.dept === "STAFF");
 
 				setStudentMain(studentMainData);
 				setStaffMain(staffMainData);
@@ -71,25 +78,8 @@ const ModalMenuTable = ({ idx }) => {
 						{inputValue.map((nowValue, index) => {
 							return (
 								<tr key={index}>
-									<th
-										key={index + 1}
-										style={{
-											padding: "5px",
-											border: "1px solid black",
-										}}
-									>
-										{days[index]}
-									</th>
-									<td
-										key={index + 2}
-										style={{
-											padding: "5px 20px",
-											border: "1px solid black",
-											fontWeight: 400,
-										}}
-									>
-										{nowValue.dishList[0]}
-									</td>
+									<TableHeader>{days[index]}</TableHeader>
+									<TableData>{nowValue.dishList[0]}</TableData>
 								</tr>
 							);
 						})}
@@ -108,4 +98,5 @@ const ModalMenuTable = ({ idx }) => {
 		</>
 	);
 };
+
 export default ModalMenuTable;

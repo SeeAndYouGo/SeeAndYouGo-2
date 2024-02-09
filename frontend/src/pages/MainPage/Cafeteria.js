@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
+import { useSelector } from "react-redux";
 import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyProgress from "./MyProgress";
@@ -120,6 +121,9 @@ const nameList = [
 ];
 
 const Cafeteria = ({ idx, value }) => {
+	const user = useSelector((state) => state.user.value);
+	const token = user.token;
+
 	const CafeteriaContainer = styled.div`
 		width: 100%;
 		height: 120px;
@@ -174,7 +178,7 @@ const Cafeteria = ({ idx, value }) => {
 			const url =
 				config.BASE_URL +
 				`/daily-menu/restaurant${idx}` +
-				(config.NOW_STATUS === 0 ? ".json" : "");
+				(config.NOW_STATUS === 0 ? ".json" : `${token ? "/"+token : ""}`);
 
 			const res = await fetch(url, {
 				headers: {
@@ -197,7 +201,7 @@ const Cafeteria = ({ idx, value }) => {
 			);
 			setStudentMenu(studentMenuData);
 		});
-	}, [value, idx]);
+	}, [value, idx, token]);
 
 	return (
 		<CafeteriaContainer>
