@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 const Restaurant1MenuList = [
 	{
 		classification: "라면&간식",
@@ -84,19 +85,19 @@ const Restaurant1MenuList = [
 ];
 
 const InnerList = styled.li`
-	margin-left: -40px;
 	list-style: none;
-	border: solid black;
+	// border-bottom: solid 1px #ddd;
 	border-width: 1px 0px;
 	padding: 2px 0px;
 `;
 
 const ListContainer = styled.div`
 	background: white;
-	padding: 5px 15px;
+	padding: 7px 15px;
 	border-radius: 10px;
 	margin: 8px 0px;
 	font-size: 15px;
+	cursor: pointer;
 `;
 
 const CafeteriaSpan = ({ str1, str3, str4 }) => {
@@ -104,8 +105,8 @@ const CafeteriaSpan = ({ str1, str3, str4 }) => {
 		<>
 			<div>
 				<span>{str1}</span>
-				<span style={{ marginLeft: "10px", float: "right" }}>{str4}</span>
-				<span style={{ float: "right" }}>{str3}</span>
+				<span style={{ marginLeft: "10px", float: "right", fontSize: 12, color: "#999" }}>{str4}</span>
+				<span style={{ float: "right", fontWeight: 400, fontSize: 14, color: "#777" }}>{str3}</span>
 			</div>
 		</>
 	);
@@ -129,9 +130,13 @@ const MenuInfoForRestaurant1 = () => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((name) => (
 					<InnerList key={name}>
-						<span style={{ paddingLeft: "40px" }}>{name[0]}</span>
-						<span style={{ float: "right", paddingRight: "40px" }}>
-							{name[1]}
+						<span style={{ paddingLeft: "20px", fontSize: 14, fontWeight: 400, color: "#333" }}>{name[0]}</span>
+						<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 5, fontWeight: 300}}>
+							<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
+							4.3
+						</span>
+						<span style={{ float: "right", paddingRight: "20px", fontWeight: 400 }}>
+							{name[1].toLocaleString()}
 						</span>
 					</InnerList>
 				));
@@ -145,7 +150,7 @@ const MenuInfoForRestaurant1 = () => {
 							str3={operatingTime}
 							str4={menus === classification ? "△" : "▽"}
 						/>
-						{menus === classification && <ul>{listItem}</ul>}
+						{menus === classification && <ul style={{ padding: 5, margin: "5px 0"}}>{listItem}</ul>}
 					</ListContainer>
 				);
 			})}

@@ -17,27 +17,12 @@ const toastList = [
 // 시간 정보가 포함된 식단 인원 정보 request
 const MainPage = () => {
   const toastIndex = useSelector((state) => state.toast).value;
-
 	const [restaurantData, setRestaurantData] = useState([]);
 
+	const createUrl = (restaurantIdx) => config.BASE_URL + "/connection/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
+
 	useEffect(() => {
-		const url = [
-			config.BASE_URL +
-				"/connection/restaurant1" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/connection/restaurant2" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/connection/restaurant3" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/connection/restaurant4" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-			config.BASE_URL +
-				"/connection/restaurant5" +
-				(config.NOW_STATUS === 0 ? ".json" : ""),
-		];
+		const url = [createUrl(1), createUrl(2), createUrl(3), createUrl(4), createUrl(5)];
 
 		Promise.all(
 			url.map((path) => fetch(path).then((response) => response.json()))
