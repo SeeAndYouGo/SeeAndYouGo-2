@@ -88,8 +88,12 @@ const SetNicknamePage = () => {
   const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
   const toastIndex = useSelector((state) => state.toast).value;
   const user = useSelector((state) => state.user.value);
-  console.log(user);
   const dispatch = useDispatch();
+
+  const handleInputChange = (val) => {
+    setNicknameCheck(false);
+    setNicknameValue(val.target.value);
+  }
 
   const CheckNickname = () => {
     if (nicknameValue.length < 2) { // 2자 이상 입력하지 않은 경우
@@ -119,7 +123,6 @@ const SetNicknamePage = () => {
       "token": Token,
       "nickname": nicknameValue
     }
-    console.log(nicknameRequestJson)
     
 		fetch(url, {
 			method: "PUT",
@@ -151,7 +154,7 @@ const SetNicknamePage = () => {
             placeholder="닉네임 입력"
             className={nicknameCheck ? "success" : "null"}
             minLength={2} maxLength={6} 
-            onChange={(val) => setNicknameValue(val.target.value)
+            onChange={(val) => handleInputChange(val)
           }>
           </NicknameInput>
           <button onClick={CheckNickname}>중복확인</button>
