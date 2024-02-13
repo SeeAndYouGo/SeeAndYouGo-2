@@ -46,7 +46,7 @@ const MenuSelector = ({ onSelectMenu }) => {
 				onChange={(value) => {
 					handleMenuClick(value);
 				}}
-				menuWidth={"100 100"}
+				menuWidth={150}
 			/>
 		</MenuSelectorContainer>
 	);

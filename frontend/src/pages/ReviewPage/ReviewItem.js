@@ -3,16 +3,13 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { faStar as solidStar, faCircleUser, faSpoon } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import DropDown from "../../components/Review/DropDown";
 import Modal from "../../components/Modal";
 import ModalImageZoom from "./ModalImageZoom";
-import Toast from "../../components/Toast";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -190,34 +187,33 @@ const ReviewItem = ({
 
 	useEffect(() => {
 		setLike(liked);
-	}, []);
+	}, [liked]);
 
 	useEffect(() => {
 		console.log(like)
 	}, [like]);
 
 	const handleLike = () => {
-		// review id와 token_id를 보내서 공감상태인지 아닌지 확인
-		// if (token_id === ) {
-		// 	dispatch(changeToastIndex(6));
-		// }
-		if (user.loginState === false) {
-			dispatch(changeToastIndex(5));
+		if (user.loginState === false) { // 로그인 안되어있을 때
+			dispatch(showToast({ contents: "login", toastIndex: 0 }));
 			return;
 		} else {
 			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
 			}).then((res) => {
+				// 내가 쓴 리뷰는 공감할 수 없는 로직이 필요합니다..!
+				// dispatch(showToast({ contents: "review", toastIndex: 9 }));
+
 				const isLike = JSON.parse(res.request.response).like;
-				if (isLike === true) { // true면 공감상태
+				if (isLike === true) { // true면 공감이 된 상태
 					setLike(false);
-				} else { // false면 공감 취소
+					dispatch(showToast({ contents: "review", toastIndex: 7 }));
+				} else { // false면 공감 취소된 상태
 					setLike(true);
+					dispatch(showToast({ contents: "review", toastIndex: 8 }));
 				}
 				window.location.reload();
-
-				dispatch(changeToastIndex(7));
-			}).catch((err) => {
-				console.log(err);
+			}).catch(() => {
+				dispatch(showToast({ contents: "error", toastIndex: 0 }));
 			});
 		}
 	};

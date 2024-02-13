@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
-import { changeToastIndex } from '../redux/slice/ToastSlice';
+import { showToast } from '../redux/slice/ToastSlice';
 
 const Background = styled.div`
   width: 100%;
@@ -116,7 +116,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
       toggleMenu()  
     }else {
       e.preventDefault();
-      dispatch(changeToastIndex(2));
+      dispatch(showToast({ contents: "login", toastIndex: 0 }));
     }
   };
 
@@ -146,7 +146,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       dispatch(logout());
-                      dispatch(changeToastIndex(1));
+                      dispatch(showToast({ contents: "login", toastIndex: 4 }));
                       navigator("/");
                       toggleMenu();
                     }}>로그아웃</LogoutBtn>

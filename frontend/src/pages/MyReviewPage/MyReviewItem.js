@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "@emotion/styled";
 import moment from "moment";
+import { useSelector, useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import * as config from "../../config";
-import { useSelector } from "react-redux";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -116,7 +116,7 @@ const StarRating = ({ rating }) => {
 	return <div style={{ display: "flex" }}>{renderStars()}</div>;
 };
 
-const MyReviewItem = ({ review, changeToastIndex }) => {
+const MyReviewItem = ({ review, showToast }) => {
 	const {
 		reviewId,
 		restaurant,
@@ -130,6 +130,7 @@ const MyReviewItem = ({ review, changeToastIndex }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 	const nowToken = useSelector((state) => state.user.value.token);
+	const dispatch = useDispatch();
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
@@ -144,15 +145,15 @@ const MyReviewItem = ({ review, changeToastIndex }) => {
 			})
 				.then((res) => res.json())
 				.then((res) => {
-					if (res.success === true) {
-						changeToastIndex(0);
+					if (res.success === true) { // 리뷰 삭제 성공
+						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						window.location.reload();
-					} else {
-						changeToastIndex(1);
+					} else { // 리뷰 삭제 권한이 없어 삭제 불가
+						dispatch(showToast({ contents: "review", toastIndex: 2 }));
 					}
 				})
-				.catch(() => {
-					changeToastIndex(1);
+				.catch(() => { // 리뷰 삭제 실패
+					dispatch(showToast({ contents: "review", toastIndex: 4 }));
 				});
 		} else {
 			return;

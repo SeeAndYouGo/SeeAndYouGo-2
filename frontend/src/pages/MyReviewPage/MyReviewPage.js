@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import MyReviewItem from "./MyReviewItem";
 import * as config from "../../config";
-import { useSelector } from "react-redux";
 
 const MyReviewPage = () => {
 	const [reviewArr, setReviewArr] = useState([]);
@@ -41,7 +41,7 @@ const MyReviewPage = () => {
 					<MyReviewItem key={nowReview.reviewId} review={nowReview} />
 				))
 			)}
-			<div className="blankSpace" style={{marginBottom: 20}}>&nbsp;</div>
+			<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
 		</>
 	);
 };
