@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import { useSelector } from "react-redux";
 import MyKeywordInput from "./MyKeywordInput";
 import MyKeywordItem from "./MyKeywordItem";
-import Toast from "../../components/Toast";
 import * as config from "../../config";
 
 const UnderLine = styled.hr`
@@ -20,18 +19,8 @@ const MyKeywordList = styled.div`
 	border-radius: 10px;
 `;
 
-const toastList = [
-	["키워드가 등록되었습니다.", "success"],
-	["키워드 등록에 실패했습니다.", "error"],
-	["이미 등록된 키워드입니다.", "alert"],
-	["키워드 조건을 확인해주세요!", "alert"],
-	["키워드 삭제에 성공했습니다.", "success"],
-	["키워드 삭제에 실패했습니다.", "error"],
-];
-
 const MyKeywordPage = () => {
 	const [keywordList, setKeywordList] = useState([]);
-	const toastIndex = useSelector((state) => state.toast).value;
   const user = useSelector((state) => state.user.value);
 	const token = user.token;
 
@@ -59,13 +48,6 @@ const MyKeywordPage = () => {
 
 	return (
 		<>
-			{toastIndex !== null && (
-				<Toast
-					message={toastList[toastIndex][0]}
-					type={toastList[toastIndex][1]}
-				/>
-			)}
-
 			<div style={{ fontSize: 14, margin: "70px 10px 0 10px" }}>
 				<div style={{ textAlign: "center" }}>
 					<p style={{ fontSize: 20, margin: 10 }}>나의 키워드</p>

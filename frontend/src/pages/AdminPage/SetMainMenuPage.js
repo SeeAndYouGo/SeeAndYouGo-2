@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import Toast from "../../components/Toast";
+import { useDispatch } from "react-redux";
+import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const SubmitButton = styled.button`
@@ -18,7 +19,7 @@ const SubmitButton = styled.button`
 const SetMainMenuPage = () => {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [password, setPassword] = useState("");
-	const [toast, setToast] = useState(false);
+	const dispatch = useDispatch();
 
 	const handlePasswordChange = (e) => {
 		setPassword(e.target.value);
@@ -28,7 +29,7 @@ const SetMainMenuPage = () => {
 		if (password === process.env.REACT_APP_ADMIN_PASSWORD) {
 			setIsAdmin(true);
 		} else {
-			setToast(true);
+			dispatch(showToast({ contents: "admin", toastIndex: 0 }));
 		}
 	};
 
@@ -136,7 +137,7 @@ const SetMainMenuPage = () => {
 		// 전송할 데이터 정리
 		const sendData = [];
 		mainResult.map((val) =>
-			val.mainDishName !== undefined ? sendData.push(val) : null
+			val?.mainDishName !== undefined ? sendData.push(val) : null
 		);
 		console.log("전송 데이터 확인", sendData);
 
@@ -226,13 +227,6 @@ const SetMainMenuPage = () => {
 					<div style={{ height: "100px" }}></div>
 				</div>
 			)}
-			{toast ? (
-				<Toast
-					message="비밀번호가 틀립니다."
-					type="error"
-					setToast={setToast}
-				/>
-			) : null}
 		</>
 	);
 };

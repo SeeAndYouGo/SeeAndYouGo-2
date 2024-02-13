@@ -1,7 +1,8 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import RouteChangeTracker from "./RouteChangeTracker";
 import styled from "@emotion/styled";
+import RouteChangeTracker from "./RouteChangeTracker";
+import { Routes, Route } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage/MainPage";
@@ -14,6 +15,7 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
 import MyKeywordPage from "./pages/MyKeywordPage/MyKeywordPage";
+import Toast from "./components/Toast";
 
 const HeaderWrapper = styled.div`
 	z-index: 10;
@@ -26,10 +28,15 @@ const HeaderWrapper = styled.div`
 `;
 
 const App = () => {
+  const toast = useSelector((state) => state.toast.value);
+	const toastIndex = toast.toastIndex;
+	const contents = toast.contents;
+
   RouteChangeTracker();
 
   return (
-    <>
+		<>
+			{ toastIndex !== null && ( <Toast contentsName={contents} toastIndex={toastIndex} />) }
 			<HeaderWrapper>
 				<Header />
 			</HeaderWrapper>
@@ -49,8 +56,8 @@ const App = () => {
         </Routes>
       </div>
 			<Footer />
-    </>
-  );
+		</>
+	);
 };
 
 export default App;

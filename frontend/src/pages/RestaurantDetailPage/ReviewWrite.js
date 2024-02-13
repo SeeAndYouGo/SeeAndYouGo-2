@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import axios from "axios";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -231,18 +231,18 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 					"Content-Type": "multipart/form-data",
 				},
 			})
-
-			.then(() => {
-				dispatch(changeToastIndex(5));
+			.then(() => { // 리뷰 작성 성공
+				dispatch(showToast({ contents: "review", toastIndex: 0 }));
 				window.location.reload();
 			})
-			.catch(() => dispatch(changeToastIndex(6)));
+			.catch(() => { // 리뷰 작성 실패
+				dispatch(showToast({ contents: "review", toastIndex: 1 }));
+			})
 	};
 
 	return (
 		<ReviewWriteContainer>
 			{ // 로그인 안했을 때
-
 				!token && (
 					<NotLogin>
 						<GoToLogin

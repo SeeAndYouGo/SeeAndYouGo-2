@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import * as config from "../../config";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login, setNickname } from "../../redux/slice/UserSlice";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
+import * as config from "../../config";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
@@ -15,9 +15,7 @@ const KakaoCallBack = () => {
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
-			const url =
-				config.DEPLOYMENT_BASE_URL +
-				`/oauth/kakao?code=${authorizationCode}`;
+			const url = config.DEPLOYMENT_BASE_URL + `/oauth/kakao?code=${authorizationCode}`;
 
 			const response = await axios({
 				method: "GET",
@@ -30,45 +28,46 @@ const KakaoCallBack = () => {
 				},
 			});
 			const nowToken = response.data;
-
 			return nowToken;
 		};
-		getJWTToken(code)
-			.then((data) => {
-				dispatch(login({token: data.token, nickname: "", loginState: true}));
 
-				if (data.message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
-					alert("회원가입을 축하합니다!\n닉네임을 설정해주세요.");
+		const fetchData = async () => {
+			try {
+				const nowToken = await getJWTToken(code);
+				dispatch(
+					login({ token: nowToken.token, nickname: "", loginState: true })
+				);
+
+				if (nowToken.message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
+					dispatch(showToast({ contents: "login", toastIndex: 1 }));
 					navigator("/set-nickname");
 				} else { // 이미 등록된 회원인 경우 닉네임 가져오기
-					const fetchData = async () => {
-						const urlForNickname =
-							config.BASE_URL +
-							`/user/nickname/${data.token}` +
-							(config.NOW_STATUS === 0 ? ".json" : "");
-
-						const res = await fetch(urlForNickname, {
-							headers: {
-								"Content-Type": "application/json",
-							},
-							method: "GET",
-						});
-						const result = await res.json();
-						return result;
-					};
-					fetchData().then((res) => {
-						dispatch(setNickname(res.nickname));
+					const urlForNickname =
+						config.BASE_URL +
+						`/user/nickname/${nowToken.token}` +
+						(config.NOW_STATUS === 0 ? ".json" : "");
+					const res = await fetch(urlForNickname, {
+						headers: {
+							"Content-Type": "application/json",
+						},
+						method: "GET",
 					});
-					dispatch(changeToastIndex(0));
+					const result = await res.json();
+					dispatch(setNickname(result.nickname));
+					dispatch(showToast({ contents: "login", toastIndex: 2 }));
 					navigator("/");
 				}
-			})
-			.catch((err) => {
+			} catch (err) {
 				console.log(err);
-				alert("로그인에 실패했습니다.");
+				dispatch(showToast({ contents: "login", toastIndex: 3 }));
 				navigator("/login-page");
-			});
-	}, [code, navigator, dispatch]);
+			}
+		};
+
+		if (code) {
+			fetchData();
+		}
+	}, [code, dispatch, navigator]);
 
 	return (
 		<div className="LoginHandeler">

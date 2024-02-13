@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const KeywordInput = styled.input`
@@ -21,7 +21,7 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 
 	const handleSubmit = async () => {
 		if (existedKeywordList.includes(keyword)) { // 이미 등록된 키워드
-			dispatch(changeToastIndex(2));
+			dispatch(showToast({ contents: "keyword", toastIndex: 2 }));
 		} else if (keyword.length > 0 && keyword.length < 7) {
 			const url = config.BASE_URL + "/keyword";
 
@@ -39,12 +39,12 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 				const result = await res.json();
 				setKeywordList(result.keywords);
 				setKeyword("");
-				dispatch(changeToastIndex(0));
+				dispatch(showToast({ contents: "keyword", toastIndex: 0 }));
 			} else { // 키워드 등록 실패
-				dispatch(changeToastIndex(1));
+				dispatch(showToast({ contents: "keyword", toastIndex: 1 }));
 			}
-		} else { // 키워드 조건 확인
-			dispatch(changeToastIndex(3));
+		} else { // 키워드 조건 확인 필요
+			dispatch(showToast({ contents: "keyword", toastIndex: 3 }));
 		}
 	};
 

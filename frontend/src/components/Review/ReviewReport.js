@@ -2,7 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import * as config from "../../config";
 import { useDispatch } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -12,7 +12,6 @@ const ReportButton = styled.span`
 	font-size: 15px;
 `;
 
-// 아이콘 눌러 신고하기 버튼 기능
 const ReviewReport = ({ reportTarget }) => {
 	const dispatch = useDispatch();
 
@@ -26,9 +25,11 @@ const ReviewReport = ({ reportTarget }) => {
 			},
 		})
 			.then(() => {
-				dispatch(changeToastIndex(0));
+				dispatch(showToast({ contents: "review", toastIndex: 5 }));
 			})
-			.catch((err) => dispatch(changeToastIndex(1)));
+			.catch(() => {
+				dispatch(showToast({ contents: "review", toastIndex: 6 }));
+			});
 	};
 
 	return (

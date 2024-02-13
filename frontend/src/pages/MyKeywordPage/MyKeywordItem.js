@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const RemoveBtn = styled.span`
@@ -31,9 +31,9 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 		if (res.ok) { // 키워드 삭제 성공
 			const result = await res.json();
 			setKeywordList(result.keywords);
-			dispatch(changeToastIndex(4));
+			dispatch(showToast({ contents: "keyword", toastIndex: 4 }));
 		} else { // 키워드 삭제 실패
-			dispatch(changeToastIndex(5));
+			dispatch(showToast({ contents: "keyword", toastIndex: 5 }));
 		}
 	};
 

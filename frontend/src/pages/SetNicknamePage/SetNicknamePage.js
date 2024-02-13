@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
-import Toast from "../../components/Toast";
 import * as config from "../../config";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setNickname } from "../../redux/slice/UserSlice";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 
 const NicknameInput = styled.input`
 color: #999;
@@ -74,18 +73,10 @@ const SetButton = styled.button`
   }
 `;
 
-const toastList = [
-  ["닉네임은 2자 이상 입력해주세요", "alert"],
-  ["이미 존재하는 닉네임입니다.", "alert"],
-  ["사용 가능한 닉네임입니다.", "alert"],
-  ["닉네임 설정에 실패했습니다.", "error"],
-];
-
 const SetNicknamePage = () => {
   const navigator = useNavigate();
 	const [nicknameValue, setNicknameValue] = useState("");
   const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
-  const toastIndex = useSelector((state) => state.toast).value;
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
 
@@ -96,21 +87,21 @@ const SetNicknamePage = () => {
 
   const CheckNickname = () => {
     if (nicknameValue.length < 2) { // 2자 이상 입력하지 않은 경우
-      dispatch(changeToastIndex(0));
+      dispatch(showToast({ contents: "nickname", toastIndex: 0 }));
       return;
     }
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nicknameValue}`;
     axios.get(url)
     .then((res) => {
       if (res.data.redundancy === true) { // 중복인 경우
-        dispatch(changeToastIndex(1));
+        dispatch(showToast({ contents: "nickname", toastIndex: 1 }));
         setNicknameCheck(false);
       } else { // 중복이 아닌 경우
-        dispatch(changeToastIndex(2));
+        dispatch(showToast({ contents: "nickname", toastIndex: 2 }));
         setNicknameCheck(true);
       }
-    }).catch((err) => {
-      console.log(err);
+    }).catch(() => {
+      dispatch(showToast({ contents: "error", toastIndex: 0 }));
     });
   }
 
@@ -130,20 +121,17 @@ const SetNicknamePage = () => {
 			},
 			body: JSON.stringify(nicknameRequestJson),
 		})
-    .then((res) => {
+    .then(() => { // 닉네임 설정 완료
       dispatch(setNickname(nicknameValue));
-      dispatch(changeToastIndex(3)); // 메인페이지에서 닉네임 설정 완료 토스트 띄우기
+      dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
       navigator("/");
-    }).catch((err) => {
-      dispatch(changeToastIndex(3)); // 현재페이지에서 닉네임 설정 실패 토스틑 띄우기
-      console.log(err)
+    }).catch(() => { // 닉네임 설정 실패
+      dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
     });
   }
 
 	return (
 		<div className="App3">
-      {toastIndex !== null && <Toast message={toastList[toastIndex][0]} type={toastList[toastIndex][1]} />}
-      
       <div className="setNicknameWrapper" style={{background: "#fff", padding: "30px 20px", borderRadius: 20, float: "left"}}>
         <p style={{margin: "0 0 10px 0", fontSize: 20}}>닉네임 설정</p>
         <p style={{fontSize: 12, color: "#555", fontWeight: 300, margin: "0 0 20px 0"}}>커뮤니티 활동을 위한 닉네임을 설정해주세요. 건너뛰기 클릭시 익명으로 처리됩니다.</p>
