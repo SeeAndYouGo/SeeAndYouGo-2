@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
+import Loading from "../../components/Loading";
 import * as config from "../../config";
 
 const KakaoCallBack = () => {
@@ -70,11 +71,7 @@ const KakaoCallBack = () => {
 	}, [code, dispatch, navigator]);
 
 	return (
-		<div className="LoginHandeler">
-			<p>로그인 중입니다.</p>
-			<p>잠시만 기다려주세요.</p>
-			{/* 로그인 중 로딩 상황(애니메이션?) 보여주기 */}
-		</div>
+		<Loading />
 	);
 };
 
