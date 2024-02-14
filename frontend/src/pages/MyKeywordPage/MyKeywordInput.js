@@ -35,16 +35,16 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 					user_id: token,
 				}),
 			});
-			if (res.ok) { // 키워드 등록 성공
-				const result = await res.json();
+			const result = await res.json();
+			if (result.isExceed) { // 키워드 등록 최대 개수 초과
+				dispatch(showToast({ contents: "keyword", toastIndex: 3 }));
+			} else { // 키워드 등록 성공
 				setKeywordList(result.keywords);
 				setKeyword("");
 				dispatch(showToast({ contents: "keyword", toastIndex: 0 }));
-			} else { // 키워드 등록 실패
-				dispatch(showToast({ contents: "keyword", toastIndex: 1 }));
 			}
 		} else { // 키워드 조건 확인 필요
-			dispatch(showToast({ contents: "keyword", toastIndex: 3 }));
+			dispatch(showToast({ contents: "keyword", toastIndex: 4 }));
 		}
 	};
 
@@ -53,6 +53,7 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 	};
 
 	const handleKeyPress = (e) => {
+		if (e.isComposing || e.keyCode === 229) return;
 		if (e.key === "Enter") {
 			handleSubmit();
 		}

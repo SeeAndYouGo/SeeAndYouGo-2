@@ -31,9 +31,9 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 		if (res.ok) { // 키워드 삭제 성공
 			const result = await res.json();
 			setKeywordList(result.keywords);
-			dispatch(showToast({ contents: "keyword", toastIndex: 4 }));
-		} else { // 키워드 삭제 실패
 			dispatch(showToast({ contents: "keyword", toastIndex: 5 }));
+		} else { // 키워드 삭제 실패
+			dispatch(showToast({ contents: "keyword", toastIndex: 6 }));
 		}
 	};
 
