@@ -1,10 +1,35 @@
 import React, { useEffect, useState } from "react";
+import styled from "@emotion/styled";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import MyReviewItem from "./MyReviewItem";
 import * as config from "../../config";
 
+const NotLogin = styled.div`
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+	background-color: rgba(20, 20, 20, 0.3);
+	z-index: 6;
+	text-align: center;
+	font-size: 20px;
+	text-decoration: underline;
+	padding-top: 100px;
+`;
+
+const GoToLogin = styled.span`
+	cursor: pointer;
+	:hover {
+		color: red;
+		opacity: 0.7;
+	}
+`;
+
 const MyReviewPage = () => {
 	const [reviewArr, setReviewArr] = useState([]);
+	const navigator = useNavigate();
 	const nowToken = useSelector((state) => state.user.value.token);
 
 	useEffect(() => {
@@ -29,19 +54,39 @@ const MyReviewPage = () => {
 
 	return (
 		<>
-			<h3 style={{ margin: "70px 0 10px 15px" }}>
-				내가 쓴 총 리뷰 {reviewArr.length}개
-			</h3>
-			{reviewArr.length === 0 ? (
-				<p key={0} style={{ textAlign: "center" }}>
-					첫 리뷰를 작성해보세요!
-				</p>
+			{nowToken ? (
+				<div style={{ fontSize: 14, margin: "70px 15px 0 15px" }}>
+					<div style={{ textAlign: "center" }}>
+						<p style={{ fontSize: 20, margin: 10 }}>작성한 리뷰</p>
+						<p style={{ margin: 0, fontWeight: 600 }}>
+							내가 작성한 리뷰를 확인하세요!
+						</p>
+					</div>
+					<p style={{ margin: "10px 10px" }}>
+						내가 쓴 총 리뷰 {reviewArr ? reviewArr.length : 0}개
+					</p>
+					{reviewArr.length === 0 ? (
+						<p key={0} style={{ textAlign: "center" }}>
+							첫 리뷰를 작성해보세요!
+						</p>
+					) : (
+						reviewArr.map((nowReview) => (
+							<MyReviewItem key={nowReview.reviewId} review={nowReview} />
+						))
+					)}
+					<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
+				</div>
 			) : (
-				reviewArr.map((nowReview) => (
-					<MyReviewItem key={nowReview.reviewId} review={nowReview} />
-				))
+				<NotLogin>
+					<GoToLogin
+						onClick={() => {
+							navigator("/login-page");
+						}}
+					>
+						로그인이 필요합니다 !!
+					</GoToLogin>
+				</NotLogin>
 			)}
-			<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
 		</>
 	);
 };
