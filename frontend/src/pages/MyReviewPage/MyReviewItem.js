@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -116,7 +117,7 @@ const StarRating = ({ rating }) => {
 	return <div style={{ display: "flex" }}>{renderStars()}</div>;
 };
 
-const MyReviewItem = ({ review, showToast }) => {
+const MyReviewItem = ({ review }) => {
 	const {
 		reviewId,
 		restaurant,
