@@ -76,7 +76,7 @@ public class ReviewService {
     }
 
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
-        return reviewRepository.findTop5ReviewsByRestaurantAndDate(restaurantName, date);
+        return reviewRepository.findTop3ByRestaurantNameAndMadeTimeStartingWithOrderByMadeTimeDesc(restaurantName, date);
     }
 
     public List<Review> findRestaurantReviews(String restaurant, String date) {
