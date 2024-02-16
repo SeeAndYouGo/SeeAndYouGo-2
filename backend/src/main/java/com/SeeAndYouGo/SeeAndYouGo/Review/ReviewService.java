@@ -5,13 +5,14 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -76,7 +77,17 @@ public class ReviewService {
     }
 
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
-        return reviewRepository.findTop5ReviewsByRestaurantAndDate(restaurantName, date);
+
+        if (restaurantName.equals("2학생회관") || restaurantName.equals("3학생회관")) {
+            List<Review> reviewsOfStaff = reviewRepository.findTop3ByRestaurantDeptOrderByMadeTimeDesc(restaurantName, date, Dept.STAFF)
+                    .stream().limit(3).collect(Collectors.toList());
+            List<Review> reviewsOfStudent = reviewRepository.findTop3ByRestaurantDeptOrderByMadeTimeDesc(restaurantName, date, Dept.STUDENT)
+                    .stream().limit(3).collect(Collectors.toList());
+            return Stream.of(reviewsOfStaff, reviewsOfStudent)
+                                        .flatMap(x -> x.stream())
+                                        .collect(Collectors.toList());
+        }
+        return reviewRepository.findTop3ByRestaurantNameAndMadeTimeStartingWithOrderByMadeTimeDesc(restaurantName, date);
     }
 
     public List<Review> findRestaurantReviews(String restaurant, String date) {
