@@ -14,14 +14,14 @@ const UserSlice = createSlice({
   initialState: { value: initialStateValue },
   reducers: {
     login: (state, action) => {
-      console.log(action);
+      // console.log(action);
       state.value = action.payload;
     },
     logout: (state) => {
       state.value = initialStateValue;
     },
     setNickname: (state, action) => {
-      console.log(action);
+      // console.log(action);
       state.value.nickname = action.payload;
     }
   },

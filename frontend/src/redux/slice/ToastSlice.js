@@ -1,20 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = null;
+const initialStateValue = {
+	contents: "",
+	toastIndex: null,
+};
 
 const toastSlice = createSlice({
 	name: "toast",
-	initialState: { value: initialState },
+	initialState: { value: initialStateValue },
 	reducers: {
-		changeToastIndex: (state, action) => {
+		showToast: (state, action) => {
 			state.value = action.payload;
 		},
 		changeToInitialState: (state) => {
-			state.value = initialState;
+			state.value = initialStateValue;
 		},
 	},
 });
 
-export const { changeToastIndex, changeToInitialState } = toastSlice.actions;
+export const { showToast, changeToInitialState } = toastSlice.actions;
 
 export default toastSlice.reducer;

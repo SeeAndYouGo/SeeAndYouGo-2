@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
+import axios from "axios";
 import { useSelector } from "react-redux";
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyProgress from "./MyProgress";
 import * as config from "../../config";
@@ -120,6 +121,12 @@ const nameList = [
 	"생활과학대",
 ];
 
+const FirstRowWrapper = styled.div`
+display: flex;
+margin-left: auto;
+margin-right: 15px;
+`;
+
 const Cafeteria = ({ idx, value }) => {
 	const user = useSelector((state) => state.user.value);
 	const token = user.token;
@@ -134,6 +141,7 @@ const Cafeteria = ({ idx, value }) => {
 		${idx === 1 ? "height: 50px;" : null}
 	`;
 	const FirstRow = styled.div`
+		width: 100%;
 		display: flex;
 		align-items: center;
 		padding-top: 10px;
@@ -145,9 +153,9 @@ const Cafeteria = ({ idx, value }) => {
 	// 식당 이름 표시
 	const CafeteriaName = styled.p`
 		font-size: 15px;
-		margin-left: 20px;
+		margin-left: 15px;
 		font-weight: 700;
-		${idx === 4 ? "margin-left: 25px;" : null}
+		${idx === 4 ? "margin-left: 15px;" : null}
 
 		::after {
 			content: "";
@@ -158,10 +166,22 @@ const Cafeteria = ({ idx, value }) => {
 			padding-top: 2px;
 		}
 	`;
-
 	const [status, setStatus] = useState("원활");
 	const [staffMenu, setStaffMenu] = useState([]);
 	const [studentMenu, setStudentMenu] = useState([]);
+	const [restaurant1Rate, setRestaurant1Rate] = useState(0);
+
+	useEffect(() => {
+		if (idx !== 1) return;
+
+    const url = config.DEPLOYMENT_BASE_URL + `/restaurant/1/rate/main`;
+		axios.get(url)
+		.then((res) => {
+			setRestaurant1Rate(res.data.totalAvgRate);
+		}).catch((err) => {
+			console.log(err);
+		});
+	}, []);
 
 	useEffect(() => {
 		if (value >= 66) {
@@ -206,15 +226,27 @@ const Cafeteria = ({ idx, value }) => {
 	return (
 		<CafeteriaContainer>
 			<FirstRow>
-				<CafeteriaName>{nameList[idx]}</CafeteriaName>
-				<span style={{ fontWeight: 500, fontSize: 11, marginLeft: 20 }}>
-					{status}
-				</span>
-				<MyProgress value={value} />
-				<FontAwesomeIcon
-					icon={faChevronRight}
-					style={{ color: "#b0b0b0", marginLeft: 10 }}
-				/>
+				<CafeteriaName>
+					{nameList[idx]}
+				</CafeteriaName>
+				{idx === 1 ? (
+					<span style={{ fontSize: 11, fontWeight: 400,fontWeight: 300}}>
+						<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
+						{restaurant1Rate}
+					</span> 
+				) : null}
+
+				<FirstRowWrapper>
+					<span style={{ fontWeight: 500, fontSize: 11}}>
+						{status}
+					</span>
+					<MyProgress value={value} />
+					<FontAwesomeIcon
+						icon={faChevronRight}
+						style={{ color: "#b0b0b0", marginLeft: 10 }}
+					/>
+				</FirstRowWrapper>
+
 			</FirstRow>
 			{idx === 1 ? null : (
 				<SecondRow>

@@ -2,7 +2,6 @@ FROM node:18.17.1-slim
 
 WORKDIR /app
 COPY . .
-# ARG GOOGLE_ANALYTICS_TRACKING_ID
 
 RUN yarn install
 RUN yarn add react-router-dom
@@ -17,8 +16,8 @@ RUN yarn add axios
 RUN yarn add react-icons
 RUN yarn add react-ga4
 RUN yarn add redux-persist @reduxjs/toolkit react-redux 
+RUN yarn add react-spinners
 
-# ENV REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID ${GOOGLE_ANALYTICS_TRACKING_ID}
 RUN npm install -g serve
 RUN yarn build
 

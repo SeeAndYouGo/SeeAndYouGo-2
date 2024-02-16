@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import UpdateLog from "./UpdateLog";
 import Cafeteria from "./Cafeteria";
-import Toast from "../../components/Toast";
 import * as config from "../../config";
 
-const toastList = [
-	["로그인에 성공했습니다.", "success"],
-	["로그아웃 되었습니다.", "alert"],
-  ["로그인이 필요한 서비스입니다.", "alert"],
-	["닉네임이 설정되었습니다.", "success"],
-];
-
-// 시간 정보가 포함된 식단 인원 정보 request
 const MainPage = () => {
-  const toastIndex = useSelector((state) => state.toast).value;
 	const [restaurantData, setRestaurantData] = useState([]);
 
 	const createUrl = (restaurantIdx) => config.BASE_URL + "/connection/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
@@ -33,12 +22,6 @@ const MainPage = () => {
 
 	return (
 		<div className="App">
-			{ toastIndex !== null && (
-				<Toast
-					message={toastList[toastIndex][0]}
-					type={toastList[toastIndex][1]}
-				/>
-			)}
 			{restaurantData.map((val, idx) =>
 				idx === 0 ? (
 					<UpdateLog key={idx} updateTime={val.dateTime} />

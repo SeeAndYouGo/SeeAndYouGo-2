@@ -106,7 +106,7 @@ const CafeteriaSpan = ({ str1, str3, str4 }) => {
 			<div>
 				<span>{str1}</span>
 				<span style={{ marginLeft: "10px", float: "right", fontSize: 12, color: "#999" }}>{str4}</span>
-				<span style={{ float: "right", fontWeight: 400, fontSize: 14, color: "#777" }}>{str3}</span>
+				<span style={{ float: "right", fontWeight: 400, fontSize: 14}}>{str3}</span>
 			</div>
 		</>
 	);

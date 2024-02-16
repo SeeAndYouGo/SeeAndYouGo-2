@@ -139,19 +139,9 @@ const ReviewList = ({ idx, nowReviewList }) => {
 						}
 						return (
 							<ReviewItem
-								userName={nowReview.writer}
-								time={nowReview.madeTime}
-								rate={nowReview.rate}
-								content={nowReview.comment}
-								img={nowReview.imgLink}
-								restaurant={nowReview.restaurant}
-								dept={nowReview.dept}
+								data={nowReview}
 								key={nowIndex}
 								isTotal={idx === 0 ? true : false}
-								menuName={nowReview.menuName}
-								reviewId={nowReview.reviewId}
-								likeCount={nowReview.likeCount}
-								liked={nowReview.like}
 							/>
 						);
 					})

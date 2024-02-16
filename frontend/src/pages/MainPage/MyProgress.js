@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const ColorContainer = styled.div`
 	display: flex;
-	margin-left: 20px;
+	margin-left: 10px;
 	border: 1px solid #dddddd;
 	border-radius: 5px;
 	overflow: hidden;
@@ -13,7 +13,7 @@ const ColoredDiv = ({ disabledColor, color, index }) => {
 		float: "left",
 		backgroundColor: disabledColor ? "#FFFFFF" : color,
 		width: "14px",
-		height: "12px",
+		// height: "12px",
 		borderLeft:
 			index === 0 ? "none" : disabledColor ? "1px solid #dddddd" : "none",
 	};

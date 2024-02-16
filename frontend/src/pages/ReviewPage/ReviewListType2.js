@@ -248,19 +248,9 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 								}
 								return radioValue === nowReview.dept ? (
 									<ReviewItem
-										userName={nowReview.writer}
-										time={nowReview.madeTime}
-										rate={nowReview.rate}
-										content={nowReview.comment}
-										img={nowReview.imgLink}
-										restaurant={nowReview.restaurant}
-										dept={nowReview.dept}
+										data={nowReview}
 										key={nowIndex}
 										isTotal={idx === 0 ? true : false}
-										menuName={nowReview.menuName}
-										likeCount={nowReview.likeCount}
-										liked={nowReview.like}
-										reviewId={nowReview.reviewId}
 									/>
 								) : null;
 							})
@@ -274,19 +264,22 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 							}
 							return radioValue === nowReview.dept ? (
 								<ReviewItem
-									userName={nowReview.writer}
-									time={nowReview.madeTime}
-									rate={nowReview.rate}
-									content={nowReview.comment}
-									img={nowReview.imgLink}
-									restaurant={nowReview.restaurant}
-									dept={nowReview.dept}
+									data={nowReview}
 									key={nowIndex}
 									isTotal={idx === 0 ? true : false}
-									menuName={nowReview.menuName}
-									likeCount={nowReview.likeCount}
-									liked={nowReview.like}
-									reviewId={nowReview.reviewId}
+									// userName={nowReview.writer}
+									// time={nowReview.madeTime}
+									// rate={nowReview.rate}
+									// content={nowReview.comment}
+									// img={nowReview.imgLink}
+									// restaurant={nowReview.restaurant}
+									// dept={nowReview.dept}
+									// key={nowIndex}
+									// isTotal={idx === 0 ? true : false}
+									// menuName={nowReview.menuName}
+									// likeCount={nowReview.likeCount}
+									// liked={nowReview.like}
+									// reviewId={nowReview.reviewId}
 								/>
 							) : null;
 						})

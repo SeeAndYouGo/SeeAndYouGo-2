@@ -3,16 +3,13 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { changeToastIndex } from "../../redux/slice/ToastSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
-import { faCircleUser } from "@fortawesome/free-solid-svg-icons";
-import { faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { faStar as solidStar, faCircleUser, faSpoon } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import DropDown from "../../components/Review/DropDown";
 import Modal from "../../components/Modal";
 import ModalImageZoom from "./ModalImageZoom";
-import Toast from "../../components/Toast";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -150,18 +147,19 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 };
 
 const ReviewItem = ({
-	userName,
-	restaurant,
-	dept,
-	time,
-	content,
-	img,
-	rate,
-	isTotal,
-	menuName,
-	reviewId,
-	liked,
-	likeCount
+	data, isTotal
+	// userName,
+	// restaurant,
+	// dept,
+	// time,
+	// content,
+	// img,
+	// rate,
+	// isTotal,
+	// menuName,
+	// reviewId,
+	// liked,
+	// likeCount
 }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
@@ -189,35 +187,34 @@ const ReviewItem = ({
 	};
 
 	useEffect(() => {
-		setLike(liked);
-	}, []);
+		setLike(data.like);
+	}, [data.like]);
 
 	useEffect(() => {
 		console.log(like)
 	}, [like]);
 
 	const handleLike = () => {
-		// review id와 token_id를 보내서 공감상태인지 아닌지 확인
-		// if (token_id === ) {
-		// 	dispatch(changeToastIndex(6));
-		// }
-		if (user.loginState === false) {
-			dispatch(changeToastIndex(5));
+		if (user.loginState === false) { // 로그인 안되어있을 때
+			dispatch(showToast({ contents: "login", toastIndex: 0 }));
 			return;
 		} else {
-			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
+			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${data.reviewId}/${token_id}`, {
 			}).then((res) => {
+				// 내가 쓴 리뷰는 공감할 수 없는 로직이 필요합니다..!
+				// dispatch(showToast({ contents: "review", toastIndex: 9 }));
+
 				const isLike = JSON.parse(res.request.response).like;
-				if (isLike === true) { // true면 공감상태
+				if (isLike === true) { // true면 공감이 된 상태
 					setLike(false);
-				} else { // false면 공감 취소
+					dispatch(showToast({ contents: "review", toastIndex: 7 }));
+				} else { // false면 공감 취소된 상태
 					setLike(true);
+					dispatch(showToast({ contents: "review", toastIndex: 8 }));
 				}
 				window.location.reload();
-
-				dispatch(changeToastIndex(7));
-			}).catch((err) => {
-				console.log(err);
+			}).catch(() => {
+				dispatch(showToast({ contents: "error", toastIndex: 0 }));
 			});
 		}
 	};
@@ -229,19 +226,19 @@ const ReviewItem = ({
 						<FontAwesomeIcon icon={faCircleUser} />
 					</ReviewItemIcon>
 					<ReviewItemProfile>
-						<p>{userName}</p>
+						<p>{data.writer}</p>
 						<div style={{ marginTop: 2 }}>
 							<ReviewItemStar style={{ fontWeight: 500 }}>
 								<FontAwesomeIcon icon={solidStar} />
-								{rate % 1 === 0 ? rate + ".0" : rate}
+								{data.rate % 1 === 0 ? data.rate + ".0" : data.rate}
 							</ReviewItemStar>
 							<span style={{ fontWeight: 400 }}>
-								{CalculateWriteTime(targetTime, time)}
+								{CalculateWriteTime(targetTime, data.madeTime)}
 							</span>
 						</div>
 					</ReviewItemProfile>
 					<div style={{position: "relative",float: "right", marginLeft: 5}} >
-						<DropDown targetId={reviewId} />
+						<DropDown targetId={data.reviewId} />
 					</div>
 					{isTotal && (
 						<div style={{ float: "right", width: "45%" }}>
@@ -249,17 +246,17 @@ const ReviewItem = ({
 								<span
 									className={
 										"colorTag" +
-										getRestuarantIndex(restaurant)
+										getRestuarantIndex(data.restaurant)
 									}
 								>
 									●&nbsp;
 								</span>
-								{restaurant}
+								{data.restaurant}
 							</RestaurantName>
 
-							{getRestuarantIndex(restaurant) !== 1 ? (
+							{getRestuarantIndex(data.restaurant) !== 1 ? (
 								<DeptName>
-									{dept === "STAFF"
+									{data.dept === "STAFF"
 										? "교직원식당"
 										: "학생식당"}
 								</DeptName>
@@ -271,13 +268,13 @@ const ReviewItem = ({
 					className="Row2"
 					style={{ float: "left", width: "100%", marginTop: 5 }}
 				>
-					<ReviewItemContent>{content}</ReviewItemContent>
-					{img === "" ? null : (
+					<ReviewItemContent>{data.comment}</ReviewItemContent>
+					{data.imgLink === "" ? null : (
 						<ReviewImage
 							src={
 								config.NOW_STATUS === 0
-									? `/assets/images/${img}`
-									: `${img}`
+									? `/assets/images/${data.imgLink}`
+									: `${data.imgLink}`
 							}
 							alt="Loading.."
 							onClick={() => {
@@ -294,18 +291,18 @@ const ReviewItem = ({
 						<ModalImageZoom
 							imgLink={
 								config.NOW_STATUS === 0
-									? `/assets/images/${img}`
-									: `${img}`
+									? `/assets/images/${data.img}`
+									: `${data.img}`
 							}
 						/>
 					</Modal>
 				</div>
 				<ReviewLike onClick={handleLike} className={like ? 'liked' : ''}>
-					<FontAwesomeIcon icon={faHeart} /> {likeCount}
+					<FontAwesomeIcon icon={faHeart} /> {data.likeCount}
 				</ReviewLike>
-				{isTotal && menuName && (
+				{isTotal && data.menuName && (
 					<MenuName>
-						{menuName}&nbsp;
+						{data.menuName}&nbsp;
 						<FontAwesomeIcon icon={faSpoon} />
 					</MenuName>
 				)}
