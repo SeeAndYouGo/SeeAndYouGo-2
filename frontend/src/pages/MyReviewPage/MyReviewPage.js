@@ -62,8 +62,8 @@ const MyReviewPage = () => {
 							내가 작성한 리뷰를 확인하세요!
 						</p>
 					</div>
-					<p style={{ margin: "10px 10px" }}>
-						내가 쓴 총 리뷰 {reviewArr ? reviewArr.length : 0}개
+					<p style={{ margin: "10px 10px 5px" }}>
+						내가 작성한 총 리뷰 {reviewArr ? reviewArr.length : 0}개
 					</p>
 					{reviewArr.length === 0 ? (
 						<p key={0} style={{ textAlign: "center" }}>

@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar, faCircleUser, faSpoon } from "@fortawesome/free-solid-svg-icons";
-import DropDown from "../../components/Review/DropDown";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -25,7 +24,7 @@ const ReviewItemIcon = styled.p`
 
 const ReviewItemProfile = styled.div`
 	float: left;
-	margin-top: 5px;
+	margin: 5px 0;
 
 	> p {
 		margin: 0;
@@ -54,17 +53,12 @@ const ReviewItemComment = styled.p`
 	font-size: 14px;
 	font-weight: 400;
 	margin: 5px 0 0 0;
-`;
-
-const DropDownContainer = styled.div`
-	position: absolute;
-	right: 15px;
-	top: 10px;
+	white-space: pre-wrap;
 `;
 
 const MenuName = styled.p`
 	font-size: 12px;
-	margin: 5px 0 0 0;
+	margin: 10px 0 0 0;
 	font-weight: 500;
 	float: left;
 	border: 1px solid #ccc;
@@ -76,7 +70,7 @@ const ReviewImage = styled.img`
 	max-height: 80px;
 	max-width: 80px;
 	float: left;
-	margin-top: 5;
+	margin-top: 10px;
 `;
 
 const calculateWriteTime = (inputTime, nowTime) => {
@@ -91,7 +85,7 @@ const calculateWriteTime = (inputTime, nowTime) => {
 };
 
 const TopReviewItem = ({ nowReview }) => {
-	const { reviewId, writer, madeTime, comment, rate, imgLink, menuName } =
+	const { writer, madeTime, comment, rate, imgLink, menuName } =
 		nowReview;
 
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -115,14 +109,9 @@ const TopReviewItem = ({ nowReview }) => {
 						{calculateWriteTime(targetTime, madeTime)}
 					</span>
 				</ReviewItemProfile>
-				<DropDownContainer>
-					<DropDown targetId={reviewId} />
-				</DropDownContainer>
 			</div>
-			<div className="Row2" style={{ width: "100%" }}>
+			<div className="Row2" style={{ width: "100%", display: "inline-block" }}>
 				<ReviewItemComment>{comment}</ReviewItemComment>
-			</div>
-			<div className="Row3" style={{ width: "100%", marginBottom: "10px" }}>
 				{imgLink === "" ? null : (
 					<ReviewImage
 						src={
@@ -134,10 +123,12 @@ const TopReviewItem = ({ nowReview }) => {
 					/>
 				)}
 			</div>
-			<MenuName>
-				{menuName}&nbsp;
-				<FontAwesomeIcon icon={faSpoon} />
-			</MenuName>
+			<div className="Row3" style={{ width: "100%" }}>
+				<MenuName>
+					{menuName}&nbsp;
+					<FontAwesomeIcon icon={faSpoon} />
+				</MenuName>
+			</div>
 		</ReviewItemContainer>
 	);
 };
