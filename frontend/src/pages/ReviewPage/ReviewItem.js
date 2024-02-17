@@ -54,11 +54,11 @@ const ReviewItemStar = styled.span`
 `;
 
 const ReviewItemContent = styled.p`
-	width: 70%;
+	width: 100%;
 	font-size: 14px;
 	font-weight: 400;
-	margin: 5px 0;
-	float: left;
+	margin: 5px 0 0 0;
+	white-space: pre-wrap;
 `;
 
 const RestaurantName = styled.p`
@@ -101,7 +101,7 @@ const DeptName = styled.p`
 
 const MenuName = styled.p`
 	font-size: 12px;
-	margin: 5px 0 0 0;
+	margin: 10px 0 0 0;
 	font-weight: 500;
 	float: left;
 	border: 1px solid #ccc;
@@ -113,7 +113,7 @@ const ReviewImage = styled.img`
 	max-height: 80px;
 	max-width: 80px;
 	float: left;
-	margin-top: 5;
+	margin-top: 10px;
 	cursor: zoom-in;
 `;
 
@@ -236,9 +236,13 @@ const ReviewItem = ({
 							</span>
 						</div>
 					</ReviewItemProfile>
-					<div style={{position: "relative",float: "right", marginLeft: 5}} >
-						<DropDown targetId={reviewId} />
-					</div>
+					{
+						token_id ? (
+							<div style={{position: "relative", float: "right", marginLeft: 5}} >
+								<DropDown targetId={reviewId} />
+							</div>
+						) : null
+					}
 					{isTotal && (
 						<div style={{ float: "right", width: "45%" }}>
 							<RestaurantName>
@@ -263,10 +267,7 @@ const ReviewItem = ({
 						</div>
 					)}
 				</div>
-				<div
-					className="Row2"
-					style={{ float: "left", width: "100%", marginTop: 5 }}
-				>
+				<div className="Row2" style={{ width: "100%", display: "inline-block" }}>
 					<ReviewItemContent>{content}</ReviewItemContent>
 					{img === "" ? null : (
 						<ReviewImage
