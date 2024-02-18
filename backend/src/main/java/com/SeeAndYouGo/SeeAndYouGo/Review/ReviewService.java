@@ -2,9 +2,11 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +22,10 @@ import java.util.stream.Stream;
 public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final MenuService menuService;
+    private final MenuRepository menuRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
+    private final RestaurantService restaurantService;
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
@@ -33,13 +37,22 @@ public class ReviewService {
 
         review.setRestaurant(restaurant);
         Dept changeStringToDept = Dept.valueOf(dept);
-        Menu menu;
-        menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
+        Menu menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
+        menu.updateRate(review.getReviewRate());
+        menuRepository.save(menu);
+
+        // 리뷰가 작성된다면 해당 메뉴의 평점을 갱신해야한다.
         review.setMenu(menu);
         reviewRepository.save(review);
+
+        restaurant.updateTotalRate();
+
         return review.getId();
     }
 
+    /**
+     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
+     */
     private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
         if(restaurant.getName().contains("1")){
             for (Menu menu : restaurant.getMenuList()) {
@@ -109,7 +122,7 @@ public class ReviewService {
     }
 
     public List<Review> findReviewsByWriter(String userEmail) {
-        return reviewRepository.findByWriterEmail(userEmail);
+        return reviewRepository.findByWriterEmailOrderByMadeTimeDesc(userEmail);
     }
 
     /**

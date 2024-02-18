@@ -1,11 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,12 +11,19 @@ public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
-    @GetMapping("/reviewRateAverage/{restaurant}")
-    public ResponseEntity<RestaurantRateResponseDto> restaurantMenuDay(@PathVariable("restaurant") String place) {
-        String date = LocalDate.now().toString();
-        List<Restaurant> restaurants = restaurantService.findAllRestaurantByDate(place, date);
+//    @GetMapping("/reviewRateAverage/{restaurant}")
+//    public ResponseEntity<RestaurantRateResponseDto> restaurantMenuDay(@PathVariable("restaurant") String place) {
+//        String date = LocalDate.now().toString();
+//        List<Restaurant> restaurants = restaurantService.findAllRestaurantByDate(place, date);
+//
+//        RestaurantRateResponseDto restaurantRateResponseDto = new RestaurantRateResponseDto(restaurants);
+//        return ResponseEntity.ok(restaurantRateResponseDto);
+//    }
 
-        RestaurantRateResponseDto restaurantRateResponseDto = new RestaurantRateResponseDto(restaurants);
-        return ResponseEntity.ok(restaurantRateResponseDto);
+    @GetMapping("/restaurant/{restaurantNumber}/rate/main")
+    public RestaurantTotalRateResponseDto getTotalRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
+        return restaurantService.getTotalRestaurantRate(restaurantNumber);
     }
+
+
 }

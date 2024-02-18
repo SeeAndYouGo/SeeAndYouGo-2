@@ -100,6 +100,7 @@ public class RestaurantService {
             JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
             for (JsonElement menuJson : menuNameArray) {
                 String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
+                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
                 Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
 
                 if (dishRepository.findByName(name) == null) {
@@ -113,7 +114,7 @@ public class RestaurantService {
                 Menu menu = Menu.builder()
                                 .price(price)
                                 .date(date.toString())
-                                .dept(Dept.STUDENT)
+                                .dept(dept)
                                 .menuType(MenuType.LUNCH)
                                 .restaurant(restaurant)
                                 .build();
@@ -131,5 +132,13 @@ public class RestaurantService {
 
     public boolean existWeekRestaurant(LocalDate nearestMonday) {
         return restaurantRepository.existsByDate(nearestMonday.toString());
+    }
+
+    public RestaurantTotalRateResponseDto getTotalRestaurantRate(Integer restaurantNumber) {
+        String restaurantName = parseRestaurantName(String.valueOf(restaurantNumber));
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.of(2024,2,19).toString()).get(0);
+        return RestaurantTotalRateResponseDto.builder()
+                .totalAvgRate(restaurant.getRestaurantRate())
+                .build();
     }
 }

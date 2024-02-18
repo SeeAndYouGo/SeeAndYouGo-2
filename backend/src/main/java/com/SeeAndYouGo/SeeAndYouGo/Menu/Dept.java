@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 public enum Dept {
-    STUDENT, STAFF, SPECIAL;
+    STUDENT, STAFF, SPECIAL, NOODLE, WESTERN, SNACK, KOREAN, JAPANESE, CHINESE;
 
     public static Dept changeStringToDept(String name){
         if(name.contains("학생")) return Dept.STUDENT;
