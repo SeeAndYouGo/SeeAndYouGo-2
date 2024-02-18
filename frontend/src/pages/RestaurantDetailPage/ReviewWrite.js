@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import axios from "axios";
+import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
@@ -151,7 +152,7 @@ const ReviewImageDelete = styled.div`
 	}
 `;
 
-const NotLogin = styled.div`
+const WriteImpossible = styled.div`
 	position: absolute;
 	width: 100%;
 	height: 100%;
@@ -166,6 +167,7 @@ const NotLogin = styled.div`
 	justify-content: center;
 	font-size: 20px;
 	text-decoration: underline;
+	cursor: default;
 `;
 
 const GoToLogin = styled.span`
@@ -188,6 +190,12 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	const dispatch = useDispatch();
 
 	const token = useSelector((state) => state.user.value.token);
+
+	const todayDate = moment().toDate(); // 현재 날짜 utc 시간
+	const myValue = 9; // 한국 시간으로 변환하기 위한 값, local에서 실행하는 시간으로 조정하고 싶으면 이 값을 0으로 조정하면 됩니다.
+	const localDateValue = moment(todayDate).add(myValue, 'hours').format('LLLL'); // 현재 날짜 한국 시간으로 변환
+	const todayDay = moment(new Date(localDateValue)).format("dddd"); // 현재 요일
+	const isWeekend = todayDay === "Saturday" || todayDay === "Sunday"; // 주말인지 확인
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -242,19 +250,19 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{ // 로그인 안했을 때
-				!token && (
-					<NotLogin>
-						<GoToLogin
-							onClick={() => {
-								navigator("/login-page");
-							}}
-						>
-							로그인이 필요합니다 !!
-						</GoToLogin>
-					</NotLogin>
-				)
-			}
+			{isWeekend ? ( // 주말인 경우
+				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
+			) : !token ? ( // 로그인 안한 경우
+				<WriteImpossible>
+					<GoToLogin
+						onClick={() => {
+							navigator("/login-page");
+						}}
+					>
+						로그인이 필요합니다 !!
+					</GoToLogin>
+				</WriteImpossible>
+			) : null}
 			<div style={{ width: "100%", float: "left" }}>
 				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 				<ReviewStarRating>
