@@ -109,7 +109,7 @@ public class ReviewService {
     }
 
     public List<Review> findReviewsByWriter(String userEmail) {
-        return reviewRepository.findByWriterEmail(userEmail);
+        return reviewRepository.findByWriterEmailOrderByMadeTimeDesc(userEmail);
     }
 
     /**
