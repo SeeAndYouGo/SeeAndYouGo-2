@@ -191,11 +191,13 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 
 	const token = useSelector((state) => state.user.value.token);
 
-	const todayDate = moment().toDate(); // 현재 날짜 utc 시간
-	const myValue = 9; // 한국 시간으로 변환하기 위한 값, local에서 실행하는 시간으로 조정하고 싶으면 이 값을 0으로 조정하면 됩니다.
-	const localDateValue = moment(todayDate).add(myValue, 'hours').format('LLLL'); // 현재 날짜 한국 시간으로 변환
-	const todayDay = moment(new Date(localDateValue)).format("dddd"); // 현재 요일
+	const todayDate = moment().toDate(); 
+	// const myValue = 9; // 한국 시간으로 변환하기 위한 값, local에서 실행하는 시간으로 조정하고 싶으면 이 값을 0으로 조정하면 됩니다.
+	// const localDateValue = moment(todayDate).add(myValue, 'hours').format('LLLL'); // 현재 날짜 한국 시간으로 변환
+	const todayDay = moment(new Date(todayDate)).format("dddd"); // 현재 요일
 	const isWeekend = todayDay === "Saturday" || todayDay === "Sunday"; // 주말인지 확인
+	console.log(todayDate, "현재 날짜 확인"); // 배포시 삭제
+	console.log(todayDay, "현재 요일 확인"); // 배포시 삭제
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
