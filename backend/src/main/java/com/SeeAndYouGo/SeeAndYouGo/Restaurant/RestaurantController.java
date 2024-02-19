@@ -1,7 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantDetailRateResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantTotalRateResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,5 +29,9 @@ public class RestaurantController {
         return restaurantService.getTotalRestaurantRate(restaurantNumber);
     }
 
+    @GetMapping("/restaurant/{restaurantNumber}/rate/detail")
+    public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
+        return restaurantService.getDetailRestaurantRate(restaurantNumber);
+    }
 
 }
