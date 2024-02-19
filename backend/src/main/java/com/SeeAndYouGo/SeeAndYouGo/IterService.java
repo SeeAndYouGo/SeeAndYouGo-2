@@ -2,7 +2,9 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,19 +18,14 @@ import java.util.List;
 import static java.time.DayOfWeek.*;
 
 @Service
+@RequiredArgsConstructor
 public class IterService {
     private final DishService dishService;
     private final RestaurantService restaurantService;
+    private final MenuService menuService;
     private final ConnectionService connectionService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
-
-    @Autowired
-    public IterService(DishService dishService, RestaurantService restaurantService, ConnectionService connectionService) {
-        this.dishService = dishService;
-        this.restaurantService = restaurantService;
-        this.connectionService = connectionService;
-    }
 
     @Scheduled(cron="0 0 0 * * SAT")
     @Transactional
@@ -48,6 +45,8 @@ public class IterService {
                 dishService.saveAndCacheWeekDish(1);
                 dishService.saveAndCacheWeekDish(2);
                 dishService.saveAndCacheWeekDish(3);
+
+                menuService.checkWeekMenu(nearestMonday);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
