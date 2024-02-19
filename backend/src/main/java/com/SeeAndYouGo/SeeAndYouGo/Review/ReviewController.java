@@ -151,7 +151,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
-    public ResponseEntity<ReviewDeleteResponseDto> deleteReview(
+    public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @PathVariable("token") String token){
 
@@ -169,9 +169,9 @@ public class ReviewController {
             }
 
         }catch (ArrayIndexOutOfBoundsException e){
-            return ResponseEntity.ok(responseDto);
+            return responseDto;
         }
 
-        return ResponseEntity.ok(responseDto);
+        return responseDto;
     }
 }

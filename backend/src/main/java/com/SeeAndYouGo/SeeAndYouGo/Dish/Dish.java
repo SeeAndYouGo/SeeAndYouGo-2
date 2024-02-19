@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import lombok.*;
 import javax.persistence.*;
@@ -30,5 +31,29 @@ public class Dish {
     @Override
     public String toString(){
         return name;
+    }
+
+    public double getRateByDish(){
+        List<Menu> menusByDish = new ArrayList<>();
+        for (MenuDish menuDish : menuDishes) {
+            menusByDish.add(menuDish.getMenu());
+        }
+
+        return getAvgRate(menusByDish);
+    }
+
+    private double getAvgRate(List<Menu> menusByDish) {
+        int count = 0;
+        double sum = 0.0;
+
+        for (Menu menu : menusByDish) {
+            if(menu.getRate() != 0.0){
+                count++;
+                sum+= menu.getRate();
+            }
+        }
+
+
+        return count == 0 ? 0.0 : (sum / count);
     }
 }

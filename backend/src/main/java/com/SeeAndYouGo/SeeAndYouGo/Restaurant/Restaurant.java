@@ -46,16 +46,23 @@ public class Restaurant {
         else if(name.contains("생활")) capacity = 190;
     }
 
-    private void setRestaurantRate(List<Review> reviewList){
-        Double rate = 0.0;
-        for (Review review : reviewList) {
-            rate += review.getReviewRate();
-        }
-        this.restaurantRate = rate/reviewList.size();
-    }
-
     @Override
     public String toString(){
         return name+" "+date + " " + menuList;
+    }
+
+    public void updateTotalRate() {
+        double sum = 0.0;
+        int count = 0;
+
+        for (Menu menu : this.menuList) {
+            if(menu.getRate() != 0.0) {
+                // 리뷰가 작성된 식당의 평균들을 계산해야함.
+                count++;
+                sum += menu.getRate();
+            }
+        }
+
+        this.restaurantRate = sum/count;
     }
 }
