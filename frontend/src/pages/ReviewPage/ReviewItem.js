@@ -257,7 +257,7 @@ const ReviewItem = ({
 								{restaurant}
 							</RestaurantName>
 
-							{getRestuarantIndex(restaurant) !== 1 ? (
+							{getRestuarantIndex(restaurant) === 2 || getRestuarantIndex(restaurant) === 3 ? (
 								<DeptName>
 									{dept === "STAFF"
 										? "교직원식당"
@@ -300,7 +300,10 @@ const ReviewItem = ({
 				<ReviewLike onClick={handleLike} className={like ? 'liked' : ''}>
 					<FontAwesomeIcon icon={faHeart} /> {likeCount}
 				</ReviewLike>
-				{isTotal && menuName && (
+				{
+					(
+						isTotal || (getRestuarantIndex(restaurant) === 1)
+					) && (
 					<MenuName>
 						{menuName}&nbsp;
 						<FontAwesomeIcon icon={faSpoon} />
