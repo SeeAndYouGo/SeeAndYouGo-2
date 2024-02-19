@@ -59,7 +59,7 @@ const TopReview = ({ idx, nowDept }) => {
 				<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 			) : (
 				reviewArr.map((nowData, index) => {
-					return nowDept === nowData.dept ? (
+					return idx === 1 || nowDept === nowData.dept ? (
 						<TopReviewItem key={index} nowReview={nowData} />
 					) : null;
 				})
