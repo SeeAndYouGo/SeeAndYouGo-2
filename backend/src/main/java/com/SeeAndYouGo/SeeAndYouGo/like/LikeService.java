@@ -26,6 +26,13 @@ public class LikeService {
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         User user = userRepository.findByEmail(userEmail).get(0);
 
+        if(review.getWriterEmail().equals(userEmail)){
+            return LikeResponseDto.builder()
+                    .mine(true)
+                    .like(false)
+                    .build();
+        }
+
         boolean isLike = likeRepository.countByReviewAndUser(review, user)>0? true : false;
 
         if(isLike){
@@ -46,7 +53,8 @@ public class LikeService {
         review.incrementLikeCount();
         reviewRepository.save(review);
         return LikeResponseDto.builder()
-                .isLike(true)
+                .mine(false)
+                .like(true)
                 .build();
     }
 
@@ -55,7 +63,8 @@ public class LikeService {
         review.decrementLikeCount();
         reviewRepository.save(review);
         return LikeResponseDto.builder()
-                .isLike(false)
+                .mine(false)
+                .like(false)
                 .build();
     }
 

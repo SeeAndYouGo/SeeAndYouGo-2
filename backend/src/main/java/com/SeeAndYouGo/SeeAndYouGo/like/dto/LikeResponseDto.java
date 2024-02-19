@@ -7,10 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class LikeResponseDto {
-    private boolean isLike;
+    private boolean like;
+    private boolean mine;
 
     @Builder
-    public LikeResponseDto(boolean isLike) {
-        this.isLike = isLike;
+    public LikeResponseDto(boolean like, boolean mine) {
+        this.like = like;
+        this.mine = mine;
     }
 }
