@@ -172,11 +172,12 @@ const Cafeteria = ({ idx, value }) => {
 	const [restaurant1Rate, setRestaurant1Rate] = useState(0);
 
 	useEffect(() => {
-		if (idx !== 1) return;
+			if (idx !== 1) return;
 
     const url = config.DEPLOYMENT_BASE_URL + `/restaurant/1/rate/main`;
 		axios.get(url)
 		.then((res) => {
+			console.log(res);
 			setRestaurant1Rate(res.data.totalAvgRate);
 		}).catch((err) => {
 			console.log(err);

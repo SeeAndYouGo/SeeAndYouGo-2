@@ -67,6 +67,14 @@ const ReviewItemContent = styled.p`
 	font-size: 14px;
 	font-weight: 400;
 	margin: 5px 0;
+	white-space: pre-wrap;
+`;
+
+const ReviewImage = styled.img`
+	max-height: 80px;
+	max-width: 80px;
+	float: left;
+	margin: 5px 0;
 `;
 
 const RemoveButton = styled.p`
@@ -146,14 +154,17 @@ const MyReviewItem = ({ review }) => {
 			})
 				.then((res) => res.json())
 				.then((res) => {
-					if (res.success === true) { // 리뷰 삭제 성공
+					if (res.success === true) {
+						// 리뷰 삭제 성공
 						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						window.location.reload();
-					} else { // 리뷰 삭제 권한이 없어 삭제 불가
+					} else {
+						// 리뷰 삭제 권한이 없어 삭제 불가
 						dispatch(showToast({ contents: "review", toastIndex: 2 }));
 					}
 				})
-				.catch(() => { // 리뷰 삭제 실패
+				.catch(() => {
+					// 리뷰 삭제 실패
 					dispatch(showToast({ contents: "review", toastIndex: 4 }));
 				});
 		} else {
@@ -190,19 +201,13 @@ const MyReviewItem = ({ review }) => {
 					}}
 				>
 					<RestaurantName>
-						<span
-							className={
-								"colorTag" + getRestuarantIndex(restaurant)
-							}
-						>
+						<span className={"colorTag" + getRestuarantIndex(restaurant)}>
 							●&nbsp;
 						</span>
 						{restaurant}
 					</RestaurantName>
 					{getRestuarantIndex(restaurant) !== 1 ? (
-						<DeptName>
-							{dept === "STAFF" ? "교직원식당" : "학생식당"}
-						</DeptName>
+						<DeptName>{dept === "STAFF" ? "교직원식당" : "학생식당"}</DeptName>
 					) : null}
 					<RemoveButton id="remove" onClick={removeReview}>
 						삭제
@@ -235,19 +240,13 @@ const MyReviewItem = ({ review }) => {
 				>
 					<ReviewItemContent>{comment}</ReviewItemContent>
 					{imgLink === "" ? null : (
-						<img
+						<ReviewImage
 							src={
 								config.NOW_STATUS === 0
 									? `/assets/images/${imgLink}`
 									: `${imgLink}`
 							}
 							alt="Loading.."
-							style={{
-								maxHeight: 80,
-								maxWidth: 80,
-								float: "left",
-								margin: "5px 0"
-							}}
 						/>
 					)}
 				</div>

@@ -1,5 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
+package com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto;
 
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.*;
 
 import java.util.List;

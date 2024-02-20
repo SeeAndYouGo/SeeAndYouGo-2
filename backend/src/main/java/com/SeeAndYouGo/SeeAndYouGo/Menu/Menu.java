@@ -33,6 +33,7 @@ public class Menu {
     private List<Review> reviewList = new ArrayList<>();
 
     private String date;
+    private double rate;
 
     private Long likeCount = 0L;
     @Enumerated(EnumType.STRING)
@@ -67,12 +68,23 @@ public class Menu {
         }
     }
 
+    public void addDish(Dish dish) {
+        MenuDish menuDish = new MenuDish(this, dish);
+        this.menuDishes.add(menuDish);
+        dish.getMenuDishes().add(menuDish);
+    }
+
     public List<Dish> getDishList() {
         List<Dish> dishes = new ArrayList<>();
         for(MenuDish menuDish : this.menuDishes){
             dishes.add(menuDish.getDish());
         }
         return dishes;
+    }
+
+    public double updateRate(Double reviewRate) {
+        this.rate = (this.rate+reviewRate)/(this.reviewList.size()+1);
+        return this.rate;
     }
 
 //    @Override

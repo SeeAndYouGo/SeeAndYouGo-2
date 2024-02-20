@@ -8,4 +8,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     boolean existsByDate(String date);
     Long countByNameAndDate(String name, String date);
     List<Restaurant> findByNameAndDate(String name, String date);
+
+    List<Restaurant> findAllByName(String name);
 }
