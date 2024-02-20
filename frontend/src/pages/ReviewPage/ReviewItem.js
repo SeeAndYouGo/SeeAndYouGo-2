@@ -146,21 +146,7 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 	}
 };
 
-const ReviewItem = ({
-	data, isTotal
-	// userName,
-	// restaurant,
-	// dept,
-	// time,
-	// content,
-	// img,
-	// rate,
-	// isTotal,
-	// menuName,
-	// reviewId,
-	// liked,
-	// likeCount
-}) => {
+const ReviewItem = ({ data, isTotal }) => {
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
 	const [like, setLike] = useState(false);
@@ -201,9 +187,6 @@ const ReviewItem = ({
 		} else {
 			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${data.reviewId}/${token_id}`, {
 			}).then((res) => {
-				// 내가 쓴 리뷰는 공감할 수 없는 로직이 필요합니다..!
-				// dispatch(showToast({ contents: "review", toastIndex: 9 }));
-
 				const isLike = JSON.parse(res.request.response).like;
 				if (isLike === true) { // true면 공감이 된 상태
 					setLike(false);
@@ -212,7 +195,7 @@ const ReviewItem = ({
 					setLike(true);
 					dispatch(showToast({ contents: "review", toastIndex: 8 }));
 				}
-				window.location.reload();
+				// window.location.reload();
 			}).catch(() => {
 				dispatch(showToast({ contents: "error", toastIndex: 0 }));
 			});
