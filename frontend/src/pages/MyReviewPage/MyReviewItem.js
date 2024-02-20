@@ -125,7 +125,7 @@ const StarRating = ({ rating }) => {
 	return <div style={{ display: "flex" }}>{renderStars()}</div>;
 };
 
-const MyReviewItem = ({ review }) => {
+const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 	const {
 		reviewId,
 		restaurant,
@@ -157,7 +157,10 @@ const MyReviewItem = ({ review }) => {
 					if (res.success === true) {
 						// 리뷰 삭제 성공
 						dispatch(showToast({ contents: "review", toastIndex: 3 }));
-						window.location.reload();
+						const updatedReviewArr = beforeReviewList.filter(
+							(item) => item.reviewId !== reviewId
+						);
+						setReviewList(updatedReviewArr);
 					} else {
 						// 리뷰 삭제 권한이 없어 삭제 불가
 						dispatch(showToast({ contents: "review", toastIndex: 2 }));
