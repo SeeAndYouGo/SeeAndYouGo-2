@@ -233,7 +233,7 @@ const Cafeteria = ({ idx, value }) => {
 				{idx === 1 ? (
 					<span style={{ fontSize: 11, fontWeight: 400,fontWeight: 300}}>
 						<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
-						{restaurant1Rate}
+						{restaurant1Rate.toFixed(1)}
 					</span> 
 				) : null}
 

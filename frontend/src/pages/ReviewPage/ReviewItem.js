@@ -54,11 +54,11 @@ const ReviewItemStar = styled.span`
 `;
 
 const ReviewItemContent = styled.p`
-	width: 70%;
+	width: 100%;
 	font-size: 14px;
 	font-weight: 400;
-	margin: 5px 0;
-	float: left;
+	margin: 5px 0 0 0;
+	white-space: pre-wrap;
 `;
 
 const RestaurantName = styled.p`
@@ -90,7 +90,6 @@ const RestaurantName = styled.p`
 const DeptName = styled.p`
 	margin: 2px 0 0 0;
 	text-align: center;
-	// background-color: rgba(0, 0, 0, 0.3);
 	color: #999;
 	border-radius: 5px;
 	font-size: 11px;
@@ -101,7 +100,7 @@ const DeptName = styled.p`
 
 const MenuName = styled.p`
 	font-size: 12px;
-	margin: 5px 0 0 0;
+	margin: 10px 0 0 0;
 	font-weight: 500;
 	float: left;
 	border: 1px solid #ccc;
@@ -113,7 +112,7 @@ const ReviewImage = styled.img`
 	max-height: 80px;
 	max-width: 80px;
 	float: left;
-	margin-top: 5;
+	margin-top: 10px;
 	cursor: zoom-in;
 `;
 
@@ -121,7 +120,6 @@ const ReviewLike = styled.div`
 	position: absolute;
 	bottom: 15px;
 	right: 15px;
-	// float: right;
 	border: solid 1px #d9d9d9;
 	border-radius: 10px;
 	padding: 1px 8px 0 8px;
@@ -146,10 +144,28 @@ const CalculateWriteTime = (inputTime, nowTime) => {
 	}
 };
 
-const ReviewItem = ({ data, isTotal }) => {
+const ReviewItem = ({
+	review,
+	isTotal,
+	wholeReviewList,
+	setWholeReviewList,
+}) => {
+	const {
+		reviewId,
+		restaurant,
+		dept,
+		writer,
+		menuName,
+		madeTime,
+		rate,
+		comment,
+		imgLink,
+		likeCount,
+		like,
+	} = review;
 	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
 	const targetTime = moment(tempTargetTime);
-	const [like, setLike] = useState(false);
+	const [likeState, setLikeState] = useState(false);
 	const [imgVisible, setImgVisible] = useState(false);
   const user = useSelector((state) => state.user.value);
 	const token_id = user.token;
@@ -173,29 +189,32 @@ const ReviewItem = ({ data, isTotal }) => {
 	};
 
 	useEffect(() => {
-		setLike(data.like);
-	}, [data.like]);
-
-	useEffect(() => {
-		console.log(like)
+		setLikeState(like);
 	}, [like]);
+
+	// useEffect(() => {
+	// 	console.log(likeState)
+	// }, [likeState]);
 
 	const handleLike = () => {
 		if (user.loginState === false) { // 로그인 안되어있을 때
 			dispatch(showToast({ contents: "login", toastIndex: 0 }));
 			return;
 		} else {
-			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${data.reviewId}/${token_id}`, {
+			axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
 			}).then((res) => {
+				// 내가 쓴 리뷰는 공감할 수 없는 로직이 필요합니다..!
+				// dispatch(showToast({ contents: "review", toastIndex: 9 }));
+
 				const isLike = JSON.parse(res.request.response).like;
 				if (isLike === true) { // true면 공감이 된 상태
-					setLike(false);
+					setLikeState(false);
 					dispatch(showToast({ contents: "review", toastIndex: 7 }));
 				} else { // false면 공감 취소된 상태
-					setLike(true);
+					setLikeState(true);
 					dispatch(showToast({ contents: "review", toastIndex: 8 }));
 				}
-				// window.location.reload();
+				window.location.reload();
 			}).catch(() => {
 				dispatch(showToast({ contents: "error", toastIndex: 0 }));
 			});
@@ -209,37 +228,43 @@ const ReviewItem = ({ data, isTotal }) => {
 						<FontAwesomeIcon icon={faCircleUser} />
 					</ReviewItemIcon>
 					<ReviewItemProfile>
-						<p>{data.writer}</p>
+						<p>{writer}</p>
 						<div style={{ marginTop: 2 }}>
 							<ReviewItemStar style={{ fontWeight: 500 }}>
 								<FontAwesomeIcon icon={solidStar} />
-								{data.rate % 1 === 0 ? data.rate + ".0" : data.rate}
+								{rate % 1 === 0 ? rate + ".0" : rate}
 							</ReviewItemStar>
 							<span style={{ fontWeight: 400 }}>
-								{CalculateWriteTime(targetTime, data.madeTime)}
+								{CalculateWriteTime(targetTime, madeTime)}
 							</span>
 						</div>
 					</ReviewItemProfile>
-					<div style={{position: "relative",float: "right", marginLeft: 5}} >
-						<DropDown targetId={data.reviewId} />
-					</div>
+					{
+						token_id ? (
+							<div style={{position: "relative", float: "right", marginLeft: 5}} >
+								<DropDown targetId={reviewId} 
+								targetRestaurant={getRestuarantIndex(restaurant)}
+								wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+							</div>
+						) : null
+					}
 					{isTotal && (
 						<div style={{ float: "right", width: "45%" }}>
 							<RestaurantName>
 								<span
 									className={
 										"colorTag" +
-										getRestuarantIndex(data.restaurant)
+										getRestuarantIndex(restaurant)
 									}
 								>
 									●&nbsp;
 								</span>
-								{data.restaurant}
+								{restaurant}
 							</RestaurantName>
 
-							{getRestuarantIndex(data.restaurant) !== 1 ? (
+							{getRestuarantIndex(restaurant) === 2 || getRestuarantIndex(restaurant) === 3 ? (
 								<DeptName>
-									{data.dept === "STAFF"
+									{dept === "STAFF"
 										? "교직원식당"
 										: "학생식당"}
 								</DeptName>
@@ -247,17 +272,14 @@ const ReviewItem = ({ data, isTotal }) => {
 						</div>
 					)}
 				</div>
-				<div
-					className="Row2"
-					style={{ float: "left", width: "100%", marginTop: 5 }}
-				>
-					<ReviewItemContent>{data.comment}</ReviewItemContent>
-					{data.imgLink === "" ? null : (
+				<div className="Row2" style={{ width: "100%", display: "inline-block" }}>
+					<ReviewItemContent>{comment}</ReviewItemContent>
+					{imgLink === "" ? null : (
 						<ReviewImage
 							src={
 								config.NOW_STATUS === 0
-									? `/assets/images/${data.imgLink}`
-									: `${data.imgLink}`
+									? `/assets/images/${imgLink}`
+									: `${imgLink}`
 							}
 							alt="Loading.."
 							onClick={() => {
@@ -274,22 +296,24 @@ const ReviewItem = ({ data, isTotal }) => {
 						<ModalImageZoom
 							imgLink={
 								config.NOW_STATUS === 0
-									? `/assets/images/${data.img}`
-									: `${data.img}`
+									? `/assets/images/${imgLink}`
+									: `${imgLink}`
 							}
 						/>
 					</Modal>
 				</div>
-				<ReviewLike onClick={handleLike} className={like ? 'liked' : ''}>
-					<FontAwesomeIcon icon={faHeart} /> {data.likeCount}
+				<ReviewLike onClick={handleLike} className={likeState ? 'liked' : ''}>
+					<FontAwesomeIcon icon={faHeart} /> {likeCount}
 				</ReviewLike>
-				{isTotal && data.menuName && (
+				{
+					(
+						isTotal || (getRestuarantIndex(restaurant) === 1)
+					) && (
 					<MenuName>
-						{data.menuName}&nbsp;
+						{menuName}&nbsp;
 						<FontAwesomeIcon icon={faSpoon} />
 					</MenuName>
 				)}
-
 			</ReviewItemContainer>
 	);
 };

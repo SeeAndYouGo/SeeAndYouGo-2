@@ -28,7 +28,7 @@ const GoToLogin = styled.span`
 `;
 
 const MyReviewPage = () => {
-	const [reviewArr, setReviewArr] = useState([]);
+	const [reviewList, setReviewList] = useState([]);
 	const navigator = useNavigate();
 	const nowToken = useSelector((state) => state.user.value.token);
 
@@ -48,7 +48,7 @@ const MyReviewPage = () => {
 			return result;
 		};
 		fetchData().then((result) => {
-			setReviewArr(result);
+			setReviewList(result);
 		});
 	}, [nowToken]);
 
@@ -63,15 +63,20 @@ const MyReviewPage = () => {
 						</p>
 					</div>
 					<p style={{ margin: "10px 10px 5px" }}>
-						내가 작성한 총 리뷰 {reviewArr ? reviewArr.length : 0}개
+						내가 작성한 총 리뷰 {reviewList ? reviewList.length : 0}개
 					</p>
-					{reviewArr.length === 0 ? (
+					{reviewList.length === 0 ? (
 						<p key={0} style={{ textAlign: "center" }}>
 							첫 리뷰를 작성해보세요!
 						</p>
 					) : (
-						reviewArr.map((nowReview) => (
-							<MyReviewItem key={nowReview.reviewId} review={nowReview} />
+						reviewList.map((nowReview) => (
+							<MyReviewItem
+								key={nowReview.reviewId}
+								review={nowReview}
+								beforeReviewList={reviewList}
+								setReviewList={setReviewList}
+							/>
 						))
 					)}
 					<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>

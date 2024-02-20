@@ -105,7 +105,6 @@ const MenuInfoForRestaurant1 = () => {
 			{menuArray.map((nowList, index1) => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((val) => (
-					console.log("val:", val),
 						<InnerList key={val[0]}>
 							<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 5, fontWeight: 300}}>
 								<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />

@@ -66,7 +66,12 @@ const NoReviewMessage = styled.p`
 	border-radius: 20px;
 `;
 
-const ReviewList = ({ idx, nowReviewList }) => {
+const ReviewList = ({
+	idx,
+	nowReviewList,
+	wholeReviewList,
+	setWholeReviewList,
+}) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
@@ -129,7 +134,6 @@ const ReviewList = ({ idx, nowReviewList }) => {
 					<option value="lowRate">별점 낮은순</option>
 					<option value="highRate">별점 높은순</option>
 				</SortingSelect>
-
 				{review.length === 0 ? (
 					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 				) : (
@@ -139,9 +143,11 @@ const ReviewList = ({ idx, nowReviewList }) => {
 						}
 						return (
 							<ReviewItem
-								data={nowReview}
+								review={nowReview}
 								key={nowIndex}
 								isTotal={idx === 0 ? true : false}
+								wholeReviewList={wholeReviewList}
+								setWholeReviewList={setWholeReviewList}
 							/>
 						);
 					})
