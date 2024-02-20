@@ -89,9 +89,7 @@ const MenuInfoForRestaurant1 = () => {
     const url = config.DEPLOYMENT_BASE_URL + `/restaurant/1/rate/detail`;
 		axios.get(url)
 		.then((res) => {
-			res.data.map((val, idx) => {
-				Restaurant1MenuList[idx].menuList = val.avgRateByMenu;
-			});
+			res.data.map((val, idx) => Restaurant1MenuList[idx].menuList = val.avgRateByMenu);
 			setMenuArray(Restaurant1MenuList);
 		}).catch((err) => {
 			console.log(err);
@@ -105,7 +103,7 @@ const MenuInfoForRestaurant1 = () => {
 			{menuArray.map((nowList, index1) => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((val) => (
-						<InnerList key={val[0]}>
+						<InnerList key={val.menuName}>
 							<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 5, fontWeight: 300}}>
 								<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
 								{val.averageRate.toFixed(1)}
