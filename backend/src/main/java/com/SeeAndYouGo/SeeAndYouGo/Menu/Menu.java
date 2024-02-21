@@ -86,14 +86,18 @@ public class Menu {
         this.reviewList.add(review);
         this.rate = (this.rate+review.getReviewRate())/this.reviewList.size();
 
-
         return review.getId();
     }
 
     public Long deleteReview(Review review) {
         double sum = this.rate * reviewList.size();
         this.reviewList.remove(review);
-        this.rate = (sum - review.getReviewRate())/(this.reviewList.size());
+
+        if(this.reviewList.size() == 0){
+            this.rate = 0.0;
+        }else {
+            this.rate = (sum - review.getReviewRate()) / (this.reviewList.size());
+        }
 
         return review.getId();
     }

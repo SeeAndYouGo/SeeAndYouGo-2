@@ -39,7 +39,6 @@ public class ReviewService {
         Dept changeStringToDept = Dept.valueOf(dept);
         Menu menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
         menu.addReview(review);
-        menuRepository.save(menu);
 
         // 리뷰가 작성된다면 해당 메뉴의 평점을 갱신해야한다.
         review.setMenu(menu);
