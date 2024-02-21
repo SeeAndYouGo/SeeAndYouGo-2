@@ -336,7 +336,7 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 						) : null}
 					</ReviewWriteInputWrapper>
 				</div>
-				{(starVal !== 0 && selectedMenu.value)  ? (
+				{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
 					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
 						작성
 					</ReviewWriteButton>
