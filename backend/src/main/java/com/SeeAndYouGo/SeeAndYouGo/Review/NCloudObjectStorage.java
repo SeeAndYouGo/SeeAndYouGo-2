@@ -9,15 +9,10 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.UUID;
 
 public class NCloudObjectStorage {
@@ -29,8 +24,8 @@ public class NCloudObjectStorage {
     String secretKey;
 
     public NCloudObjectStorage() {
-        this.accessKey = System.getProperty("access_key");
-        this.secretKey = System.getProperty("secret_key");
+        this.accessKey = System.getenv("ACCESS_KEY");
+        this.secretKey = System.getenv("SECRET_KEY");
     }
 
     public String imgUpload(InputStream file, String contentType) throws Exception {
