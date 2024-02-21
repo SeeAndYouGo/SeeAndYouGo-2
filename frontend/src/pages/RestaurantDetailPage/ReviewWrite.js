@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -182,7 +182,7 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
-	const [selectedMenu, setSelectedMenu] = useState("");
+	const [selectedMenu, setSelectedMenu] = useState({});
 	const [image, setImage] = useState();
 	const [imageURL, setImageURL] = useState("");
 	const imageRef = useRef(null);
@@ -218,17 +218,25 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	};
 
 	const handleSelectMenu = (value) => {
+		console.log(value);
 		setSelectedMenu(value);
 	};
 
+	useEffect(() => {
+		console.log("selectedMenu: ", selectedMenu);
+	}, [selectedMenu])
+
 	const ReviewSubmit = async (e) => {
 		e.preventDefault();
-
 		const formdata = new FormData();
 
 		formdata.append("restaurant", restaurantNum);
-		formdata.append("dept", deptNum === 1 ? "STUDENT" : "STAFF");
-		formdata.append("menuName", restaurantNum === 1 ? selectedMenu : "");
+		if (restaurantNum === 1) {
+			formdata.append("dept", selectedMenu.category);
+		} else {
+			formdata.append("dept", deptNum === 1 ? "STUDENT" : "STAFF");
+		}
+		formdata.append("menuName", restaurantNum === 1 ? selectedMenu.value : "");
 		formdata.append("rate", starVal);
 		formdata.append("writer", token);
 		formdata.append("anonymous", anonymous);
@@ -328,7 +336,7 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 						) : null}
 					</ReviewWriteInputWrapper>
 				</div>
-				{starVal !== 0 ? (
+				{(starVal !== 0 && selectedMenu.value)  ? (
 					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
 						작성
 					</ReviewWriteButton>

@@ -1,7 +1,7 @@
 [
     {
         "label": "라면",
-        "value": "라면",
+        "value": "NOODLE",
         "children": [
             {
                 "label": "일반라면",
@@ -23,7 +23,7 @@
     },
     {
         "label": "스낵",
-        "value": "스낵",
+        "value": "SNACK",
         "children": [
             {
                 "label": "고기플러스알밥",
@@ -53,7 +53,7 @@
     },
     {
         "label": "한식",
-        "value": "한식",
+        "value": "KOREAN",
         "children": [
             {
                 "label": "묵은지김치찌개",
@@ -79,7 +79,7 @@
     },
     {
         "label": "일식",
-        "value": "일식",
+        "value": "JAPANESE",
         "children": [
             {
                 "label": "치킨가라아게마요",
@@ -129,7 +129,7 @@
     },
     {
         "label": "중식",
-        "value": "중식",
+        "value": "CHINESE",
         "children": [
             {
                 "label": "차돌온면",
@@ -167,7 +167,7 @@
     },
     {
         "label": "양식",
-        "value": "양식",
+        "value": "WESTERN",
         "children": [
             {
                 "label": "등심왕돈까스",
