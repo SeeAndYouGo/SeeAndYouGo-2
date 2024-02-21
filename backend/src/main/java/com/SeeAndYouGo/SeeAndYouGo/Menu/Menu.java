@@ -82,9 +82,20 @@ public class Menu {
         return dishes;
     }
 
-    public double updateRate(Double reviewRate) {
-        this.rate = (this.rate+reviewRate)/(this.reviewList.size()+1);
-        return this.rate;
+    public Long addReview(Review review) {
+        this.reviewList.add(review);
+        this.rate = (this.rate+review.getReviewRate())/this.reviewList.size();
+
+
+        return review.getId();
+    }
+
+    public Long deleteReview(Review review) {
+        double sum = this.rate * reviewList.size();
+        this.reviewList.remove(review);
+        this.rate = (sum - review.getReviewRate())/(this.reviewList.size());
+
+        return review.getId();
     }
 
 //    @Override
