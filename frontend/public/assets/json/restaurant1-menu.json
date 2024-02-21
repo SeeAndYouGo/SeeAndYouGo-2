@@ -4,8 +4,8 @@
         "value": "NOODLE",
         "children": [
             {
-                "label": "라면",
-                "value": "라면"
+                "label": "일반라면",
+                "value": "일반라면"
             },
             {
                 "label": "떡만두라면",
