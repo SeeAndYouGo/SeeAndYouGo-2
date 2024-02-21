@@ -53,14 +53,12 @@ const ReviewItemOption = styled.span`
 	float: right;
 	margin-right: -7px;
 	color: #777;
-	// border: 2px solid #ddd;
-	// background: #eee;
 	border-radius: 10px;
 	font-size: 22px;
 	cursor: pointer;
 `;
 
-const DropDown = ({ targetId }) => {
+const DropDown = ({ targetId, targetRestaurant, wholeReviewList, setWholeReviewList }) => {
 	const [myPageIsOpen, myPageRef, myPageHandler] = useDetectClose(false);
 
 	return (
@@ -79,7 +77,9 @@ const DropDown = ({ targetId }) => {
 						<ReviewReport reportTarget={targetId} />
 					</li>
 					<li>
-						<ReviewDelete deleteTarget={targetId} />
+						<ReviewDelete deleteTarget={targetId} 
+						targetRestaurant={targetRestaurant}
+						wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList} />
 					</li>
 				</Ul>
 			</Menu>

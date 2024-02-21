@@ -9,4 +9,5 @@ public interface DishRepository extends JpaRepository<Dish, Long> {
 //    Dish findByRestaurant_NameAndNameAndDeptAndDate(String restaurantName, String mainDishName, Dept dept, String date);
     Dish findByName(String name);
 
+    int countByName(String name);
 }

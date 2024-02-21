@@ -53,6 +53,7 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => {
+			console.log(dataArray, "확인용 reviewArray");
 			return setReviewArray(dataArray)
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
@@ -99,6 +100,8 @@ const ReviewSelect = ({idx = 0}) => {
 						<ReviewList
 							idx={currentTab}
 							nowReviewList={reviewArray[currentTab]}
+							wholeReviewList={reviewArray}
+							setWholeReviewList={setReviewArray}
 						/>
 					) : currentTab > 3 ? ( // 상록회관, 생과대 탭
 						<>
@@ -108,6 +111,8 @@ const ReviewSelect = ({idx = 0}) => {
 								<ReviewList
 									idx={currentTab}
 									nowReviewList={reviewArray[currentTab]}
+									wholeReviewList={reviewArray}
+									setWholeReviewList={setReviewArray}
 								/>
 							}
 						</>
@@ -115,9 +120,11 @@ const ReviewSelect = ({idx = 0}) => {
 						// 2학, 3학 탭
 						reviewArray.length > 0 && menuArray.length > 0 &&
 						<ReviewListType2
+							idx={currentTab}
 							nowReviewList={reviewArray[currentTab]}
 							nowMenu={menuArray[currentTab - 2]}
-							idx={currentTab}
+							wholeReviewList={reviewArray}
+							setWholeReviewList={setReviewArray}
 						/>
 					)}
 				</div>

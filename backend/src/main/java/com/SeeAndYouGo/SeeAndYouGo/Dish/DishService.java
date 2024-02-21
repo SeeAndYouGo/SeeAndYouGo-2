@@ -54,7 +54,7 @@ public class DishService {
 
             // 필드 값 추출
             String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
-            restaurantName = menuService.parseRestaurantName(restaurantName);
+            restaurantName = MenuService.parseRestaurantName(restaurantName);
 
             String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
             Dept dept = Dept.changeStringToDept(deptStr);

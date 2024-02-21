@@ -8,6 +8,7 @@ const RemoveBtn = styled.span`
 	font-size: 22px;
 	top: -1px;
 	right: 7px;
+	cursor: pointer;
 `;
 
 const MyKeywordItem = ({ keyword, setKeywordList }) => {
@@ -28,11 +29,13 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 				user_id: token,
 			}),
 		});
-		if (res.ok) { // 키워드 삭제 성공
+		if (res.ok) {
+			// 키워드 삭제 성공
 			const result = await res.json();
 			setKeywordList(result.keywords);
 			dispatch(showToast({ contents: "keyword", toastIndex: 5 }));
-		} else { // 키워드 삭제 실패
+		} else {
+			// 키워드 삭제 실패
 			dispatch(showToast({ contents: "keyword", toastIndex: 6 }));
 		}
 	};
@@ -47,17 +50,9 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 				}}
 			>
 				#&nbsp;{`${keyword}`}
-				<button
-					style={{
-						backgroundColor: "transparent",
-						cursor: "pointer",
-					}}
-					onClick={handleSubmit}
-				>
-					<RemoveBtn className="material-symbols-outlined">
-						do_not_disturb_on
-					</RemoveBtn>
-				</button>
+				<RemoveBtn className="material-symbols-outlined" onClick={handleSubmit}>
+					do_not_disturb_on
+				</RemoveBtn>
 			</div>
 		</div>
 	);

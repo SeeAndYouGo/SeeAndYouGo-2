@@ -102,7 +102,13 @@ const NoReviewMessage = styled.p`
 	border-radius: 20px;
 `;
 
-const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
+const ReviewListType2 = ({
+	idx,
+	nowReviewList,
+	nowMenu,
+	wholeReviewList,
+	setWholeReviewList,
+}) => {
 	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
@@ -218,7 +224,6 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 						  })}
 				</div>
 			</div>
-
 			<div>
 				<CheckBoxInput
 					type="checkbox"
@@ -237,35 +242,8 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 					<option value="highRate">별점 높은순</option>
 				</SortingSelect>
 
-				{
-					radioValue === "STUDENT" ? (
-						review.filter((item) => item.dept === "STUDENT").length === 0 ? (
-							<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
-						) : (
-							review.map((nowReview, nowIndex) => {
-								if (isChecked && nowReview.imgLink === "") {
-									return null;
-								}
-								return radioValue === nowReview.dept ? (
-									<ReviewItem
-										userName={nowReview.writer}
-										time={nowReview.madeTime}
-										rate={nowReview.rate}
-										content={nowReview.comment}
-										img={nowReview.imgLink}
-										restaurant={nowReview.restaurant}
-										dept={nowReview.dept}
-										key={nowIndex}
-										isTotal={idx === 0 ? true : false}
-										menuName={nowReview.menuName}
-										likeCount={nowReview.likeCount}
-										liked={nowReview.like}
-										reviewId={nowReview.reviewId}
-									/>
-								) : null;
-							})
-						)
-					) : review.filter((item) => item.dept === "STAFF").length === 0 ? (
+				{radioValue === "STUDENT" ? (
+					review.filter((item) => item.dept === "STUDENT").length === 0 ? (
 						<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 					) : (
 						review.map((nowReview, nowIndex) => {
@@ -274,24 +252,31 @@ const ReviewListType2 = ({ idx, nowReviewList, nowMenu }) => {
 							}
 							return radioValue === nowReview.dept ? (
 								<ReviewItem
-									userName={nowReview.writer}
-									time={nowReview.madeTime}
-									rate={nowReview.rate}
-									content={nowReview.comment}
-									img={nowReview.imgLink}
-									restaurant={nowReview.restaurant}
-									dept={nowReview.dept}
+									review={nowReview}
 									key={nowIndex}
-									isTotal={idx === 0 ? true : false}
-									menuName={nowReview.menuName}
-									likeCount={nowReview.likeCount}
-									liked={nowReview.like}
-									reviewId={nowReview.reviewId}
+									wholeReviewList={wholeReviewList}
+									setWholeReviewList={setWholeReviewList}
 								/>
 							) : null;
 						})
 					)
-				}
+				) : review.filter((item) => item.dept === "STAFF").length === 0 ? (
+					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
+				) : (
+					review.map((nowReview, nowIndex) => {
+						if (isChecked && nowReview.imgLink === "") {
+							return null;
+						}
+						return radioValue === nowReview.dept ? (
+							<ReviewItem
+								review={nowReview}
+								key={nowIndex}
+								wholeReviewList={wholeReviewList}
+								setWholeReviewList={setWholeReviewList}
+							/>
+						) : null;
+					})
+				)}
 			</div>
 			<div className="blankSpace">&nbsp;</div>
 		</>

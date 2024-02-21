@@ -34,6 +34,11 @@ public class RestaurantService {
     private final DishRepository dishRepository;
     private Map<String, List<String>> restaurant1MenuByCategory = new HashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
     private Map<String, Integer> restaurant1MenuByPrice = new HashMap<>(); // 메뉴와 가격이 매칭되어있음.
+    private static String[] restaurants = new String[]{"1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대"};
+
+    public static String[] getRestaurantNames(){
+        return restaurants;
+    }
 
     public void setRestaurant1MenuField() {
         try {

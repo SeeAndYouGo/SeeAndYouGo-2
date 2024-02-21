@@ -8,4 +8,7 @@ import java.util.List;
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
     List<Menu> findByDateAndDeptAndRestaurantAndMenuType(String date, Dept dept, Restaurant restaurant, MenuType menuType);
+
+    List<Menu> findByRestaurantAndDate(Restaurant restaurant, String date);
+
 }

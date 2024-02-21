@@ -2,12 +2,17 @@
   "restaurantName": "1학생회관",
   "menuName": [
     {
-      "name": "라면",
+      "name": "일반라면",
       "dept": "NOODLE",
       "price": 2500
     },
     {
       "name": "떡만두라면",
+      "dept": "NOODLE",
+      "price": 3000
+    },
+    {
+      "name": "치즈라면",
       "dept": "NOODLE",
       "price": 3000
     },
@@ -140,6 +145,11 @@
       "name": "고소한팝콘",
       "dept": "JAPANESE",
       "price": 1500
+    },
+    {
+      "name": "매운겉절이",
+      "dept": "JAPANESE",
+      "price": 1000
     },
     {
       "name": "차돌온면",
