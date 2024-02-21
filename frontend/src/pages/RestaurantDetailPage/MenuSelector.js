@@ -16,10 +16,6 @@ const MenuSelectorContainer = styled.div`
 const MenuSelector = ({ onSelectMenu }) => {
 	const [menuData, setMenuData] = useState([]);
 
-	const handleMenuClick = (value) => {
-		onSelectMenu(value);
-	};
-
 	useEffect(() => {
 		const fetchData = async () => {
 			const url = "/assets/json/restaurant1-menu.json";
@@ -37,12 +33,23 @@ const MenuSelector = ({ onSelectMenu }) => {
 		});
 	}, []);
 
+	const handleMenuClick = (value) => {
+		menuData.forEach((list) => {
+			list.children.forEach((menu) => {
+				if (menu.label === value) {
+					onSelectMenu({value: value, category: list.value});
+				}
+			});
+		});
+	};
+
 	return (
 		<MenuSelectorContainer>
 			<Cascader
 				style={{ width: "100%", marginTop: 5 }}
 				placeholder="메뉴를 선택해주세요"
 				data={menuData}
+				onClean={() => onSelectMenu({})}
 				onChange={(value) => {
 					handleMenuClick(value);
 				}}

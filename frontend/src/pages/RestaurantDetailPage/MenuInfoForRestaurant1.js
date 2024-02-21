@@ -25,12 +25,6 @@ const Restaurant1MenuList = [
 		operatingTime: "11:00 ~ 14:30",
 	},
 	{
-		classification: "한식",
-		menuList: [
-		],
-		operatingTime: "11:00 ~ 14:00",
-	},
-	{
 		classification: "일식",
 		menuList: [
 		],
@@ -38,6 +32,12 @@ const Restaurant1MenuList = [
 	},
 	{
 		classification: "중식",
+		menuList: [
+		],
+		operatingTime: "11:00 ~ 14:00",
+	},
+	{
+		classification: "한식",
 		menuList: [
 		],
 		operatingTime: "11:00 ~ 14:00",
