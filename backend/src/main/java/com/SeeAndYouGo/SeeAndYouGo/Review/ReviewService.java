@@ -38,8 +38,7 @@ public class ReviewService {
         review.setRestaurant(restaurant);
         Dept changeStringToDept = Dept.valueOf(dept);
         Menu menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
-        menu.updateRate(review.getReviewRate());
-        menuRepository.save(menu);
+        menu.addReview(review);
 
         // 리뷰가 작성된다면 해당 메뉴의 평점을 갱신해야한다.
         review.setMenu(menu);
@@ -116,7 +115,10 @@ public class ReviewService {
     @Transactional
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
+
+        review.getMenu().deleteReview(review);
         reviewRepository.deleteById(reviewId);
+
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
     }
@@ -137,6 +139,8 @@ public class ReviewService {
 
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
+
+            review.getRestaurant().updateTotalRate();
             return true;
         }
 

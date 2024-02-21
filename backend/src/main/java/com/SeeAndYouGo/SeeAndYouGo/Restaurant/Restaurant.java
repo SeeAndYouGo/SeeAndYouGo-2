@@ -27,6 +27,7 @@ public class Restaurant {
     private String date;
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Connection> connectionList = new ArrayList<>();
+
     private Double restaurantRate = 0.0;
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Review> reviewList = new ArrayList<>();
@@ -63,6 +64,6 @@ public class Restaurant {
             }
         }
 
-        this.restaurantRate = sum/count;
+        this.restaurantRate = count == 0 ? 0 : sum/count;
     }
 }
