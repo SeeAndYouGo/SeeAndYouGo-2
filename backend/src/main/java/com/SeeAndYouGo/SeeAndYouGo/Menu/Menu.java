@@ -102,6 +102,18 @@ public class Menu {
         return review.getId();
     }
 
+    public Dish getMainDish() {
+        for (MenuDish menuDish : menuDishes) {
+            Dish dish = menuDish.getDish();
+            if(dish.getDishType().equals(DishType.MAIN)){
+                return dish;
+            }
+        }
+
+        return null;
+    }
+
+
 //    @Override
 //    public String toString(){
 //        return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();

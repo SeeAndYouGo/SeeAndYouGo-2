@@ -67,9 +67,7 @@ public class ReviewController {
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         for (String restaurantName : restaurantNames) {
             List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
-            for (Review restaurantReview : restaurantReviews) {
-                allReviews.add(restaurantReview);
-            }
+            allReviews.addAll(restaurantReviews);
         }
 
         return ResponseEntity.ok(getReviewDtos(allReviews, userEmail));

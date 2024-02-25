@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
+import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -53,7 +54,16 @@ public class Dish {
             }
         }
 
-
         return count == 0 ? 0.0 : (sum / count);
+    }
+
+
+    public List<Review> getReviews() {
+        List<Review> reviewsByDish = new ArrayList<>();
+        for (MenuDish menuDish : menuDishes) {
+            reviewsByDish.addAll(menuDish.getMenu().getReviewList());
+        }
+
+        return reviewsByDish;
     }
 }

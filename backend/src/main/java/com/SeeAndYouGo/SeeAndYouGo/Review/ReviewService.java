@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
@@ -12,9 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,10 +26,9 @@ import java.util.stream.Stream;
 public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final MenuService menuService;
-    private final MenuRepository menuRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
-    private final RestaurantService restaurantService;
+    static private final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
@@ -66,44 +69,132 @@ public class ReviewService {
         throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
     }
 
-    public List<Review> findAllReviews(String date) {
-        return reviewRepository.findAllByMadeTime(date);
-    }
-
-    @Transactional
-    public void increaseLikeCount(Long reviewId) {
-        Review review = reviewRepository.getReferenceById(reviewId);
-        if (review == null) {
-            throw new IllegalArgumentException("Review not found for ID: " + reviewId);
-        }
-        review.setLikeCount(review.getLikeCount() + 1);
-    }
-
-    @Transactional
-    public void updateReviewContent(Long reviewId, String newContent) {
-        Review review = reviewRepository.getReferenceById(reviewId);
-        if (review == null) {
-            throw new IllegalArgumentException("Review not found for ID: " + reviewId);
-        }
-        review.setComment(newContent);
-    }
-
+    /**
+     * top-review는 각 DEPT 별로 3개씩의 review를 불러온다.
+     * 여기서 1학생회관은 모든 DEPT를 STUDENT로 취급한다. 즉, 모든 메뉴에서 딱 3개만 불러오기
+     */
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
+        List<Review> restaurantReviews = findRestaurantReviews(restaurantName, date);
+        // 시간순으로 최근꺼가 먼저 오게 정렬하여 3개만 가져오자.
+        sortReviewsByDate(restaurantReviews);
 
-        if (restaurantName.equals("2학생회관") || restaurantName.equals("3학생회관")) {
-            List<Review> reviewsOfStaff = reviewRepository.findTop3ByRestaurantDeptOrderByMadeTimeDesc(restaurantName, date, Dept.STAFF)
-                    .stream().limit(3).collect(Collectors.toList());
-            List<Review> reviewsOfStudent = reviewRepository.findTop3ByRestaurantDeptOrderByMadeTimeDesc(restaurantName, date, Dept.STUDENT)
-                    .stream().limit(3).collect(Collectors.toList());
-            return Stream.of(reviewsOfStaff, reviewsOfStudent)
-                                        .flatMap(x -> x.stream())
-                                        .collect(Collectors.toList());
-        }
-        return reviewRepository.findTop3ByRestaurantNameAndMadeTimeStartingWithOrderByMadeTimeDesc(restaurantName, date);
+        List<Review> studentReviews = new ArrayList<>();
+        List<Review> staffReviews = new ArrayList<>();
+
+        splitStudentAndStaff(restaurantReviews, studentReviews, staffReviews);
+
+        List<Review> result = new ArrayList<>();
+        addReviewsByTopReviewRule(result, studentReviews);
+        addReviewsByTopReviewRule(result, staffReviews);
+
+        return result;
     }
 
-    public List<Review> findRestaurantReviews(String restaurant, String date) {
-        return reviewRepository.findReviewsByRestaurantAndDate(restaurant, date);
+    /**
+     * top-review 정책에 의해서 각 review를 알맞게 result에 담는다.
+     */
+    private void addReviewsByTopReviewRule(List<Review> result, List<Review> reviews) {
+        int count = 0;
+
+        for (Review review : reviews) {
+            if(count > TOP_REVIEW_NUMBER_OF_CRITERIA) return;
+
+            result.add(review);
+            count++;
+        }
+    }
+
+    public void splitStudentAndStaff(List<Review> restaurantReviews, List<Review> studentReviews, List<Review> staffReviews) {
+        for (Review review : restaurantReviews) {
+            if(review.getMenu().getDept().equals(Dept.STAFF)){
+                staffReviews.add(review);
+                continue;
+            }
+
+            studentReviews.add(review);
+        }
+    }
+
+    private void sortReviewsByDate(List<Review> reviews) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Collections.sort(reviews, new Comparator<Review>() {
+            // 가장 최신꺼가 가장 위로 온다!!
+            @Override
+            public int compare(Review o1, Review o2) {
+
+                LocalDateTime o1Time = LocalDateTime.parse(o1.getMadeTime(), formatter);
+                LocalDateTime o2Time = LocalDateTime.parse(o2.getMadeTime(), formatter);
+
+                if(o1Time.isEqual(o2Time)){
+                    return 0;
+                }else if(o1Time.isBefore(o2Time)){
+                    return 1;
+                }else {
+                    return -1;
+                }
+
+            }
+        });
+    }
+
+    public List<Review> findRestaurantReviews(String restaurantName, String date) {
+        restaurantName = MenuService.parseRestaurantName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+
+        List<Review> reviews = new ArrayList<>();
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
+
+        reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
+
+        if(restaurantName.contains("2") || restaurantName.contains("3")) {
+            // 2학과 3학은 STAFF가 있으므로 이 review까지 더해준다.
+            reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STAFF));
+        }
+
+        return reviews;
+    }
+
+    /**
+     * restaurant의 mainMenu 기준으로 동일한 학생식당의 과거 같은 mainDish에 달린 review들까지 모조리 불러온다.
+     */
+    public List<Review> getReviewsByRestaurantAndMainDishAndDept(String restaurantName, Restaurant restaurant, Dept dept) {
+        List<Review> result = new ArrayList<>();
+        for (Menu menu : restaurant.getMenuList()) {
+            // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
+            if(deptFilter(dept, menu.getDept())) continue;
+            Dish mainDish = menu.getMainDish();
+
+            if(mainDish == null) continue;
+
+            // mainDish가 같아도 restaurant이 다를 수 있으니, 같은 restaurant만 넣어주자.
+            for (Review review : mainDish.getReviews()) {
+                if(restaurantName.equals(review.getRestaurant().getName())){
+                    result.add(review);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * standard의 dept가 STUDENT이면 target이 JAPANESE와 같은 1학의 카테고리들이거나 STUDENT일 때 true로 반환하고,
+     * STAFF이면 오직 STAFF만 반환하는 메서드
+     * @return
+     */
+    public boolean deptFilter(Dept standard, Dept target){
+        if(standard.equals(Dept.STUDENT)){
+            if(target.equals(Dept.STAFF)) return true;
+            return false;
+        }
+
+        // STUDENT가 아니라면 STAFF일 것이다.
+        if(standard.equals(Dept.STAFF)){
+            if(target.equals(Dept.STAFF)) return false;
+            return true;
+        }
+
+        // 만약 STUDENT와 STAFF가 아닌 다른 DEPT가 stadard에 왔다면 잘못된 호출이다.
+        throw new IllegalArgumentException("standard에는 STUDENT와 STAFF만 올 수 있습니다.");
     }
 
     @Transactional
