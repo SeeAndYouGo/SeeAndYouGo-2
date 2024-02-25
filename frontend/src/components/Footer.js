@@ -22,15 +22,28 @@ const ContentWrapper = styled.div`
   }
 `;
 
+const FooterMail = styled.p`
+  color: #ddd;
+  font-size: 12px;
+  float: left;
+  left: 50%;
+  transform: translateX(-50%);
+  position: relative;
+  & > span {
+    font-size: 15px;
+    float: left;
+    margin-right: 5px;
+  }`;
+
 const Footer = () => {
   return(
     <FooterWrapper>
       <ContentWrapper>
-        <p style={{color: "#ddd", fontSize: 12}}>
-          <span className="material-symbols-outlined" style={{fontSize: 15, float: "left", marginRight: 5, }}>mail</span>
+        <FooterMail>
+          <span className="material-symbols-outlined">mail</span>
           skj4244@naver.com
-        </p>
-        <p style={{color: "#777", fontSize: 10, paddingTop: 5, width: "100%"}}>© 2023 SeeAndYouGo v2.0.1</p>
+        </FooterMail>
+        <p style={{color: "#777", fontSize: 10, paddingTop: 5, width: "100%", float: "left"}}>© 2023. SeeAndYouGo. All rights reserved.</p>
       </ContentWrapper>
     </FooterWrapper>
   );
