@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { changeToInitialState } from "../../redux/slice/DeptSlice";
+import { logout } from "../../redux/slice/UserSlice";
 import MenuItem from "./MenuItem";
 import * as config from "../../config";
 
@@ -29,6 +30,10 @@ const MenuInfoWith1Dept = ({ idx }) => {
 		};
 		fetchData().then((data) => {
 			setMenuData(data);
+		}).catch((err) => {
+			console.log(err);
+			dispatch(logout());
+			window.location.reload();
 		});
 	}, [idx, token, dispatch]);
 
