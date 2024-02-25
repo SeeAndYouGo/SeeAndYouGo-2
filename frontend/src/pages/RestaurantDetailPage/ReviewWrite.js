@@ -251,7 +251,6 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 			})
 			.then(() => { // 리뷰 작성 성공
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
-				window.location.reload();
 			})
 			.catch(() => { // 리뷰 작성 실패
 				dispatch(showToast({ contents: "review", toastIndex: 1 }));
