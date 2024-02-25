@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { changeDept, changeToInitialState } from "../../redux/slice/DeptSlice";
+import { logout } from "../../redux/slice/UserSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import MenuItem from "./MenuItem";
@@ -66,6 +67,10 @@ const MenuInfoWith2Dept = ({ idx }) => {
 			setStaffMenu(staffMenuData);
 			const studentMenuData = data.filter((item) => item.dept !== "STAFF");
 			setStudentMenu(studentMenuData);
+		}).catch((err) => {
+			console.log(err);
+			dispatch(logout());
+			window.location.reload();
 		});
 	}, [idx, token, dispatch]);
 

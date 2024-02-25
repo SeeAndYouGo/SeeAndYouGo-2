@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../redux/slice/UserSlice";
 import ReviewList from "./ReviewList";
 import ReviewInfo from "./ReviewInfo";
 import ReviewListType2 from "./ReviewListType2";
@@ -31,11 +32,10 @@ const TabMenu = styled.ul`
 
 const reviewTitleArray = ["전체", "1학", "2학", "3학", "상록회관", "생과대"];
 
-
-
 const ReviewSelect = ({idx = 0}) => {
 	const token_id = useSelector((state) => state.user.value.token);
 	const [currentTab, clickTab] = useState(idx);
+	const dispatch = useDispatch();
 
 	const [reviewArray, setReviewArray] = useState([]);
 	const [menuArray, setMenuArray] = useState([]);
@@ -65,8 +65,12 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => setMenuArray(dataArray))
-		.catch((error) => console.error("Error fetching JSON:", error));
-	}, []);
+		.catch((error) => {
+			console.error("Error fetching JSON:", error)
+			dispatch(logout());
+			window.location.reload();
+		});
+	}, [dispatch, token_id]);
 
 	const selectMenuHandler = (index) => {
 		clickTab(index);

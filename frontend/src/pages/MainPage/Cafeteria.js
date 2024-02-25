@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { faChevronRight, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyProgress from "./MyProgress";
+import { logout } from "../../redux/slice/UserSlice";
 import * as config from "../../config";
 
 // 2번째 Row (메뉴 이름과 가격 정보)
@@ -130,6 +131,7 @@ margin-right: 15px;
 const Cafeteria = ({ idx, value }) => {
 	const user = useSelector((state) => state.user.value);
 	const token = user.token;
+	const dispatch = useDispatch();
 
 	const CafeteriaContainer = styled.div`
 		width: 100%;
@@ -182,7 +184,7 @@ const Cafeteria = ({ idx, value }) => {
 		}).catch((err) => {
 			console.log(err);
 		});
-	}, []);
+	}, [idx]);
 
 	useEffect(() => {
 		if (value >= 66) {
@@ -221,8 +223,12 @@ const Cafeteria = ({ idx, value }) => {
 				(item) => item.dept !== "STAFF"
 			);
 			setStudentMenu(studentMenuData);
+		}).catch((err) => {
+			console.log(err);
+			dispatch(logout());
+			window.location.reload();
 		});
-	}, [value, idx, token]);
+	}, [value, idx, token, dispatch]);
 
 	return (
 		<CafeteriaContainer>
@@ -231,7 +237,7 @@ const Cafeteria = ({ idx, value }) => {
 					{nameList[idx]}
 				</CafeteriaName>
 				{idx === 1 ? (
-					<span style={{ fontSize: 11, fontWeight: 400,fontWeight: 300}}>
+					<span style={{ fontSize: 11, fontWeight: 300}}>
 						<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
 						{restaurant1Rate.toFixed(1)}
 					</span> 
