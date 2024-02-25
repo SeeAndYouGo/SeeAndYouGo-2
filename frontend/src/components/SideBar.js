@@ -55,6 +55,11 @@ const MenuList = styled.div`
     width: 100%;
     float: left;
   }
+  &.feedback {
+    width: calc(100% - 30px);
+    position: absolute;
+    bottom: 20px;
+  }
 `;
 
 const MenuName = styled.p`
@@ -124,7 +129,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
     <>
       <Background onClick={toggleMenu} className={isOpen ? 'open' : ''}></Background>
       <SideBarWrap ref={outside} className={isOpen ? 'open' : ''}>
-        <div style={{width: "100%", margin: "0 auto", padding: "0 15px"}}>
+        <div style={{width: "100%", margin: "0 auto", padding: "0 15px", position:"relative", height: "100vh"}}>
           <div style={{width: "100%", float: "left", margin: "20px 0 10px 0"}}>
             <span
               className="material-symbols-outlined"
@@ -203,6 +208,14 @@ const SideBar = ({isOpen, setIsOpen}) => {
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>info</span>
                 <span>공지사항</span>
+              </MenuName>
+            </Link>
+          </MenuList>
+          <MenuList className='feedback'>
+            <Link to="https://forms.gle/xy71uZ7gzueWcK6UA" onClick={toggleMenu} style={{marginBottom: 10}}>
+              <MenuName>
+                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat_paste_go</span>
+                <span>의견 보내기</span>
               </MenuName>
             </Link>
           </MenuList>

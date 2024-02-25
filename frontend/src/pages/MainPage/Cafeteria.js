@@ -29,15 +29,15 @@ const SecondRow = styled.div`
 // 키워드 포함된 식단 표시
 const Highlight = styled.img`
 	position: relative;
-	top: 5px;
-	left: 5px;
-	width: 30px;
-	height: 30px;
+	top: -2px;
+	width: 25px;
+	height: 25px;
+	display: flex;
 `;
 
 // dept 표시
 const Dept = styled.p`
-	padding: 1px 7px;
+	padding: 3px 7px 0px 7px;
 	margin: 0px 5px;
 	background-color: #555555;
 	color: white;
@@ -45,14 +45,15 @@ const Dept = styled.p`
 	font-size: 12px;
 	text-align: center;
 	font-weight: 400;
+	height: 20px;
 `;
 
 // 메뉴 가격 표시
 const Price = styled.label`
 	color: "#777777";
 	margin: 2px 5px;
-	font-size: 12px;
-	font-weight: 300;
+	font-size: 13px;
+	font-weight: 400;
 `;
 
 // 식당별 메인 메뉴 표시
@@ -89,14 +90,7 @@ const Menu = ({ menuDept, menuPrice, menuName, keywordList, dishList }) => {
 
 	return (
 		<div>
-			<div style={{ position: "absolute" }}>
-				{isKeyword ? (
-					<Highlight
-						src="/assets/images/highlight.png"
-						alt="highlight"
-					/>
-				) : null}
-			</div>
+
 			<div
 				style={{
 					display: "flex",
@@ -104,6 +98,12 @@ const Menu = ({ menuDept, menuPrice, menuName, keywordList, dishList }) => {
 					justifyContent: "center",
 				}}
 			>
+				{isKeyword ? (
+					<Highlight
+						src="/assets/images/highlight.png"
+						alt="highlight"
+					/>
+				) : null}
 				<Dept>{menuDept === "STAFF" ? "교직원" : "학생"}</Dept>
 				<Price>{menuPrice}</Price>
 			</div>
