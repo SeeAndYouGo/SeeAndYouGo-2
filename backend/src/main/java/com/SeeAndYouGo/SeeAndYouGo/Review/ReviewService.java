@@ -97,7 +97,7 @@ public class ReviewService {
         int count = 0;
 
         for (Review review : reviews) {
-            if(count > TOP_REVIEW_NUMBER_OF_CRITERIA) return;
+            if(count >= TOP_REVIEW_NUMBER_OF_CRITERIA) return;
 
             result.add(review);
             count++;
