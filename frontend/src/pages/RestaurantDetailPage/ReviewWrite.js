@@ -196,8 +196,8 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	// const localDateValue = moment(todayDate).add(myValue, 'hours').format('LLLL'); // 현재 날짜 한국 시간으로 변환
 	const todayDay = moment(new Date(todayDate)).format("dddd"); // 현재 요일
 	const isWeekend = todayDay === "Saturday" || todayDay === "Sunday"; // 주말인지 확인
-	console.log(todayDate, "현재 날짜 확인"); // 배포시 삭제
-	console.log(todayDay, "현재 요일 확인"); // 배포시 삭제
+	// console.log(todayDate, "현재 날짜 확인"); // 배포시 삭제
+	// console.log(todayDay, "현재 요일 확인"); // 배포시 삭제
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -218,13 +218,8 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	};
 
 	const handleSelectMenu = (value) => {
-		console.log(value);
 		setSelectedMenu(value);
 	};
-
-	useEffect(() => {
-		console.log("selectedMenu: ", selectedMenu);
-	}, [selectedMenu])
 
 	const ReviewSubmit = async (e) => {
 		e.preventDefault();
@@ -251,6 +246,9 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 			})
 			.then(() => { // 리뷰 작성 성공
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
+				setTimeout(() => {
+					window.location.reload();
+				}, 2000);
 			})
 			.catch(() => { // 리뷰 작성 실패
 				dispatch(showToast({ contents: "review", toastIndex: 1 }));

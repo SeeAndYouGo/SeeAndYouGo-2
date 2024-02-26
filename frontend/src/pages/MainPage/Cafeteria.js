@@ -179,7 +179,7 @@ const Cafeteria = ({ idx, value }) => {
     const url = config.DEPLOYMENT_BASE_URL + `/restaurant/1/rate/main`;
 		axios.get(url)
 		.then((res) => {
-			console.log(res);
+			// console.log(res);
 			setRestaurant1Rate(res.data.totalAvgRate);
 		}).catch((err) => {
 			console.log(err);
