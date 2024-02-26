@@ -53,7 +53,7 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => {
-			console.log(dataArray, "확인용 reviewArray");
+			// console.log(dataArray, "확인용 reviewArray");
 			return setReviewArray(dataArray)
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
