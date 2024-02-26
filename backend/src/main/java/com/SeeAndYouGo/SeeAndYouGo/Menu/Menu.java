@@ -110,7 +110,7 @@ public class Menu {
             }
         }
 
-        return null;
+        return menuDishes.get(0).getDish();
     }
 
 

@@ -160,7 +160,7 @@ public class ReviewService {
         List<Review> result = new ArrayList<>();
         for (Menu menu : restaurant.getMenuList()) {
             // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
-            if(deptFilter(dept, menu.getDept())) continue;
+            if(!deptFilter(dept, menu.getDept())) continue;
             Dish mainDish = menu.getMainDish();
 
             if(mainDish == null) continue;
@@ -183,13 +183,13 @@ public class ReviewService {
      */
     public boolean deptFilter(Dept standard, Dept target){
         if(standard.equals(Dept.STUDENT)){
-            if(target.equals(Dept.STAFF)) return true;
-            return false;
+            if(target.equals(Dept.STAFF)) return false;
+            return true;
         }
 
         // STUDENT가 아니라면 STAFF일 것이다.
         if(standard.equals(Dept.STAFF)){
-            if(target.equals(Dept.STAFF)) return false;
+            if(target.equals(Dept.STUDENT)) return false;
             return true;
         }
 
