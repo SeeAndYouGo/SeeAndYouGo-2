@@ -177,8 +177,8 @@ public class ReviewService {
     }
 
     /**
-     * standard의 dept가 STUDENT이면 target이 JAPANESE와 같은 1학의 카테고리들이거나 STUDENT일 때 true로 반환하고,
-     * STAFF이면 오직 STAFF만 반환하는 메서드
+     * standard의 dept가 STUDENT일때: target이 "1학 카테고리(ex: JAPANESE)" 또는 "STUDENT"일 때 true 반환
+     * standard의 dept가 STAFF일때  : target이 STAFF일 때 true 반환
      * @return
      */
     public boolean deptFilter(Dept standard, Dept target){
@@ -187,13 +187,11 @@ public class ReviewService {
             return true;
         }
 
-        // STUDENT가 아니라면 STAFF일 것이다.
         if(standard.equals(Dept.STAFF)){
             if(target.equals(Dept.STUDENT)) return false;
             return true;
         }
 
-        // 만약 STUDENT와 STAFF가 아닌 다른 DEPT가 stadard에 왔다면 잘못된 호출이다.
         throw new IllegalArgumentException("standard에는 STUDENT와 STAFF만 올 수 있습니다.");
     }
 
