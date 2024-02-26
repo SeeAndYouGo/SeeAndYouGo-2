@@ -1,27 +1,9 @@
-FROM node:18.17.1-slim
+FROM yenyeny1/seeandyougo-react:latest
 
 WORKDIR /app
 COPY . .
 
-RUN yarn install
-RUN yarn add react-router-dom
-RUN yarn add @emotion/react
-RUN yarn add --dev @emotion/babel-plugin
-RUN yarn add @emotion/styled
-RUN yarn add -D @craco/craco
-RUN yarn add -D @emotion/babel-preset-css-prop
-RUN yarn add react-star-rate
-RUN yarn add rsuite
-RUN yarn add axios
-RUN yarn add react-icons
-RUN yarn add react-ga4
-RUN yarn add redux-persist @reduxjs/toolkit react-redux 
-RUN yarn add react-spinners
-
-RUN npm install -g serve
 RUN yarn build
-
 EXPOSE 3000
 
-# CMD ["yarn", "start"]
 CMD ["serve", "-s", "build"]
