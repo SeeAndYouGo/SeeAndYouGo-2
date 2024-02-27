@@ -15,7 +15,7 @@ import * as config from "../../config";
 const ReviewItemContainer = styled.div`
   width: 100%;
   background: #fff;
-  padding: 15px;
+  padding: 10px 15px;
   border-radius: 20px;
   margin-top: 10px;
   float: left;
@@ -100,7 +100,7 @@ const DeptName = styled.p`
 
 const MenuName = styled.p`
   font-size: 12px;
-  margin: 10px 0 0 0;
+  margin: 5px 0 0 0;
   font-weight: 500;
   float: left;
   border: 1px solid #ccc;
@@ -117,9 +117,8 @@ const ReviewImage = styled.img`
 `;
 
 const ReviewLike = styled.div`
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
+  float: right;
+  margin: 5px 0 0;
   border: solid 1px #d9d9d9;
   border-radius: 10px;
   padding: 1px 8px 0 8px;
@@ -338,18 +337,20 @@ const ReviewItem = ({
             />
           </Modal>
         </div>
-        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
-          <FontAwesomeIcon icon={faHeart} /> {likeCountState}
-        </ReviewLike>
-        {
-          (
-            isTotal || (getRestuarantIndex(restaurant) === 1)
-          ) && (
-          <MenuName>
-            {menuName}&nbsp;
-            <FontAwesomeIcon icon={faSpoon} />
-          </MenuName>
-        )}
+        <div className="Row3" style={{width: "100%"}}>
+          <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
+            <FontAwesomeIcon icon={faHeart} /> {likeCountState}
+          </ReviewLike>
+          {
+            (
+              isTotal || (getRestuarantIndex(restaurant) === 1)
+            ) && (
+            <MenuName>
+              {menuName}&nbsp;
+              <FontAwesomeIcon icon={faSpoon} />
+            </MenuName>
+          )}
+        </div>
       </ReviewItemContainer>
   );
 };
