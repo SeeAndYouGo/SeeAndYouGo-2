@@ -72,9 +72,12 @@ const ReviewList = ({
 	wholeReviewList,
 	setWholeReviewList,
 }) => {
-	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
+
+	const toggleOnlyImageReviewVisiblity = () => {
+		setIsChecked(!isChecked);
+	};
 
 	const initialSetting = () => {
 		setIsChecked(false);
@@ -82,17 +85,17 @@ const ReviewList = ({
 	};
 
 	useEffect(() => {
-		nowReviewList &&
-			setReview(
-				[...nowReviewList].sort(
-					(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
-				)
-			);
 		initialSetting();
-	}, [idx, nowReviewList]);
+		const beforeReviewList = [...wholeReviewList];
+		beforeReviewList[idx] = nowReviewList.sort(sortFunctions["latest"]);
+		setWholeReviewList(beforeReviewList);
+	}, [idx]);
 
-	const toggleOnlyImageReviewVisiblity = () => {
-		setIsChecked(!isChecked);
+	const sortFunctions = {
+		latest: (a, b) => new Date(b.madeTime) - new Date(a.madeTime),
+		earliest: (a, b) => new Date(a.madeTime) - new Date(b.madeTime),
+		highRate: (a, b) => b.rate - a.rate,
+		lowRate: (a, b) => a.rate - b.rate,
 	};
 
 	// 리뷰 정렬 구현하는 곳
@@ -100,18 +103,11 @@ const ReviewList = ({
 		const selectedSortOrder = event.target.value;
 		setSortOrder(selectedSortOrder);
 
-		if (selectedSortOrder === "latest") {
-			setReview(
-				[...review].sort((a, b) => new Date(b.madeTime) - new Date(a.madeTime))
-			);
-		} else if (selectedSortOrder === "earliest") {
-			setReview(
-				[...review].sort((a, b) => new Date(a.madeTime) - new Date(b.madeTime))
-			);
-		} else if (selectedSortOrder === "highRate") {
-			setReview([...review].sort((a, b) => b.rate - a.rate));
-		} else if (selectedSortOrder === "lowRate") {
-			setReview([...review].sort((a, b) => a.rate - b.rate));
+		if (selectedSortOrder && sortFunctions[selectedSortOrder]) {
+			const sortedReview = [...nowReviewList].sort(sortFunctions[selectedSortOrder]);
+			const afterReviewList = [...wholeReviewList];
+			afterReviewList[idx] = sortedReview;
+			setWholeReviewList(afterReviewList);
 		}
 	};
 
@@ -134,10 +130,10 @@ const ReviewList = ({
 					<option value="lowRate">별점 낮은순</option>
 					<option value="highRate">별점 높은순</option>
 				</SortingSelect>
-				{review.length === 0 ? (
+				{nowReviewList.length === 0 ? (
 					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 				) : (
-					review.map((nowReview, nowIndex) => {
+					nowReviewList.map((nowReview, nowIndex) => {
 						if (isChecked && nowReview.imgLink === "") {
 							return null;
 						}

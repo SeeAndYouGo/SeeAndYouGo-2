@@ -165,12 +165,16 @@ const ReviewItem = ({
   } = review;
   const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const targetTime = moment(tempTargetTime);
-  const [likeCountState, setLikeCountState] = useState(likeCount);
+  const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
   const [imgVisible, setImgVisible] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setLikeCountState(likeCount);
+  }, [likeCount]);
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
@@ -191,20 +195,18 @@ const ReviewItem = ({
 
   useEffect(() => {
     setLikeState(!like);
-  }, []);
+  }, [like]);
 
-  const handleLike = () => {
+  const handleLike = (targetId) => {
     if (user.loginState === false) { // 로그인 안되어있을 때
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
       return;
     } else {
       axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
       }).then((res) => {
-        // 내가 쓴 리뷰는 공감할 수 없는 로직이 필요합니다..!
-        // dispatch(showToast({ contents: "review", toastIndex: 9 }));
         const isLike = res.data.like
         const isMine = res.data.mine;
-        if (isMine === true) {
+        if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
           dispatch(showToast({ contents: "review", toastIndex: 9 }));
           return;
         }
@@ -212,12 +214,44 @@ const ReviewItem = ({
         if (isLike === true) { // true면 공감이 된 상태
           dispatch(showToast({ contents: "review", toastIndex: 7 }));
           setLikeCountState(likeCountState + 1);
+          const beforeWholeReviewList = [...wholeReviewList];
+					beforeWholeReviewList[0].forEach((item) => {
+						if (item.reviewId === targetId) {
+							item.like = true;
+							item.likeCount += 1;
+							return;
+						}
+					});
+					const nowRestaurantIndex = getRestuarantIndex(restaurant);
+					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
+						if (item.reviewId === targetId) {
+							item.like = true;
+							item.likeCount += 1;
+							return;
+						}
+					});
         } else { // false면 공감 취소된 상태
           dispatch(showToast({ contents: "review", toastIndex: 8 }));
           setLikeCountState(likeCountState - 1);
+          const beforeWholeReviewList = [...wholeReviewList];
+					beforeWholeReviewList[0].forEach((item) => {
+						if (item.reviewId === targetId) {
+							item.like = false;
+							item.likeCount -= 1;
+							return;
+						}
+					});
+          const nowRestaurantIndex = getRestuarantIndex(restaurant);
+					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
+						if (item.reviewId === targetId) {
+							item.like = false;
+							item.likeCount -= 1;
+							return;
+						}
+					});
         }
-        // window.location.reload();
-      }).catch(() => {
+      }).catch((error) => {
+        console.log(error);
         dispatch(showToast({ contents: "error", toastIndex: 0 }));
       });
     }
@@ -304,7 +338,7 @@ const ReviewItem = ({
             />
           </Modal>
         </div>
-        <ReviewLike onClick={handleLike} className={likeState ? '' : 'liked'}>
+        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
           <FontAwesomeIcon icon={faHeart} /> {likeCountState}
         </ReviewLike>
         {
