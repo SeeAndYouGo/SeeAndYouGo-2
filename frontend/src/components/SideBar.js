@@ -55,11 +55,6 @@ const MenuList = styled.div`
     width: 100%;
     float: left;
   }
-  &.feedback {
-    width: calc(100% - 30px);
-    position: absolute;
-    bottom: 20px;
-  }
 `;
 
 const MenuName = styled.p`
@@ -211,7 +206,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
-          <MenuList className='feedback'>
+          <MenuList>
             <Link to="https://forms.gle/xy71uZ7gzueWcK6UA" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat_paste_go</span>
