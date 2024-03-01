@@ -45,7 +45,7 @@ public class MenuController {
         return ResponseEntity.ok(parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings));
     }
 
-    private String getTodayDate() {
+    public static String getTodayDate() {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         if(currentDate.getDayOfWeek().equals(DayOfWeek.SATURDAY)){

@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
@@ -38,7 +39,7 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
                                                                  @PathVariable(value = "token_id", required = false) String tokenId) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
-        String date = LocalDate.now().toString();
+        String date = MenuController.getTodayDate();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
         List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
@@ -62,7 +63,7 @@ public class ReviewController {
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = LocalDate.now().toString();
+        String date = MenuController.getTodayDate();;
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         for (String restaurantName : restaurantNames) {
@@ -76,7 +77,7 @@ public class ReviewController {
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = LocalDate.now().toString();
+        String date = MenuController.getTodayDate();;
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
@@ -133,7 +134,7 @@ public class ReviewController {
         review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+        review.setMadeTime(LocalDateTime.().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
