@@ -30,13 +30,8 @@ public class MenuService {
 
     public List<Menu> getOneDayRestaurantMenu(String placeName, String date) {
         String parseRestaurantName = parseRestaurantName(placeName);
-        String parsedDate = date;
-        try{
-            // 들어온 문자열이 DB 형식에 맞지 않을 때만 캐싱
-            parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd")).toString();
-        }catch(Exception e){}
 
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, parsedDate).get(0);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, date).get(0);
         List<Menu> menus = extractNotLunch(restaurant.getMenuList());
 
         return sortMainDish(menus);
@@ -62,7 +57,7 @@ public class MenuService {
     }
     public List<Menu>[] getOneWeekRestaurantMenu(String placeName, String date) {
         // 날짜 문자열을 파싱
-        LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate startOfWeek = parsedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
