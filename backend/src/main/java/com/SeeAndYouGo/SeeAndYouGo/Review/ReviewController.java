@@ -134,7 +134,7 @@ public class ReviewController {
         review.setComment(comment);
         review.setImgLink(imgUrl);
         review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
 
         Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
 
