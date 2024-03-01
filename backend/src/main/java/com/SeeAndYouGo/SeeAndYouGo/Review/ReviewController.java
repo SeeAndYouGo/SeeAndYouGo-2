@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,14 +35,13 @@ public class ReviewController {
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
     // 탑 리뷰 조회
-    @GetMapping(value = {"/top-review/{restaurant}/{token_id}", "/top-review/{restaurant}"})
-    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
-                                                                 @PathVariable(value = "token_id", required = false) String tokenId) {
+    // top-review api에 tokenId가 있을 필요가 없음
+    @GetMapping(value = "/top-review/{restaurant}")
+    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
         String restaurantName = menuService.parseRestaurantName(restaurant);
         String date = MenuController.getTodayDate();
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
+        List<ReviewResponseDto> response = getReviewDtos(reviews, "");
         return ResponseEntity.ok(response);
     }
 
@@ -55,15 +54,14 @@ public class ReviewController {
             }else{
                 response.add(new ReviewResponseDto(review, false));
             }
-
         }
-
         return response;
     }
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
+    @ValidateToken
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = MenuController.getTodayDate();;
+        String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         for (String restaurantName : restaurantNames) {
@@ -75,9 +73,10 @@ public class ReviewController {
     }
 
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
+    @ValidateToken
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = MenuController.getTodayDate();;
+        String date = MenuController.getTodayDate();
         String restaurantName = menuService.parseRestaurantName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
@@ -142,35 +141,34 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews/{token}")
-    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable String token){
-        String userEmail = tokenProvider.decodeToEmail(token);
+    @ValidateToken
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable("token") String tokenId){
+        String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 
         return ResponseEntity.ok(getReviewDtos(reviews, userEmail));
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
+    @ValidateToken
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
-            @PathVariable("token") String token){
+            @PathVariable("token") String tokenId){
 
         ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
                 .success(false)
                 .build();
-
         try{
-            String userEmail = tokenProvider.decodeToEmail(token);
+            String userEmail = tokenProvider.decodeToEmail(tokenId);
             boolean isWriter = reviewService.deleteReview(userEmail, reviewId);
             if(isWriter){
                 responseDto = ReviewDeleteResponseDto.builder()
                         .success(true)
                         .build();
             }
-
         }catch (ArrayIndexOutOfBoundsException e){
             return responseDto;
         }
-
         return responseDto;
     }
 }
