@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        // SecurityContext에서 허가된 URI 외에 모든 request요청은 필터를 거치고 토큰 정보가 유효하지 않으면 정상적으로 수행되지 않음
+        // SecurityContext에서 허가된 URI 외에 모든 request요청은 필터를 거침
         filterChain.doFilter(request, response);
     }
 }
