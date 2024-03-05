@@ -22,6 +22,16 @@ const TabMenu = styled.ul`
 		margin: 0 auto;
 		border-radius: 20px;
 		cursor: pointer;
+		@media (min-width: 576px) {
+			display: none;
+			padding: 4px 17px;
+		}
+	}
+	.submenu.tablet {
+		display: none;
+		@media (min-width: 576px) {
+			display: block;
+		}
 	}
 
 	.focused {
@@ -31,6 +41,7 @@ const TabMenu = styled.ul`
 `;
 
 const reviewTitleArray = ["전체", "1학", "2학", "3학", "상록회관", "생과대"];
+const tabletReviewTitleArray = ["전체", "1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대학"];
 
 const ReviewSelect = ({idx = 0}) => {
 	const token_id = useSelector((state) => state.user.value.token);
@@ -53,7 +64,6 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => {
-			// console.log(dataArray, "확인용 reviewArray");
 			return setReviewArray(dataArray)
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
@@ -84,6 +94,17 @@ const ReviewSelect = ({idx = 0}) => {
 						key={index}
 						className={
 							index === currentTab ? "submenu focused" : "submenu"
+						}
+						onClick={() => selectMenuHandler(index)}
+					>
+						{el}
+					</li>
+				))}
+				{tabletReviewTitleArray.map((el, index) => (
+					<li
+						key={index}
+						className={
+							index === currentTab ? "submenu focused tablet" : "submenu tablet"
 						}
 						onClick={() => selectMenuHandler(index)}
 					>

@@ -26,6 +26,15 @@ const HeaderWrapper = styled.div`
 	top: 0;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 `;
+const PageWrapper = styled.div`
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  margin-top: 50px;
+  @media (min-width: 576px) {
+    max-width: 992px;
+  }
+`;
 
 const App = () => {
   const toast = useSelector((state) => state.toast.value);
@@ -40,7 +49,7 @@ const App = () => {
 			<HeaderWrapper>
 				<Header />
 			</HeaderWrapper>
-      <div className="pageWrapper" style={{maxWidth:"360px", margin:"0 auto", marginTop: 50}}>
+      <PageWrapper>
         <Routes>
           <Route exact path="/" element={<MainPage />} />
           <Route exact path="/view/:restaurant" element={<RestaurantDetailPage />} />
@@ -54,7 +63,7 @@ const App = () => {
           <Route exact path="/my-keyword-page" element={<MyKeywordPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
-      </div>
+      </PageWrapper>
 			<Footer />
 		</>
 	);
