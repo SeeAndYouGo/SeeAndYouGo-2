@@ -60,7 +60,7 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 	};
 
 	return (
-		<div style={{ margin: "20px 10px", position: "relative" }}>
+		<div style={{ margin: "20px 0", position: "relative" }}>
 			<KeywordInput
 				type="text"
 				placeholder="키워드를 입력해주세요! (1~6글자)"

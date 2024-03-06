@@ -6,18 +6,20 @@ import MyKeywordInput from "./MyKeywordInput";
 import MyKeywordItem from "./MyKeywordItem";
 import * as config from "../../config";
 
-const UnderLine = styled.hr`
-	border: 0;
-	height: 2px;
-	margin: 0 10px;
-	background-color: #ccc;
+const MyKeywordWrapper = styled.div`
+	font-size: 14px;
+	padding: 30px 15px 50px;
+	@media (min-width: 576px) {
+		padding: 30px 20px 50px;
+	}
 `;
 
 const MyKeywordList = styled.div`
 	background-color: white;
-	margin: 0 10px;
+	margin: 0;
 	padding-bottom: 5px;
 	border-radius: 10px;
+	overflow: hidden;
 `;
 
 const NoKeywordMessage = styled.p`
@@ -76,7 +78,7 @@ const MyKeywordPage = () => {
 	return (
 		<>
 			{token ? (
-				<div style={{ fontSize: 14, margin: "70px 10px 0 10px" }}>
+				<MyKeywordWrapper>
 					<div style={{ textAlign: "center" }}>
 						<p style={{ fontSize: 20, margin: 10 }}>나의 키워드</p>
 						<p style={{ margin: 0, fontWeight: 600 }}>나의 키워드를 등록해</p>
@@ -88,7 +90,7 @@ const MyKeywordPage = () => {
 						setKeywordList={setKeywordList}
 						existedKeywordList={keywordList}
 					/>
-					<p style={{ margin: "10px 20px" }}>
+					<p style={{ margin: "10px" }}>
 						등록된 키워드 ({keywordList ? keywordList.length : 0}/10)
 					</p>
 					{keywordList.length === 0 ? (
@@ -96,17 +98,15 @@ const MyKeywordPage = () => {
 					) : (
 						<MyKeywordList>
 							{keywordList.map((val, index) => (
-								<div key={index}>
-									<MyKeywordItem
-										keyword={val}
-										setKeywordList={setKeywordList}
-									/>
-									<UnderLine />
-								</div>
+								<MyKeywordItem
+									key={index}
+									keyword={val}
+									setKeywordList={setKeywordList}
+								/>
 							))}
 						</MyKeywordList>
 					)}
-				</div>
+				</MyKeywordWrapper>
 			) : (
 				<NotLogin>
 					<GoToLogin
@@ -118,7 +118,6 @@ const MyKeywordPage = () => {
 					</GoToLogin>
 				</NotLogin>
 			)}
-			<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
 		</>
 	);
 };
