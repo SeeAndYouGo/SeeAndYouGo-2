@@ -42,29 +42,36 @@ import styled from "@emotion/styled";
 // 	],
 // };
 
-const Title = styled.span`
-	border-bottom-style: solid;
-	border-bottom-width: 2px;
-	padding: 0 100px;
+const NoticeContainer = styled.div`
+	padding: 10px;
+	@media (min-width: 576px) {
+		padding: 10px 20px;
+	};
 `;
 
-const WriteDate = styled.span`
+const Title = styled.div`
+	width: 60%;
 	border-bottom-style: solid;
 	border-bottom-width: 2px;
-	padding: 0 30px;
+`;
+
+const WriteDate = styled.div`
+	width: 40%;
+	border-bottom-style: solid;
+	border-bottom-width: 2px;
 	margin-left: 12px;
 `;
 
 const NoticeItemContainer = styled.div`
 	display: flex;
 	flex-direction: row;
-	margin: 5px 5px;
+	margin: 5px auto;
 	font-size: 14px;
 	cursor: pointer;
 `;
 
 const ItemTitle = styled.div`
-	width: 230px;
+	width: 60%;
 	border-bottom-style: solid;
 	border-bottom-color: gray;
 	border-bottom-width: 1px;
@@ -73,7 +80,7 @@ const ItemTitle = styled.div`
 `;
 
 const ItemWriteDate = styled.div`
-	width: 106px;
+	width: 40%;
 	border-bottom-style: solid;
 	border-bottom-color: gray;
 	border-bottom-width: 1px;
@@ -198,16 +205,14 @@ const NoticePage = () => {
 
 	return (
 		<>
-			<div>
-				<div style={{ textAlign: "center", margin: "70px 5px 0 5px" }}>
-					<p style={{ fontSize: 20 }}>공지사항</p>
-				</div>
+			<NoticeContainer>
+				<p style={{ fontSize: 20, textAlign: "center" }}>공지사항</p>
 				<div
 					style={{
 						textAlign: "center",
 						borderTop: "8px solid black",
+						display: "flex",
 						paddingTop: 5,
-						margin: "0 5px",
 					}}
 				>
 					<Title>제목</Title>
@@ -376,8 +381,7 @@ const NoticePage = () => {
 					);
 				})}
 				<div className="blankSpace">&nbsp;</div>
-				<div className="blankSpace">&nbsp;</div>
-			</div>
+			</NoticeContainer>
 		</>
 	);
 };
