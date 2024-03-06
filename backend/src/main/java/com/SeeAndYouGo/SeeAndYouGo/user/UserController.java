@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
+import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
@@ -36,14 +37,14 @@ public class UserController {
     }
 
     @GetMapping("/nickname/{token}")
-    public ResponseEntity<UserResponseDto> getNickname(@PathVariable String token){
-        String email = tokenProvider.decodeToEmail(token);
+    @ValidateToken
+    public ResponseEntity<UserResponseDto> getNickname(@PathVariable(value = "token") String tokenId){
+        String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.getNicknameByEmail(email);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                                             .nickname(nickname)
-                                    .build();
-
+                                            .build();
         return ResponseEntity.ok(userResponseDto);
     }
 }

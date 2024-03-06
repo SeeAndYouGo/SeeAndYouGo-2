@@ -1,7 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.Keyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
@@ -30,13 +29,14 @@ public class MenuController {
     private final TokenProvider tokenProvider;
 
     @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
-    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place, @PathVariable(required = false) String user_id) {
+    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
+                                                                               @PathVariable(value = "user_id", required = false) String tokenId) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
 
         List<String> keyStrings = new ArrayList<>();
-        if (user_id != null) {
-            String email = tokenProvider.decodeToEmail(user_id);
+        if (tokenId != null) {
+            String email = tokenProvider.decodeToEmail(tokenId);
             User user = userRepository.findByEmail(email).get(0);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());

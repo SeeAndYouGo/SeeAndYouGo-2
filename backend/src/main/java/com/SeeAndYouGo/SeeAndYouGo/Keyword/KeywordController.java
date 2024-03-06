@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Keyword;
 
+import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordAddResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordResponseDto;
@@ -18,8 +19,9 @@ public class KeywordController {
     private final TokenProvider tokenProvider;
 
     @GetMapping("/{user_id}")
-    public KeywordResponseDto getKeywordsByUser(@PathVariable String user_id) {
-        String email = tokenProvider.decodeToEmail(user_id);
+    @ValidateToken
+    public KeywordResponseDto getKeywordsByUser(@PathVariable("user_id") String tokenId) {
+        String email = tokenProvider.decodeToEmail(tokenId);
         List<Keyword> keywords = keywordService.getKeywords(email);
         return KeywordResponseDto.toDTO(keywords);
     }
