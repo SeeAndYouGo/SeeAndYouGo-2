@@ -12,10 +12,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -110,7 +107,7 @@ public class MenuService {
     @Transactional
     public List<Menu> createMenuWithDishes(List<DishDto> dishDtos) {
         if (dishDtos.size() == 0) {
-            return null;
+            return Collections.emptyList();
         }
 
         Map<String, Menu> responseMap = new HashMap<>();
