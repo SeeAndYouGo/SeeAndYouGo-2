@@ -50,10 +50,10 @@ public class KeywordService {
     }
 
     @Transactional
-    public KeywordResponseDto deleteKeyword(String keywordName, String email) {
+    public KeywordResponseDto deleteKeyword(String keywordName, String email) throws KeywordNotFoundException {
         Keyword keyword = keywordRepository.findByName(keywordName);
         if (keyword == null) {
-            return null;
+            throw new KeywordNotFoundException("키워드 삭제 실패");
         }
         User user = userRepository.findByEmail(email).get(0);
         user.deleteKeyword(keyword);
