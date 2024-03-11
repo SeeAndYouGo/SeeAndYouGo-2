@@ -3,11 +3,9 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +30,8 @@ public class ReviewService {
 
     @Transactional
     public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
-        restaurantName = menuService.parseRestaurantName(restaurantName);
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
+        restaurantName = Restaurant.parseName(restaurantName);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString());
         if (restaurant == null) {
             throw new IllegalArgumentException("Restaurant not found for name: " + restaurantName);
         }
@@ -138,10 +136,10 @@ public class ReviewService {
     }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
-        restaurantName = MenuService.parseRestaurantName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+        restaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
 
         List<Review> reviews = new ArrayList<>();
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date);
 
         reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
 

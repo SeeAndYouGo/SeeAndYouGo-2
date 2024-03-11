@@ -68,10 +68,16 @@ public class Menu {
         }
     }
 
+    /**
+     * dish가 이 menu에 저장되어 있지 않다면 저장해준다.
+     */
     public void addDish(Dish dish) {
-        MenuDish menuDish = new MenuDish(this, dish);
-        this.menuDishes.add(menuDish);
-        dish.getMenuDishes().add(menuDish);
+        List<Dish> dishList = this.getDishList();
+        if (!dishList.contains(dish)) {
+            MenuDish menuDish = new MenuDish(this, dish);
+            this.menuDishes.add(menuDish);
+            dish.getMenuDishes().add(menuDish);
+        }
     }
 
     public List<Dish> getDishList() {

@@ -74,7 +74,7 @@ public class RestaurantService {
     public Restaurant getRestaurant(String name, String date) {
         // 평일에 이 함수가 실행되면 restaurant는 찾아와질 것임.
         if(checkRestaurantInDate(name, date)){
-            return restaurantRepository.findByNameAndDate(name, date).get(0);
+            return restaurantRepository.findByNameAndDate(name, date);
         } else{
             Restaurant restaurant = new Restaurant(name, date);
             restaurantRepository.save(restaurant);
@@ -85,10 +85,6 @@ public class RestaurantService {
     public boolean checkRestaurantInDate(String name, String date) {
         Long aLong = restaurantRepository.countByNameAndDate(name, date);
         return aLong > 0 ? true : false;
-    }
-
-    public List<Restaurant> findAllRestaurantByDate(String place, String date) {
-        return restaurantRepository.findByNameAndDate(parseRestaurantName(place), date);
     }
 
     public String parseRestaurantName(String name) {
