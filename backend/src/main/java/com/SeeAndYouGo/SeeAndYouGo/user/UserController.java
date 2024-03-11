@@ -20,7 +20,7 @@ public class UserController {
 
     @GetMapping("/nickname/check/{nickname}")
     public ResponseEntity<NicknameCheckResponseDto> checkNicknameRedundancy(@PathVariable String nickname) {
-        boolean redundancy = !userService.checkAvailableNickname(nickname);
+        boolean redundancy = !userService.isNicknameCountZero(nickname);
 
         NicknameCheckResponseDto nicknameCheckResponseDto = NicknameCheckResponseDto.builder()
                                                     .redundancy(redundancy).build();

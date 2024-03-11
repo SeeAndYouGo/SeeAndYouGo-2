@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public boolean checkAvailableNickname(String nickname) {
+    public boolean isNicknameCountZero(String nickname) {
         return userRepository.countByNickname(nickname) == 0;
     }
 
