@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
@@ -96,17 +97,18 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/review")
+    @ValidateToken
     public ResponseEntity<Long> postReview(
             @RequestParam("restaurant") String restaurant,
             @RequestParam("dept") String dept,
             @RequestParam("menuName") String menuName,
             @RequestParam("rate") Double rate,
-            @RequestParam("writer") String writer,
+            @RequestParam("writer") String tokenId,
             @RequestParam("comment") String comment,
             @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
-         NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
+        NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
          if (image != null) {
              try {
@@ -116,26 +118,24 @@ public class ReviewController {
              }
          }
 
-        Review review = new Review();
         // 원하는 날짜 및 시간 형식을 정의합니다.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-        String email = tokenProvider.decodeToEmail(writer);
+        String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.findNickname(email);
-        review.setWriterEmail(email);
+        String restaurantName = menuService.parseRestaurantName(restaurant);
 
-        if(anonymous){
-            review.setWriterNickname("익명");
-        }else{
-            review.setWriterNickname(nickname);
-        }
-
-        review.setReviewRate(rate);
-        review.setComment(comment);
-        review.setImgLink(imgUrl);
-        review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
-
-        Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
+        ReviewRequestDto reviewDto = ReviewRequestDto.builder()
+                .restaurant(restaurantName)
+                .dept(dept)
+                .menuName(menuName)
+                .rate(rate)
+                .writer(email)
+                .nickName(anonymous ? "익명" : nickname)
+                .comment(comment)
+                .imgUrl(imgUrl)
+                .madeTime(LocalDateTime.now().format(formatter))
+                .build();
+        Long reviewId = reviewService.registerReview(reviewDto);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

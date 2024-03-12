@@ -7,7 +7,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,29 +25,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final RestaurantRepository restaurantRepository;
-    private final MenuService menuService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
     static private final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+    private final MenuRepository menuRepository;
 
     @Transactional
-    public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
-        restaurantName = menuService.parseRestaurantName(restaurantName);
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
+    public Long registerReview(ReviewRequestDto dto) {
+
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(dto.getRestaurant(), LocalDate.now().toString()).get(0);
         if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant not found for name: " + restaurantName);
+            throw new IllegalArgumentException("Restaurant not found for name: " + dto.getRestaurant());
         }
-
-        review.setRestaurant(restaurant);
-        Dept changeStringToDept = Dept.valueOf(dept);
-        Menu menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
-        menu.addReview(review);
-
-        // 리뷰가 작성된다면 해당 메뉴의 평점을 갱신해야한다.
-        review.setMenu(menu);
+        // 연관관계 존재
+        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(dto.getDept()), dto.getMenuName());
+        Review review = Review.createEntity(dto, restaurant, menu);
         reviewRepository.save(review);
 
+        menu.addReviewAndUpdateRate(review);
         restaurant.updateTotalRate();
+        reviewRepository.save(review);
 
         return review.getId();
     }

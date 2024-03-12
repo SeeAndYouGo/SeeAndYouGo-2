@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menu_id")
@@ -82,10 +81,9 @@ public class Menu {
         return dishes;
     }
 
-    public Long addReview(Review review) {
+    public Long addReviewAndUpdateRate(Review review) {
         this.reviewList.add(review);
-        this.rate = (this.rate+review.getReviewRate())/this.reviewList.size();
-
+        this.rate = (this.rate + review.getReviewRate()) / this.reviewList.size();
         return review.getId();
     }
 
