@@ -3,12 +3,11 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,20 +26,20 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
-    static private final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
-    private final MenuRepository menuRepository;
-
+    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Transactional
     public Long registerReview(ReviewRequestDto dto) {
+        LocalDateTime time = LocalDateTime.now();
 
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(dto.getRestaurant(), LocalDate.now().toString()).get(0);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(dto.getRestaurant(),
+                LocalDate.of(time.getYear(), time.getMonth(), time.getDayOfMonth()).toString());
         if (restaurant == null) {
             throw new IllegalArgumentException("Restaurant not found for name: " + dto.getRestaurant());
         }
         // 연관관계 존재
         Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(dto.getDept()), dto.getMenuName());
-        Review review = Review.createEntity(dto, restaurant, menu);
-        reviewRepository.save(review);
+        Review review = Review.createEntity(dto, restaurant, menu, time.format(formatter));
 
         menu.addReviewAndUpdateRate(review);
         restaurant.updateTotalRate();
@@ -135,10 +134,10 @@ public class ReviewService {
     }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
-        restaurantName = MenuService.parseRestaurantName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+        restaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
 
         List<Review> reviews = new ArrayList<>();
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date);
 
         reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
 

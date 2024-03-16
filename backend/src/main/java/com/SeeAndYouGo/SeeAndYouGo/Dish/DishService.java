@@ -35,13 +35,13 @@ public class DishService {
 
     @Transactional
     public void saveAndCacheWeekDish(Integer page) throws Exception{
-        String wifiInfo = fetchDishInfoToString(page);
+        String foodInfo = fetchDishInfoToString(page);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate monday = IterService.getNearestMonday(LocalDate.now());
         LocalDate friday = IterService.getFridayOfWeek(monday);
 
         JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
+        JsonObject jsonObject = jsonParser.parse(foodInfo).getAsJsonObject();
 
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
 
@@ -54,7 +54,7 @@ public class DishService {
 
             // 필드 값 추출
             String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
-            restaurantName = MenuService.parseRestaurantName(restaurantName);
+            restaurantName = Restaurant.parseName(restaurantName);
 
             String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
             Dept dept = Dept.changeStringToDept(deptStr);
@@ -87,12 +87,6 @@ public class DishService {
                         .menuType(menuType)
                         .price(price)
                         .build();
-
-//                어떤 문제가 될까? 모르겠지만 일단 주석처리하기로 했다.
-//                if(page != 1){
-//                    Dish dish1 = searchAndAddDish(restaurant, dept, dish);
-//                    dishRepository.save(dish1);
-//                }
 
                 // DB에 없던 dish면 등록하기
                 if (dishRepository.findByName(dishDto.getName()) == null) {
@@ -143,11 +137,11 @@ public class DishService {
             String mainDishName = mainDishRequestDto.getMainDishName();
 
             Dish dish = dishRepository.findByName(mainDishName);
-            dish.setDishType(DishType.MAIN);
+            dish.updateMainDish();
 
             for (String subDishName : mainDishRequestDto.getSubDishList()) {
                 Dish subDish = dishRepository.findByName(subDishName);
-                subDish.setDishType(DishType.SIDE);
+                subDish.updateSideDish();
             }
         }
     }

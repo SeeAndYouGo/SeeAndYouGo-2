@@ -73,11 +73,11 @@ public class Review {
         return likeCount;
     }
 
-    public static Review createEntity(ReviewRequestDto dto, Restaurant restaurant, Menu menu) {
+    public static Review createEntity(ReviewRequestDto dto, Restaurant restaurant, Menu menu, String time) {
         return Review.builder()
                 .writerEmail(dto.getWriter())
                 .writerNickname(dto.getNickName())
-                .madeTime(dto.getMadeTime())
+                .madeTime(time)
                 .likeCount(0)
                 .comment(dto.getComment())
                 .imgLink(dto.getImgUrl())

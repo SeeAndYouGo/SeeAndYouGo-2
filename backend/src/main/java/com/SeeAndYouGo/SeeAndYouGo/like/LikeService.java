@@ -24,7 +24,7 @@ public class LikeService {
     public LikeResponseDto postLikeCount(Long reviewId, String tokenId) {
         Review review = reviewRepository.findById(reviewId).get();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        User user = userRepository.findByEmail(userEmail).get(0);
+        User user = userRepository.findByEmail(userEmail);
 
         if(review.getWriterEmail().equals(userEmail)){
             return LikeResponseDto.builder()
@@ -71,7 +71,7 @@ public class LikeService {
     public boolean isLike(Review review, String userEmail) {
         if(userEmail.equals("")) return false;
 
-        User user = userRepository.findByEmail(userEmail).get(0);
+        User user = userRepository.findByEmail(userEmail);
         if(likeRepository.existsByReviewAndUser(review, user)){
             return true;
         }

@@ -66,4 +66,12 @@ public class Dish {
 
         return reviewsByDish;
     }
+
+    public void updateMainDish(){
+        this.dishType = DishType.MAIN;
+    }
+
+    public void updateSideDish(){
+        this.dishType = DishType.SIDE;
+    }
 }

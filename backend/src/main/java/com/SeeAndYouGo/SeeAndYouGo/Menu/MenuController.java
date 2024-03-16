@@ -40,7 +40,7 @@ public class MenuController {
         List<String> keyStrings = new ArrayList<>();
         if (tokenId != null) {
             String email = tokenProvider.decodeToEmail(tokenId);
-            User user = userRepository.findByEmail(email).get(0);
+            User user = userRepository.findByEmail(email);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
         }

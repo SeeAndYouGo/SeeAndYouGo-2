@@ -14,6 +14,6 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
     @Query("SELECT MAX(ct2.time) FROM Connection ct2")
     String findRecentTime();
 
-    @Query("SELECT COUNT(*) FROM Connection")
-    Long countNumberOfData();
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Connection e")
+    boolean existsAnyData();
 }
