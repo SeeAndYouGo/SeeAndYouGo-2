@@ -57,12 +57,12 @@ public class MenuController {
     }
 
     private List<MenuResponseDto> parseOneDayRestaurantMenu(List<Menu> oneDayRestaurantMenu) {
-        List<MenuResponseDto> menuResponsDtos = new ArrayList<>();
+        List<MenuResponseDto> menuResponseDtos = new ArrayList<>();
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
             MenuResponseDto menuResponseDto = new MenuResponseDto(dayRestaurantMenu);
-            menuResponsDtos.add(menuResponseDto);
+            menuResponseDtos.add(menuResponseDto);
         }
-        return menuResponsDtos;
+        return menuResponseDtos;
     }
 
     private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
@@ -90,8 +90,8 @@ public class MenuController {
         List<MenuResponseDto> menuListArr = new ArrayList<>();
 
         for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
-            List<MenuResponseDto> menuResponsDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
-            for (MenuResponseDto menuResponseDto : menuResponsDtos) {
+            List<MenuResponseDto> menuResponseDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
+            for (MenuResponseDto menuResponseDto : menuResponseDtos) {
                 menuListArr.add(menuResponseDto);
             }
         }
