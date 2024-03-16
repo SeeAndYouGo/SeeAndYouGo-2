@@ -1,46 +1,37 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
-import lombok.*;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.LinkedList;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class MenuResponseDto {
+public class MenuResponseByUserDto {
     private String restaurantName;
     private List<String> dishList = new LinkedList<>();
-
-    private String mainDishName = "";
-
-    private List<String> subDishList = new LinkedList<>();
-
     private Integer price;
     private String dept;
     private String date;
     private String menuType;
+    private List<String> keywordList = new LinkedList<>();
 
-    public MenuResponseDto(Menu menu){
+    public MenuResponseByUserDto(Menu menu, List<String> keywords){
         this.restaurantName = menu.getRestaurant().getName();
         setDishList(menu);
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();
         this.menuType = menu.getMenuType().toString();
+        this.keywordList = keywords;
     }
 
     private void setDishList(Menu menu){
         for (Dish dish : menu.getDishList()) {
-            if (dish.getDishType() == DishType.MAIN) {   // MAIN Dish가 있으면 속성을 가진다.
-                this.mainDishName = dish.getName();
-            } else {
-                this.subDishList.add(dish.toString());
-            }
             this.dishList.add(dish.toString());
         }
     }
 }
-
-
