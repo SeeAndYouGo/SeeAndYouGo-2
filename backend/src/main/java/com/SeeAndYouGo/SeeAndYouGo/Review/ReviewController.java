@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
@@ -25,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
-
+    private final NCloudObjectStorage NCloudObjectStorage;
     private final ReviewService reviewService;
     private final MenuService menuService;
     private final TokenProvider tokenProvider;
@@ -106,7 +107,6 @@ public class ReviewController {
             @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
-         NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
          if (image != null) {
              try {
