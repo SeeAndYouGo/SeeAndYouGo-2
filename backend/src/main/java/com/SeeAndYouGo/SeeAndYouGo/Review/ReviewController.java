@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
-
+    private final NCloudObjectStorage NCloudObjectStorage;
     private final ReviewService reviewService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
@@ -104,7 +104,6 @@ public class ReviewController {
             @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
 
-        NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
         String imgUrl = "";
          if (image != null) {
              try {
