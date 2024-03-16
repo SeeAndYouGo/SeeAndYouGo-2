@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
+import com.SeeAndYouGo.SeeAndYouGo.AOP.InvalidTokenException;
 import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
@@ -24,7 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
-    private final NCloudObjectStorage NCloudObjectStorage;
+
+    private final NCloudObjectStorage nCloudObjectStorage;
     private final ReviewService reviewService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
@@ -93,21 +95,16 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/review")
-    @ValidateToken
-    public ResponseEntity<Long> postReview(
-            @RequestParam("restaurant") String restaurant,
-            @RequestParam("dept") String dept,
-            @RequestParam("menuName") String menuName,
-            @RequestParam("rate") Double rate,
-            @RequestParam("writer") String tokenId,
-            @RequestParam("comment") String comment,
-            @RequestParam("anonymous") boolean anonymous,
-            @RequestParam(name="image", required = false) MultipartFile image) {
+    public ResponseEntity<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
+                                           @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        String tokenId = dto.getWriter();
+        if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
 
         String imgUrl = "";
          if (image != null) {
              try {
-                 imgUrl = NCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
+                 imgUrl = nCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
              } catch (Exception e) {
                  throw new RuntimeException(e);
              }
@@ -116,20 +113,13 @@ public class ReviewController {
         // 원하는 날짜 및 시간 형식을 정의합니다.
         String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.findNickname(email);
-        String restaurantName = Restaurant.parseName(restaurant);
+        String restaurantName = Restaurant.parseName(dto.getRestaurant());
+        dto.setRestaurant(restaurantName);
+        dto.setWriter(email);
+        dto.setNickName(dto.isAnonymous() ? "익명" : nickname);
+        dto.setImgUrl(imgUrl);
 
-        ReviewRequestDto reviewDto = ReviewRequestDto.builder()
-                .restaurant(restaurantName)
-                .dept(dept)
-                .menuName(menuName)
-                .rate(rate)
-                .writer(email)
-                .nickName(anonymous ? "익명" : nickname)
-                .comment(comment)
-                .imgUrl(imgUrl)
-                .build();
-
-        Long reviewId = reviewService.registerReview(reviewDto);
+        Long reviewId = reviewService.registerReview(dto);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

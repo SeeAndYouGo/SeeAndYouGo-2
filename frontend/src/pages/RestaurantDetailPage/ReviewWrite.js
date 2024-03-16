@@ -225,18 +225,20 @@ const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 		e.preventDefault();
 		const formdata = new FormData();
 
-		formdata.append("restaurant", restaurantNum);
-		if (restaurantNum === 1) {
-			formdata.append("dept", selectedMenu.category);
-		} else {
-			formdata.append("dept", deptNum === 1 ? "STUDENT" : "STAFF");
-		}
-		formdata.append("menuName", restaurantNum === 1 ? selectedMenu.value : "");
-		formdata.append("rate", starVal);
-		formdata.append("writer", token);
-		formdata.append("anonymous", anonymous);
-		formdata.append("comment", comment);
+		const dto = {
+			restaurant: restaurantNum,
+			dept: restaurantNum === 1 ? selectedMenu.category : (deptNum === 1 ? "STUDENT" : "STAFF"),
+			menuName: restaurantNum === 1 ? selectedMenu.value : "",
+			rate: starVal,
+			writer: token,
+			anonymous: anonymous,
+			comment: comment
+		};
+
 		formdata.append("image", image);
+		formdata.append(
+			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
+		);
 
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
