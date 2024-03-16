@@ -35,7 +35,9 @@ public class TokenValidationAspect {
         }
 
         if (tokenId == null || tokenId.length() == 0) {
-            throw new InvalidTokenException("Invalid Token");
+            // token이 있을때와, 익명이라 token이 없을 때 같은 메서드를 사용중이라서 이 Aspect가 공통 적용되고 있다.
+            // tokenId가 넘어오지 않으므로 정상으로 간주해야 한다.
+            return;
         }
         if (!provider.validateToken(tokenId)) {
             throw new InvalidTokenException("Invalid Token");
