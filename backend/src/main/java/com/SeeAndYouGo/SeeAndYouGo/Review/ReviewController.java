@@ -2,17 +2,15 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +26,6 @@ import java.util.List;
 public class ReviewController {
     private final NCloudObjectStorage NCloudObjectStorage;
     private final ReviewService reviewService;
-    private final MenuService menuService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final LikeService likeService;
@@ -36,10 +33,9 @@ public class ReviewController {
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
     // 탑 리뷰 조회
-    // top-review api에 tokenId가 있을 필요가 없음
     @GetMapping(value = "/top-review/{restaurant}")
     public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
-        String restaurantName = menuService.parseRestaurantName(restaurant);
+        String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
         List<ReviewResponseDto> response = getReviewDtos(reviews, "");
@@ -78,7 +74,7 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
-        String restaurantName = menuService.parseRestaurantName(restaurant);
+        String restaurantName = Restaurant.parseName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         return ResponseEntity.ok(getReviewDtos(restaurantReviews, userEmail));
@@ -97,12 +93,13 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/review")
+    @ValidateToken
     public ResponseEntity<Long> postReview(
             @RequestParam("restaurant") String restaurant,
             @RequestParam("dept") String dept,
             @RequestParam("menuName") String menuName,
             @RequestParam("rate") Double rate,
-            @RequestParam("writer") String writer,
+            @RequestParam("writer") String tokenId,
             @RequestParam("comment") String comment,
             @RequestParam("anonymous") boolean anonymous,
             @RequestParam(name="image", required = false) MultipartFile image) {
@@ -116,26 +113,23 @@ public class ReviewController {
              }
          }
 
-        Review review = new Review();
         // 원하는 날짜 및 시간 형식을 정의합니다.
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-        String email = tokenProvider.decodeToEmail(writer);
+        String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.findNickname(email);
-        review.setWriterEmail(email);
+        String restaurantName = Restaurant.parseName(restaurant);
 
-        if(anonymous){
-            review.setWriterNickname("익명");
-        }else{
-            review.setWriterNickname(nickname);
-        }
+        ReviewRequestDto reviewDto = ReviewRequestDto.builder()
+                .restaurant(restaurantName)
+                .dept(dept)
+                .menuName(menuName)
+                .rate(rate)
+                .writer(email)
+                .nickName(anonymous ? "익명" : nickname)
+                .comment(comment)
+                .imgUrl(imgUrl)
+                .build();
 
-        review.setReviewRate(rate);
-        review.setComment(comment);
-        review.setImgLink(imgUrl);
-        review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
-
-        Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
+        Long reviewId = reviewService.registerReview(reviewDto);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

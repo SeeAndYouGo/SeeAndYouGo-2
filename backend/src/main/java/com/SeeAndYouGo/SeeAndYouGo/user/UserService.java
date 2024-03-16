@@ -10,23 +10,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public boolean checkAvailableNickname(String nickname) {
+    public boolean isNicknameCountZero(String nickname) {
         return userRepository.countByNickname(nickname) == 0;
     }
 
     @Transactional
     public void updateNickname(String email, String nickname) {
-        User user = userRepository.findByEmail(email).get(0);
+        User user = userRepository.findByEmail(email);
         user.changeNickname(nickname);
     }
 
     public String getNicknameByEmail(String email) {
-        User user = userRepository.findByEmail(email).get(0);
+        User user = userRepository.findByEmail(email);
         return user.getNickname() == null ? "익명" : user.getNickname();
     }
 
     public String findNickname(String email) {
-        User user = userRepository.findByEmail(email).get(0);
+        User user = userRepository.findByEmail(email);
         return user.getNickname() == null ? "익명" : user.getNickname();
     }
 }

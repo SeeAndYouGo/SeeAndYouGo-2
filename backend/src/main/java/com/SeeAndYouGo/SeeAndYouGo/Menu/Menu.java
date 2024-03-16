@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menu_id")
@@ -68,10 +67,16 @@ public class Menu {
         }
     }
 
+    /**
+     * dish가 이 menu에 저장되어 있지 않다면 저장해준다.
+     */
     public void addDish(Dish dish) {
-        MenuDish menuDish = new MenuDish(this, dish);
-        this.menuDishes.add(menuDish);
-        dish.getMenuDishes().add(menuDish);
+        List<Dish> dishList = this.getDishList();
+        if (!dishList.contains(dish)) {
+            MenuDish menuDish = new MenuDish(this, dish);
+            this.menuDishes.add(menuDish);
+            dish.getMenuDishes().add(menuDish);
+        }
     }
 
     public List<Dish> getDishList() {
@@ -82,10 +87,9 @@ public class Menu {
         return dishes;
     }
 
-    public Long addReview(Review review) {
+    public Long addReviewAndUpdateRate(Review review) {
         this.reviewList.add(review);
-        this.rate = (this.rate+review.getReviewRate())/this.reviewList.size();
-
+        this.rate = (this.rate + review.getReviewRate()) / this.reviewList.size();
         return review.getId();
     }
 
