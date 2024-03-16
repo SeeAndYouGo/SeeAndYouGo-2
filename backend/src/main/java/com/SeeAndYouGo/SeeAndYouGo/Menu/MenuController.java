@@ -3,6 +3,9 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByAdminDto;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByUserDto;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
@@ -57,16 +60,25 @@ public class MenuController {
     }
 
     private List<MenuResponseDto> parseOneDayRestaurantMenu(List<Menu> oneDayRestaurantMenu) {
-        List<MenuResponseDto> menuResponsDtos = new ArrayList<>();
+        List<MenuResponseDto> menuResponseDtos = new ArrayList<>();
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
             MenuResponseDto menuResponseDto = new MenuResponseDto(dayRestaurantMenu);
-            menuResponsDtos.add(menuResponseDto);
+            menuResponseDtos.add(menuResponseDto);
         }
-        return menuResponsDtos;
+        return menuResponseDtos;
+    }
+
+    private List<MenuResponseByAdminDto> parseOneDayRestaurantMenuForAdmin(List<Menu> oneDayRestaurantMenu) {
+        List<MenuResponseByAdminDto> menuResponseDtos = new ArrayList<>();
+        for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
+            MenuResponseByAdminDto menuResponseDto = new MenuResponseByAdminDto(dayRestaurantMenu);
+            menuResponseDtos.add(menuResponseDto);
+        }
+        return menuResponseDtos;
     }
 
     private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
-        List<MenuResponseByUserDto> dtos = new ArrayList<>();
+        List<MenuResponseByUserDto> menuResponseDtos = new ArrayList<>();
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
             List<Dish> dishList = dayRestaurantMenu.getDishList();
             List<String> keyStrings = new ArrayList<>();
@@ -78,9 +90,9 @@ public class MenuController {
                 }
             }
             MenuResponseByUserDto dto = new MenuResponseByUserDto(dayRestaurantMenu, keyStrings);
-            dtos.add(dto);
+            menuResponseDtos.add(dto);
         }
-        return dtos;
+        return menuResponseDtos;
     }
 
     @GetMapping("/weekly-menu/{restaurant}")
@@ -90,18 +102,16 @@ public class MenuController {
         List<MenuResponseDto> menuListArr = new ArrayList<>();
 
         for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
-            List<MenuResponseDto> menuResponsDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
-            for (MenuResponseDto menuResponseDto : menuResponsDtos) {
-                menuListArr.add(menuResponseDto);
-            }
+            List<MenuResponseDto> menuResponseDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
+            menuListArr.addAll(menuResponseDtos);
         }
         return ResponseEntity.ok(menuListArr);
     }
 
     @GetMapping("/weekly-menu")
-    public ResponseEntity<List<MenuResponseDto>> allRestaurantMenuWeek() {
+    public ResponseEntity<List<MenuResponseByAdminDto>> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
-        List<MenuResponseDto> menuListArr = new ArrayList<>();
+        List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
         String place;
 
@@ -110,10 +120,8 @@ public class MenuController {
             oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
 
             for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
-                List<MenuResponseDto> menuResponsDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
-                for (MenuResponseDto menuResponseDto : menuResponsDtos) {
-                    menuListArr.add(menuResponseDto);
-                }
+                List<MenuResponseByAdminDto> menuResponsDtos = parseOneDayRestaurantMenuForAdmin(dayRestaurantMenu);
+                menuListArr.addAll(menuResponsDtos);
             }
         }
         return ResponseEntity.ok(menuListArr);
