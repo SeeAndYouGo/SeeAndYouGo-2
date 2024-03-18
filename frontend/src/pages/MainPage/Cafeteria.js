@@ -30,9 +30,10 @@ const SecondRow = styled.div`
 const Highlight = styled.img`
 	position: relative;
 	top: -2px;
-	width: 25px;
-	height: 25px;
+	width: 22px;
+	height: 22px;
 	display: flex;
+	margin-right: 2px;
 `;
 
 // dept 표시
@@ -50,18 +51,20 @@ const Dept = styled.p`
 
 // 메뉴 가격 표시
 const Price = styled.label`
-	color: "#777777";
-	margin: 2px 5px;
+	color: #333;
 	font-size: 13px;
 	font-weight: 400;
+	line-height: 20px;
 `;
 
 // 식당별 메인 메뉴 표시
-const MenuItem = styled.p`
+const MenuItem = styled.div`
 	align-items: center;
 	font-size: 14px;
 	font-weight: 500;
 	margin: 0px 0px 10px 0px;
+	display: flex;
+	justify-content: center;
 `;
 
 const NoMenuInfo = styled.p`
@@ -98,16 +101,20 @@ const Menu = ({ menuDept, menuPrice, menuName, keywordList, dishList }) => {
 					justifyContent: "center",
 				}}
 			>
+				<Dept>{menuDept === "STAFF" ? "교직원" : "학생"}</Dept>
+				<Price>{menuPrice}</Price>
+			</div>
+			<MenuItem>
 				{isKeyword ? (
 					<Highlight
 						src="/assets/images/highlight.png"
 						alt="highlight"
 					/>
 				) : null}
-				<Dept>{menuDept === "STAFF" ? "교직원" : "학생"}</Dept>
-				<Price>{menuPrice}</Price>
-			</div>
-			<MenuItem>{menuName}</MenuItem>
+				<p style={{margin: 0, fontWeight: 500}}>
+					{menuName}
+				</p>
+			</MenuItem>
 		</div>
 	);
 };
@@ -123,9 +130,12 @@ const nameList = [
 ];
 
 const FirstRowWrapper = styled.div`
-display: flex;
-margin-left: auto;
-margin-right: 15px;
+	display: flex;
+	margin-left: auto;
+	margin-right: 15px;
+	@media (min-width: 576px) {
+		width: calc(100% - 150px);
+	}
 `;
 
 const Cafeteria = ({ idx, value }) => {
@@ -250,7 +260,7 @@ const Cafeteria = ({ idx, value }) => {
 					<MyProgress value={value} />
 					<FontAwesomeIcon
 						icon={faChevronRight}
-						style={{ color: "#b0b0b0", marginLeft: 10 }}
+						style={{ color: "#b0b0b0", marginLeft: "auto" }}
 					/>
 				</FirstRowWrapper>
 
@@ -266,7 +276,7 @@ const Cafeteria = ({ idx, value }) => {
 							<Menu
 								key={index}
 								menuDept={val.dept}
-								menuPrice={val.price}
+								menuPrice={idx === 3 ? "메뉴별 가격 상이" : val.price.toLocaleString()}
 								menuName={val.dishList[0]}
 								keywordList={val.keywordList}
 								dishList={val.dishList}
@@ -283,7 +293,7 @@ const Cafeteria = ({ idx, value }) => {
 									<Menu
 										key={index}
 										menuDept={val.dept}
-										menuPrice={val.price}
+										menuPrice={val.price.toLocaleString()}
 										menuName={val.dishList[0]}
 										keywordList={val.keywordList}
 										dishList={val.dishList}
