@@ -9,6 +9,12 @@ const UpdateLogContainer = styled.div`
 	border-radius: 10px;
 	margin: 5px 30px;
 	padding: 2px;
+	@media (min-width: 576px) {
+		font-size: 14px;
+		margin: 5px 15px;
+		border-radius: 20px;
+		padding: 5px 0;
+	}
 `;
 
 // updateTime은 'YYYY-MM-DD HH:MM:SS' 형태

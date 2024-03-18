@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 const ColorContainer = styled.div`
+	width: calc(100% - 50px);
 	display: flex;
 	margin-left: 10px;
 	border: 1px solid #dddddd;
@@ -8,17 +9,26 @@ const ColorContainer = styled.div`
 	overflow: hidden;
 `;
 
+const ColorDivItem = styled.div`
+	float: left;
+	width: 15px;
+	@media (min-width: 576px) {
+		width: calc(100% / 10);
+	}
+`;
+
 const ColoredDiv = ({ disabledColor, color, index }) => {
 	const divStyle = {
-		float: "left",
 		backgroundColor: disabledColor ? "#FFFFFF" : color,
-		width: "14px",
-		// height: "12px",
 		borderLeft:
 			index === 0 ? "none" : disabledColor ? "1px solid #dddddd" : "none",
 	};
 
-	return <div style={divStyle}></div>;
+	// if (window.matchMedia("(min-width: 576px)").matches) {
+  //   divStyle.width = "calc((100% - 120px) / 10)"
+  // }
+
+	return <ColorDivItem style={divStyle}></ColorDivItem>;
 };
 
 const colors = [
