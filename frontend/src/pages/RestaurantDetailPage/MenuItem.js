@@ -56,8 +56,8 @@ const NormalMenu = styled.p`
 `;
 
 const Price = styled.p`
-	width: 60px;
 	margin: 20px 10px;
+	padding: 2px 10px;
 	text-align: center;
 	background-color: #555555;
 	color: white;
@@ -67,34 +67,34 @@ const Price = styled.p`
 	font-weight: 400;
 `;
 
-const MenuItem = ({ menuData }) => {
+const MenuItem = ({ menuData, restaurantNum }) => {
 	return (
 		<MenuContainer>
 			<div style={{ display: "flex" }}>
 				<TypeName>
 					{menuData.dept === "STAFF" ? "교직원식당" : "학생식당"}
 				</TypeName>
-				<Price>{menuData.price}</Price>
+				<Price>
+					{restaurantNum === 3 ? "메뉴별 가격 상이" : menuData.price}
+				</Price>
 			</div>
 			<div style={{ textAlign: "center" }}>
-				{
-					menuData.dishList.map((menu, index) => {
-						const containsKeyword = menuData.keywordList.some((keyword) =>
-							menu.includes(keyword)
-						);
-						const isKeyword = containsKeyword ? "need-underline" : null;
-						return index === 0 ? (
-							<MainMenuContainer key={index}>
-								<FontAwesomeIcon icon={faUtensils} fontSize={25} />
-								<MainMenu className={isKeyword}>{menu}</MainMenu>
-							</MainMenuContainer>
-						) : (
-							<NormalMenu className={isKeyword} key={index}>
-								{menu}
-							</NormalMenu>
-						);
-					})
-				}
+				{menuData.dishList.map((menu, index) => {
+					const containsKeyword = menuData.keywordList.some((keyword) =>
+						menu.includes(keyword)
+					);
+					const isKeyword = containsKeyword ? "need-underline" : null;
+					return index === 0 ? (
+						<MainMenuContainer key={index}>
+							<FontAwesomeIcon icon={faUtensils} fontSize={25} />
+							<MainMenu className={isKeyword}>{menu}</MainMenu>
+						</MainMenuContainer>
+					) : (
+						<NormalMenu className={isKeyword} key={index}>
+							{menu}
+						</NormalMenu>
+					);
+				})}
 			</div>
 		</MenuContainer>
 	);
