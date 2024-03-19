@@ -6,7 +6,12 @@ import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +29,12 @@ public class User {
     private String nickname;
     @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
+
+    @CreationTimestamp // INSERT 시 자동으로 값을 채워줌
+    private LocalDateTime createTime = LocalDateTime.now();
+
+    @UpdateTimestamp
+    private LocalDateTime lastUpdateTime = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserKeyword> userKeywords = new ArrayList<>();
@@ -63,5 +74,21 @@ public class User {
 
     public List<Keyword> getKeywords() {
         return this.getUserKeywords().stream().map(x -> x.getKeyword()).collect(Collectors.toList());
+    }
+
+    /**
+     * dateTime를 기준으로 닉네임을 변경할 수 있는지 판단
+     * @param dateTime 판단 날짜(통상 오늘)
+     * @return 닉네임 변경 가능 여부
+     */
+    public boolean canUpdateNickname(LocalDateTime dateTime) {
+
+
+        Period period = Period.between(lastUpdateTime.toLocalDate(), dateTime.toLocalDate());
+
+        int gap = Math.abs(period.getDays());
+
+        // 14일 이후에 변경하는 경우나 아직 닉네임을 지정하지 않아 최초 등록의 경우는 닉네임을 수정할 수 있다.
+        return (gap > 14) || nickname == null;
     }
 }

@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.user;
 import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,14 @@ public class UserController {
     @PutMapping("/nickname")
     public ResponseEntity changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
         String email = tokenProvider.decodeToEmail(nicknameRequest.getToken());
-        userService.updateNickname(email, nicknameRequest.getNickname());
 
-        return ResponseEntity.ok(HttpStatus.OK);
+        if(userService.canUpdateNickname(email)){
+            userService.updateNickname(email, nicknameRequest.getNickname());
+            return ResponseEntity.ok(HttpStatus.OK);
+        }
+        String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
+        NicknameUpdateResponseDto responseDto = NicknameUpdateResponseDto.getInstance(lastUpdateTime);
+        return ResponseEntity.status(403).body(responseDto);
     }
 
     @GetMapping("/nickname/{token}")

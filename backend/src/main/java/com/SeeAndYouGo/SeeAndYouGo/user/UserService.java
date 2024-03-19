@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional(readOnly = false)
 @RequiredArgsConstructor
@@ -28,5 +30,17 @@ public class UserService {
     public String findNickname(String email) {
         User user = userRepository.findByEmail(email);
         return user.getNickname() == null ? "익명" : user.getNickname();
+    }
+
+    public boolean canUpdateNickname(String email) {
+        User user = userRepository.findByEmail(email);
+
+        return user.canUpdateNickname(LocalDateTime.now());
+    }
+
+    public String getLastUpdateTimeForNickname(String email) {
+        User user = userRepository.findByEmail(email);
+
+        return user.getLastUpdateTime().toLocalDate().toString();
     }
 }
