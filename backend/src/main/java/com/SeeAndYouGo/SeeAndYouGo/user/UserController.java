@@ -30,16 +30,19 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public ResponseEntity changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
+    public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
         String email = tokenProvider.decodeToEmail(nicknameRequest.getToken());
-
-        if(userService.canUpdateNickname(email)){
-            userService.updateNickname(email, nicknameRequest.getNickname());
-            return ResponseEntity.ok(HttpStatus.OK);
-        }
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
-        NicknameUpdateResponseDto responseDto = NicknameUpdateResponseDto.getInstance(lastUpdateTime);
-        return ResponseEntity.status(403).body(responseDto);
+
+        boolean canUpdate;
+        if(canUpdate = userService.canUpdateNickname(email)){
+            userService.updateNickname(email, nicknameRequest.getNickname());
+        }
+
+        return NicknameUpdateResponseDto.builder()
+                .update(canUpdate)
+                .lastUpdate(lastUpdateTime)
+                .build();
     }
 
     @GetMapping("/nickname/{token}")
