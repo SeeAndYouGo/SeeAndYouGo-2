@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,18 +26,16 @@ public class ReviewService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
-    public Long registerReview(ReviewRequestDto dto) {
+    public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(dto.getRestaurant(),
+        Restaurant restaurant = restaurantRepository.findByNameAndDate(data.getRestaurant(),
                 LocalDate.of(time.getYear(), time.getMonth(), time.getDayOfMonth()).toString());
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant not found for name: " + dto.getRestaurant());
-        }
-        // 연관관계 존재
-        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(dto.getDept()), dto.getMenuName());
-        Review review = Review.createEntity(dto, restaurant, menu, time.format(formatter));
+        Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
+        // 연관관계 존재
+        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
+        Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
         menu.addReviewAndUpdateRate(review);
         restaurant.updateTotalRate();
         reviewRepository.save(review);
@@ -158,7 +153,6 @@ public class ReviewService {
             // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
             if(deptFilter(dept, menu.getDept())) continue;
             Dish mainDish = menu.getMainDish();
-
             if(mainDish == null) continue;
 
             // mainDish가 같아도 restaurant이 다를 수 있으니, 같은 restaurant만 넣어주자.

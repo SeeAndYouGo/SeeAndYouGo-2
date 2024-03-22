@@ -73,15 +73,15 @@ public class Review {
         return likeCount;
     }
 
-    public static Review createEntity(ReviewRequestDto dto, Restaurant restaurant, Menu menu, String time) {
+    public static Review createEntity(ReviewData data, Restaurant restaurant, Menu menu, String time) {
         return Review.builder()
-                .writerEmail(dto.getWriter())
-                .writerNickname(dto.getNickName())
+                .writerEmail(data.getEmail())
+                .writerNickname(data.getNickName())
                 .madeTime(time)
                 .likeCount(0)
-                .comment(dto.getComment())
-                .imgLink(dto.getImgUrl())
-                .reviewRate(dto.getRate())
+                .comment(data.getComment())
+                .imgLink(data.getImgUrl())
+                .reviewRate(data.getRate())
                 .reportCount(0)
                 .restaurant(restaurant)
                 .menu(menu)

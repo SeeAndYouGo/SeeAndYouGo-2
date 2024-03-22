@@ -100,6 +100,8 @@ public class ReviewController {
 
         String tokenId = dto.getWriter();
         if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
+        String email = tokenProvider.decodeToEmail(tokenId);
+        String nickname = userService.findNickname(email);
 
         String imgUrl = "";
          if (image != null) {
@@ -110,16 +112,18 @@ public class ReviewController {
              }
          }
 
-        // 원하는 날짜 및 시간 형식을 정의합니다.
-        String email = tokenProvider.decodeToEmail(tokenId);
-        String nickname = userService.findNickname(email);
-        String restaurantName = Restaurant.parseName(dto.getRestaurant());
-        dto.setRestaurant(restaurantName);
-        dto.setWriter(email);
-        dto.setNickName(dto.isAnonymous() ? "익명" : nickname);
-        dto.setImgUrl(imgUrl);
+        ReviewData data = ReviewData.builder()
+                .comment(dto.getComment())
+                .rate(dto.getRate())
+                .dept(dto.getDept())
+                .menuName(dto.getMenuName())
+                .email(email)
+                .nickName(dto.isAnonymous() ? "익명" : nickname)
+                .restaurant(Restaurant.parseName(dto.getRestaurant()))
+                .imgUrl(imgUrl)
+                .build();
 
-        Long reviewId = reviewService.registerReview(dto);
+        Long reviewId = reviewService.registerReview(data);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }

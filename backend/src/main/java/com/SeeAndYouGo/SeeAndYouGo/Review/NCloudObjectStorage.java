@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,6 @@ public class NCloudObjectStorage {
 
     public String imgUpload(InputStream file, String contentType) throws Exception {
         // S3 client
-        // S3 client
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
@@ -60,10 +60,10 @@ public class NCloudObjectStorage {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(contentType);
         metadata.setContentLength(file.available());
+        s3.putObject(new PutObjectRequest(bucketName,folderName+one, file,metadata).withCannedAcl(CannedAccessControlList.PublicRead));
 
         URL seeandyougoUrl = s3.getUrl("seeandyougo", "img-folder/" + one);
         System.out.format("Object %s has been created.\n", objectName);
         return seeandyougoUrl.toURI().toString();
     }
 }
-
