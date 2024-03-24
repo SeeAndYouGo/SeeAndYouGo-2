@@ -158,7 +158,7 @@ const SetNicknamePage = () => {
     });
   }
 
-  const NicknameSet = () => {
+  const NicknameSet = async () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
     const Token = user.token;
 
@@ -166,30 +166,22 @@ const SetNicknamePage = () => {
       "token": Token,
       "nickname": nicknameValue
     }
-    
-		fetch(url, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(nicknameRequestJson),
-		})
-    .then((res) => { // 닉네임 설정 완료
-      if (res.status === 200) {
+
+    await axios.put(url, nicknameRequestJson)
+    .then((res) => {
+      const data = res.data;
+      if (data.update === false) {
+        setNicknameDateCheck(false);
+        const date = new Date(data.last_update);
+        date.setDate(date.getDate() + 15);
+        setNicknameDate(date.toISOString().substring(0,10));
+        dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
+      } else {
         setNicknameDateCheck(true);
         dispatch(setNickname(nicknameValue));
         dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
         navigator("/");
-      } else {
-        setNicknameDateCheck(false);
-        const date = new Date(res.last_update);
-        date.setDate(date.getDate() + 15);
-        setNicknameDate(date.toISOString().substring(0,10));
-        dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
       }
-    }).catch((res) => { // 닉네임 설정 실패
-      console.log(res);
-      dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
     });
   }
 
