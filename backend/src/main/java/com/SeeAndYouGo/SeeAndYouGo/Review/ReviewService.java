@@ -131,17 +131,19 @@ public class ReviewService {
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         restaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
 
-        List<Review> reviews = new ArrayList<>();
+//        List<Review> reviews = new ArrayList<>();
         Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date);
+//
+//        reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
+//
+//        if(restaurantName.contains("2") || restaurantName.contains("3")) {
+//            // 2학과 3학은 STAFF가 있으므로 이 review까지 더해준다.
+//            reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STAFF));
+//        }
 
-        reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
+        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
 
-        if(restaurantName.contains("2") || restaurantName.contains("3")) {
-            // 2학과 3학은 STAFF가 있으므로 이 review까지 더해준다.
-            reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STAFF));
-        }
-
-        return reviews;
+//        return reviews;
     }
 
     /**
