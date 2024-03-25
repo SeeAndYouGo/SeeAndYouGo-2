@@ -31,4 +31,17 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findReviewsByRestaurantAndDate(@Param("restaurantName") String restaurantName, @Param("date") String date);
 
     List<Review> findByWriterEmailOrderByMadeTimeDesc(String userEmail);
+
+    @Query(value = "SELECT * FROM review " +
+            "WHERE menu_id IN ( " +
+            "SELECT menu_id FROM menu_dish " +
+            "WHERE dish_id IN " +
+            "(SELECT DISTINCT md.dish_id FROM menu_dish md, dish d " +
+            "WHERE menu_id IN " +
+            "(SELECT menu_id FROM menu WHERE date=:date AND restaurant_id = :restaurantId) " +
+            "AND d.dish_type='MAIN') " +
+            ")", nativeQuery = true)
+    List<Review> findRestaurantReviews(@Param("restaurantId") Long restaurantId, @Param("date") String date);
+
+
 }
