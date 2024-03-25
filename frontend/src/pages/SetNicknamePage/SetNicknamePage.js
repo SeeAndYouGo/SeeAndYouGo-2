@@ -173,7 +173,7 @@ const SetNicknamePage = () => {
       if (data.update === false) {
         setNicknameDateCheck(false);
         const date = new Date(data.last_update);
-        date.setDate(date.getDate() + 15);
+        date.setDate(date.getDate() + 14);
         setNicknameDate(date.toISOString().substring(0,10));
         dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
       } else {
