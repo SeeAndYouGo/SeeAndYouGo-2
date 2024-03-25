@@ -174,6 +174,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
+            <Link to="/set-nickname" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+              <MenuName>
+              <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>manage_accounts</span>
+                <span>닉네임 수정</span>
+              </MenuName>
+            </Link>
             <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
