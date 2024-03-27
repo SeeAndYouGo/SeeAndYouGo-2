@@ -37,7 +37,7 @@ public class MenuController {
     public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                                @PathVariable(value = "user_id", required = false) String tokenId) {
         String date = getTodayDate();
-        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
+        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
 
         List<String> keyStrings = new ArrayList<>();
         if (tokenId != null) {
