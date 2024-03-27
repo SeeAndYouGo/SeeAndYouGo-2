@@ -1,11 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,48 +144,48 @@ public class ReviewService {
 //        return reviews;
     }
 
-    /**
-     * restaurant의 mainMenu 기준으로 동일한 학생식당의 과거 같은 mainDish에 달린 review들까지 모조리 불러온다.
-     */
-    public List<Review> getReviewsByRestaurantAndMainDishAndDept(String restaurantName, Restaurant restaurant, Dept dept) {
-        List<Review> result = new ArrayList<>();
-        for (Menu menu : restaurant.getMenuList()) {
-            // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
-            if(deptFilter(dept, menu.getDept())) continue;
-            Dish mainDish = menu.getMainDish();
-            if(mainDish == null) continue;
-
-            // mainDish가 같아도 restaurant이 다를 수 있으니, 같은 restaurant만 넣어주자.
-            for (Review review : mainDish.getReviews()) {
-                if(restaurantName.equals(review.getRestaurant().getName())){
-                    result.add(review);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * standard의 dept가 STUDENT이면 target이 JAPANESE와 같은 1학의 카테고리들이거나 STUDENT일 때 true로 반환하고,
-     * STAFF이면 오직 STAFF만 반환하는 메서드
-     * @return
-     */
-    public boolean deptFilter(Dept standard, Dept target){
-        if(standard.equals(Dept.STUDENT)){
-            if(target.equals(Dept.STAFF)) return true;
-            return false;
-        }
-
-        // STUDENT가 아니라면 STAFF일 것이다.
-        if(standard.equals(Dept.STAFF)){
-            if(target.equals(Dept.STAFF)) return false;
-            return true;
-        }
-
-        // 만약 STUDENT와 STAFF가 아닌 다른 DEPT가 stadard에 왔다면 잘못된 호출이다.
-        throw new IllegalArgumentException("standard에는 STUDENT와 STAFF만 올 수 있습니다.");
-    }
+//    /**
+//     * restaurant의 mainMenu 기준으로 동일한 학생식당의 과거 같은 mainDish에 달린 review들까지 모조리 불러온다.
+//     */
+//    public List<Review> getReviewsByRestaurantAndMainDishAndDept(String restaurantName, Restaurant restaurant, Dept dept) {
+//        List<Review> result = new ArrayList<>();
+//        for (Menu menu : restaurant.getMenuList()) {
+//            // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
+//            if(deptFilter(dept, menu.getDept())) continue;
+//            Dish mainDish = menu.getMainDish();
+//            if(mainDish == null) continue;
+//
+//            // mainDish가 같아도 restaurant이 다를 수 있으니, 같은 restaurant만 넣어주자.
+//            for (Review review : mainDish.getReviews()) {
+//                if(restaurantName.equals(review.getRestaurant().getName())){
+//                    result.add(review);
+//                }
+//            }
+//        }
+//
+//        return result;
+//    }
+//
+//    /**
+//     * standard의 dept가 STUDENT이면 target이 JAPANESE와 같은 1학의 카테고리들이거나 STUDENT일 때 true로 반환하고,
+//     * STAFF이면 오직 STAFF만 반환하는 메서드
+//     * @return
+//     */
+//    public boolean deptFilter(Dept standard, Dept target){
+//        if(standard.equals(Dept.STUDENT)){
+//            if(target.equals(Dept.STAFF)) return true;
+//            return false;
+//        }
+//
+//        // STUDENT가 아니라면 STAFF일 것이다.
+//        if(standard.equals(Dept.STAFF)){
+//            if(target.equals(Dept.STAFF)) return false;
+//            return true;
+//        }
+//
+//        // 만약 STUDENT와 STAFF가 아닌 다른 DEPT가 stadard에 왔다면 잘못된 호출이다.
+//        throw new IllegalArgumentException("standard에는 STUDENT와 STAFF만 올 수 있습니다.");
+//    }
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
