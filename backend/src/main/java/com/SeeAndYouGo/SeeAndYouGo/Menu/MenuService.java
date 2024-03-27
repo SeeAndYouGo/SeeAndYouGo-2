@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
@@ -28,6 +29,7 @@ public class MenuService {
      * 1, 2, 3학은 식당에서 메뉴를 2개 제공하고
      * 4, 5학은 식당에서 메뉴를 1개 제공하므로 List로 반환한다.
      */
+    @Cacheable(value="getDailyMenu", key="#date")
     public List<Menu> getOneDayRestaurantMenu(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
 

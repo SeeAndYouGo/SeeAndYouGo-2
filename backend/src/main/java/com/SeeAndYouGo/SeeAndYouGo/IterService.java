@@ -5,7 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +27,10 @@ public class IterService {
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
+
     @Scheduled(cron="0 0 0 * * SAT")
     @Transactional
+    @CacheEvict(value = "getWeeklyMenu", allEntries=true)  // @CacheEvict를 활용하여 기존에 caching되고 있는 getMenu 라는것을 날려주도록 하자.
     public void weeklyIterative(){
         // 기본적으로 토요일에 호출되는 메섣.
 
@@ -52,7 +54,6 @@ public class IterService {
             System.out.println(e.getMessage());
         }
     }
-
 //    @Scheduled(cron="0 0 0 * * MON-FRI")
 //    public void dailyIterative(){
 //        try {

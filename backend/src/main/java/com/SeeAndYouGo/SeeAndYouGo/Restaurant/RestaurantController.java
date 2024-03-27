@@ -26,12 +26,13 @@ public class RestaurantController {
 
     @GetMapping("/restaurant/{restaurantNumber}/rate/main")
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
-        return restaurantService.getTotalRestaurantRate(restaurantNumber);
+        String restaurantName = Restaurant.parseName(String.valueOf(restaurantNumber));
+        return restaurantService.getTotalRestaurantRate(restaurantName);
     }
 
     @GetMapping("/restaurant/{restaurantNumber}/rate/detail")
     public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
-        return restaurantService.getDetailRestaurantRate(restaurantNumber);
+        String restaurantName = Restaurant.parseName(String.valueOf(restaurantNumber));
+        return restaurantService.getDetailRestaurantRate(restaurantName);
     }
-
 }
