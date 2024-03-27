@@ -199,6 +199,9 @@ public class ReviewService {
     }
 
     @Transactional
+    @Caching( evict = {
+            @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
 
