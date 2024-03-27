@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -52,6 +54,10 @@ public class Restaurant {
         return name+" "+date + " " + menuList;
     }
 
+
+    @Caching(evict = {
+            @CacheEvict(value="getTotalRestaurantRate", key="#name"),
+            @CacheEvict(value="getDetailRestaurantRate", key="#name")})
     public void updateTotalRate() {
         double sum = 0.0;
         int count = 0;

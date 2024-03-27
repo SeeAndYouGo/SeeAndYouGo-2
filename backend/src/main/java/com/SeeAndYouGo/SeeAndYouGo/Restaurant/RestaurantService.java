@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -175,15 +176,13 @@ public class RestaurantService {
         return restaurantRepository.existsByDate(nearestMonday.toString());
     }
 
-    public RestaurantTotalRateResponseDto getTotalRestaurantRate(Integer restaurantNumber) {
-        String restaurantName = parseRestaurantName(String.valueOf(restaurantNumber));
-
+    @Cacheable(value="getTotalRestaurantRate", key="#restaurantName")
+    public RestaurantTotalRateResponseDto getTotalRestaurantRate(String restaurantName) {
         List<Restaurant> restaurants = restaurantRepository.findAllByName(restaurantName);
         double avgRate = calculateRestaurantAvgRate(restaurants);
         return RestaurantTotalRateResponseDto.builder()
                     .totalAvgRate(avgRate)
                     .build();
-
 //        현재는 1학 리뷰의 전체를 하므로 아래의 코드는 쓰지 않는다. 아래의 코드는 당일 1학에 대한 평점을 반환하는 코드이다.
 //        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
 //        return RestaurantTotalRateResponseDto.builder()
@@ -205,8 +204,8 @@ public class RestaurantService {
         return count == 0 ? 0.0 : (sum/count);
     }
 
-    public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(Integer restaurantNumber) {
-        String restaurantName = parseRestaurantName(String.valueOf(restaurantNumber));
+    @Cacheable(value="getDetailRestaurantRate", key="#restaurantName")
+    public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(String restaurantName) {
 
         // detail에서 보여지는 평점은 메인메뉴에 대한 평점이다.
         // 만약 메인메뉴가 없다면 평점은 우선 0.0점으로 가자.
