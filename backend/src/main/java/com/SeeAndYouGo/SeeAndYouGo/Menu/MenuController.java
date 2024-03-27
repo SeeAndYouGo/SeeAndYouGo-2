@@ -10,8 +10,10 @@ import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -96,6 +98,7 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu/{restaurant}")
+    @Cacheable(value="getWeeklyMenu", key="#place")
     public ResponseEntity<List<MenuResponseDto>> restaurantMenuWeek(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
@@ -109,6 +112,7 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
+    @Cacheable(value="getWeeklyMenu")
     public ResponseEntity<List<MenuResponseByAdminDto>> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
