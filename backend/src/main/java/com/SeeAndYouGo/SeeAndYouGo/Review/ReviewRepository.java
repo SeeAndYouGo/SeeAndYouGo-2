@@ -36,9 +36,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "WHERE menu_id IN ( " +
             "SELECT menu_id FROM menu_dish " +
             "WHERE dish_id IN " +
-            "(SELECT DISTINCT md.dish_id FROM menu_dish md, dish d " +
-            "WHERE menu_id IN " +
-            "(SELECT menu_id FROM menu WHERE date=:date AND restaurant_id = :restaurantId) " +
+            "(SELECT DISTINCT md.dish_id FROM menu_dish md " +
+            "JOIN dish d ON md.dish_id = d.dish_id " +
+            "WHERE md.menu_id IN " +
+            "(SELECT menu_id FROM menu WHERE date= :date AND restaurant_id = :restaurantId) " +
             "AND d.dish_type='MAIN') " +
             ")", nativeQuery = true)
     List<Review> findRestaurantReviews(@Param("restaurantId") Long restaurantId, @Param("date") String date);
