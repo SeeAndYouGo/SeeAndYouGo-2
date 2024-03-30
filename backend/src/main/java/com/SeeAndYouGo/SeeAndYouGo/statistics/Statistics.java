@@ -40,7 +40,7 @@ public class Statistics {
         double beforeSum = averageConnection * accumulatedCount;
         double afterSum = beforeSum + connection.getConnected();
 
-        this.averageConnection = afterSum;
         accumulatedCount++;
+        this.averageConnection = afterSum/accumulatedCount;
     }
 }

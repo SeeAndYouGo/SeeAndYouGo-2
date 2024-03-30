@@ -84,7 +84,7 @@ public class StatisticsService {
                         .time(time)
                         .updateTime(today)
                         .averageConnection(0)
-                        .accumulatedCount(1)
+                        .accumulatedCount(0)
                         .build();
 
                 statisticsList.add(statistics);

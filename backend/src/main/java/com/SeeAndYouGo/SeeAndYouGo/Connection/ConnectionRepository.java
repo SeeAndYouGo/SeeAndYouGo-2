@@ -20,6 +20,6 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     @Query(value = "SELECT c FROM Connection c " +
             "WHERE c.restaurant.name = :name " +
-            "AND c.time LIKE :date%", nativeQuery = true)
+            "AND c.time LIKE :date%")
     List<Connection> findByRestaurantNameAndDate(@Param("name") String restaurantName, @Param("date") String date);
 }
