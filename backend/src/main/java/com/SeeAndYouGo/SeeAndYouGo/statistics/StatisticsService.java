@@ -45,7 +45,7 @@ public class StatisticsService {
                 LocalTime time = getValidTime(connection);
                 Statistics statistics = statisticsRepository.findByRestaurantNameAndTime(restaurantName, time);
 
-                statistics.updateAverageConnection(connection);
+                statistics.updateAverageConnection(connection, date);
             }
         }
     }

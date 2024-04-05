@@ -36,11 +36,13 @@ public class Statistics {
         this.accumulatedCount = accumulatedCount;
     }
 
-    public void updateAverageConnection(Connection connection) {
+    public void updateAverageConnection(Connection connection, LocalDate date) {
         double beforeSum = averageConnection * accumulatedCount;
         double afterSum = beforeSum + connection.getConnected();
 
         accumulatedCount++;
         this.averageConnection = afterSum/accumulatedCount;
+
+        this.updateTime = date;
     }
 }
