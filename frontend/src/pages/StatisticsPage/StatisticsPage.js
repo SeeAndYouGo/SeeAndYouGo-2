@@ -56,8 +56,7 @@ const tabletRestaurantArray = [
 
 
 const StatisticsPage = () => {
-  const [statisticsData, setStatisticsData] = useState([]);
-  const [statisticsLabel, setStatisticsLabel] = useState([]);
+  const [datas, setDatas] = useState([]);
 	const [currentTab, setCurrentTab] = useState(0);
 
 	// const createUrl = (restaurantIdx) => config.BASE_URL + "/connection/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
@@ -66,21 +65,19 @@ const StatisticsPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = createUrl(currentTab + 1);
-        await axios.get(url)
-        .then((res) => {
-          const datas = res.data.filter((data) => data.time >= '10:00' && data.time <= '15:00');
-          const labelData = datas.map(item => item.time);
-          const avgData = datas.map(item => item.averageValue);
-          setStatisticsLabel(labelData);
-          setStatisticsData(avgData);
-        });
+        const url = [createUrl(1), createUrl(2), createUrl(3), createUrl(4), createUrl(5)];
+        await axios.all(
+          url.map((path) => axios.get(path))
+        ).then((res) => {
+          setDatas(res.map((data) => data.data));
+        }
+        );
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  }, [currentTab]);
+  }, [])
 
   const TabMenuUl = () => {
     return (
@@ -113,7 +110,10 @@ const StatisticsPage = () => {
       <div className="App3">
         <TabMenuUl />
         <ChartWrapper>
-          <LineChart statisticsData={statisticsData} statisticsLabel={statisticsLabel} />
+          {
+            datas.length === 0 ? <div>로딩중...</div> :
+            <LineChart datas={datas} tab={currentTab} />
+          }
         </ChartWrapper>
       </div>
   );

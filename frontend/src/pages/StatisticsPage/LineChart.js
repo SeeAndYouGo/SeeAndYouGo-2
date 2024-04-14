@@ -13,8 +13,12 @@ ChartJS.register(
   Tooltip,
 );
 
-const LineChart = ({statisticsData, statisticsLabel}) => {
+const LineChart = ({datas, tab}) => {
+  const filterData = datas[tab].filter((el) => el.time >= '10:00' && el.time <= '15:00');
+  const statisticsLabel = filterData.map((el) => el.time);
+  const statisticsData = filterData.map((el) => el.averageValue);
 
+  console.log(statisticsLabel);
   const option = {
     scales: {
       x : {
