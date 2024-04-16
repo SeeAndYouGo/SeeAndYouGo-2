@@ -1,0 +1,322 @@
+[
+  {
+      "time": "07:00",
+      "averageValue": 73.45,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:05",
+      "averageValue": 64.12,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:10",
+      "averageValue": 50.89,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:15",
+      "averageValue": 81.73,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:20",
+      "averageValue": 69.58,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:25",
+      "averageValue": 45.36,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:30",
+      "averageValue": 56.27,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:35",
+      "averageValue": 88.91,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:40",
+      "averageValue": 71.23,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:45",
+      "averageValue": 62.05,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:50",
+      "averageValue": 79.17,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "07:55",
+      "averageValue": 54.78,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:00",
+      "averageValue": 66.94,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:05",
+      "averageValue": 60.11,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:10",
+      "averageValue": 47.63,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:15",
+      "averageValue": 85.29,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:20",
+      "averageValue": 73.41,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:25",
+      "averageValue": 59.87,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:30",
+      "averageValue": 77.68,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:35",
+      "averageValue": 51.24,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:40",
+      "averageValue": 68.93,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:45",
+      "averageValue": 83.15,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:50",
+      "averageValue": 57.82,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "08:55",
+      "averageValue": 64.39,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:00",
+      "averageValue": 79.46,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:05",
+      "averageValue": 55.71,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:10",
+      "averageValue": 72.03,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:15",
+      "averageValue": 87.24,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:20",
+      "averageValue": 63.58,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:25",
+      "averageValue": 66.75,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:30",
+      "averageValue": 81.82,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:35",
+      "averageValue": 59.39,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:40",
+      "averageValue": 75.96,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:45",
+      "averageValue": 90.11,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:50",
+      "averageValue": 65.47,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "09:55",
+      "averageValue": 83.62,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:00",
+      "averageValue": 70.15,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:05",
+      "averageValue": 57.83,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:10",
+      "averageValue": 88.49,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:15",
+      "averageValue": 74.68,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:20",
+      "averageValue": 62.25,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:25",
+      "averageValue": 79.34,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:30",
+      "averageValue": 55.97,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:35",
+      "averageValue": 68.43,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:40",
+      "averageValue": 85.76,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:45",
+      "averageValue": 61.18,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:50",
+      "averageValue": 72.45,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "10:55",
+      "averageValue": 88.93,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "11:00",
+      "averageValue": 64.67,
+      "type": "BREAKFAST"
+  },
+  {
+      "time": "11:05",
+      "averageValue": 66.12,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:10",
+      "averageValue": 82.45,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:15",
+      "averageValue": 58.93,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:20",
+      "averageValue": 70.12,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:25",
+      "averageValue": 86.45,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:30",
+      "averageValue": 62.12,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:35",
+      "averageValue": 73.45,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:40",
+      "averageValue": 89.12,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:45",
+      "averageValue": 65.89,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:50",
+      "averageValue": 74.73,
+      "type": "LUNCH"
+  },
+  {
+      "time": "11:55",
+      "averageValue": 90.27,
+      "type": "LUNCH"
+  },
+  {
+      "time": "12:00",
+      "averageValue": 66.58,
+      "type": "LUNCH"
+  },
+  {
+      "time": "12:05",
+      "averageValue": 75.75,
+      "type": "LUNCH"
+  },
+  {
+      "time": "12:10",
+      "averageValue": 91.82,
+      "type": "LUNCH"
+  },
+  {
+      "time": "12:15",
+      "averageValue": 67.39,
+      "type": "LUNCH"
+  }
+]
