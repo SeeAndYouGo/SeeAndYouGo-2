@@ -29,7 +29,7 @@ public class MenuService {
      * 1, 2, 3학은 식당에서 메뉴를 2개 제공하고
      * 4, 5학은 식당에서 메뉴를 1개 제공하므로 List로 반환한다.
      */
-    @Cacheable(value="getDailyMenu", key="#date")
+    @Cacheable(value="getDailyMenu", key="#restaurantName.concat('-').concat(#date)")
     public List<Menu> getOneDayRestaurantMenu(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
 
