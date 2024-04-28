@@ -205,12 +205,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>리뷰페이지</span>
               </MenuName>
             </Link>
-            <Link to="/statistics" onClick={toggleMenu} style={{marginBottom: 10}}>
+            {/* <Link to="/statistics" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>bar_chart</span>
                 <span>혼잡도 통계보기</span>
               </MenuName>
-            </Link>
+            </Link> */}
             <Link to="/notice-page" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>info</span>
@@ -223,6 +223,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat_paste_go</span>
                 <span>의견 보내기</span>
+              </MenuName>
+            </Link>
+            <Link to="https://forms.gle/bPD39RuBwSRKjpRn6" target="_blank" onClick={toggleMenu} style={{marginBottom: 10}}>
+              <MenuName>
+                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>celebration</span>
+                <span>이벤트 참여하기 (04.29 ~ 05.10)</span>
               </MenuName>
             </Link>
           </MenuList>
