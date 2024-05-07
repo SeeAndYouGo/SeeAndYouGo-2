@@ -17,9 +17,9 @@ public class ConnectionsStatisticsResponseDto {
         this.type = MenuType.resolveToMenuType(statistics.getTime()).toString();
     }
 
-    public ConnectionsStatisticsResponseDto(ConnectionStatisticsDto statistics){
-        this.time = statistics.getTime().toString();
-        this.averageValue = (int) statistics.getAvgConnection();
-        this.type = MenuType.resolveToMenuType(statistics.getTime()).toString();
-    }
+    // public ConnectionsStatisticsResponseDto(ConnectionStatisticsDto statistics){
+    //     this.time = statistics.getTime().toString();
+    //     this.averageValue = (int) statistics.getAvgConnection();
+    //     this.type = MenuType.resolveToMenuType(statistics.getTime()).toString();
+    // }
 }
