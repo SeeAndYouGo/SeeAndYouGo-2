@@ -29,7 +29,6 @@ public class IterService {
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
     @Scheduled(cron="0 0 0 * * SAT")
-    @Transactional
     public void weeklyIterative(){
         // 기본적으로 토요일에 호출되는 메섣.
 
