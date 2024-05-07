@@ -110,7 +110,7 @@ public class DishService {
             // URL 생성
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+            connection.setRequestMethod("POST");
 
             // 응답 코드 확인
             int responseCode = connection.getResponseCode();

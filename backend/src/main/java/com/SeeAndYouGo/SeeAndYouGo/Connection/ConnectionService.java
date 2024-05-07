@@ -152,7 +152,7 @@ public class ConnectionService {
         URL url = new URL(apiUrl);
         // HttpURLConnection 설정
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        connection.setRequestMethod("POST");
 
         // 응답 코드 확인
         int responseCode = connection.getResponseCode();
