@@ -12,13 +12,20 @@ import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -26,13 +33,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
 
-    private final NCloudObjectStorage nCloudObjectStorage;
     private final ReviewService reviewService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
+
 
     // 탑 리뷰 조회
     @GetMapping(value = "/top-review/{restaurant}")
@@ -94,23 +101,27 @@ public class ReviewController {
     }
 
     // 리뷰 게시
+    private static final String IMAGE_DIR = "imageStorage";
     @PostMapping(value = "/review")
     public ResponseEntity<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                                            @RequestPart(value = "image", required = false) MultipartFile image) {
-
         String tokenId = dto.getWriter();
         if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
         String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.findNickname(email);
 
         String imgUrl = "";
-         if (image != null) {
-             try {
-                 imgUrl = nCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
-             } catch (Exception e) {
-                 throw new RuntimeException(e);
-             }
-         }
+        if (image != null) {
+            try {
+                Files.createDirectories(Paths.get(IMAGE_DIR));
+                String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
+                Path targetPath = Paths.get(IMAGE_DIR, imgName);
+                image.transferTo(targetPath);
+                imgUrl = "/api/images/" + imgName;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         ReviewData data = ReviewData.builder()
                 .comment(dto.getComment())
@@ -126,6 +137,12 @@ public class ReviewController {
         Long reviewId = reviewService.registerReview(data);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
+    }
+    @ResponseBody
+    @GetMapping("/images/{imgUrl}")
+    public UrlResource showImage(@PathVariable String imgUrl) throws Exception {
+        File file =new File(IMAGE_DIR + "/" + imgUrl);
+        return new UrlResource("file:" + file.getAbsolutePath());
     }
 
     @GetMapping("/reviews/{token}")
