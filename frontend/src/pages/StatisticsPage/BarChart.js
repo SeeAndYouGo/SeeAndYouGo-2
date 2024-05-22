@@ -1,30 +1,27 @@
 import {
 	Chart as ChartJS,
+	CategoryScale,
+	LinearScale,
+	BarElement,
 	Tooltip,
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Tooltip
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
-const LineChart = ({ datas, tab }) => {
+const BarChart = ({ datas, tab }) => {
 	const filterData = datas[tab].filter((el) => el.time >= "10:00" && el.time <= "15:00");
 	const statisticsLabel = filterData.map((el) => el.time);
 	const statisticsData = filterData.map((el) => el.averageValue);
 
-	console.log(statisticsLabel);
 	const option = {
+		indexAxis: "y",
 		scales: {
 			x: {
+				position: "top",
+			},
+			y: {
+				position: "left",
 				ticks: {
 					autoSkip: true,
 					maxTicksLimit: 11,
@@ -52,7 +49,7 @@ const LineChart = ({ datas, tab }) => {
 		],
 	};
 
-	return <Line options={option} data={topAvgData} />;
+	return <Bar options={option} data={topAvgData} height={600} />;
 };
 
-export default LineChart;
+export default BarChart;
