@@ -65,11 +65,8 @@ const Header = () => {
             menu
           </span>
           {/* <span class="material-symbols-outlined event-icon">
-          priority_high
-          </span> */}
-          <span class="material-symbols-outlined event-icon">
             celebration
-          </span>
+          </span> */}
         </MenuWrapper>
       </HeaderContainer>
       <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />

@@ -225,12 +225,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>의견 보내기</span>
               </MenuName>
             </Link>
-            <Link to="https://forms.gle/bPD39RuBwSRKjpRn6" target="_blank" onClick={toggleMenu} style={{marginBottom: 10}}>
+            {/* <Link to="https://forms.gle/bPD39RuBwSRKjpRn6" target="_blank" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>celebration</span>
                 <span>이벤트 참여하기 (05.20 ~ 05.31)</span>
               </MenuName>
-            </Link>
+            </Link> */}
           </MenuList>
         </div>
       </SideBarWrap>
