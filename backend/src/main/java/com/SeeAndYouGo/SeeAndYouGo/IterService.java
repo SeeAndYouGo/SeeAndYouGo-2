@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,19 @@ public class IterService {
             connectionService.saveAndCacheConnection();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    // 평일 점심 정보는 10시에 올리기
+    @Scheduled(cron = "0 0 10 * * MON-FRI")
+    public void postMenuInfo(){
+        String[] restaurantNames = RestaurantService.getRestaurantNames();
+
+        for (String restaurantName : restaurantNames) {
+            if(restaurantName.equals("1학생회관"))
+                continue;
+
+            menuService.postMenu(restaurantName, LocalDate.now().toString());
         }
     }
 
