@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.*;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
@@ -8,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,8 +38,8 @@ public class MenuService {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
 
         Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, date);
-        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
 
+        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
         return sortMainDish(menus);
     }
 
@@ -234,5 +238,62 @@ public class MenuService {
 
         dishRepository.save(dish);
         return dish;
+    }
+
+    public MenuPostDto postMenu(String restaurantName, String date) {
+        List<Menu> menu = getOneDayRestaurantMenu(restaurantName, date);
+
+        String message = parseMessageFormat(menu, restaurantName);
+
+        // message가 없다 == 메뉴가 없다. post를 보내지 않음.
+        if(message == null || message.equals("")){
+            return null;
+        }
+
+        Location location = RestaurantService.getLocationOfRestaurant(restaurantName);
+
+        RestTemplate restTemplate = new RestTemplate();
+        // 랜덤으로 세계 맥주에 대한 정보를 주는 url
+        String url = "https://random-data-api.com/api/v2/beers";
+
+        MenuPostDto dto = MenuPostDto.builder()
+                .latitude(location.getLatitude().toString())
+                .longitude(location.getLongitude().toString())
+                .title("오늘의 메뉴")
+                .content(message)
+                .build();
+
+        // POST 요청 보낼 때 requestBody를 같이 전달
+//        return restTemplate.postForObject(
+//                url,	// 요청 URL
+//                dto,	// request Body
+//                MenuPostDto.class	// 응답 해석 타입
+//        );
+
+        return dto;
+    }
+
+    /**
+     * 각 학생식당의 메뉴를 message 형식으로 변환하여 return한다.
+     */
+    private String parseMessageFormat(List<Menu> menus, String restaurantName){
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0; i<menus.size(); i++){
+            Menu menu = menus.get(i);
+
+            // 만약 메뉴정보가 없다면 올리지 않는 방향으로!
+            if(menu.getDishList().get(0).getName().equals("메뉴 정보 없음"))
+                continue;
+
+            sb.append(menu.getDept().getKoreanDept()+"식당 : ");
+            sb.append(menu.getDishList());
+
+            if((i+1) != menus.size())
+                // 마지막이 아닐 때만 개행문자를 추가함.
+                sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }
