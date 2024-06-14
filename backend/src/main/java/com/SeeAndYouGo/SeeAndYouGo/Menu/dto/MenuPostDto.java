@@ -16,4 +16,14 @@ public class MenuPostDto {
         this.title = title;
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return "MenuPostDto{" +
+                "latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

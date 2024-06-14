@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
+import com.SeeAndYouGo.SeeAndYouGo.AOP.LOG.TraceMethodLog;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
@@ -132,6 +133,7 @@ public class MenuController {
         return ResponseEntity.ok(menuListArr);
     }
 
+    @TraceMethodLog
     @GetMapping("/test/{restaurantName}/{date}")
     public MenuPostDto test(@PathVariable String restaurantName, @PathVariable String date){
         return menuService.postMenu(restaurantName, date);

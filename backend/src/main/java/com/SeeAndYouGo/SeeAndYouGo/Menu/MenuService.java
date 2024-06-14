@@ -7,10 +7,11 @@ import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MenuService {
+    private static final Logger logger = LoggerFactory.getLogger(MenuService.class);
 
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
@@ -245,16 +247,12 @@ public class MenuService {
 
         String message = parseMessageFormat(menu, restaurantName);
 
-        // message가 없다 == 메뉴가 없다. post를 보내지 않음.
+        // message가 없다 == 메뉴가 없다. <- 이 경우 message에 "없음" 전송
         if(message == null || message.equals("")){
-            return null;
+            message = "없음";
         }
 
         Location location = RestaurantService.getLocationOfRestaurant(restaurantName);
-
-        RestTemplate restTemplate = new RestTemplate();
-        // 랜덤으로 세계 맥주에 대한 정보를 주는 url
-        String url = "https://random-data-api.com/api/v2/beers";
 
         MenuPostDto dto = MenuPostDto.builder()
                 .latitude(location.getLatitude().toString())
@@ -263,12 +261,7 @@ public class MenuService {
                 .content(message)
                 .build();
 
-        // POST 요청 보낼 때 requestBody를 같이 전달
-//        return restTemplate.postForObject(
-//                url,	// 요청 URL
-//                dto,	// request Body
-//                MenuPostDto.class	// 응답 해석 타입
-//        );
+        logger.info("[API_JJONGAL] 데이터: " + dto.toString());
 
         return dto;
     }
