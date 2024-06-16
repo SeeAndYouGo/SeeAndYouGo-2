@@ -41,6 +41,24 @@ public class RestaurantService {
         return restaurants;
     }
 
+    /**
+     * 각 식당에 맞는 좌표를 반환한다.
+     */
+    public static Location getLocationOfRestaurant(String restaurantName) {
+        if(restaurantName.contains("1"))
+            return Location.of(36.367838, 127.343160);
+        else if (restaurantName.contains("2"))
+                return Location.of(36.365959, 127.345828);
+        else if (restaurantName.contains("3"))
+                return Location.of(36.371479, 127.344841);
+        else if (restaurantName.contains("4") || restaurantName.contains("상록회관"))
+                return Location.of(36.368605, 127.350374);
+        else if (restaurantName.contains("5") || restaurantName.contains("생활과학대") )
+                return Location.of(36.376309, 127.343158);
+
+        throw new IllegalArgumentException("이 학생식당은 존재하지 않습니다.");
+    }
+
     public void setRestaurant1MenuField() {
         try {
             // Read the JSON file
@@ -92,7 +110,7 @@ public class RestaurantService {
         if (name.contains("1")) return "1학생회관";
         else if (name.contains("2")) return "2학생회관";
         else if (name.contains("3")) return "3학생회관";
-        else if (name.contains("4")) return "상록회관";
+        else if (name.contains("4") || name.contains("상록회관")) return "상록회관";
         else if (name.contains("5") || name.contains("생활과학대") ) return "생활과학대";
         return name;
     }

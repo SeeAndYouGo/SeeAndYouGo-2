@@ -1,13 +1,18 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.*;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +23,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MenuService {
+    private static final Logger logger = LoggerFactory.getLogger(MenuService.class);
 
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
@@ -34,8 +40,8 @@ public class MenuService {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
 
         Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, date);
-        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
 
+        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
         return sortMainDish(menus);
     }
 
@@ -234,5 +240,53 @@ public class MenuService {
 
         dishRepository.save(dish);
         return dish;
+    }
+
+    public MenuPostDto postMenu(String restaurantName, String date) {
+        List<Menu> menu = getOneDayRestaurantMenu(restaurantName, date);
+
+        String message = parseMessageFormat(menu, restaurantName);
+
+        // message가 없다 == 메뉴가 없다. <- 이 경우 message에 "없음" 전송
+        if(message == null || message.equals("")){
+            message = "없음";
+        }
+
+        Location location = RestaurantService.getLocationOfRestaurant(restaurantName);
+
+        MenuPostDto dto = MenuPostDto.builder()
+                .latitude(location.getLatitude().toString())
+                .longitude(location.getLongitude().toString())
+                .title("오늘의 메뉴")
+                .content(message)
+                .build();
+
+        logger.info("[API_JJONGAL] 데이터: " + dto.toString());
+
+        return dto;
+    }
+
+    /**
+     * 각 학생식당의 메뉴를 message 형식으로 변환하여 return한다.
+     */
+    private String parseMessageFormat(List<Menu> menus, String restaurantName){
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0; i<menus.size(); i++){
+            Menu menu = menus.get(i);
+
+            // 만약 메뉴정보가 없다면 올리지 않는 방향으로!
+            if(menu.getDishList().get(0).getName().equals("메뉴 정보 없음"))
+                continue;
+
+            sb.append(menu.getDept().getKoreanDept()+"식당 : ");
+            sb.append(menu.getDishList());
+
+            if((i+1) != menus.size())
+                // 마지막이 아닐 때만 개행문자를 추가함.
+                sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }
