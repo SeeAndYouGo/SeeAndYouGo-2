@@ -40,17 +40,6 @@ public class ReviewController {
     private static final Integer REPORT_CRITERION = 10;
     private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
 
-
-    // 탑 리뷰 조회
-    @GetMapping(value = "/top-review/{restaurant}")
-    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
-        String restaurantName = Restaurant.parseName(restaurant);
-        String date = MenuController.getTodayDate();
-        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewResponseDto> response = getReviewDtos(reviews, "");
-        return ResponseEntity.ok(response);
-    }
-
     private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
         List<ReviewResponseDto> response = new ArrayList<>();
