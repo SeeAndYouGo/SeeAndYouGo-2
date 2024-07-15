@@ -41,8 +41,9 @@ public class MenuService {
 
         Restaurant restaurant = restaurantRepository.findByNameAndDate(parseRestaurantName, date);
 
-        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
-        return sortMainDish(menus);
+//        List<Menu> menus = extractNotLunch(restaurant.getMenuList());
+
+        return sortMainDish(restaurant.getMenuList());
     }
 
     /**
@@ -92,17 +93,17 @@ public class MenuService {
         return menu.getMenuType().equals(MenuType.LUNCH);
     }
 
-    /**
-     * 현재 서비스에서는 점심 식단만 제공하므로, 점심에 해당하지 않는 것은 제외한다.
-     */
-    private List<Menu> extractNotLunch(List<Menu> weekMenuList) {
-        List<Menu> weekLunchMenus = new ArrayList<>();
-        for (Menu menu : weekMenuList) {
-            if(containLunch(menu))
-                weekLunchMenus.add(menu);
-        }
-        return weekLunchMenus;
-    }
+//    /**
+//     * 현재 서비스에서는 점심 식단만 제공하므로, 점심에 해당하지 않는 것은 제외한다.
+//     */
+//    private List<Menu> extractNotLunch(List<Menu> weekMenuList) {
+//        List<Menu> weekLunchMenus = new ArrayList<>();
+//        for (Menu menu : weekMenuList) {
+//            if(containLunch(menu))
+//                weekLunchMenus.add(menu);
+//        }
+//        return weekLunchMenus;
+//    }
 
     /**
      * 그 날의 Menu 엔티티가 없다면 만들어야한다.
@@ -189,32 +190,57 @@ public class MenuService {
     private void fillMenu(Restaurant restaurant, List<Menu> menus, String date) {
         String restaurantName = restaurant.getName();
 
-        checkMenuByDept(restaurant, menus, date, Dept.STUDENT);
+        for (MenuType menuType : MenuType.values()) {
+            if(menuType.equals(MenuType.BREAKFAST)){
+                // 아침은
+                // 교직원 : 없음
+                // 학생식당 : 2학생회관
+                // 만 운영하므로 따로 다뤄준다.
+                if(restaurantName.contains("2")){
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.BREAKFAST);
+                }
+            }else if(menuType.equals(MenuType.LUNCH)){
+                // 점심에는
+                // 학생식당 : 2, 3, 상록, 생과대
+                // 교직원식당 : 2, 3학생회관
+                // 만 메뉴를 제공한다.
+                if(restaurantName.contains("2") || restaurantName.contains("3")){
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STAFF, MenuType.LUNCH);
+                }else if(restaurantName.contains("상록") || restaurantName.contains("생활")){
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
+                }
+            }else{
+                // 저녁은
+                // 학생식당 : 3학생회관
+                // 교직원 : 없음
+                // 만 메뉴를 제공한다.
+                if(restaurantName.contains("3")){
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STAFF, MenuType.DINNER);
+                }
 
-        if(restaurantName.contains("2") || restaurantName.contains("3")){
-            // 2학과 3학은 STAFF가 추가로 존재해야한다.
-            checkMenuByDept(restaurant, menus, date, Dept.STAFF);
+            }
         }
     }
 
     /**
      * 해당 학생식당의 메뉴를 가지고, DEPT가 있는지 판단. 없다면 만들어준다.
      */
-    private void checkMenuByDept(Restaurant restaurant, List<Menu> menus, String date, Dept dept) {
-        boolean existDept = false;
+    private void checkMenuByDeptAndMenuType(Restaurant restaurant, List<Menu> menus, String date, Dept dept, MenuType menuType) {
+        boolean existDeptAndMenuType = false;
         for (Menu menu : menus) {
-            if(menu.getDept().equals(dept)){
-                existDept = true;
+            if(menu.getDept().equals(dept) && menu.getMenuType().equals(menuType)){
+                existDeptAndMenuType = true;
             }
         }
 
-        if(!existDept){
+        if(!existDeptAndMenuType){
             Dish defaultDish = getDefaultDish();
             Menu menu = Menu.builder()
-                            .price(0)
+                            .price(0) // defaultDish이므로 0원짜리다.
                             .date(date)
                             .dept(dept)
-                            .menuType(MenuType.LUNCH)
+                            .menuType(menuType)
                             .restaurant(restaurant)
                             .build();
 
