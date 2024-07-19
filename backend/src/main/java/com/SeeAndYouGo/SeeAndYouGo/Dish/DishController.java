@@ -36,4 +36,9 @@ public class DishController {
         dishService.saveAndCacheWeekDish(2);
         dishService.saveAndCacheWeekDish(3);
     }
+
+    @PostMapping("/dish/test/{page}")
+    public Stromg bridgeDish(@PathVariable int page) throws Exception {
+        return dishService.fetchDishInfoToString(page);
+    }
 }

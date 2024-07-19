@@ -102,7 +102,7 @@ public class DishService {
         }
     }
 
-    private String fetchDishInfoToString(Integer page) throws Exception {
+    public String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
             String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
