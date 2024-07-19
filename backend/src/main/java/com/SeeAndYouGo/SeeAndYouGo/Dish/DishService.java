@@ -61,7 +61,8 @@ public class DishService {
 
             String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
             MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
-            if(!menuType.equals(MenuType.LUNCH)) continue;
+
+//            if(!menuType.equals(MenuType.LUNCH)) continue; 이제부터는 점심만 보여주는 것이 아니라, 아침/점심/저녁을 보여준다.
 
             String menuName = menuObject.get("MENU_KORN_NM").getAsString();
             if(menuName.contains("매주 수요일은")) continue;
@@ -105,8 +106,9 @@ public class DishService {
     public String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
+//            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
 
+        String apiUrl = "http://34.64.44.116:8080/api/dish/test/"+page;
             // URL 생성
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
