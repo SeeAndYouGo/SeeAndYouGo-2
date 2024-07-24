@@ -38,7 +38,7 @@ public class DishController {
     }
 
     @PostMapping("/dish/test/{page}")
-    public Stromg bridgeDish(@PathVariable int page) throws Exception {
+    public String bridgeDish(@PathVariable int page) throws Exception {
         return dishService.fetchDishInfoToString(page);
     }
 }

@@ -23,7 +23,7 @@ public class ConnectionController {
     }
 
     @PostMapping("/connection/test")
-    public String bridgeConnection throws Exception {
+    public String bridgeConnection() throws Exception {
         return connectionService.fetchConnectionInfoToString();
     }
 }
