@@ -22,6 +22,7 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
+    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
@@ -60,6 +61,74 @@ public class ReviewService {
                 return menu;
         }
         throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
+    }
+
+        /**
+     * top-review는 각 DEPT 별로 3개씩의 review를 불러온다.
+     * 여기서 1학생회관은 모든 DEPT를 STUDENT로 취급한다. 즉, 모든 메뉴에서 딱 3개만 불러오기
+     */
+    public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
+        List<Review> restaurantReviews = findRestaurantReviews(restaurantName, date);
+        // 시간순으로 최근꺼가 먼저 오게 정렬하여 3개만 가져오자.
+        sortReviewsByDate(restaurantReviews);
+
+        List<Review> studentReviews = new ArrayList<>();
+        List<Review> staffReviews = new ArrayList<>();
+
+        splitStudentAndStaff(restaurantReviews, studentReviews, staffReviews);
+
+        List<Review> result = new ArrayList<>();
+        addReviewsByTopReviewRule(result, studentReviews);
+        addReviewsByTopReviewRule(result, staffReviews);
+
+        return result;
+    }
+
+    /**
+     * top-review 정책에 의해서 각 review를 알맞게 result에 담는다.
+     */
+    private void addReviewsByTopReviewRule(List<Review> result, List<Review> reviews) {
+        int count = 0;
+
+        for (Review review : reviews) {
+            if(count >= TOP_REVIEW_NUMBER_OF_CRITERIA) return;
+
+            result.add(review);
+            count++;
+        }
+    }
+
+    public void splitStudentAndStaff(List<Review> restaurantReviews, List<Review> studentReviews, List<Review> staffReviews) {
+        for (Review review : restaurantReviews) {
+            if(review.getMenu().getDept().equals(Dept.STAFF)){
+                staffReviews.add(review);
+                continue;
+            }
+
+            studentReviews.add(review);
+        }
+    }
+
+    private void sortReviewsByDate(List<Review> reviews) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Collections.sort(reviews, new Comparator<Review>() {
+            // 가장 최신꺼가 가장 위로 온다!!
+            @Override
+            public int compare(Review o1, Review o2) {
+
+                LocalDateTime o1Time = LocalDateTime.parse(o1.getMadeTime(), formatter);
+                LocalDateTime o2Time = LocalDateTime.parse(o2.getMadeTime(), formatter);
+
+                if(o1Time.isEqual(o2Time)){
+                    return 0;
+                }else if(o1Time.isBefore(o2Time)){
+                    return 1;
+                }else {
+                    return -1;
+                }
+
+            }
+        });
     }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {

@@ -67,6 +67,16 @@ public class ReviewController {
         return ResponseEntity.ok(getReviewDtos(allReviews, userEmail));
     }
 
+    // 탑 리뷰 조회
+    @GetMapping(value = "/top-review/{restaurant}")
+    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
+        String restaurantName = Restaurant.parseName(restaurant);
+        String date = MenuController.getTodayDate();
+        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+        List<ReviewResponseDto> response = getReviewDtos(reviews, "");
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
