@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class MenuResponseByUserDto {
+    private String restaurantName;
     private List<String> dishList = new LinkedList<>();
     private Integer price;
     private String dept;
@@ -19,6 +20,7 @@ public class MenuResponseByUserDto {
     private List<String> keywordList = new LinkedList<>();
 
     public MenuResponseByUserDto(Menu menu, List<String> keywords){
+         this.restaurantName = menu.getRestaurant().getName();
         setDishList(menu);
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();
