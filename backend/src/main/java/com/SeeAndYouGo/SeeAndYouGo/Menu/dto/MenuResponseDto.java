@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class MenuResponseDto {
+    private Long menuId;
     private String restaurantName;
     private List<String> dishList = new LinkedList<>();
     private Integer price;
@@ -18,6 +19,7 @@ public class MenuResponseDto {
     private String menuType;
 
     public MenuResponseDto(Menu menu){
+        this.menuId = menu.getId();
         this.restaurantName = menu.getRestaurant().getName();
         setDishList(menu);
         this.price = menu.getPrice();
