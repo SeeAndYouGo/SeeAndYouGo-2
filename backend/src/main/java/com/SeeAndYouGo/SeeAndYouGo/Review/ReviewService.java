@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
+    private final MenuRepository menuRepository;
     private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -37,7 +39,8 @@ public class ReviewService {
         Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
         // 연관관계 존재
-        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
+//        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
+        Menu menu = menuRepository.getReferenceById(data.getMenuId());
         Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
         menu.addReviewAndUpdateRate(review);
         restaurant.updateTotalRate();

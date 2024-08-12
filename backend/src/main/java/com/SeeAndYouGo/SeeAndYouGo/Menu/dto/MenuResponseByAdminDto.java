@@ -12,17 +12,15 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class MenuResponseByAdminDto {
-
+    private Long menuId;
     private String mainDishName = "";
-
     private List<String> subDishList = new LinkedList<>();
-
     private String restaurantName;
-
     private String dept;
     private String date;
 
     public MenuResponseByAdminDto(Menu menu){
+        this.menuId = menu.getId();
         this.restaurantName = menu.getRestaurant().getName();
         setDishList(menu);
         this.dept = menu.getDept().toString();

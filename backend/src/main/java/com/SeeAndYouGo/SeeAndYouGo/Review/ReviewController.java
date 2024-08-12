@@ -123,13 +123,14 @@ public class ReviewController {
         }
 
         ReviewData data = ReviewData.builder()
-                .comment(dto.getComment())
-                .rate(dto.getRate())
+                .restaurant(Restaurant.parseName(dto.getRestaurant()))
+                .menuId(dto.getMenuId())
                 .dept(dto.getDept())
                 .menuName(dto.getMenuName())
+                .rate(dto.getRate())
                 .email(email)
                 .nickName(dto.isAnonymous() ? "익명" : nickname)
-                .restaurant(Restaurant.parseName(dto.getRestaurant()))
+                .comment(dto.getComment())
                 .imgUrl(imgUrl)
                 .build();
 
@@ -137,6 +138,7 @@ public class ReviewController {
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
+
     @ResponseBody
     @GetMapping("/images/{imgUrl}")
     public UrlResource showImage(@PathVariable String imgUrl) throws Exception {

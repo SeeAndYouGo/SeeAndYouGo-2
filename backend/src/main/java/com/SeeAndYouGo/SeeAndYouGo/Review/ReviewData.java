@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ReviewData {
     private final String restaurant;
+    private final Long menuId;
     private final String dept;
     private final String menuName;
     private final Double rate;
