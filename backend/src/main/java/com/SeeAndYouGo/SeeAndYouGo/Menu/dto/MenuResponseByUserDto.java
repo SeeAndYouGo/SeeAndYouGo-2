@@ -22,7 +22,7 @@ public class MenuResponseByUserDto {
 
     public MenuResponseByUserDto(Menu menu, List<String> keywords){
         this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().getName();
+        this.restaurantName = menu.getRestaurant().toString();
         setDishList(menu);
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();

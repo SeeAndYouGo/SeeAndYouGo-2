@@ -24,8 +24,7 @@ public class Menu {
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)  // Menu를 저장할 때 연관된 MenuDish가 자동으로 저장되어야 함
     private List<MenuDish> menuDishes = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id")
+    @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
@@ -47,7 +46,6 @@ public class Menu {
         this.dept = dept;
         this.menuType = menuType;
         this.restaurant = restaurant;
-        restaurant.getMenuList().add(this);
     }
 
     public String getMenuName(){

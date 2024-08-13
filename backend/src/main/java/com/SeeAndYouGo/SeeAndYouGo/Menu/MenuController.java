@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByAdminDto;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByUserDto;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -136,6 +137,7 @@ public class MenuController {
     @TraceMethodLog
     @GetMapping("/test/{restaurantName}/{date}")
     public MenuPostDto test(@PathVariable String restaurantName, @PathVariable String date){
-        return menuService.postMenu(restaurantName, date);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+        return menuService.postMenu(restaurant, date);
     }
 }
