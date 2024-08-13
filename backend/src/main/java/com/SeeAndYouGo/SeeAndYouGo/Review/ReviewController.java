@@ -38,7 +38,7 @@ public class ReviewController {
     private final UserService userService;
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
-    private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
+    private static final List<String> restaurantNames = List.of("제1학생회관", "제2학생회관", "제3학생회관", "상록회관", "생활과학대");
 
     private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
