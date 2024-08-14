@@ -43,9 +43,12 @@ services:
       - mysql
     environment:
       - TZ=Asia/Seoul
-  seeandyougo-nginx:
-    container_name: seeandyougo-nginx
-    build: .
+  seeandyougo-app:
+    container_name: seeandyougo-app
+    build:
+      context: .
+      args:
+        GOOGLE_ANALYTICS_TRACKING_ID: ${GOOGLE_ANALYTICS_TRACKING_ID}
     restart: always
     ports:
       - "80:80/tcp"
@@ -56,19 +59,3 @@ services:
       - TZ=Asia/Seoul
     depends_on:
       - seeandyougo
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        GOOGLE_ANALYTICS_TRACKING_ID: ${GOOGLE_ANALYTICS_TRACKING_ID}
-    restart: on-failure
-    ports:
-      - 3000:3000
-    networks:
-      - backbone
-    depends_on:
-      - seeandyougo
-    environment:
-      - TZ=Asia/Seoul
