@@ -113,7 +113,7 @@ public class ReviewController {
         if (image != null) {
             try {
                 Files.createDirectories(Paths.get(IMAGE_DIR));
-                String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
+                String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
                 Path targetPath = Paths.get(IMAGE_DIR, imgName);
                 image.transferTo(targetPath);
                 imgUrl = "/api/images/" + imgName;
