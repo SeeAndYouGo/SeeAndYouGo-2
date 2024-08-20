@@ -1,9 +1,10 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/mysql?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql:3306/seeandyougo?useSSL=false&allowPublicKeyRetrieval=true
     username: seeandyougo
     password: seeandyougo
   jpa:
     properties:
-      dialect: org.hibernate.dialect.MySQL8Dialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect

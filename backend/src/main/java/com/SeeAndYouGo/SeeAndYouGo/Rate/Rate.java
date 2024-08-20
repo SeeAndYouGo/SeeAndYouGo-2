@@ -23,7 +23,7 @@ public class Rate {
     @ColumnDefault("0.0")
     private double rate;
 
-    @ColumnDefault("0")
+    @Column(columnDefinition = "integer default 0")
     private Integer reflectedNumber;
 
     @Builder

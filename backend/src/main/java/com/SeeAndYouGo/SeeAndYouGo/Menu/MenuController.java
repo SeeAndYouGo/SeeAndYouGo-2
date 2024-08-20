@@ -137,7 +137,8 @@ public class MenuController {
     @TraceMethodLog
     @GetMapping("/test/{restaurantName}/{date}")
     public MenuPostDto test(@PathVariable String restaurantName, @PathVariable String date){
-        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+        String parseRestaurantName = Restaurant.parseName(restaurantName);
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
         return menuService.postMenu(restaurant, date);
     }
 }
