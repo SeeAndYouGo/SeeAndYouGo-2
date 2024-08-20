@@ -86,9 +86,10 @@ public class User {
 
         Period period = Period.between(lastUpdateTime.toLocalDate(), dateTime.toLocalDate());
 
-        int gap = Math.abs(period.getDays());
+        int dateGap = Math.abs(period.getDays());
+        int monthGap = Math.abs(period.getMonths());
 
         // 14일 이후에 변경하는 경우나 아직 닉네임을 지정하지 않아 최초 등록의 경우는 닉네임을 수정할 수 있다.
-        return (gap > 14) || nickname == null;
+        return (dateGap > 14) || (monthGap > 2)  || nickname == null;
     }
 }
