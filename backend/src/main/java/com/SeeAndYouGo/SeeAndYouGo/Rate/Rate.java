@@ -21,10 +21,10 @@ public class Rate {
     private Restaurant restaurant;
 
     @ColumnDefault("0.0")
-    private double rate;
+    private double rate = 0.0;
 
     @Column(columnDefinition = "integer default 0")
-    private Integer reflectedNumber;
+    private Integer reflectedNumber = 0;
 
     @Builder
     public Rate(Restaurant restaurant) {
