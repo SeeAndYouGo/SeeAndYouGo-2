@@ -13,7 +13,6 @@ public class MenuResponseDto {
     private Long menuId;
     private String restaurantName;
     private List<String> mainDishList = new LinkedList<>();
-    private List<String> sideDishList = new LinkedList<>();
     private Integer price;
     private String dept;
     private String date;
@@ -23,7 +22,6 @@ public class MenuResponseDto {
         this.menuId = menu.getId();
         this.restaurantName = menu.getRestaurant().toString();
         this.mainDishList = menu.getMainDishToString();
-        this.sideDishList = menu.getSideDishToString();
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();

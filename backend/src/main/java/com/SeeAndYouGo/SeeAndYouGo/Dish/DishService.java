@@ -134,10 +134,12 @@ public class DishService {
     public void updateMainDish(List<MainDishRequestDto> mainDishRequestDtos) {
 
         for (MainDishRequestDto mainDishRequestDto : mainDishRequestDtos) {
-            String mainDishName = mainDishRequestDto.getMainDishName();
+            List<String> mainDishNames = mainDishRequestDto.getMainDishList();
 
-            Dish dish = dishRepository.findByName(mainDishName);
-            dish.updateMainDish();
+            for (String mainDishName : mainDishNames) {
+                Dish dish = dishRepository.findByName(mainDishName);
+                dish.updateMainDish();
+            }
 
             for (String subDishName : mainDishRequestDto.getSubDishList()) {
                 Dish subDish = dishRepository.findByName(subDishName);
