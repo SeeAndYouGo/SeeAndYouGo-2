@@ -13,27 +13,28 @@ import java.util.List;
 @NoArgsConstructor
 public class MenuResponseByAdminDto {
     private Long menuId;
-    private String mainDishName = "";
-    private List<String> subDishList = new LinkedList<>();
+    private List<String> mainDishList = new LinkedList<>();
+    private List<String> sideDishList = new LinkedList<>();
     private String restaurantName;
     private String dept;
     private String date;
 
     public MenuResponseByAdminDto(Menu menu){
         this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().getName();
-        setDishList(menu);
+        this.restaurantName = menu.getRestaurant().toString();
+        this.mainDishList = menu.getMainDishToString();
+        this.sideDishList = menu.getSideDishToString();
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();
     }
 
-    private void setDishList(Menu menu){
-        for (Dish dish : menu.getDishList()) {
-            if (dish.getDishType() == DishType.MAIN) {   // MAIN Dish가 있으면 속성을 가진다.
-                this.mainDishName = dish.getName();
-            } else {
-                this.subDishList.add(dish.toString());
-            }
-        }
-    }
+//    private void setDishList(Menu menu){
+//        for (Dish dish : menu.getDishList()) {
+//            if (dish.getDishType() == DishType.MAIN) {   // MAIN Dish가 있으면 속성을 가진다.
+//                this.mainDishName = dish.getName();
+//            } else {
+//                this.subDishList.add(dish.toString());
+//            }
+//        }
+//    }
 }

@@ -13,7 +13,8 @@ import java.util.List;
 public class MenuResponseByUserDto {
     private Long menuId;
     private String restaurantName;
-    private List<String> dishList = new LinkedList<>();
+    private List<String> mainDishList = new LinkedList<>();
+    private List<String> sideDishList = new LinkedList<>();
     private Integer price;
     private String dept;
     private String date;
@@ -22,18 +23,13 @@ public class MenuResponseByUserDto {
 
     public MenuResponseByUserDto(Menu menu, List<String> keywords){
         this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().getName();
-        setDishList(menu);
+        this.restaurantName = menu.getRestaurant().toString();
+        this.mainDishList = menu.getMainDishToString();
+        this.sideDishList = menu.getSideDishToString();
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();
         this.menuType = menu.getMenuType().toString();
         this.keywordList = keywords;
-    }
-
-    private void setDishList(Menu menu){
-        for (Dish dish : menu.getDishList()) {
-            this.dishList.add(dish.toString());
-        }
     }
 }

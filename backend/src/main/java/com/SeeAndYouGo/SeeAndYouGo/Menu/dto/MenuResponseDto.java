@@ -12,7 +12,8 @@ import java.util.List;
 public class MenuResponseDto {
     private Long menuId;
     private String restaurantName;
-    private List<String> dishList = new LinkedList<>();
+    private List<String> mainDishList = new LinkedList<>();
+    private List<String> sideDishList = new LinkedList<>();
     private Integer price;
     private String dept;
     private String date;
@@ -20,17 +21,18 @@ public class MenuResponseDto {
 
     public MenuResponseDto(Menu menu){
         this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().getName();
-        setDishList(menu);
+        this.restaurantName = menu.getRestaurant().toString();
+        this.mainDishList = menu.getMainDishToString();
+        this.sideDishList = menu.getSideDishToString();
         this.price = menu.getPrice();
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();
         this.menuType = menu.getMenuType().toString();
     }
 
-    private void setDishList(Menu menu){
-        for (Dish dish : menu.getDishList()) {
-            this.dishList.add(dish.toString());
-        }
-    }
+//    private void setDishList(Menu menu){
+//        for (Dish dish : menu.getDishList()) {
+//            this.dishList.add(dish.toString());
+//        }
+//    }
 }

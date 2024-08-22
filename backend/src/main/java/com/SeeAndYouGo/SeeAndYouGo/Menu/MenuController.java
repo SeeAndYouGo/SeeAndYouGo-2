@@ -81,22 +81,37 @@ public class MenuController {
         return menuResponseDtos;
     }
 
+    /**
+     * 유저의 keywords에 해당되는 menu가 있다면 해당 menu를 추가.
+     */
     private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
         List<MenuResponseByUserDto> menuResponseDtos = new ArrayList<>();
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
-            List<Dish> dishList = dayRestaurantMenu.getDishList();
-            List<String> keyStrings = new ArrayList<>();
-            for(Dish dish : dishList){
-                for(String key : keywords){
-                    if (dish.getName().contains(key)){
-                        keyStrings.add(dish.getName());
-                    }
-                }
-            }
+            List<String> dishes = dayRestaurantMenu.getDishListToString();
+            List<String> keyStrings = findOverlappingThing(dishes, keywords);
+//            List<String> keyStrings = new ArrayList<>();
+//            for(Dish dish : dishes){
+//                for(String key : keywords){
+//                    if (dish.getName().contains(key)){
+//                        keyStrings.add(dish.getName());
+//                    }
+//                }
+//            }
             MenuResponseByUserDto dto = new MenuResponseByUserDto(dayRestaurantMenu, keyStrings);
             menuResponseDtos.add(dto);
         }
         return menuResponseDtos;
+    }
+
+    /**
+     * dishes와 keywords 중에 겹치는 것만 return한다.
+     */
+    private List<String> findOverlappingThing(List<String> dishes, List<String> keywords) {
+        return dishes.stream()
+                .filter(
+                        dish -> keywords.stream()
+                                .anyMatch(dish::contains)
+                ).collect(Collectors.toList());
     }
 
     @GetMapping("/weekly-menu/{restaurant}")

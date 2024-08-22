@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.IterService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,7 +27,6 @@ import java.util.List;
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
-    private final RestaurantService restaurantService;
 
     @Value("${DISH_KEY}")
     private String DISH_KEY;
@@ -78,7 +76,7 @@ public class DishService {
             // DishDto 구성하기
             if(objDate.isAfter(monday) && objDate.isBefore(friday) || objDate.isEqual(monday) || objDate.isEqual(friday)) {
                 // 식당, 날짜, DEPT, 메뉴타입을 기준으로 해당하는 식당을 찾는다.
-                Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
+                Restaurant restaurant = Restaurant.valueOf(restaurantName);
                 DishDto dishDto = DishDto.builder()
                         .name(menuName)
                         .dept(dept)
