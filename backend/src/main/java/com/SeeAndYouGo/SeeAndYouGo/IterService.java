@@ -2,14 +2,13 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,8 +21,8 @@ import static java.time.DayOfWeek.*;
 @RequiredArgsConstructor
 public class IterService {
     private final DishService dishService;
-    private final RestaurantService restaurantService;
     private final MenuService menuService;
+    private final MenuRepository menuRepository;
     private final ConnectionService connectionService;
     private final StatisticsService statisticsService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
@@ -38,9 +37,9 @@ public class IterService {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
 
         try {
-            if(!restaurantService.existWeekRestaurant(nearestMonday)) {
-                // 해당 주의 식당을 만든다.
-                restaurantService.createWeeklyRestaurant(nearestMonday);
+            // Restaurant가 Enum으로 변경되었으므로 Restaurant가 아닌 Menu의 유무를 통해서 해당 메뉴를 캐싱했는지 파악한다.
+            if(!menuRepository.existsByDate(nearestMonday.toString())) {
+                menuService.createRestaurant1Menu(nearestMonday);
 
                 // 월요일부터 금요일까지의 메뉴를 캐싱한다.
                 dishService.saveAndCacheWeekDish(1);
@@ -78,13 +77,13 @@ public class IterService {
     // 평일 점심 정보는 10시에 올리기
     @Scheduled(cron = "0 0 10 * * MON-FRI")
     public void postMenuInfo(){
-        String[] restaurantNames = RestaurantService.getRestaurantNames();
+        Restaurant[] restaurantNames = Restaurant.values();
 
-        for (String restaurantName : restaurantNames) {
-            if(restaurantName.equals("1학생회관"))
+        for (Restaurant restaurant : restaurantNames) {
+            if(restaurant.equals(Restaurant.제1학생회관))
                 continue;
 
-            menuService.postMenu(restaurantName, LocalDate.now().toString());
+            menuService.postMenu(restaurant, LocalDate.now().toString());
         }
     }
 

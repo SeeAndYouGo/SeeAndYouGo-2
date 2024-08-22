@@ -52,8 +52,7 @@ public class Review {
 
     private Double reviewRate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id")
+    @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
     private Integer reportCount = 0;

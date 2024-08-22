@@ -1,15 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
 import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -21,15 +19,16 @@ public class Statistics {
     @Column(name = "statistics_id")
     private Long id;
 
-    private String restaurantName;
+    @Enumerated(value = EnumType.STRING)
+    private Restaurant restaurant;
     private LocalTime time;
     private LocalDate updateTime;
     private double averageConnection;
     private Integer accumulatedCount;
 
     @Builder
-    public Statistics(String restaurantName, LocalTime time, LocalDate updateTime, double averageConnection, Integer accumulatedCount) {
-        this.restaurantName = restaurantName;
+    public Statistics(Restaurant restaurant, LocalTime time, LocalDate updateTime, double averageConnection, Integer accumulatedCount) {
+        this.restaurant = restaurant;
         this.time = time;
         this.updateTime = updateTime;
         this.averageConnection = averageConnection;

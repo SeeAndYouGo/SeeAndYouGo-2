@@ -2,8 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
 import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,8 @@ public class StatisticsService {
     private static final Long TIME_QUANTUM = 5l; // 5분 간격으로 connection이 갱신되는 것을 의미.
 
     public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(String restaurantName) {
-        List<Statistics> connectionStatistics = statisticsRepository.findByRestaurantName(restaurantName);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+        List<Statistics> connectionStatistics = statisticsRepository.findByRestaurant(restaurant);
 
         List<ConnectionsStatisticsResponseDto> result = new ArrayList<>();
         connectionStatistics.stream().forEach(statistics -> result.add(new ConnectionsStatisticsResponseDto(statistics)));
@@ -35,15 +35,15 @@ public class StatisticsService {
 
     @Transactional
     public void updateConnectionStatistics(LocalDate date) {
-        String[] restaurantNames = RestaurantService.getRestaurantNames();
+        Restaurant[] restaurants = Restaurant.values();
 
-        for (String restaurantName : restaurantNames) {
+        for (Restaurant restaurant : restaurants) {
             // 여기에서 나온 리스트를 정제하는 작업이 필요.
             // 예를 들면 11시 56분에 찍힌 것은 11시 55분에 추가해주는 등..
-            List<Connection> connectionByRestaurant = connectionRepository.findByRestaurantNameAndDate(restaurantName, date.toString());
+            List<Connection> connectionByRestaurant = connectionRepository.findByRestaurantAndTimeStartsWith(restaurant, date.toString());
             for (Connection connection : connectionByRestaurant) {
                 LocalTime time = getValidTime(connection);
-                Statistics statistics = statisticsRepository.findByRestaurantNameAndTime(restaurantName, time);
+                Statistics statistics = statisticsRepository.findByRestaurantAndTime(restaurant, time);
 
                 statistics.updateAverageConnection(connection, date);
             }
@@ -73,14 +73,14 @@ public class StatisticsService {
     public void initSetting() {
         if(statisticsRepository.count() > 0) return;
 
-        String[] restaurantNames = RestaurantService.getRestaurantNames();
+        Restaurant[] restaurants = Restaurant.values();
         LocalDate today = LocalDate.now();
 
         List<Statistics> statisticsList = new ArrayList<>();
-        for (String restaurantName : restaurantNames) {
+        for (Restaurant restaurant : restaurants) {
             for(LocalTime time = START_TIME; time.isBefore(END_TIME) || time.equals(END_TIME); time = time.plusMinutes(TIME_QUANTUM)){
                 Statistics statistics = Statistics.builder()
-                        .restaurantName(restaurantName)
+                        .restaurant(restaurant)
                         .time(time)
                         .updateTime(today)
                         .averageConnection(0)
