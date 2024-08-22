@@ -141,9 +141,9 @@ public class DishService {
                 dish.updateMainDish();
             }
 
-            for (String subDishName : mainDishRequestDto.getSubDishList()) {
-                Dish subDish = dishRepository.findByName(subDishName);
-                subDish.updateSideDish();
+            for (String sideDishName : mainDishRequestDto.getSideDishList()) {
+                Dish sideDish = dishRepository.findByName(sideDishName);
+                sideDish.updateSideDish();
             }
         }
     }
