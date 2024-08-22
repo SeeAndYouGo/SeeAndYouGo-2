@@ -11,5 +11,5 @@ public class MainDishRequestDto {
     private String dept;
     private String date; // YYYY-mm-DD
     private List<String> mainDishList;
-    private List<String> subDishList;
+    private List<String> sideDishList;
 }
