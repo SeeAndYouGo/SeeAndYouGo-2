@@ -18,3 +18,6 @@ const deptSlice = createSlice({
 export const { changeDept, changeToInitialState } = deptSlice.actions;
 
 export default deptSlice.reducer;
+
+
+// 리뷰작성시 dept와 type이 아닌 menuId만 필요하기에 menuId slice를 생성해주시기로

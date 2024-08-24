@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
-// import TabBar from "./TabBar";
+import TabBar from "./TabBar";
 import * as config from "../../config";
 import Info from "./Info";
 import Progress from "./Progress";
@@ -22,7 +22,7 @@ const MainPage = () => {
 
 	return (
 		<div className="App">
-			{/* <TabBar /> */}
+			<TabBar />
       <Info idx={2} />
       <Progress />
 			<ReviewPreview />

@@ -1,4 +1,4 @@
-@import url('https://webfontworld.github.io/SCoreDream/SCoreDream.css');
+/* @import url('https://webfontworld.github.io/SCoreDream/SCoreDream.css');
 @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
 * {
@@ -7,10 +7,22 @@
   box-sizing: border-box;
   font-weight: 700;
   text-decoration: none;
+} */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css");
+
+* {
+  font-family: 'pretendard';
+  font-weight: 600;
 }
 
 a {
   color: black;
+  text-decoration: none;
+}
+
+p {
+  margin: 0;
 }
 
 body {
