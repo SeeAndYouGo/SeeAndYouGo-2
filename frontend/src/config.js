@@ -3,7 +3,7 @@ export const DEVELOPMENT_BASE_URL = "/assets/json";
 
 // 배포용 경로 
 // 확인을 위해 /api 앞에 붙여줘야하는 주소가 있다면 api 앞에 주소 붙여주면 됩니다.
-export const DEPLOYMENT_BASE_URL = "/api";
+export const DEPLOYMENT_BASE_URL = "https://seeandyougo.com/api/";
 
 // 0: development, 1: deployment
 export const NOW_STATUS = 1;

@@ -3,6 +3,7 @@ import "../../App.css";
 import { Link } from "react-router-dom";
 import UpdateLog from "./UpdateLog";
 import Cafeteria from "./Cafeteria";
+import TabBar from "./TabBar";
 import * as config from "../../config";
 // import Modal from "../../components/Modal";
 // import InfoModal from "../../components/InfoModal";
@@ -55,11 +56,12 @@ const MainPage = () => {
       {/* <Modal visible={modalVisible}>
         <InfoModal comment={modalComment} setVisible={setModalVisible}/>
       </Modal> */}
-			{restaurantData.map((val, idx) =>
+			{/* {restaurantData.map((val, idx) =>
 				idx === 0 ? (
 					<UpdateLog key={idx} updateTime={val.dateTime} />
 				) : null
-			)}
+			)} */}
+			<TabBar />
 			{restaurantData.map((val, idx) => {
 				return (
 					<Link to={`/view/${idx + 1}`} key={idx + 1}>
