@@ -16,6 +16,7 @@ import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
 import MyKeywordPage from "./pages/MyKeywordPage/MyKeywordPage";
 import StatisticsPage from "./pages/StatisticsPage/StatisticsPage";
+import NewPage from "./pages/NewPage/NewPage";
 import Toast from "./components/Toast";
 
 const HeaderWrapper = styled.div`
@@ -63,6 +64,7 @@ const App = () => {
           <Route exact path="/notice-page" element={<NoticePage />} />
           <Route exact path="/my-keyword-page" element={<MyKeywordPage />} />
           <Route exact path="/statistics" element={<StatisticsPage />} />
+          <Route exact path="/new-page" element={<NewPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </PageWrapper>
