@@ -40,6 +40,11 @@ const ModalContent = styled.div`
 `;
 
 const operatingTime = {
+  1: [
+    {
+      time: '11:00-19:00'
+    }
+  ],
   2: [
     {
       title: '조식',
@@ -77,13 +82,12 @@ const operatingTime = {
 const Info = ({ idx = 1 }) => {
 	const [visible1, setVisible1] = useState(false);
 	const [visible2, setVisible2] = useState(false);
-	const [rate, setRate] = useState(0);
 
 	return (
 		<Container>
 			<div>
         <InfoContent>운영시간</InfoContent>
-          {operatingTime[idx].map((item, idx) => <InfoContent>{item.title} {' '} {item.time}</InfoContent>)}
+          {operatingTime[idx]?.map((item) => <InfoContent>{item?.title} {' '} {item?.time}</InfoContent>)}
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
@@ -95,7 +99,7 @@ const Info = ({ idx = 1 }) => {
 						<p style={{ fontSize: 11 }}>식당위치</p>
 					</ModalContent>
 					<Modal visible={visible1} onClose={() => setVisible1(false)}>
-						<ModalLocation restaurant={2} />
+						<ModalLocation restaurant={idx} />
 					</Modal>
 					{idx !== 1 ? (
 						<>

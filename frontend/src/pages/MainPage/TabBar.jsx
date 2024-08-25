@@ -26,15 +26,49 @@ const Container = styled.div`
   display: flex;
 `;
 
-const TabBar = () => {
+const TabButton = styled.div`
+  font-weight: 700;
+  cursor: pointer;
+  color: #c0c0c0;
+  ${({ $active }) => $active && `
+    color: #111;
+  `}
+`;
+
+const TabBar = ({ restaurantId = 1 ,setRestaurantId }) => {
   return (
     <Slider>
       <Container>
-        <Link to='/1' style={{ fontWeight: 700 }}>1학생회관</Link>
-        <Link to='/2' style={{ fontWeight: 700 }}>2학생회관</Link>
-        <Link to='/3' style={{ fontWeight: 700 }}>3학생회관</Link>
-        <Link to='/4' style={{ fontWeight: 700 }}>상록회관</Link>
-        <Link to='/5' style={{ fontWeight: 700 }}>생활과학대</Link>
+        <TabButton 
+          $active={restaurantId === 1} 
+          onClick={() => setRestaurantId(1)}
+        >
+          1학생회관
+        </TabButton>
+        <TabButton 
+          $active={restaurantId === 2} 
+          onClick={() => setRestaurantId(2)}
+        >
+          2학생회관
+        </TabButton>
+        <TabButton 
+          $active={restaurantId === 3} 
+          onClick={() => setRestaurantId(3)}
+        >
+          3학생회관
+        </TabButton>
+        <TabButton 
+          $active={restaurantId === 4} 
+          onClick={() => setRestaurantId(4)}
+        >
+          상록회관
+        </TabButton>
+        <TabButton 
+          $active={restaurantId === 5} 
+          onClick={() => setRestaurantId(5)}
+        >
+          생활과학대
+        </TabButton>
       </Container>
     </Slider>
   );

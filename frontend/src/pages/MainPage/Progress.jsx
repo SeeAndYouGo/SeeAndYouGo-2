@@ -31,18 +31,30 @@ const ProgressBar = styled.div`
   }};
 `;
 
-const Progress = () => {
+const Text = [
+  '매우 원활',
+  '원활',
+  '보통',
+  '혼잡',
+  '매우 혼잡'
+];
+
+const Progress = ({ ratio = 0, time }) => {
+  const nowTime = time?.split(" ")[1].split(":").slice(0, 2).join(":");
+
   return (
     <>
       <p style={{ fontSize: 22, marginBottom: 6, fontWeight: 700 }}>혼잡도</p>
       <Container>
         <div style={{ display: 'flex' }}>
-          <p style={{ fontSize: 18, fontWeight: 700 }}>매우혼잡</p>
+          <p style={{ fontSize: 18, fontWeight: 700 }}>
+            {Text[Math.floor(ratio / 20)]}
+          </p>
           <span class="material-symbols-outlined" style={{ fontSize: 14, lineHeight: '18px', marginLeft: 'auto', color: '#999', marginRight: 5}}>schedule</span>
-          <p style={{ fontSize: 14, color: '#999', fontWeight: 400 }}>14:00 기준</p>
+          <p style={{ fontSize: 14, color: '#999', fontWeight: 400 }}>{nowTime} 기준</p>
         </div>
         <ProgressContainer>
-          <ProgressBar $value={80} />
+          <ProgressBar $value={ratio} />
         </ProgressContainer>
       </Container>
     </>

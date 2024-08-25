@@ -44,6 +44,7 @@ body {
   width: 100%;
   padding: 20px 15px 40px 15px;
   width: inherit;
+  float: left;
 }
 
 .App2 {
