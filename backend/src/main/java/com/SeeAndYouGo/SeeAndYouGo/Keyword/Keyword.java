@@ -10,7 +10,7 @@ import java.util.List;
 @Entity @Getter
 @NoArgsConstructor
 public class Keyword {
-    @Id
+    @Id @Column(name = "keyword_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
