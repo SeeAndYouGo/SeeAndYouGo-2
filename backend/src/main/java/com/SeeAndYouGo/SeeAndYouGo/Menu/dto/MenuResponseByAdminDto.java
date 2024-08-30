@@ -21,7 +21,7 @@ public class MenuResponseByAdminDto {
 
     public MenuResponseByAdminDto(Menu menu){
         this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().getName();
+        this.restaurantName = menu.getRestaurant().toString();
         setDishList(menu);
         this.dept = menu.getDept().toString();
         this.date = menu.getDate();

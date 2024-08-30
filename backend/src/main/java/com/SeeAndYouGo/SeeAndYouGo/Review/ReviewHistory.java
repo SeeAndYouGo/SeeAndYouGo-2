@@ -38,8 +38,7 @@ public class ReviewHistory {
 
     public Double reviewRate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id")
+    @Enumerated(value = EnumType.STRING)
     public Restaurant restaurant;
 
     public Integer reportCount;

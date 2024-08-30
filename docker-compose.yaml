@@ -10,7 +10,7 @@ services:
     image: mysql:latest
     restart: always
     environment:
-      MYSQL_DATABASE: mysql
+      MYSQL_DATABASE: seeandyougo
       MYSQL_ROOT_PASSWORD: seeandyougo
       MYSQL_USER: seeandyougo
       MYSQL_PASSWORD: seeandyougo

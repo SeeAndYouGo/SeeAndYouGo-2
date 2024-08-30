@@ -3,15 +3,16 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.Rate;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,9 +21,10 @@ import java.util.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ReviewService {
-    private final RestaurantRepository restaurantRepository;
+    private final RateService rateService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
+    private final RateRepository rateRepository;
     private final MenuRepository menuRepository;
     private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -34,8 +36,7 @@ public class ReviewService {
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(data.getRestaurant(),
-                LocalDate.of(time.getYear(), time.getMonth(), time.getDayOfMonth()).toString());
+        Restaurant restaurant = Restaurant.valueOf(data.getRestaurant());
         Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
         // 연관관계 존재
@@ -43,28 +44,28 @@ public class ReviewService {
         Menu menu = menuRepository.getReferenceById(data.getMenuId());
         Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
         menu.addReviewAndUpdateRate(review);
-        restaurant.updateTotalRate();
+        rateService.updateRateByRestaurant(restaurant, data.getRate());
         reviewRepository.save(review);
 
         return review.getId();
     }
-
-    /**
-     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
-     */
-    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
-        if(restaurant.getName().contains("1")){
-            for (Menu menu : restaurant.getMenuList()) {
-                if(menu.getMenuName().equals(menuName)) return menu;
-            }
-        }
-
-        for (Menu menu : restaurant.getMenuList()) {
-            if(menu.getDept().equals(dept))
-                return menu;
-        }
-        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
-    }
+//
+//    /**
+//     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
+//     */
+//    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
+//        if(restaurant.name().contains("1")){
+//            for (Menu menu : restaurant.getMenuList()) {
+//                if(menu.getMenuName().equals(menuName)) return menu;
+//            }
+//        }
+//
+//        for (Menu menu : restaurant.getMenuList()) {
+//            if(menu.getDept().equals(dept))
+//                return menu;
+//        }
+//        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
+//    }
 
         /**
      * top-review는 각 DEPT 별로 3개씩의 review를 불러온다.
@@ -135,10 +136,10 @@ public class ReviewService {
     }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
-        restaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date);
-
-        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
+        String parseRestaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+        return reviewRepository.findByRestaurantAndMadeTimeStartingWith(restaurant, date);
+//        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
     }
 
     @Transactional
@@ -177,11 +178,13 @@ public class ReviewService {
             @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
+        Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            review.getRestaurant().updateTotalRate();
+            Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+            rateByRestaurant.exceptRate(review.getReviewRate());
             return true;
         }
 

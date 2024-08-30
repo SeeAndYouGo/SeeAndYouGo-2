@@ -1,15 +1,14 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalTime;
 import java.util.List;
 
 public interface StatisticsRepository extends JpaRepository<Statistics, Long> {
 
-    List<Statistics> findByRestaurantName(String restaurantName);
+    List<Statistics> findByRestaurant(Restaurant restaurant);
 
     // @Query(value = "SELECT AVG(c.connected) avgConnection, SUBSTRING(c.time , 11, 6) time, r.name restaurantName, COUNT(*) accumulatedCount" +
     //         "FROM connection c " +
@@ -18,5 +17,5 @@ public interface StatisticsRepository extends JpaRepository<Statistics, Long> {
     //         "HAVING r.name = :restaurantName;", nativeQuery = true)
     // List<ConnectionStatisticsDto> findAvgConnection(@Param("restaurantName") String restaurantName);
 
-    Statistics findByRestaurantNameAndTime(String restaurantName, LocalTime time);
+    Statistics findByRestaurantAndTime(Restaurant restaurant, LocalTime time);
 }

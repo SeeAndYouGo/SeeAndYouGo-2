@@ -1,7 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,13 +20,13 @@ import java.net.URL;
 @RequiredArgsConstructor
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
-    private final RestaurantService restaurantService;
     @Value("${CONN_KEY}")
     private String CONN_KEY;
 
     public Connection getRecentConnected(String restaurantName){
-        String changeRestaurantName = Restaurant.parseName(restaurantName);
-        Connection result = connectionRepository.findRecent(changeRestaurantName);
+        String parseRestaurantName = Restaurant.parseName(restaurantName);
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+        Connection result = connectionRepository.findTopByRestaurantOrderByTimeDesc(restaurant);
 
         return result;
     }
@@ -54,8 +53,8 @@ public class ConnectionService {
         }
 
         String time = extractTimeInJson(jsonObject);
-        if(connectionRepository.existsAnyData()){
-            String recentTime = connectionRepository.findRecentTime();
+        if(connectionRepository.count() > 0){
+            String recentTime = connectionRepository.findTopByOrderByTimeDesc().getTime();
             if(recentTime.equals(time)) return;
         }
 
@@ -64,9 +63,9 @@ public class ConnectionService {
         for (JsonElement jsonElement : finalResult) {
             JsonObject asJsonObject = jsonElement.getAsJsonObject();
             String rawName = asJsonObject.get("name").toString();
-            String name = removeQuotes(rawName);
+            String restaurantName = Restaurant.parseName(removeQuotes(rawName));
             // 오늘 날짜의 학생식당에 해당하는 DB 값이 있는지 확인하고 있다면 가져오고, 없다면 생성하자.
-            Restaurant restaurant = restaurantService.getRestaurant(name, today);
+            Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
             // 만약 여기에 데이터가 없다면, restaurant를 새로 생성. 있다면, restaurant의 connection에 add하자.
             Integer connected = asJsonObject.get("connected").getAsInt();
@@ -147,6 +146,7 @@ public class ConnectionService {
 
     public String fetchConnectionInfoToString() throws Exception {
         String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=" + CONN_KEY;
+//        String apiUrl = "http://www.seeandyougo.com:80/api/connection/test";
 
         // URL 생성
         URL url = new URL(apiUrl);

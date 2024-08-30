@@ -1,76 +1,36 @@
 package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
 
-import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
-import lombok.Builder;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
 
-@Entity
 @Getter
-@Setter
-@NoArgsConstructor
-public class Restaurant {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "restaurant_id")
-    private Long Id;
-    private String name;
-    private Integer capacity;
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
-    private List<Menu> menuList = new ArrayList<>();
-    private String date;
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
-    private List<Connection> connectionList = new ArrayList<>();
+public enum Restaurant {
+    제1학생회관(486, Location.of(36.367838, 127.343160)),
+    제2학생회관(392, Location.of(36.365959, 127.345828)),
+    제3학생회관(273, Location.of(36.371479, 127.344841)),
+    상록회관(140, Location.of(36.368605, 127.350374)),
+    생활과학대(190, Location.of(36.376309, 127.343158));
 
-    private Double restaurantRate = 0.0;
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
-    private List<Review> reviewList = new ArrayList<>();
+    private final Integer capacity;
+    private final Location location;
 
-    @Builder
-    public Restaurant(String name, String date) {
-        this.setName(name);
-        this.setDate(date);
-        setCapacity(name);
+    Restaurant(int capacity, Location location) {
+        this.capacity = capacity;
+        this.location = location;
     }
 
-    private void setCapacity(String name){
-        if(name.contains("1학")) capacity = 486;
-        else if(name.contains("2학")) capacity = 392;
-        else if(name.contains("3학")) capacity = 273;
-        else if(name.contains("상록")) capacity = 140;
-        else if(name.contains("생활")) capacity = 190;
+    Restaurant(int capacity, double longitude, double latitude) {
+        this.capacity = capacity;
+        this.location = Location.of(longitude, latitude);
     }
 
-    @Override
-    public String toString(){
-        return name+" "+date + " " + menuList;
-    }
 
-    public void updateTotalRate() {
-        double sum = 0.0;
-        int count = 0;
-
-        for (Menu menu : this.menuList) {
-            if(menu.getRate() != 0.0) {
-                // 리뷰가 작성된 식당의 평균들을 계산해야함.
-                count++;
-                sum += menu.getRate();
-            }
-        }
-
-        this.restaurantRate = count == 0 ? 0 : sum/count;
-    }
-
-    public static String parseName(String name) {
-        if (name.contains("1")) return "1학생회관";
-        else if (name.contains("2")) return "2학생회관";
-        else if (name.contains("3")) return "3학생회관";
+    public static String parseName(String name){
+        if (name.contains("1")) return "제1학생회관";
+        else if (name.contains("2")) return "제2학생회관";
+        else if (name.contains("3")) return "제3학생회관";
         else if (name.contains("4") || name.contains("상록회관")) return "상록회관";
         else if (name.contains("5") || name.contains("생활과학대") ) return "생활과학대";
         return name;

@@ -22,7 +22,7 @@ public class ReviewResponseDto {
 
     public ReviewResponseDto(Review review, boolean isLike) {
         this.reviewId = review.getId();
-        this.restaurant = review.getRestaurant().getName();
+        this.restaurant = review.getRestaurant().toString();
         this.writer = review.getWriterNickname();
         this.dept = review.getMenu().getDept();
         this.menuName = review.getMenu().getMenuName();
