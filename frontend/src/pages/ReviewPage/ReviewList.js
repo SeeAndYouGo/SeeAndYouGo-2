@@ -54,6 +54,26 @@ const SortingSelect = styled.select`
 	}
 `;
 
+const TypeSelect = styled.select`
+	width: 100%;
+	height: 20px;
+	margin-bottom: 10px;
+	font-size: 14px;
+	padding: 0px 0.5em;
+	border: 0px;
+	border-radius: 5px;
+	font-family: inherit;
+	background: url("/assets/images/arrow.png") no-repeat 98.5% 50%;
+	background-size: contain;
+	background-color: white;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	::-ms-expand {
+		display: none;
+	}
+`;
+
 const NoReviewMessage = styled.p`
 	margin-top: 10px;
 	font-weight: 400;
@@ -114,6 +134,20 @@ const ReviewList = ({
 	return (
 		<>
 			<div>
+				{/* <TypeSelect>
+					<option value="total">전체</option>
+					<option value="breakfast">조식</option>
+					<option value="lunch">중식</option>
+					<option value="dinner">석식</option>
+				</TypeSelect> */}
+				<SortingSelect>
+					<option value="total">전체</option>
+					<option value="breakfast">조식</option>
+					<option value="lunch">중식</option>
+					<option value="dinner">석식</option>
+				</SortingSelect>
+			</div>
+			<div>
 				<CheckBoxInput
 					type="checkbox"
 					id="check"
@@ -124,12 +158,12 @@ const ReviewList = ({
 				<label htmlFor="check" style={{ marginLeft: 5, cursor: "pointer" }}>
 					사진 리뷰만 보기
 				</label>
-				<SortingSelect value={sortOrder} onChange={handleSortChange}>
+				{/* <SortingSelect value={sortOrder} onChange={handleSortChange}>
 					<option value="latest">최근 등록순</option>
 					<option value="earliest">오래된순</option>
 					<option value="lowRate">별점 낮은순</option>
 					<option value="highRate">별점 높은순</option>
-				</SortingSelect>
+				</SortingSelect> */}
 				{nowReviewList.length === 0 ? (
 					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 				) : (

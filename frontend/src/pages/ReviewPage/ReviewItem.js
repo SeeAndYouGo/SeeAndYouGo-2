@@ -1,101 +1,37 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import moment from "moment";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar as solidStar, faCircleUser, faSpoon } from "@fortawesome/free-solid-svg-icons";
+import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import DropDown from "../../components/Review/DropDown";
-import Modal from "../../components/Modal";
-import ModalImageZoom from "./ModalImageZoom";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
   width: 100%;
   background: #fff;
-  padding: 10px 15px;
-  border-radius: 20px;
+  padding: 15px;
+  border-radius: 15px;
   margin-top: 10px;
   float: left;
   position: relative;
 `;
-const ReviewItemIcon = styled.p`
-  float: left;
-  font-size: 30px;
-  color: #555;
-  margin: 0px;
-  position: relative;
-  top: -3px;
-`;
-const ReviewItemProfile = styled.div`
-  float: left;
-  margin-left: 5px;
-  > p {
-    margin: 0;
-    font-size: 16px;
-  }
-  > div {
-    color: #777;
-    font-size: 10px;
-    margin-top: -2px;
-  }
-`;
 
 const ReviewItemStar = styled.span`
-  font-size: 10px;
-  margin-right: 5px;
   > svg {
     color: #ffc107;
-    font-size: 10px;
-    margin-right: 2px;
+    margin: 0 3px;
   }
 `;
 
-const ReviewItemContent = styled.p`
+const ReviewItemComment = styled.p`
   width: 100%;
   font-size: 14px;
   font-weight: 400;
   margin: 5px 0 0 0;
   white-space: pre-wrap;
-`;
-
-const RestaurantName = styled.p`
-  font-size: 12px;
-  font-weight: 500;
-  color: #555555;
-  margin: 0;
-  float: right;
-  width: 100%;
-  text-align: right;
-
-  & > .colorTag1 {
-    color: #ff0000;
-  }
-  & > .colorTag2 {
-    color: #ff8000;
-  }
-  & > .colorTag3 {
-    color: #f4aa19;
-  }
-  & > .colorTag4 {
-    color: #07903e;
-  }
-  & > .colorTag5 {
-    color: #2274ee;
-  }
-`;
-
-const DeptName = styled.p`
-  margin: 2px 0 0 0;
-  text-align: center;
-  color: #999;
-  border-radius: 5px;
-  font-size: 11px;
-  text-align: center;
-  font-weight: 400;
-  float: right;
 `;
 
 const MenuName = styled.p`
@@ -106,14 +42,13 @@ const MenuName = styled.p`
   border: 1px solid #ccc;
   padding: 2px 10px;
   border-radius: 20px;
+	margin-right: 5px;
 `;
 
 const ReviewImage = styled.img`
-  max-height: 80px;
-  max-width: 80px;
-  float: left;
-  margin-top: 10px;
-  cursor: zoom-in;
+  width: 330px;
+  margin: -15px 0 10px -15px;
+  border-radius: 15px 15px 0 0;  
 `;
 
 const ReviewLike = styled.div`
@@ -132,15 +67,9 @@ const ReviewLike = styled.div`
   }
 `;
 
-const CalculateWriteTime = (inputTime, nowTime) => {
-  const checkMinutes = moment.duration(inputTime.diff(nowTime)).asMinutes();
-  if (checkMinutes < 60) {
-    return `${Math.floor(checkMinutes)}분 전`;
-  } else if (checkMinutes < 1440) {
-    return `${Math.floor(checkMinutes / 60)}시간 전`;
-  } else {
-    return `${Math.floor(checkMinutes / 1440)}일 전`;
-  }
+const DisplayWriteTime = (inputTime) => {
+  const writeTime = inputTime.split(":").slice(0, 2).join(":");
+  return writeTime;
 };
 
 const ReviewItem = ({
@@ -152,21 +81,17 @@ const ReviewItem = ({
   const {
     reviewId,
     restaurant,
-    dept,
     writer,
-    menuName,
     madeTime,
     rate,
     comment,
     imgLink,
     likeCount,
     like,
+    mainDishList
   } = review;
-  const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
-  const targetTime = moment(tempTargetTime);
   const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
-  const [imgVisible, setImgVisible] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
@@ -258,58 +183,8 @@ const ReviewItem = ({
 
   return (
       <ReviewItemContainer>
-        <div className="Row1" style={{ width: "100%", float: "left" }}>
-          <ReviewItemIcon>
-            <FontAwesomeIcon icon={faCircleUser} />
-          </ReviewItemIcon>
-          <ReviewItemProfile>
-            <p>{writer}</p>
-            <div style={{ marginTop: 2 }}>
-              <ReviewItemStar style={{ fontWeight: 500 }}>
-                <FontAwesomeIcon icon={solidStar} />
-                {rate % 1 === 0 ? rate + ".0" : rate}
-              </ReviewItemStar>
-              <span style={{ fontWeight: 400 }}>
-                {CalculateWriteTime(targetTime, madeTime)}
-              </span>
-            </div>
-          </ReviewItemProfile>
-          {
-            token_id ? (
-              <div style={{position: "relative", float: "right", marginLeft: 5}} >
-                <DropDown targetId={reviewId} 
-                targetRestaurant={getRestuarantIndex(restaurant)}
-                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
-              </div>
-            ) : null
-          }
-          {isTotal && (
-            <div style={{ float: "right", width: "45%" }}>
-              <RestaurantName>
-                <span
-                  className={
-                    "colorTag" +
-                    getRestuarantIndex(restaurant)
-                  }
-                >
-                  ●&nbsp;
-                </span>
-                {restaurant}
-              </RestaurantName>
-
-              {getRestuarantIndex(restaurant) === 2 || getRestuarantIndex(restaurant) === 3 ? (
-                <DeptName>
-                  {dept === "STAFF"
-                    ? "교직원식당"
-                    : "학생식당"}
-                </DeptName>
-              ) : null}
-            </div>
-          )}
-        </div>
-        <div className="Row2" style={{ width: "100%", display: "inline-block" }}>
-          <ReviewItemContent>{comment}</ReviewItemContent>
-          {imgLink === "" ? null : (
+        {// TODO 리뷰 이미지 부분 수정하기
+          imgLink === "" ? null : (
             <ReviewImage
               src={
                 config.NOW_STATUS === 0
@@ -317,39 +192,45 @@ const ReviewItem = ({
                   : `${imgLink}`
               }
               alt="Loading.."
-              onClick={() => {
-                setImgVisible(true);
-              }}
             />
-          )}
-          <Modal
-            visible={imgVisible}
-            onClose={() => {
-              setImgVisible(false);
-            }}
-          >
-            <ModalImageZoom
-              imgLink={
-                config.NOW_STATUS === 0
-                  ? `/assets/images/${imgLink}`
-                  : `${imgLink}`
-              }
-            />
-          </Modal>
+          )
+        }
+        <div className="Row1" style={{display:"flex", width: "100%"}}>
+          <div style={{width: "200px"}}>
+            <span style={{fontSize: 14}}>{writer}</span>
+            <ReviewItemStar style={{ fontWeight: 500 }}>
+              <FontAwesomeIcon icon={solidStar} />
+              {rate % 1 === 0 ? rate + ".0" : rate}
+            </ReviewItemStar>
+          </div>
+          <div style={{position:"relative", width: "200px"}}>
+            <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
+              {DisplayWriteTime(madeTime)}
+            </span>
+            {/* TODO drop down 부분 token_id 살리기 true를 token_id로 변경 */}
+            {
+              // token_id
+              true 
+              ? (
+                <div style={{ position:"absolute", right:"0px"}} >
+                  <DropDown targetId={reviewId} 
+                  targetRestaurant={getRestuarantIndex(restaurant)}
+                  wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+                </div>
+              ) : null
+            }
+          </div>
+        </div>
+        <div className="Row2" style={{ width: "100%", marginBottom: "10px" }}>
+          <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
+          {mainDishList && mainDishList.map((menu, index) => (
+            <MenuName key={index}>{menu}</MenuName>
+          ))}
           <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
             <FontAwesomeIcon icon={faHeart} /> {likeCountState}
           </ReviewLike>
-          {
-            (
-              isTotal || (getRestuarantIndex(restaurant) === 1)
-            ) && (
-            <MenuName>
-              {menuName}&nbsp;
-              <FontAwesomeIcon icon={faSpoon} />
-            </MenuName>
-          )}
         </div>
       </ReviewItemContainer>
   );

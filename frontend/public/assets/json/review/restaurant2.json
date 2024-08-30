@@ -7,13 +7,14 @@
         "rate": 2.0,
         "comment": "별로..",
         "imgLink": "",
-        "menuName" : ""
+        "menuName" : "",
+        "mainDishList": ["메인1", "메인2", "메인3"]
     },
     {
         "restaurant": "2학생회관",
         "dept": "STUDENT",
         "madeTime": "2023-11-24 12:23:00",
-        "writer": "2학만 간다",
+        "writer": "오래학만간다",
         "rate": 5.0,
         "comment": "백숙 굿굿굿!",
         "imgLink": "",
