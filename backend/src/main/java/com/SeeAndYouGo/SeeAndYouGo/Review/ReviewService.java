@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.Rate;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
@@ -22,6 +23,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReviewService {
     private final RateService rateService;
+    private final MenuService menuService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
     private final RateRepository rateRepository;
@@ -138,7 +140,14 @@ public class ReviewService {
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
-        return reviewRepository.findByRestaurantAndMadeTimeStartingWith(restaurant, date);
+        List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
+
+        List<Menu> param = new ArrayList<>();
+        // menus의 각 menu에서 mainDish에 해당하는 Dish를 갖고 있는 다른 menu들도 불러온다.
+        for (Menu menu : menus) {
+            param.addAll(menuService.findAllMenuByMainDish(menu));
+        }
+        return reviewRepository.findByRestaurantAndMenuIn(restaurant, param);
 //        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
     }
 
