@@ -4,7 +4,6 @@ import DeptTabMenu from "./DeptTabMenu";
 import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeMenuInfo } from "../../redux/slice/NowMenuSlice";
-import * as config from "../../config";
 
 const todayMenuStyle = {
 	display: "flex",
@@ -14,7 +13,7 @@ const todayMenuStyle = {
 
 const menuTypeValue = ["BREAKFAST", "LUNCH", "DINNER"];
 
-const TodayMenu = () => {
+const TodayMenu = ({ todayMenuData }) => {
 	const dispatch = useDispatch();
 	const [staffMenu, setStaffMenu] = useState([]);
 	const [studentMenu, setStudentMenu] = useState([]);
@@ -48,49 +47,29 @@ const TodayMenu = () => {
 	}, [nowDept]);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			const url =
-				config.BASE_URL +
-				`/daily-menu/restaurant2` +
-				(config.NOW_STATUS === 0 ? ".json" : "");
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
-		};
-		fetchData()
-			.then((data) => {
-				const staffMenuData = data.filter((item) => item.dept === "STAFF");
-				staffMenuData.sort((a, b) => {
-					return (
-						menuTypeValue.indexOf(a.menuType) -
-						menuTypeValue.indexOf(b.menuType)
-					);
-				});
-				const studentMenuData = data.filter((item) => item.dept !== "STAFF");
-				studentMenuData.sort((a, b) => {
-					return (
-						menuTypeValue.indexOf(a.menuType) -
-						menuTypeValue.indexOf(b.menuType)
-					);
-				});
+		const staffMenuData = todayMenuData.filter((item) => item.dept === "STAFF");
+		staffMenuData.sort((a, b) => {
+			return (
+				menuTypeValue.indexOf(a.menuType) -
+				menuTypeValue.indexOf(b.menuType)
+			);
+		});
+		const studentMenuData = todayMenuData.filter((item) => item.dept !== "STAFF");
+		studentMenuData.sort((a, b) => {
+			return (
+				menuTypeValue.indexOf(a.menuType) -
+				menuTypeValue.indexOf(b.menuType)
+			);
+		});
 
-				setStaffMenu(staffMenuData);
-				setStudentMenu(studentMenuData);
+		setStaffMenu(staffMenuData);
+		setStudentMenu(studentMenuData);
 
-				if (nowDept === 1 && studentMenuData.length > 0) {
-					dispatch(changeMenuInfo({mainMenuList: studentMenuData[0].mainDishList, menuId: studentMenuData[0].menuId}));
-				} else if (nowDept === 2 && staffMenuData.length > 0) {
-					dispatch(changeMenuInfo({mainMenuList: staffMenuData[0].mainDishList, menuId: staffMenuData[0].menuId}));
-				}
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+		if (nowDept === 1 && studentMenuData.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: studentMenuData[0].mainDishList, menuId: studentMenuData[0].menuId}));
+		} else if (nowDept === 2 && staffMenuData.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: staffMenuData[0].mainDishList, menuId: staffMenuData[0].menuId}));
+		}
 	}, [dispatch, nowDept]);
 
 	return (
