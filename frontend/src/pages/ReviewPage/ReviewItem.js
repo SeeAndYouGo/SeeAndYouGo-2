@@ -88,7 +88,8 @@ const ReviewItem = ({
     imgLink,
     likeCount,
     like,
-    mainDishList
+    mainDishList,
+    menuName
   } = review;
   const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
@@ -225,6 +226,12 @@ const ReviewItem = ({
           <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
+          {/* TODO 속성값이 menuName이냐, mainDishList이냐에 따라 사용 */}
+          {
+            menuName === "" ? null : (
+              <MenuName>{menuName}</MenuName>
+            )
+          }
           {mainDishList && mainDishList.map((menu, index) => (
             <MenuName key={index}>{menu}</MenuName>
           ))}
