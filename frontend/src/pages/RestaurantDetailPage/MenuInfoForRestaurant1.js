@@ -94,11 +94,10 @@ const MenuInfoForRestaurant1 = () => {
 		}).catch((err) => {
 			console.log(err);
 		});
-
 	} ,[]);
 
 	return (
-		<div>
+		<div style={{ marginTop: 20 }}>
 			<p style={{ fontSize: "18px", margin: 0 }}>메뉴</p>
 			{menuArray.map((nowList, index1) => {
 				const { classification, menuList, operatingTime } = nowList;

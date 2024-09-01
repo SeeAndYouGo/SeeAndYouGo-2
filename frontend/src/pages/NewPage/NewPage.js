@@ -1,6 +1,6 @@
 import React from "react";
-import TodayMenu from "./TodayMenu";
-import ReviewWriteForm from "./ReviewForm";
+import TodayMenu from "../MainPage/TodayMenu";
+import ReviewWriteForm from "../MainPage/ReviewForm";
 import { useSelector } from "react-redux";
 
 const NewPage = () => {

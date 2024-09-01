@@ -49,6 +49,8 @@ const ReviewImage = styled.img`
   width: 330px;
   margin: -15px 0 10px -15px;
   border-radius: 15px 15px 0 0;  
+  max-height: 200px;
+  object-fit: cover;
 `;
 
 const ReviewLike = styled.div`
@@ -183,20 +185,21 @@ const ReviewItem = ({
 
   return (
       <ReviewItemContainer>
-        {// TODO 리뷰 이미지 부분 수정하기
+        {
           imgLink === "" ? null : (
             <ReviewImage
-              src={
-                config.NOW_STATUS === 0
-                  ? `/assets/images/${imgLink}`
-                  : `${imgLink}`
-              }
+            src={'https://seeandyougo.com/'+review.imgLink}
+              // src={
+              //   config.NOW_STATUS === 0
+              //     ? `/assets/images/${imgLink}`
+              //     : `${imgLink}`
+              // }
               alt="Loading.."
             />
           )
         }
-        <div className="Row1" style={{display:"flex", width: "100%"}}>
-          <div style={{width: "200px"}}>
+        <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
+          <div >
             <span style={{fontSize: 14}}>{writer}</span>
             <ReviewItemStar style={{ fontWeight: 500 }}>
               <FontAwesomeIcon icon={solidStar} />
