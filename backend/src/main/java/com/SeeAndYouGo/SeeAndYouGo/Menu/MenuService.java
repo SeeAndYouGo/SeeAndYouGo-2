@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.google.gson.JsonArray;
@@ -326,7 +327,7 @@ public class MenuService {
 
         try {
             // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
+            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
 
             // Parse the JSON data
             JsonParser jsonParser = new JsonParser();
@@ -372,9 +373,20 @@ public class MenuService {
         return restaurants;
     }
 
+    @Transactional
     public void createRestaurant1Menu(LocalDate nearestMonday) {
         for (LocalDate date = nearestMonday; date.getDayOfWeek() != DayOfWeek.SATURDAY; date = date.plusDays(1)) {
             createRestaurant1MenuOnJson(date);
         }
+    }
+
+    public List<Menu> findAllMenuByMainDish(Menu menu) {
+        List<Dish> mainDish = menu.getMainDish();
+        List<Menu> results = new ArrayList<>();
+        for (Dish dish : mainDish) {
+            dish.getMenuDishes().forEach(menuDish -> results.add(menuDish.getMenu()));
+        }
+
+        return results;
     }
 }
