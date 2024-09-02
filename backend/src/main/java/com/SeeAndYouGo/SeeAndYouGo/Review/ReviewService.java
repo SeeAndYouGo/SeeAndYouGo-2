@@ -140,6 +140,12 @@ public class ReviewService {
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+
+        if(restaurant.equals(Restaurant.제1학생회관)){
+            // 1학의 경우 아래의 로직대로 하면 너무 오래 걸리므로 그냥 1학 리뷰는 싹다 가져오게 진행한다.
+            return reviewRepository.findByRestaurant(restaurant);
+        }
+
         List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
 
         List<Menu> param = new ArrayList<>();
