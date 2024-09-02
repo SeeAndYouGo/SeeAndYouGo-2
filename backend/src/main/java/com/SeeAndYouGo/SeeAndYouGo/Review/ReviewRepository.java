@@ -45,4 +45,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
 
     List<Review> findByRestaurantAndMenuIn(Restaurant restaurant, List<Menu> date);
+
+    List<Review> findByRestaurant(Restaurant restaurant);
 }
