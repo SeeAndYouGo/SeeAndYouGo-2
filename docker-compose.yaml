@@ -72,3 +72,13 @@ services:
       - seeandyougo
     environment:
       - TZ=Asia/Seoul
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: swagger
+    ports:
+      - "8000:8080"
+    restart: on-failure
+    environment:
+      URLS: "[{url: 'doc/auth.json', name: 'AuthServer'}]"
+    networks:
+      - backbone
