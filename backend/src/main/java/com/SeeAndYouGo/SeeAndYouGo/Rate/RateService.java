@@ -34,7 +34,7 @@ public class RateService {
     public void setRestaurant1MenuField() {
         try {
             // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
+            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
 
             // Parse the JSON data
             JsonParser jsonParser = new JsonParser();

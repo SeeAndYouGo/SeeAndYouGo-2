@@ -1,10 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Getter
 public class ReviewResponseDto {
@@ -12,7 +15,8 @@ public class ReviewResponseDto {
      private String restaurant;
     private String writer;
     private Dept dept;
-    private String menuName;
+    private String menuType;
+    private List<String> mainDishList;
     private String madeTime;
     private String comment;
     private String imgLink;
@@ -25,7 +29,8 @@ public class ReviewResponseDto {
         this.restaurant = review.getRestaurant().toString();
         this.writer = review.getWriterNickname();
         this.dept = review.getMenu().getDept();
-        this.menuName = review.getMenu().getMenuName();
+        this.menuType = review.getMenu().getMenuType().toString();
+        this.mainDishList = review.getMenu().getMainDishToString();
         this.madeTime = review.getMadeTime();
         this.comment = review.getComment();
         this.imgLink = review.getImgLink();

@@ -1,10 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -46,5 +44,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 //    List<Review> findRestaurantReviews(@Param("restaurantId") Long restaurantId, @Param("date") String date);
 
 
-    List<Review> findByRestaurantAndMadeTimeStartingWith(Restaurant restaurant, String date);
+    List<Review> findByRestaurantAndMenuIn(Restaurant restaurant, List<Menu> date);
+
+    List<Review> findByRestaurant(Restaurant restaurant);
 }
