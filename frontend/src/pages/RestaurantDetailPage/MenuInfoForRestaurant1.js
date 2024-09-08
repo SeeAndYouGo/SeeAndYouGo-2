@@ -98,7 +98,7 @@ const MenuInfoForRestaurant1 = () => {
 
 	return (
 		<div style={{ marginTop: 20 }}>
-			<p style={{ fontSize: "18px", margin: 0 }}>메뉴</p>
+			<p style={{ fontSize: 22, margin: 0, fontWeight: 700 }}>메뉴</p>
 			{menuArray.map((nowList, index1) => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((val) => (

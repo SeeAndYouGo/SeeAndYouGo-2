@@ -75,7 +75,7 @@ const Progress = ({ ratio = 0, time }) => {
           }}
         >
           <TooltipContent>
-            학생 식당에 있는 Wifi와 연결된 기기의 접속자 수를 통해 얻은 데이터로, 실제 인원 수와 다를 수 있습니다.
+            학생 식당에 있는 Wifi와 연결된 기기의 접속자 수를 통해{'\n'} 얻은 데이터로, 실제 인원 수와 다를 수 있습니다.
           </TooltipContent>
         </Tooltip>
       </div>

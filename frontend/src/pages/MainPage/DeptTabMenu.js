@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
 import { changeDept } from "../../redux/slice/DeptSlice";
@@ -33,6 +33,7 @@ const DeptTabMenu = ({ studentMenu, staffMenu }) => {
 	const [currentTab, clickTab] = useState(0);
 	const dispatch = useDispatch();
 	const beforeDept = useSelector((state) => state.dept).value;
+	const dept = useSelector((state) => state.dept).value;
 	
 	const selectMenuHandler = (index) => {
 		if (beforeDept === index + 1) return;
@@ -51,6 +52,15 @@ const DeptTabMenu = ({ studentMenu, staffMenu }) => {
 
 		clickTab(index);
 	};
+
+	useEffect(() => {
+		if (dept === 1) {
+			clickTab(0);
+		} else if (dept === 2) {
+			clickTab(1);
+		}
+}, [dept]);
+
 	const TabMenuUl = () => {
 		return (
 			<TabMenu>

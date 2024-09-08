@@ -6,7 +6,7 @@ import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import DropDown from "../../components/Review/DropDown";
+import DropDown from "./DropDown";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -90,7 +90,8 @@ const ReviewItem = ({
     imgLink,
     likeCount,
     like,
-    mainDishList
+    mainDishList,
+    menuName
   } = review;
   const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
@@ -188,12 +189,11 @@ const ReviewItem = ({
         {
           imgLink === "" ? null : (
             <ReviewImage
-            src={'https://seeandyougo.com/'+review.imgLink}
-              // src={
-              //   config.NOW_STATUS === 0
-              //     ? `/assets/images/${imgLink}`
-              //     : `${imgLink}`
-              // }
+              src={
+                config.NOW_STATUS === 0
+                  ? 'https://seeandyougo.com/'+review.imgLink
+                  : `${imgLink}`
+              }
               alt="Loading.."
             />
           )
@@ -228,6 +228,12 @@ const ReviewItem = ({
           <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
+          {/* TODO 속성값이 menuName이냐, mainDishList이냐에 따라 사용 */}
+          {
+            menuName === "" ? null : (
+              <MenuName>{menuName}</MenuName>
+            )
+          }
           {mainDishList && mainDishList.map((menu, index) => (
             <MenuName key={index}>{menu}</MenuName>
           ))}

@@ -103,13 +103,13 @@ const Info = ({ idx = 1 }) => {
 					</Modal>
 					{idx !== 1 ? (
 						<>
-							<ModalContent
+							{/* <ModalContent
 								style={{ marginLeft: 5 }}
 								onClick={() => setVisible2(true)}
 							>
 								<FontAwesomeIcon icon={faCalendarDays} />
 								<p style={{ fontSize: 11 }}>식단표</p>
-							</ModalContent>
+							</ModalContent> */}
 							<Modal visible={visible2} onClose={() => setVisible2(false)}>
 								<ModalMenuTable idx={idx} />
 							</Modal>

@@ -15,7 +15,7 @@ const todayMenuStyle = {
 
 const menuTypeValue = ["BREAKFAST", "LUNCH", "DINNER"];
 
-const TodayMenu = ({ data = [] }) => {
+const TodayMenu = ({ idx, data = [] }) => {
 	const dispatch = useDispatch();
 	const [staffMenu, setStaffMenu] = useState([]);
 	const [studentMenu, setStudentMenu] = useState([]);
@@ -50,6 +50,7 @@ const TodayMenu = ({ data = [] }) => {
 	}, [nowDept]);
 
 	useEffect(() => {
+		if (data.length === 0) return;
 		const staffMenuData = data.filter((item) => item.dept === "STAFF");
 		staffMenuData.sort((a, b) => {
 			return (
@@ -79,7 +80,9 @@ const TodayMenu = ({ data = [] }) => {
 		<div style={{ marginTop: 30}}>
 			<div style={{ display: "flex", marginBottom: "15px" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
-				<DeptTabMenu studentMenu={studentMenu} staffMenu={staffMenu} />
+				{idx < 4 && (
+					<DeptTabMenu studentMenu={studentMenu} staffMenu={staffMenu} />
+				)}
 			</div>
 			{nowDept === 1
 				? studentMenu.map((item, index) => {
