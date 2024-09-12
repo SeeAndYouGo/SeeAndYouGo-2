@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class VisitorScheduler {
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final VisitorCountRepository repository;
 
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -24,5 +25,13 @@ public class VisitorScheduler {
         redisTemplate.delete(Const.KEY_TOTAL_VISITOR_COUNT);
 
         System.out.println("===== Redis Cache Reset =====");
+    }
+
+    // Redis 서버 다운을 대비한 DB 백업
+    @Scheduled(fixedRate = 60000 * 30) // 30분마다
+    public void backupVisitorCount() {
+        String count = redisTemplate.opsForValue().get(Const.KEY_TOTAL_VISITOR_COUNT);
+        if (count != null)
+            repository.save(new VisitorCount(Integer.parseInt(count)));
     }
 }

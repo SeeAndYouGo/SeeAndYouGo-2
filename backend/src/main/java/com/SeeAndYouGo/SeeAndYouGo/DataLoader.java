@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
+import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ public class DataLoader implements CommandLineRunner {
     private final ConnectionService connectionService;
     private final RateService rateService;
     private final StatisticsService statisticsService;
+    private final VisitorService visitorService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -27,5 +29,7 @@ public class DataLoader implements CommandLineRunner {
         }
 
         statisticsService.initSetting();
+
+        visitorService.init();
     }
 }
