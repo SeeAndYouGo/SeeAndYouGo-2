@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.visitor;
 
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.TOKEN_ID_KEY_NAME;
 
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class VisitorInterceptor implements HandlerInterceptor {
     private final RedisTemplate<String, String> redisTemplate;
@@ -31,7 +33,8 @@ public class VisitorInterceptor implements HandlerInterceptor {
 
         // 유저키 생성
         String user = "unknown";
-        String tokenId = (String) request.getSession().getAttribute(TOKEN_ID_KEY_NAME);
+        String tokenId = request.getHeader(TOKEN_ID_KEY_NAME);
+
         if (tokenId != null && tokenId.length() != 0)
             user = tokenProvider.decodeToEmail(tokenId);
         String userKey = Const.PREFIX_VISITOR_USER + user;
