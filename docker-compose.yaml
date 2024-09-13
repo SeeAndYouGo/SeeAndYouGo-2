@@ -82,3 +82,11 @@ services:
       URLS: "[{url: 'doc/auth.json', name: 'AuthServer'}]"
     networks:
       - backbone
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: always
+    networks:
+      - backbone
