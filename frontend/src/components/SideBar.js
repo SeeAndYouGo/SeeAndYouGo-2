@@ -186,12 +186,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            {/* <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20}}>collections_bookmark</span>
                 <span>나의 키워드</span>
               </MenuName>
-            </Link>
+            </Link> */}
           </MenuList>
           <div style={{marginBottom: 10}}>
             <span>
@@ -199,12 +199,12 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
+            {/* <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>
               </MenuName>
-            </Link>
+            </Link> */}
             <Link to="/statistics" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>bar_chart</span>
