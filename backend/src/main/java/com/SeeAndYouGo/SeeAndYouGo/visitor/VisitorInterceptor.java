@@ -48,7 +48,9 @@ public class VisitorInterceptor implements HandlerInterceptor {
             }
         } else {
             // ip 방문 이력 있을경우
-            // 카운팅 조건: 유저 접속이력이 없을 경우
+            // 카운팅 조건: 익명 아닌 유저의 접속이력이 없을 경우
+            // 검토사항: 익명유저 동일아이피 접속 건 (기기정보 등 다른정보를 추가해야하나.. 고민 중)
+            //      왜냐? 어차피 ip
             if (ops.get(userKey) == null) {
                 ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
             }
