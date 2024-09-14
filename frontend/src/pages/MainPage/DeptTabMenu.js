@@ -34,12 +34,12 @@ const DeptTabMenu = ({ studentMenu, staffMenu }) => {
 	const dispatch = useDispatch();
 	const beforeDept = useSelector((state) => state.dept).value;
 	const dept = useSelector((state) => state.dept).value;
+	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
 	
 	const selectMenuHandler = (index) => {
 		if (beforeDept === index + 1) return;
-		console.log(index+1)
 		dispatch(changeDept(index + 1));
-		dispatch(changeMenuType(0));
+		dispatch(changeMenuType(nowRestaurantId === 2 && index === 0 ? "BREAKFAST" : "LUNCH"));
 
 		if (index === 0 && studentMenu.length > 0) {
 			// 학생 탭 선택 시 첫 번째 메뉴의 dishList로 menuList 업데이트

@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeMenuInfo } from "../../redux/slice/NowMenuSlice";
 import * as config from "../../config";
+import styled from "@emotion/styled";
 
 const todayMenuStyle = {
 	display: "flex",
@@ -12,6 +13,17 @@ const todayMenuStyle = {
 	fontWeight: 700,
 	margin: "0px 0px 4px",
 };
+
+const SelectedDiv = styled.div`
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	border-radius: 10px;
+	
+	${({ $active }) => $active && `
+		outline: 2px solid black;
+	`}
+`;
 
 const menuTypeValue = ["BREAKFAST", "LUNCH", "DINNER"];
 
@@ -21,33 +33,12 @@ const TodayMenu = ({ idx, data = [] }) => {
 	const [studentMenu, setStudentMenu] = useState([]);
 	const nowDept = useSelector((state) => state.dept).value;
 
-	const [selectedDiv, setSelectedDiv] = useState({ 1: 0, 2: 0 });
+	const nowMenuType = useSelector((state) => state.menuType).value;
 
-	const handleDivClick = (tab, index, menuList, id) => {
-		setSelectedDiv((prevSelectedDiv) => ({
-			...prevSelectedDiv,
-			[tab]: index,
-		}));
-		dispatch(changeMenuType(index));
+	const handleDivClick = (clickedMenuType, menuList, id) => {
+		dispatch(changeMenuType(clickedMenuType));
 		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
 	};
-
-	const nowSelectedStyle = (index) => {
-		return {
-			outline: selectedDiv[nowDept] === index ? "2px solid black" : "none",
-			margin: 0,
-			padding: 0,
-			cursor: "pointer",
-			borderRadius: "10px",
-		};
-	};
-
-	useEffect(() => {
-		setSelectedDiv((prevSelectedDiv) => ({
-			...prevSelectedDiv,
-			[nowDept]: 0,
-		}));
-	}, [nowDept]);
 
 	useEffect(() => {
 		if (data.length === 0) return;
@@ -87,28 +78,28 @@ const TodayMenu = ({ idx, data = [] }) => {
 			{nowDept === 1
 				? studentMenu.map((item, index) => {
 						return (
-							<div
-								style={nowSelectedStyle(index)}
+							<SelectedDiv
+								$active={nowMenuType === item.menuType}
 								key={index}
 								onClick={() => {
-									handleDivClick(nowDept, index, item.mainDishList, item.menuId);
+									handleDivClick(item.menuType, item.mainDishList, item.menuId);
 								}}
 							>
 								<MenuItem menu={item} />
-							</div>
+							</SelectedDiv>
 						);
 					})
 				: staffMenu.map((item, index) => {
 						return (
-							<div
-								style={nowSelectedStyle(index)}
+							<SelectedDiv
+								$active={nowMenuType === item.menuType}
 								key={index}
 								onClick={() => {
-									handleDivClick(nowDept, index, item.mainDishList, item.menuId);
+									handleDivClick(item.menuType, item.mainDishList, item.menuId);
 								}}
 							>
 								<MenuItem menu={item} />
-							</div>
+							</SelectedDiv>
 						);
 				  })}
 		</div>
