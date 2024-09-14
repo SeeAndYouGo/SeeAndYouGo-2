@@ -46,6 +46,12 @@ public class VisitorInterceptor implements HandlerInterceptor {
                 || ops.get(userKey) == null) {
                 ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
             }
+        } else {
+            // ip 방문 이력 있을경우
+            // 카운팅 조건: 유저 접속이력이 없을 경우
+            if (ops.get(userKey) == null) {
+                ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
+            }
         }
 
         // 현재 접속한 user, ip의 방문처리
