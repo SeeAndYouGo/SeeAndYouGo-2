@@ -18,7 +18,7 @@ const InfoContent = styled.p`
   font-size: 13px;
   color: #777;
   font-weight: 400;
-  &:first-child {
+  &:first-of-type {
     margin-bottom: 4px;
   }
 `;
@@ -81,13 +81,13 @@ const operatingTime = {
 
 const Info = ({ idx = 1 }) => {
 	const [visible1, setVisible1] = useState(false);
-	const [visible2, setVisible2] = useState(false);
+	// const [visible2, setVisible2] = useState(false);
 
 	return (
 		<Container>
 			<div>
         <InfoContent>운영시간</InfoContent>
-          {operatingTime[idx]?.map((item) => <InfoContent>{item?.title} {' '} {item?.time}</InfoContent>)}
+          {operatingTime[idx]?.map((item, index) => <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>)}
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
@@ -101,20 +101,20 @@ const Info = ({ idx = 1 }) => {
 					<Modal visible={visible1} onClose={() => setVisible1(false)}>
 						<ModalLocation restaurant={idx} />
 					</Modal>
-					{idx !== 1 ? (
+					{/* {idx !== 1 ? (
 						<>
-							{/* <ModalContent
+							<ModalContent
 								style={{ marginLeft: 5 }}
 								onClick={() => setVisible2(true)}
 							>
 								<FontAwesomeIcon icon={faCalendarDays} />
 								<p style={{ fontSize: 11 }}>식단표</p>
-							</ModalContent> */}
+							</ModalContent>
 							<Modal visible={visible2} onClose={() => setVisible2(false)}>
 								<ModalMenuTable idx={idx} />
 							</Modal>
 						</>
-					) : null}
+					) : null} */}
 				</div>
 			</div>
 		</Container>

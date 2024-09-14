@@ -191,7 +191,7 @@ const ReviewItem = ({
             <ReviewImage
               src={
                 config.NOW_STATUS === 0
-                  ? 'https://seeandyougo.com/'+review.imgLink
+                  ? 'https://seeandyougo.com'+imgLink
                   : `${imgLink}`
               }
               alt="Loading.."

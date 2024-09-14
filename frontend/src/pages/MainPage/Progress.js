@@ -57,7 +57,7 @@ const Progress = ({ ratio = 0, time }) => {
         <span 
           data-tooltip-id='progress-tooltip' 
           data-tooltip-offset={0} 
-          class="material-symbols-outlined"
+          className="material-symbols-outlined"
           style={{ cursor: 'pointer', fontSize: 18, lineHeight: '25px', color: '#999', marginLeft: 3}}
         >
             help
@@ -84,7 +84,7 @@ const Progress = ({ ratio = 0, time }) => {
           <p style={{ fontSize: 18, fontWeight: 700 }}>
             {Text[Math.floor(ratio / 20)]}
           </p>
-          <span class="material-symbols-outlined" style={{ fontSize: 14, lineHeight: '18px', marginLeft: 'auto', color: '#999', marginRight: 5}}>schedule</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 14, lineHeight: '18px', marginLeft: 'auto', color: '#999', marginRight: 5}}>schedule</span>
           <p style={{ fontSize: 14, color: '#999', fontWeight: 400 }}>{nowTime} 기준</p>
         </div>
         <ProgressContainer>
