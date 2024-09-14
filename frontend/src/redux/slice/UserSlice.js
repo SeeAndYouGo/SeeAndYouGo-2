@@ -2,11 +2,10 @@ import { createSlice } from '@reduxjs/toolkit';
 import { PURGE } from 'redux-persist';
 
 const initialStateValue = {
-  // value: {
-    token: "",
-    nickname: "",
-    loginState: false
-  // }
+  token: "",
+  nickname: "",
+  loginState: false,
+  selectedRestaurant: 1,
 };
 
 const UserSlice = createSlice({
@@ -14,15 +13,16 @@ const UserSlice = createSlice({
   initialState: { value: initialStateValue },
   reducers: {
     login: (state, action) => {
-      // console.log(action);
       state.value = action.payload;
     },
     logout: (state) => {
       state.value = initialStateValue;
     },
     setNickname: (state, action) => {
-      // console.log(action);
       state.value.nickname = action.payload;
+    },
+    setSelectedRestaurant: (state, action) => {
+      state.value.selectedRestaurant = action.payload;
     }
   },
   extraReducers: builder => {
@@ -32,6 +32,6 @@ const UserSlice = createSlice({
   },
 });
 
-export const { login, logout, setNickname } = UserSlice.actions;
+export const { login, logout, setNickname, setSelectedRestaurant } = UserSlice.actions;
 
 export default UserSlice.reducer;

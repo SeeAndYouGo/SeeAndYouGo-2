@@ -6,7 +6,7 @@ import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import DropDown from "../../components/Review/DropDown";
+import DropDown from "./DropDown";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -49,6 +49,8 @@ const ReviewImage = styled.img`
   width: 330px;
   margin: -15px 0 10px -15px;
   border-radius: 15px 15px 0 0;  
+  max-height: 200px;
+  object-fit: cover;
 `;
 
 const ReviewLike = styled.div`
@@ -89,7 +91,6 @@ const ReviewItem = ({
     likeCount,
     like,
     mainDishList,
-    menuName
   } = review;
   const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
@@ -184,20 +185,20 @@ const ReviewItem = ({
 
   return (
       <ReviewItemContainer>
-        {// TODO 리뷰 이미지 부분 수정하기
+        {
           imgLink === "" ? null : (
             <ReviewImage
               src={
                 config.NOW_STATUS === 0
-                  ? `/assets/images/${imgLink}`
+                  ? 'https://seeandyougo.com'+imgLink
                   : `${imgLink}`
               }
               alt="Loading.."
             />
           )
         }
-        <div className="Row1" style={{display:"flex", width: "100%"}}>
-          <div style={{width: "200px"}}>
+        <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
+          <div >
             <span style={{fontSize: 14}}>{writer}</span>
             <ReviewItemStar style={{ fontWeight: 500 }}>
               <FontAwesomeIcon icon={solidStar} />
@@ -208,10 +209,8 @@ const ReviewItem = ({
             <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
               {DisplayWriteTime(madeTime)}
             </span>
-            {/* TODO drop down 부분 token_id 살리기 true를 token_id로 변경 */}
             {
-              // token_id
-              true 
+              token_id
               ? (
                 <div style={{ position:"absolute", right:"0px"}} >
                   <DropDown targetId={reviewId} 
@@ -226,12 +225,6 @@ const ReviewItem = ({
           <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
-          {/* TODO 속성값이 menuName이냐, mainDishList이냐에 따라 사용 */}
-          {
-            menuName === "" ? null : (
-              <MenuName>{menuName}</MenuName>
-            )
-          }
           {mainDishList && mainDishList.map((menu, index) => (
             <MenuName key={index}>{menu}</MenuName>
           ))}

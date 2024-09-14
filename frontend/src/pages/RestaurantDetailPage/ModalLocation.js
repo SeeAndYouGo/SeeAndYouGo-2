@@ -1,5 +1,4 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
 
 const getRestuarantIndex = (restaurantNum) => {
 	switch (restaurantNum) {
@@ -18,10 +17,7 @@ const getRestuarantIndex = (restaurantNum) => {
 	}
 };
 
-const ModalLocation = () => {
-	const params = useParams();
-	const restaurant = parseInt(params.restaurant);
-
+const ModalLocation = ({ restaurant = 1 }) => {
 	return (
 		<div style={{ padding: 20 }}>
 			<p style={{ margin: "0 0 5px 0" }}>
