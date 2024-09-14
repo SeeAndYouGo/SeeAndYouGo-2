@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "@emotion/styled";
 import ReviewItem from "../../components/Review/ReviewItem";
 
@@ -72,25 +72,90 @@ const NoReviewMessage = styled.p`
 
 const SelectOptionArray = [
 	[],
-	[],
+	["전체", "라면&간식", "스낵", "한식", "일식", "중식", "양식"],
 	["전체", "조식", "중식-학생", "중식-교직원"],
 	["전체", "중식-학생", "중식-교직원", "석식"],
-	[],
-	[],
 ];
-// ["전체", "라면&간식", "양식", "스낵", "일식", "중식", "한식"],
 
-const TopReview = ({ idx, nowReviewList = [] }) => {
+const OptionValueArray = [
+	[],
+	["total", "noodle", "snack", "korean", "japanese", "chinese", "western"],
+	["total", "morning", "lunch-student", "lunch-staff", "dinner"],
+	["total", "lunch-student", "lunch-staff", "dinner"],
+];
+
+const TopReview = ({
+	idx,
+	nowReviewList = [],
+	wholeReviewList,
+	setWholeReviewList,
+}) => {
 	const [isChecked, setIsChecked] = useState(false);
+	const [selectedReviewType, setSelectedReviewType] = useState("total");
+
+	useEffect(() => {
+		setSelectedReviewType("total");
+		setIsChecked(false);
+	}, [idx]);
+
+	const sortFunctions = (beforeData, typeValue) => {
+		switch (typeValue) {
+			case "total":
+				return beforeData;
+			case "morning":
+				return beforeData.filter((data) => data.menuType === "MORNING");
+			case "lunch-student":
+				return beforeData.filter(
+					(data) => data.menuType === "LUNCH" && data.dept === "STUDENT"
+				);
+			case "lunch-staff":
+				return beforeData.filter(
+					(data) => data.menuType === "LUNCH" && data.dept !== "STUDENT"
+				);
+			case "dinner":
+				return beforeData.filter((data) => data.menuType === "DINNER");
+
+			case "noodle":
+				return beforeData.filter((data) => data.dept === "NOODLE");
+			case "snack":
+				return beforeData.filter((data) => data.dept === "SNACK");
+			case "korean":
+				return beforeData.filter((data) => data.dept === "KOREAN");
+			case "japanese":
+				return beforeData.filter((data) => data.dept === "JAPANESE");
+			case "chinese":
+				return beforeData.filter((data) => data.dept === "CHINESE");
+			case "western":
+				return beforeData.filter((data) => data.dept === "WESTERN");
+			default:
+				return beforeData;
+		}
+	};
 
 	const toggleOnlyImageReviewVisiblity = () => {
-		setIsChecked(!isChecked);
+		setIsChecked((prev) => !prev);
 	};
+
+	const handleSelectType = (e) => {
+		const selectedType = e.target.value;
+		setSelectedReviewType(selectedType);
+	};
+
+	const reviewData = useMemo(() => {
+		const sortedData = sortFunctions(
+			[...nowReviewList].sort(
+				(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
+			),
+			selectedReviewType
+		);
+		return isChecked
+			? sortedData.filter((data) => data.imgLink !== "")
+			: sortedData;
+	}, [nowReviewList, isChecked, selectedReviewType]);
 
 	return (
 		<>
 			<div className="blankSpace">&nbsp;</div>
-
 			<span style={{ fontSize: 22, float: "left", fontWeight: 700 }}>
 				리뷰 보기
 			</span>
@@ -106,23 +171,27 @@ const TopReview = ({ idx, nowReviewList = [] }) => {
 				사진 리뷰만
 			</label>
 
-			{idx === 1 || idx === 4 || idx === 5 ? null : (
-				<TopReviewSelect>
+			{idx === 4 || idx === 5 ? null : (
+				<TopReviewSelect value={selectedReviewType} onChange={handleSelectType}>
 					{SelectOptionArray[idx].map((item, index) => (
-						<option key={index} value={index}>
+						<option key={index} value={OptionValueArray[idx][index]}>
 							{item}
 						</option>
 					))}
 				</TopReviewSelect>
 			)}
-			{nowReviewList.length === 0 ? (
+			{reviewData.length === 0 ? (
 				<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 			) : (
-				nowReviewList.map((nowData, index) => {
-					if (isChecked && nowData.imgLink === "") {
-						return null;
-					}
-					return <ReviewItem review={nowData} key={index} />;
+				reviewData.map((nowData, index) => {
+					return (
+						<ReviewItem
+							key={index}
+							review={nowData}
+							wholeReviewList={wholeReviewList}
+							setWholeReviewList={setWholeReviewList}
+						/>
+					);
 				})
 			)}
 

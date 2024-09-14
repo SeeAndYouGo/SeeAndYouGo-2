@@ -91,7 +91,6 @@ const ReviewItem = ({
     likeCount,
     like,
     mainDishList,
-    menuName
   } = review;
   const [likeCountState, setLikeCountState] = useState(0);
   const [likeState, setLikeState] = useState(false);
@@ -210,10 +209,8 @@ const ReviewItem = ({
             <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
               {DisplayWriteTime(madeTime)}
             </span>
-            {/* TODO drop down 부분 token_id 살리기 true를 token_id로 변경 */}
             {
-              // token_id
-              true 
+              token_id
               ? (
                 <div style={{ position:"absolute", right:"0px"}} >
                   <DropDown targetId={reviewId} 
@@ -228,12 +225,6 @@ const ReviewItem = ({
           <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
-          {/* TODO 속성값이 menuName이냐, mainDishList이냐에 따라 사용 */}
-          {
-            menuName === "" ? null : (
-              <MenuName>{menuName}</MenuName>
-            )
-          }
           {mainDishList && mainDishList.map((menu, index) => (
             <MenuName key={index}>{menu}</MenuName>
           ))}
