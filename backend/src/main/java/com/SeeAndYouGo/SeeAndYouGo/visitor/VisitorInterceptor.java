@@ -29,7 +29,7 @@ public class VisitorInterceptor implements HandlerInterceptor {
 
         // ip키 생성
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String ipKey = Const.PREFIX_VISITOR_IP + ipToInt(getIp(request));
+        String ipKey = Const.PREFIX_VISITOR_IP + getIp(request);
 
         // 유저키 생성
         String user = "unknown";
@@ -39,27 +39,23 @@ public class VisitorInterceptor implements HandlerInterceptor {
             user = tokenProvider.decodeToEmail(tokenId);
         String userKey = Const.PREFIX_VISITOR_USER + user;
 
-        // ip 방문 이력 없을경우
-        if (ops.get(ipKey) == null) {
-            // 카운팅 조건: 익명 유저거나, 유저 접속이력이 없는 경우
-            if (userKey.equals(Const.PREFIX_VISITOR_USER + "unknown")
-                || ops.get(userKey) == null) {
-                ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
-            }
-        } else {
-            // ip 방문 이력 있을경우
-            // 카운팅 조건: 익명 아닌 유저의 접속이력이 없을 경우
-            // 검토사항: 익명유저 동일아이피 접속 건 (기기정보 등 다른정보를 추가해야하나.. 고민 중)
-            //      왜냐? 어차피 ip
-            if (ops.get(userKey) == null) {
+        // 방문자 수 증가시키기
+        if (ops.get(userKey) == null) {
+            if (user.equals("unknown")) {
+                if (ops.get(ipKey) == null)
+                    ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
+            } else {
                 ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
             }
         }
 
-        // 현재 접속한 user, ip의 방문처리
+        // user, ip 방문처리
         ops.set(ipKey, "1", Duration.ofMinutes(10));
-        ops.set(userKey, "1", Duration.ofMinutes(10));
+        if (!userKey.equals(Const.PREFIX_VISITOR_USER + "unknown"))
+            ops.set(userKey, "1", Duration.ofMinutes(10));
 
+        // 참고: 이미 기록이 존재하는 public ip & 서로 다른 익명유저일 경우,
+        //      "왜 방문자수 카운팅이 안되는거지?" 할 수도 있음
         return true;
     }
 
@@ -82,18 +78,5 @@ public class VisitorInterceptor implements HandlerInterceptor {
             ip = request.getRemoteAddr();
 
         return ip;
-    }
-
-    public static int ipToInt(String ip) {
-        String[] octets = ip.split("\\.");
-        int result = 0;
-        for (int i = 0; i < 4; i++) {
-            int octet = Integer.parseInt(octets[i]);
-            if (octet < 0 || octet > 255) {
-                throw new IllegalArgumentException("IP address octets must be in the range 0-255");
-            }
-            result |= (octet << (8 * (3 - i))); // 8비트씩 왼쪽으로 이동
-        }
-        return result;
     }
 }
