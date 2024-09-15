@@ -173,26 +173,25 @@ const TopReview = ({
 
 			{idx === 4 || idx === 5 ? null : (
 				<TopReviewSelect value={selectedReviewType} onChange={handleSelectType}>
-					{SelectOptionArray[idx].map((item, index) => (
-						<option key={index} value={OptionValueArray[idx][index]}>
-							{item}
-						</option>
+					{(SelectOptionArray[idx] || []).map((item, index) => (
+					<option key={index} value={OptionValueArray[idx][index]}>
+						{item}
+					</option>
 					))}
 				</TopReviewSelect>
 			)}
+
 			{reviewData.length === 0 ? (
-				<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
+			<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 			) : (
-				reviewData.map((nowData, index) => {
-					return (
-						<ReviewItem
-							key={index}
-							review={nowData}
-							wholeReviewList={wholeReviewList}
-							setWholeReviewList={setWholeReviewList}
-						/>
-					);
-				})
+			reviewData.map((nowData, index) => (
+				<ReviewItem
+				key={index}
+				review={nowData}
+				wholeReviewList={wholeReviewList}
+				setWholeReviewList={setWholeReviewList}
+				/>
+			))
 			)}
 
 			<div className="blankSpace">&nbsp;</div>
