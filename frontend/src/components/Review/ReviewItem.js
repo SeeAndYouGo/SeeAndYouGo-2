@@ -46,7 +46,7 @@ const MenuName = styled.p`
 `;
 
 const ReviewImage = styled.img`
-  width: 330px;
+  width: calc(100% + 30px);
   margin: -15px 0 10px -15px;
   border-radius: 15px 15px 0 0;  
   max-height: 200px;
@@ -190,7 +190,7 @@ const ReviewItem = ({
             <ReviewImage
               src={
                 config.NOW_STATUS === 0
-                  ? 'https://seeandyougo.com'+imgLink
+                  ? 'https://seeandyougo.com/'+ imgLink
                   : `${imgLink}`
               }
               alt="Loading.."
@@ -198,14 +198,14 @@ const ReviewItem = ({
           )
         }
         <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
-          <div >
+          <div>
             <span style={{fontSize: 14}}>{writer}</span>
             <ReviewItemStar style={{ fontWeight: 500 }}>
               <FontAwesomeIcon icon={solidStar} />
               {rate % 1 === 0 ? rate + ".0" : rate}
             </ReviewItemStar>
           </div>
-          <div style={{position:"relative", width: "200px"}}>
+          <div style={{position:"relative", display: 'flex', flex: 1}}>
             <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
               {DisplayWriteTime(madeTime)}
             </span>
