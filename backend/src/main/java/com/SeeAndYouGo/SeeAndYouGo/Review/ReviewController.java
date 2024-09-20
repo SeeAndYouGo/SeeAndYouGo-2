@@ -12,6 +12,7 @@ import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +82,7 @@ public class ReviewController {
 
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
+    @Cacheable(value="reviewsByRestaurant", key="#restaurant")
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
@@ -146,6 +148,7 @@ public class ReviewController {
 
     @ResponseBody
     @GetMapping("/images/{imgName}")
+    @Cacheable(value="reviewImages", key="#imgName")
     public UrlResource showImage(@PathVariable String imgName) throws Exception {
         File file =new File(IMAGE_DIR + "/" + imgName);
         return new UrlResource("file:" + file.getAbsolutePath());
