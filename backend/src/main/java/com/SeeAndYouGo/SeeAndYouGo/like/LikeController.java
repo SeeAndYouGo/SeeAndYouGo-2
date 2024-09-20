@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.like;
 import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,11 +14,11 @@ public class LikeController {
     private final LikeService likeService;
     @PostMapping("/review/like/{review_id}/{token_id}")
     @ValidateToken
+    @CacheEvict(value="reviewsByRestaurant", allEntries = true)
     public LikeResponseDto postLikeCount(@PathVariable("review_id") Long reviewId,
                                          @PathVariable("token_id") String tokenId){
         // 만약 해당 유저가 공감을 누른 상태였다면, 공감 삭제
-        // 공감을 누르지 않은 상태였다면 공감 추가이다.
-        LikeResponseDto likeResponseDto = likeService.postLikeCount(reviewId, tokenId);
-        return likeResponseDto;
+        // 공감을 누르지 않은 상태였다면 공감 추가이다
+        return likeService.postLikeCount(reviewId, tokenId);
     }
 }
