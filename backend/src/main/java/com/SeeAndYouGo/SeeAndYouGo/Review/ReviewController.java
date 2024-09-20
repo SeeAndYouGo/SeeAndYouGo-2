@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -115,7 +117,10 @@ public class ReviewController {
                 Files.createDirectories(Paths.get(IMAGE_DIR));
                 String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
                 Path targetPath = Paths.get(IMAGE_DIR, imgName);
-                image.transferTo(targetPath);
+
+                BufferedImage resized = reviewService.resize(image);
+                ImageIO.write(resized,"jpg",new File(targetPath.toUri()));
+
                 imgUrl = "/api/images/" + imgName;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -140,9 +145,9 @@ public class ReviewController {
     }
 
     @ResponseBody
-    @GetMapping("/images/{imgUrl}")
-    public UrlResource showImage(@PathVariable String imgUrl) throws Exception {
-        File file =new File(IMAGE_DIR + "/" + imgUrl);
+    @GetMapping("/images/{imgName}")
+    public UrlResource showImage(@PathVariable String imgName) throws Exception {
+        File file =new File(IMAGE_DIR + "/" + imgName);
         return new UrlResource("file:" + file.getAbsolutePath());
     }
 

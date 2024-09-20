@@ -9,14 +9,20 @@ import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.imgscalr.Scalr;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -204,5 +210,33 @@ public class ReviewService {
         }
 
         return false;
+    }
+
+    public BufferedImage resize(MultipartFile file)
+            throws Exception {
+        BufferedImage bi = ImageIO.read(file.getInputStream());
+
+        // 리사이즈 이전에, 가운데만 4:3 비율로 크롭하기
+        int originalWidth = bi.getWidth();
+        int originalHeight = bi.getHeight();
+
+        int targetWidth = originalWidth;
+        int targetHeight = (originalWidth * 3) / 4;
+
+        if (targetHeight > originalHeight) {
+            targetHeight = originalHeight;
+            targetWidth = (originalHeight * 4) / 3;
+        }
+
+        int x = (originalWidth - targetWidth) / 2;
+        int y = (originalHeight - targetHeight) / 2;
+
+        BufferedImage croppedImage = bi.getSubimage(x, y, targetWidth, targetHeight);
+
+        // 리사이즈해서 리턴
+        return resizeImage(croppedImage, 800, 600);
+    }
+    BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
+        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }
