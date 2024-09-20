@@ -34,7 +34,10 @@ public class StatisticsService {
 
 
     @Transactional
-    public void updateConnectionStatistics(LocalDate date) {
+    public void updateConnectionStatistics(LocalDate date){
+//        if(CalendarService.isHoliday(date))
+//            return;
+
         Restaurant[] restaurants = Restaurant.values();
 
         for (Restaurant restaurant : restaurants) {
