@@ -74,11 +74,12 @@ const ReviewWriteInput = styled.textarea`
 const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
-	padding: 2px 12px;
+	line-height: 40px;
 	cursor: pointer;
 	border-radius: 5px;
 	float: right;
   margin: 0;
+	padding: 0 10px;
 `;
 
 const ReviewWriteButton = styled.button`
@@ -126,7 +127,7 @@ const ReviewWriteNameCheckbox = styled.input`
 
 const ReviewPreviewImage = styled.img`
 	max-width: 220px;
-	height: 42.5px;
+	height: 70px;
 	border-radius: 5px;
 	float: left;
 	margin-top: 5px;
@@ -333,21 +334,22 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 						<ReviewWriteCamera htmlFor="Review-file-input">
 							<FontAwesomeIcon icon={faCamera} />
 						</ReviewWriteCamera>
-						{imageURL ? (
-							<div
-								className="PrevWrapper"
-								style={{ float: "left", position: "relative" }}
-							>
-								<ReviewPreviewImage src={imageURL} />
-								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">close</span>
-								</ReviewImageDelete>
-							</div>
-						) : null}
 					</ReviewWriteInputWrapper>
-
+					<div style={{ width: "100%", float: "left" }}>
+						{imageURL ? (
+								<div
+									className="PrevWrapper"
+									style={{ float: "left", position: "relative" }}
+								>
+									<ReviewPreviewImage src={imageURL} />
+									<ReviewImageDelete onClick={deleteImage}>
+										<span className="material-symbols-outlined">close</span>
+									</ReviewImageDelete>
+								</div>
+						) : null}
+					</div>
 					<div>
-					{(nowMainMenuList.length !== 0)&&  nowMainMenuList.map((dish, index) => (
+					{(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
             <MenuName key={index}>{dish}</MenuName>
           ))}
 					</div>
@@ -370,7 +372,7 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
-			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
+			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
 			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} />
