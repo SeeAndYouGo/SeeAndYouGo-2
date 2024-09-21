@@ -14,13 +14,14 @@ import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
+import Loading from "../../components/Loading";
 
 const MainPage = () => {
+	const [loading, setLoading] = useState(true);
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
 	const token = useSelector((state) => state.user).value.token;
-	console.log("token", token);
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -57,14 +58,21 @@ const MainPage = () => {
 	};
 
 	const fetchMenuData = async () => {
-		const results = [[]];
+		const results = [];
 		try {
-			// 1학은 메뉴 정보 필요 없음
-			for (let i = 1; i < 5; i++) {
+			for (let i = 0; i < 5; i++) {
 				const response = await axios.get(
 					`${config.BASE_URL}/daily-menu/restaurant${i + 1}`
 				);
-				results.push(response.data);
+				if (i === 0) {
+					const tempObject = {};
+					for (let j = 0; j < response.data.length; j++) {
+						tempObject[response.data[j].mainDishList[0]] = response.data[j].menuId;
+					}
+					results.push(tempObject);
+				} else {
+					results.push(response.data);
+				}
 			}
 			setMenuData(results);
 		} catch (error) {
@@ -88,34 +96,57 @@ const MainPage = () => {
 	};
 
 	useEffect(() => {
-		fetchRestaurantData();
-		fetchMenuData();
-		fetchTopReviewData();
+		const fetchData = async () => {
+			try {
+				await Promise.all([
+					fetchRestaurantData(),
+					fetchMenuData(),
+					fetchTopReviewData()
+				])
+			} catch (error) {
+				console.error("Error fetching JSON:", error);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchData();
 	}, []);
 
 	return (
 		<div className="App">
-			<TabBar
-				restaurantId={restaurantId}
-				setRestaurantId={handleSetRestaurantId}
-			/>
-			<Info idx={restaurantId} />
-			<Progress
-				ratio={ratio}
-				time={restaurantData[restaurantId - 1]?.dateTime}
-			/>
-			{restaurantId === 1 ? (
-				<MenuInfoForRestaurant1 />
-			) : (
-				<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
-			)}
-			<ReviewWriteForm restaurantNum={restaurantId} deptNum={nowDept} />
-			<TopReview
-				nowReviewList={topReviewData[restaurantId - 1]}
-				idx={restaurantId}
-				wholeReviewList={topReviewData}
-				setWholeReviewList={setTopReviewData}
-			/>
+			{ // 데이터 로드 중
+				loading ? <Loading /> : 
+				<>
+					<TabBar
+						restaurantId={restaurantId}
+						setRestaurantId={handleSetRestaurantId}
+					/>
+					<Info idx={restaurantId} />
+					<Progress
+						ratio={ratio}
+						time={restaurantData[restaurantId - 1]?.dateTime}
+					/>
+					{restaurantId === 1 ? (
+						<MenuInfoForRestaurant1 />
+					) : (
+						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
+					)}
+					{menuData.length > 0 && (
+						<ReviewWriteForm
+							restaurantNum={restaurantId}
+							deptNum={nowDept}
+							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
+						/>
+					)}
+					<TopReview
+						nowReviewList={topReviewData[restaurantId - 1]}
+						idx={restaurantId}
+						wholeReviewList={topReviewData}
+						setWholeReviewList={setTopReviewData}
+					/>
+				</>
+			}
 		</div>
 	);
 };
