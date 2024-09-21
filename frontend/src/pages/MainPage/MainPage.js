@@ -58,14 +58,21 @@ const MainPage = () => {
 	};
 
 	const fetchMenuData = async () => {
-		const results = [[]];
+		const results = [];
 		try {
-			// 1학은 메뉴 정보 필요 없음
-			for (let i = 1; i < 5; i++) {
+			for (let i = 0; i < 5; i++) {
 				const response = await axios.get(
 					`${config.BASE_URL}/daily-menu/restaurant${i + 1}`
 				);
-				results.push(response.data);
+				if (i === 0) {
+					const tempObject = {};
+					for (let j = 0; j < response.data.length; j++) {
+						tempObject[response.data[j].mainDishList[0]] = response.data[j].menuId;
+					}
+					results.push(tempObject);
+				} else {
+					results.push(response.data);
+				}
 			}
 			setMenuData(results);
 		} catch (error) {
@@ -125,7 +132,13 @@ const MainPage = () => {
 					) : (
 						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
 					)}
-					<ReviewWriteForm restaurantNum={restaurantId} deptNum={nowDept} />
+					{menuData.length > 0 && (
+						<ReviewWriteForm
+							restaurantNum={restaurantId}
+							deptNum={nowDept}
+							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
+						/>
+					)}
 					<TopReview
 						nowReviewList={topReviewData[restaurantId - 1]}
 						idx={restaurantId}

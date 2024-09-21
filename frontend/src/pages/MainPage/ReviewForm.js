@@ -190,7 +190,7 @@ const MenuName = styled.p`
 	margin-right: 5px;
 `;
 
-const ReviewWrite = ({ restaurantNum, deptNum }) => {
+const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -235,6 +235,17 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 		e.preventDefault();
 		const formdata = new FormData();
 
+		let selectedMenuId = 0;
+
+		if (restaurantNum === 1) {
+			for (let key in menuInfo) {
+				if (key === selectedMenu.value) {
+					selectedMenuId = menuInfo[key];
+					break;
+				}
+			}
+		}
+
 		const dto = {
 			restaurant: restaurantNum,
 			dept: restaurantNum === 1 ? selectedMenu.category : (deptNum === 1 ? "STUDENT" : "STAFF"),
@@ -243,7 +254,7 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 			writer: token,
 			anonymous: anonymous,
 			comment: comment,
-			menuId: nowMenuId,
+			menuId: restaurantNum === 1 ? selectedMenuId : nowMenuId,
 		};
 
 		formdata.append("image", image);
@@ -271,7 +282,9 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{/* {isWeekend ? ( // 주말인 경우
+			{/* {
+				// isWeekend ? ( // 주말인 경우
+				false ? ( // TODO 임시 처리용 << 수정 필요
 				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
 			) : !token ? ( // 로그인 안한 경우
 				<WriteImpossible>
@@ -369,13 +382,13 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 	);
 };
 
-const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
+const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1 }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} />
+			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} menuInfo={menuInfoForRestaurant1}/>
 		</div>
 	);
 };
