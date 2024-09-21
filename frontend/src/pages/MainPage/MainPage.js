@@ -19,6 +19,8 @@ const MainPage = () => {
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
+	const token = useSelector((state) => state.user).value.token;
+	console.log("token", token);
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -75,7 +77,7 @@ const MainPage = () => {
 		try {
 			for (let i = 0; i < 5; i++) {
 				const response = await axios.get(
-					`${config.BASE_URL}/review/restaurant${i + 1}`
+					`${config.BASE_URL}/review/restaurant${i + 1}/${token}`
 				);
 				results.push(response.data);
 			}
