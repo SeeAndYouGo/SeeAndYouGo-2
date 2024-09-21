@@ -14,13 +14,14 @@ import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
+import Loading from "../../components/Loading";
 
 const MainPage = () => {
+	const [loading, setLoading] = useState(true);
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
 	const token = useSelector((state) => state.user).value.token;
-	console.log("token", token);
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -88,34 +89,51 @@ const MainPage = () => {
 	};
 
 	useEffect(() => {
-		fetchRestaurantData();
-		fetchMenuData();
-		fetchTopReviewData();
+		const fetchData = async () => {
+			try {
+				await Promise.all([
+					fetchRestaurantData(),
+					fetchMenuData(),
+					fetchTopReviewData()
+				])
+			} catch (error) {
+				console.error("Error fetching JSON:", error);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchData();
 	}, []);
 
 	return (
 		<div className="App">
-			<TabBar
-				restaurantId={restaurantId}
-				setRestaurantId={handleSetRestaurantId}
-			/>
-			<Info idx={restaurantId} />
-			<Progress
-				ratio={ratio}
-				time={restaurantData[restaurantId - 1]?.dateTime}
-			/>
-			{restaurantId === 1 ? (
-				<MenuInfoForRestaurant1 />
-			) : (
-				<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
-			)}
-			<ReviewWriteForm restaurantNum={restaurantId} deptNum={nowDept} />
-			<TopReview
-				nowReviewList={topReviewData[restaurantId - 1]}
-				idx={restaurantId}
-				wholeReviewList={topReviewData}
-				setWholeReviewList={setTopReviewData}
-			/>
+			{ // 데이터 로드 중
+				loading ? <Loading /> : 
+				<>
+					<TabBar
+						restaurantId={restaurantId}
+						setRestaurantId={handleSetRestaurantId}
+					/>
+					<Info idx={restaurantId} />
+					<Progress
+						ratio={ratio}
+						time={restaurantData[restaurantId - 1]?.dateTime}
+					/>
+					{restaurantId === 1 ? (
+						<MenuInfoForRestaurant1 />
+					) : (
+						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
+					)}
+					<ReviewWriteForm restaurantNum={restaurantId} deptNum={nowDept} />
+					<TopReview
+						nowReviewList={topReviewData[restaurantId - 1]}
+						idx={restaurantId}
+						wholeReviewList={topReviewData}
+						setWholeReviewList={setTopReviewData}
+					/>
+				</>
+			}
 		</div>
 	);
 };
