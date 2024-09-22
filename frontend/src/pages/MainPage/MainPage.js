@@ -85,7 +85,7 @@ const MainPage = () => {
 		try {
 			for (let i = 0; i < 5; i++) {
 				const response = await axios.get(
-					`${config.BASE_URL}/review/restaurant${i + 1}/${token}`
+					`${config.BASE_URL}/review/restaurant${i + 1}` + (token !== "" ? `/${token}` : "")
 				);
 				results.push(response.data);
 			}
@@ -117,6 +117,7 @@ const MainPage = () => {
 		<div className="App">
 			{ // 데이터 로드 중
 				loading ? <Loading /> : 
+				restaurantId !== 0 && 
 				<>
 					<TabBar
 						restaurantId={restaurantId}
