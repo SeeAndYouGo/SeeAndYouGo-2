@@ -282,7 +282,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{/* {
+			{
 				// isWeekend ? ( // 주말인 경우
 				false ? ( // TODO 임시 처리용 << 수정 필요
 				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
@@ -296,7 +296,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 						로그인이 필요합니다 !!
 					</GoToLogin>
 				</WriteImpossible>
-			) : null} */}
+			) : null}
 			<div style={{ width: "100%", float: "left" }}>
 				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 				<ReviewStarRating>
@@ -362,11 +362,13 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 						) : null}
 					</div>
 					<div>
-					{(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
-            <MenuName key={index}>{dish}</MenuName>
-          ))}
+					{
+						restaurantNum === 1 ? null :
+							(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
+								<MenuName key={index}>{dish}</MenuName>
+							))
+					}
 					</div>
-
 				</div>
 				{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
 					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
