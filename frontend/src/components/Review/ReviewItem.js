@@ -92,15 +92,12 @@ const ReviewItem = ({
     like,
     mainDishList,
   } = review;
-  const [likeCountState, setLikeCountState] = useState(0);
+  const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    setLikeCountState(likeCount);
-  }, [likeCount]);
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
@@ -124,63 +121,34 @@ const ReviewItem = ({
   }, [like]);
 
   const handleLike = (targetId) => {
+    if (likeLoading) return;
     if (user.loginState === false) { // 로그인 안되어있을 때
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
       return;
-    } else {
-      axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
-      }).then((res) => {
-        const isLike = res.data.like
-        const isMine = res.data.mine;
-        if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
-          dispatch(showToast({ contents: "review", toastIndex: 9 }));
-          return;
-        }
-				setLikeState(!isLike);
-        if (isLike === true) { // true면 공감이 된 상태
-          dispatch(showToast({ contents: "review", toastIndex: 7 }));
-          setLikeCountState(likeCountState + 1);
-          const beforeWholeReviewList = [...wholeReviewList];
-					beforeWholeReviewList[0].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = true;
-							item.likeCount += 1;
-							return;
-						}
-					});
-					const nowRestaurantIndex = getRestuarantIndex(restaurant);
-					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = true;
-							item.likeCount += 1;
-							return;
-						}
-					});
-        } else { // false면 공감 취소된 상태
-          dispatch(showToast({ contents: "review", toastIndex: 8 }));
-          setLikeCountState(likeCountState - 1);
-          const beforeWholeReviewList = [...wholeReviewList];
-					beforeWholeReviewList[0].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = false;
-							item.likeCount -= 1;
-							return;
-						}
-					});
-          const nowRestaurantIndex = getRestuarantIndex(restaurant);
-					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = false;
-							item.likeCount -= 1;
-							return;
-						}
-					});
-        }
-      }).catch((error) => {
-        console.log(error);
-        dispatch(showToast({ contents: "error", toastIndex: 0 }));
-      });
     }
+    setLikeLoading(true);
+    axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
+    }).then((res) => {
+      const isLike = res.data.like
+      const isMine = res.data.mine;
+      if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
+        dispatch(showToast({ contents: "review", toastIndex: 9 }));
+        return;
+      }
+      setLikeState(!isLike);
+      if (isLike === true) { // true면 공감이 된 상태
+        dispatch(showToast({ contents: "review", toastIndex: 7 }));
+        setLikeCountState(likeCountState + 1);
+      } else { // false면 공감 취소된 상태
+        dispatch(showToast({ contents: "review", toastIndex: 8 }));
+        setLikeCountState(likeCountState - 1);
+      }
+      setLikeLoading(false);
+    }).catch((error) => {
+      console.error(error);
+      dispatch(showToast({ contents: "error", toastIndex: 0 }));
+      setLikeLoading(false);
+    });
   };
 
   return (
