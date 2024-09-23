@@ -32,7 +32,7 @@ public class Rate {
     }
 
     public void reflectRate(double rate){
-        double totalSum = rate * reflectedNumber;
+        double totalSum = this.rate * reflectedNumber;
         double updateSum = totalSum + rate;
 
         this.reflectedNumber++;
@@ -40,7 +40,7 @@ public class Rate {
     }
 
     public void exceptRate(double rate) {
-        double totalSum = rate * reflectedNumber;
+        double totalSum = this.rate * reflectedNumber;
         double updateSum = totalSum - rate;
 
         this.reflectedNumber--;
