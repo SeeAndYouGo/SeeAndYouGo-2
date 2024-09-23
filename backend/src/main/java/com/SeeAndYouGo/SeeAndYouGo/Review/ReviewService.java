@@ -179,6 +179,8 @@ public class ReviewService {
         Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
 
+        review.getMenu().deleteReview(review);
+
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
     }
