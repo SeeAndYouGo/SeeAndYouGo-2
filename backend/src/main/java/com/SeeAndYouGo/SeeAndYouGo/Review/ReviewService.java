@@ -40,8 +40,7 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", key="#data.restaurant"),
-            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant"),
-            @CacheEvict(value="reviewsByRestaurant", allEntries = true)
+            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")
     })
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
@@ -174,8 +173,7 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true),
-            @CacheEvict(value="reviewsByRestaurant", allEntries = true)
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
     })
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
@@ -198,8 +196,7 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true),
-            @CacheEvict(value="reviewsByRestaurant", allEntries = true)
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
     })
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();

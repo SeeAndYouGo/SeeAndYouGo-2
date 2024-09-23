@@ -31,7 +31,7 @@ public class HolidayService {
 
             // 모든 날짜를 도는 for문
             for (LocalDate tmpDate = startDate; !tmpDate.isAfter(endDate); tmpDate = tmpDate.plusDays(1)) {
-                int value = date.getDayOfWeek().getValue();
+                int value = tmpDate.getDayOfWeek().getValue();
                 if(value == 6 || value == 7){
                     // 여기에 해당하는 값은 토요일, 일요일임.
                     notHolidays.add(new Holiday(tmpDate, true));

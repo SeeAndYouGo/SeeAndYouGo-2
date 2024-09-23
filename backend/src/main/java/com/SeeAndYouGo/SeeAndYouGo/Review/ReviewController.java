@@ -82,7 +82,6 @@ public class ReviewController {
 
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
-    @Cacheable(value="reviewsByRestaurant", key="#restaurant")
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
