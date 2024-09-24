@@ -8,7 +8,6 @@ RUN yarn install --network-timeout 1000000
 
 COPY frontend/. .
 RUN yarn build
-RUN npm install -g serve
 
 # prod
 FROM nginx:latest
@@ -18,4 +17,4 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 
 # finish
 EXPOSE 80
-CMD ["serve", "-s", "build"]
+CMD ["nginx", "-g", "daemon off;"]
