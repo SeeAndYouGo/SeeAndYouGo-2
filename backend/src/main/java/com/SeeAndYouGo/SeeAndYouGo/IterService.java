@@ -24,9 +24,9 @@ public class IterService {
     private final DishService dishService;
     private final MenuService menuService;
     private final MenuRepository menuRepository;
+    private final HolidayService holidayService;
     private final ConnectionService connectionService;
     private final StatisticsService statisticsService;
-    private final HolidayService holidayService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
@@ -56,13 +56,11 @@ public class IterService {
     }
 
     @Scheduled(cron="0 0 21 * * MON-FRI")
-    public void updateConnectionStatistics(LocalDate now){
+    public void updateConnectionStatistics(){
         // 모두 모아진 connection 데이터의 평균을 업데이트해준다.
+        LocalDate now = LocalDate.now();
 
         try {
-            if(holidayService.isHoliday(now)){ // 오늘이 휴일이라면 업데이트 안함. 즉 반영 안함.
-                return;
-            }
             statisticsService.updateConnectionStatistics(now);
         } catch (Exception e) {
             System.out.println(e.getMessage());

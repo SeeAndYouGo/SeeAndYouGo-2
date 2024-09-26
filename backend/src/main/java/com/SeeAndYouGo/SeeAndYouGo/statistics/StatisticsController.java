@@ -14,7 +14,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class StatisticsController {
     private final StatisticsService statisticsService;
-    private final IterService iterService;
 
     @RequestMapping("/{restaurantNumber}")
     public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@PathVariable String restaurantNumber){
@@ -29,6 +28,6 @@ public class StatisticsController {
 
     @GetMapping("/test/{year}/{month}/{day}")
     public void test(@PathVariable int year, @PathVariable int month, @PathVariable int day){
-        iterService.updateConnectionStatistics(LocalDate.of(year, month, day));
+        statisticsService.updateConnectionStatistics(LocalDate.of(year, month, day));
     }
 }
