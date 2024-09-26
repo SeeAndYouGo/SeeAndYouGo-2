@@ -26,7 +26,7 @@ public class StatisticsController {
 //        return CalendarService.isHoliday(LocalDate.of(year, month, day));
 //    }
 
-    @GetMapping("/test/{year}/{month}/{day}")
+    @GetMapping("/{year}/{month}/{day}")
     public void test(@PathVariable int year, @PathVariable int month, @PathVariable int day){
         statisticsService.updateConnectionStatistics(LocalDate.of(year, month, day));
     }
