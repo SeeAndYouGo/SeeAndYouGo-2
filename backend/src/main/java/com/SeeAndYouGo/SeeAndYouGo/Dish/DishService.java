@@ -104,8 +104,8 @@ public class DishService {
     public String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-//        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
-        String apiUrl = "http://www.seeandyougo.com:80/api/dish/test/"+page;
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
+//        String apiUrl = "http://www.seeandyougo.com:80/api/dish/test/"+page;
 
             // URL 생성
             URL url = new URL(apiUrl);
