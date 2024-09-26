@@ -1,9 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
+import com.SeeAndYouGo.SeeAndYouGo.IterService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -12,6 +14,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class StatisticsController {
     private final StatisticsService statisticsService;
+    private final IterService iterService;
 
     @RequestMapping("/{restaurantNumber}")
     public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@PathVariable String restaurantNumber){
@@ -23,4 +26,9 @@ public class StatisticsController {
 //    public boolean test(@PathVariable int year, @PathVariable int month, @PathVariable int day) throws IOException, JSONException {
 //        return CalendarService.isHoliday(LocalDate.of(year, month, day));
 //    }
+
+    @GetMapping("/test/{year}/{month}/{day}")
+    public void test(@PathVariable int year, @PathVariable int month, @PathVariable int day){
+        iterService.updateConnectionStatistics(LocalDate.of(year, month, day));
+    }
 }
