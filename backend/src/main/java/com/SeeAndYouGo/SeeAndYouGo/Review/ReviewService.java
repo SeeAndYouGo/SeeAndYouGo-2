@@ -9,14 +9,20 @@ import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.imgscalr.Scalr;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,7 +40,8 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", key="#data.restaurant"),
-            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")})
+            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")
+    })
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
@@ -166,12 +173,13 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
+        reviewRepository.deleteById(reviewId);
 
         review.getMenu().deleteReview(review);
-        reviewRepository.deleteById(reviewId);
 
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
@@ -190,7 +198,8 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
         Restaurant restaurant = review.getRestaurant();
@@ -204,5 +213,33 @@ public class ReviewService {
         }
 
         return false;
+    }
+
+    public BufferedImage resize(MultipartFile file)
+            throws Exception {
+        BufferedImage bi = ImageIO.read(file.getInputStream());
+
+        // 리사이즈 이전에, 가운데만 4:3 비율로 크롭하기
+        int originalWidth = bi.getWidth();
+        int originalHeight = bi.getHeight();
+
+        int targetWidth = originalWidth;
+        int targetHeight = (originalWidth * 3) / 4;
+
+        if (targetHeight > originalHeight) {
+            targetHeight = originalHeight;
+            targetWidth = (originalHeight * 4) / 3;
+        }
+
+        int x = (originalWidth - targetWidth) / 2;
+        int y = (originalHeight - targetHeight) / 2;
+
+        BufferedImage croppedImage = bi.getSubimage(x, y, targetWidth, targetHeight);
+
+        // 리사이즈해서 리턴
+        return resizeImage(croppedImage, 800, 600);
+    }
+    BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
+        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }

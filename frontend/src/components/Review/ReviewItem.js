@@ -6,7 +6,7 @@ import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
-import DropDown from "../../components/Review/DropDown";
+import DropDown from "./DropDown";
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
@@ -46,9 +46,11 @@ const MenuName = styled.p`
 `;
 
 const ReviewImage = styled.img`
-  width: 330px;
+  width: calc(100% + 30px);
   margin: -15px 0 10px -15px;
   border-radius: 15px 15px 0 0;  
+  max-height: 200px;
+  object-fit: cover;
 `;
 
 const ReviewLike = styled.div`
@@ -89,17 +91,13 @@ const ReviewItem = ({
     likeCount,
     like,
     mainDishList,
-    menuName
   } = review;
-  const [likeCountState, setLikeCountState] = useState(0);
+  const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    setLikeCountState(likeCount);
-  }, [likeCount]);
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
@@ -123,95 +121,64 @@ const ReviewItem = ({
   }, [like]);
 
   const handleLike = (targetId) => {
+    if (likeLoading) return;
     if (user.loginState === false) { // 로그인 안되어있을 때
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
       return;
-    } else {
-      axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
-      }).then((res) => {
-        const isLike = res.data.like
-        const isMine = res.data.mine;
-        if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
-          dispatch(showToast({ contents: "review", toastIndex: 9 }));
-          return;
-        }
-				setLikeState(!isLike);
-        if (isLike === true) { // true면 공감이 된 상태
-          dispatch(showToast({ contents: "review", toastIndex: 7 }));
-          setLikeCountState(likeCountState + 1);
-          const beforeWholeReviewList = [...wholeReviewList];
-					beforeWholeReviewList[0].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = true;
-							item.likeCount += 1;
-							return;
-						}
-					});
-					const nowRestaurantIndex = getRestuarantIndex(restaurant);
-					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = true;
-							item.likeCount += 1;
-							return;
-						}
-					});
-        } else { // false면 공감 취소된 상태
-          dispatch(showToast({ contents: "review", toastIndex: 8 }));
-          setLikeCountState(likeCountState - 1);
-          const beforeWholeReviewList = [...wholeReviewList];
-					beforeWholeReviewList[0].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = false;
-							item.likeCount -= 1;
-							return;
-						}
-					});
-          const nowRestaurantIndex = getRestuarantIndex(restaurant);
-					beforeWholeReviewList[nowRestaurantIndex].forEach((item) => {
-						if (item.reviewId === targetId) {
-							item.like = false;
-							item.likeCount -= 1;
-							return;
-						}
-					});
-        }
-      }).catch((error) => {
-        console.log(error);
-        dispatch(showToast({ contents: "error", toastIndex: 0 }));
-      });
     }
+    setLikeLoading(true);
+    axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
+    }).then((res) => {
+      const isLike = res.data.like
+      const isMine = res.data.mine;
+      if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
+        dispatch(showToast({ contents: "review", toastIndex: 9 }));
+        return;
+      }
+      setLikeState(!isLike);
+      if (isLike === true) { // true면 공감이 된 상태
+        dispatch(showToast({ contents: "review", toastIndex: 7 }));
+        setLikeCountState(likeCountState + 1);
+      } else { // false면 공감 취소된 상태
+        dispatch(showToast({ contents: "review", toastIndex: 8 }));
+        setLikeCountState(likeCountState - 1);
+      }
+      setLikeLoading(false);
+    }).catch((error) => {
+      console.error(error);
+      dispatch(showToast({ contents: "error", toastIndex: 0 }));
+      setLikeLoading(false);
+    });
   };
 
   return (
       <ReviewItemContainer>
-        {// TODO 리뷰 이미지 부분 수정하기
+        {
           imgLink === "" ? null : (
             <ReviewImage
               src={
                 config.NOW_STATUS === 0
-                  ? `/assets/images/${imgLink}`
+                  ? 'https://seeandyougo.com/'+ imgLink
                   : `${imgLink}`
               }
               alt="Loading.."
             />
           )
         }
-        <div className="Row1" style={{display:"flex", width: "100%"}}>
-          <div style={{width: "200px"}}>
+        <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
+          <div>
             <span style={{fontSize: 14}}>{writer}</span>
             <ReviewItemStar style={{ fontWeight: 500 }}>
               <FontAwesomeIcon icon={solidStar} />
               {rate % 1 === 0 ? rate + ".0" : rate}
             </ReviewItemStar>
           </div>
-          <div style={{position:"relative", width: "200px"}}>
+          <div style={{position:"relative", display: 'flex', flex: 1}}>
             <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
               {DisplayWriteTime(madeTime)}
             </span>
-            {/* TODO drop down 부분 token_id 살리기 true를 token_id로 변경 */}
             {
-              // token_id
-              true 
+              token_id
               ? (
                 <div style={{ position:"absolute", right:"0px"}} >
                   <DropDown targetId={reviewId} 
@@ -226,12 +193,6 @@ const ReviewItem = ({
           <ReviewItemComment>{comment}</ReviewItemComment>
         </div>
         <div className="Row3" style={{width: "100%"}}>
-          {/* TODO 속성값이 menuName이냐, mainDishList이냐에 따라 사용 */}
-          {
-            menuName === "" ? null : (
-              <MenuName>{menuName}</MenuName>
-            )
-          }
           {mainDishList && mainDishList.map((menu, index) => (
             <MenuName key={index}>{menu}</MenuName>
           ))}

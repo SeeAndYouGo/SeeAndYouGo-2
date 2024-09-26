@@ -46,8 +46,8 @@ const MenuPrice = styled.div`
 `;
 
 const MenuItem = ({ menu }) => {
-	const mainMenu = menu.mainDishList.slice(0).join(", ");
-	const subMenu = menu.sideDishList.slice(0).join(", ");
+	const mainMenu = menu.mainDishList?.slice(0).join(", ");
+	const subMenu = menu.sideDishList?.slice(0).join(", ");
 
 	return (
 		<MenuItemContainer>

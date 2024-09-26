@@ -74,11 +74,12 @@ const ReviewWriteInput = styled.textarea`
 const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
-	padding: 2px 12px;
+	line-height: 40px;
 	cursor: pointer;
 	border-radius: 5px;
 	float: right;
   margin: 0;
+	padding: 0 10px;
 `;
 
 const ReviewWriteButton = styled.button`
@@ -126,7 +127,7 @@ const ReviewWriteNameCheckbox = styled.input`
 
 const ReviewPreviewImage = styled.img`
 	max-width: 220px;
-	height: 42.5px;
+	height: 70px;
 	border-radius: 5px;
 	float: left;
 	margin-top: 5px;
@@ -189,7 +190,7 @@ const MenuName = styled.p`
 	margin-right: 5px;
 `;
 
-const ReviewWrite = ({ restaurantNum, deptNum }) => {
+const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -234,6 +235,17 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 		e.preventDefault();
 		const formdata = new FormData();
 
+		let selectedMenuId = 0;
+
+		if (restaurantNum === 1) {
+			for (let key in menuInfo) {
+				if (key === selectedMenu.value) {
+					selectedMenuId = menuInfo[key];
+					break;
+				}
+			}
+		}
+
 		const dto = {
 			restaurant: restaurantNum,
 			dept: restaurantNum === 1 ? selectedMenu.category : (deptNum === 1 ? "STUDENT" : "STAFF"),
@@ -242,7 +254,7 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 			writer: token,
 			anonymous: anonymous,
 			comment: comment,
-			menuId: nowMenuId,
+			menuId: restaurantNum === 1 ? selectedMenuId : nowMenuId,
 		};
 
 		formdata.append("image", image);
@@ -270,7 +282,9 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 
 	return (
 		<ReviewWriteContainer>
-			{/* {isWeekend ? ( // 주말인 경우
+			{
+				// isWeekend ? ( // 주말인 경우
+				false ? ( // TODO 임시 처리용 << 수정 필요
 				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
 			) : !token ? ( // 로그인 안한 경우
 				<WriteImpossible>
@@ -282,7 +296,7 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 						로그인이 필요합니다 !!
 					</GoToLogin>
 				</WriteImpossible>
-			) : null} */}
+			) : null}
 			<div style={{ width: "100%", float: "left" }}>
 				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 				<ReviewStarRating>
@@ -333,25 +347,28 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 						<ReviewWriteCamera htmlFor="Review-file-input">
 							<FontAwesomeIcon icon={faCamera} />
 						</ReviewWriteCamera>
-						{imageURL ? (
-							<div
-								className="PrevWrapper"
-								style={{ float: "left", position: "relative" }}
-							>
-								<ReviewPreviewImage src={imageURL} />
-								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">close</span>
-								</ReviewImageDelete>
-							</div>
-						) : null}
 					</ReviewWriteInputWrapper>
-
-					<div>
-					{(nowMainMenuList.length !== 0)&&  nowMainMenuList.map((dish, index) => (
-            <MenuName key={index}>{dish}</MenuName>
-          ))}
+					<div style={{ width: "100%", float: "left" }}>
+						{imageURL ? (
+								<div
+									className="PrevWrapper"
+									style={{ float: "left", position: "relative" }}
+								>
+									<ReviewPreviewImage src={imageURL} />
+									<ReviewImageDelete onClick={deleteImage}>
+										<span className="material-symbols-outlined">close</span>
+									</ReviewImageDelete>
+								</div>
+						) : null}
 					</div>
-
+					<div>
+					{
+						restaurantNum === 1 ? null :
+							(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
+								<MenuName key={index}>{dish}</MenuName>
+							))
+					}
+					</div>
 				</div>
 				{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
 					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
@@ -367,13 +384,13 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 	);
 };
 
-const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
+const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1 }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
-			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
+			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} />
+			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} menuInfo={menuInfoForRestaurant1}/>
 		</div>
 	);
 };
