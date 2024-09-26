@@ -5,29 +5,29 @@ networks:
     driver: bridge
 
 services:
-  mysql:
-    container_name: mysql
-    image: mysql:latest
-    restart: always
-    environment:
-      MYSQL_DATABASE: seeandyougo
-      MYSQL_ROOT_PASSWORD: seeandyougo
-      MYSQL_USER: seeandyougo
-      MYSQL_PASSWORD: seeandyougo
-      TZ: 'Asia/Seoul'
-      LC_ALL: C.UTF-8
-    ports:
-      - 3306:3306
-    volumes:
-      - ./data:/var/lib/mysql
-    # command:
-      # - --default-authentication-plugin=mysql_native_password
-      # - --character-set-server=utf8mb4
-      # - --collation-server=utf8mb4_unicode_ci
-      # - --skip-character-set-client-handshake
-      # - --range_optimizer_max_mem_size=16777216
-    networks:
-      - backbone
+  # mysql:
+  #   container_name: mysql
+  #   image: mysql:latest
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: seeandyougo
+  #     MYSQL_ROOT_PASSWORD: seeandyougo
+  #     MYSQL_USER: seeandyougo
+  #     MYSQL_PASSWORD: seeandyougo
+  #     TZ: 'Asia/Seoul'
+  #     LC_ALL: C.UTF-8
+  #   ports:
+  #     - 3307:3306
+  #   volumes:
+  #     - ./data:/var/lib/mysql
+  #   command:
+  #     - --default-authentication-plugin=mysql_native_password
+  #     - --character-set-server=utf8mb4
+  #     - --collation-server=utf8mb4_unicode_ci
+  #     - --skip-character-set-client-handshake
+  #     - --range_optimizer_max_mem_size=16777216
+  #   networks:
+  #     - backbone
   seeandyougo:
     container_name: seeandyougo
     build:
@@ -39,8 +39,8 @@ services:
       - ./backend:/app
     networks:
       - backbone
-    depends_on:
-      - mysql
+    # depends_on:
+    #   - mysql
     environment:
       - TZ=Asia/Seoul
   seeandyougo-nginx:
@@ -56,29 +56,29 @@ services:
       - TZ=Asia/Seoul
     depends_on:
       - seeandyougo
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        GOOGLE_ANALYTICS_TRACKING_ID: ${GOOGLE_ANALYTICS_TRACKING_ID}
-    restart: on-failure
-    ports:
-      - 3000:3000
-    networks:
-      - backbone
-    depends_on:
-      - seeandyougo
-    environment:
-      - TZ=Asia/Seoul
-  swagger:
-    image: swaggerapi/swagger-ui
-    container_name: swagger
-    ports:
-      - "8000:8080"
-    restart: on-failure
-    environment:
-      URLS: "[{url: 'doc/auth.json', name: 'AuthServer'}]"
-    networks:
-      - backbone
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #     args:
+  #       GOOGLE_ANALYTICS_TRACKING_ID: ${GOOGLE_ANALYTICS_TRACKING_ID}
+  #   restart: on-failure
+  #   ports:
+  #     - 3000:3000
+  #   networks:
+  #     - backbone
+  #   depends_on:
+  #     - seeandyougo
+  #   environment:
+  #     - TZ=Asia/Seoul
+  # swagger:
+  #   image: swaggerapi/swagger-ui
+  #   container_name: swagger
+  #   ports:
+  #     - "8000:8080"
+  #   restart: on-failure
+  #   environment:
+  #     URLS: "[{url: 'doc/auth.json', name: 'AuthServer'}]"
+  #   networks:
+  #     - backbone

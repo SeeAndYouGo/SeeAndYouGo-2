@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .authorizeHttpRequests()
+                .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .apply(new JwtSecurityConfig(tokenProvider));

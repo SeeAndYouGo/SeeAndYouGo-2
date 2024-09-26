@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class ConnectionController {
     private final ConnectionService connectionService;
 
+    @Operation(summary = "restaurant의 connection 조회")
     @GetMapping("/connection/{restaurant}")
     public ResponseEntity<ConnectionResponseDto> congestionRequest(@PathVariable("restaurant") String restaurant) throws Exception {
         Connection recentConnection = connectionService.getRecentConnected(restaurant);
