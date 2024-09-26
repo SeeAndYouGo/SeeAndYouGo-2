@@ -11,4 +11,4 @@ EXPOSE 8080
 ENV ACCESS_KEY $ACCESS_KEY
 ENV SECRET_KEY $SECRET_KEY
 
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=local", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/app.jar"]
