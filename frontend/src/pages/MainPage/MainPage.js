@@ -122,6 +122,7 @@ const MainPage = () => {
 					<TabBar
 						restaurantId={restaurantId}
 						setRestaurantId={handleSetRestaurantId}
+						menuData={menuData}
 					/>
 					<Info idx={restaurantId} />
 					<Progress
