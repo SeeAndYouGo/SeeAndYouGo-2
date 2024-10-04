@@ -92,12 +92,18 @@ const ReviewItem = ({
     like,
     mainDishList,
   } = review;
+
   const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setLikeState(like);
+    setLikeCountState(likeCount);
+  }, [review])
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
@@ -137,11 +143,11 @@ const ReviewItem = ({
       }
       setLikeState(!isLike);
       if (isLike === true) { // true면 공감이 된 상태
-        dispatch(showToast({ contents: "review", toastIndex: 7 }));
         setLikeCountState(likeCountState + 1);
+        dispatch(showToast({ contents: "review", toastIndex: 7 }));
       } else { // false면 공감 취소된 상태
-        dispatch(showToast({ contents: "review", toastIndex: 8 }));
         setLikeCountState(likeCountState - 1);
+        dispatch(showToast({ contents: "review", toastIndex: 8 }));
       }
       setLikeLoading(false);
     }).catch((error) => {
@@ -152,55 +158,55 @@ const ReviewItem = ({
   };
 
   return (
-      <ReviewItemContainer>
-        {
-          imgLink === "" ? null : (
-            <ReviewImage
-              src={
-                config.NOW_STATUS === 0
-                  ? 'https://seeandyougo.com/'+ imgLink
-                  : `${imgLink}`
-              }
-              alt="Loading.."
-            />
-          )
-        }
-        <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
-          <div>
-            <span style={{fontSize: 14}}>{writer}</span>
-            <ReviewItemStar style={{ fontWeight: 500 }}>
-              <FontAwesomeIcon icon={solidStar} />
-              {rate % 1 === 0 ? rate + ".0" : rate}
-            </ReviewItemStar>
-          </div>
-          <div style={{position:"relative", display: 'flex', flex: 1}}>
-            <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
-              {DisplayWriteTime(madeTime)}
-            </span>
-            {
-              token_id
-              ? (
-                <div style={{ position:"absolute", right:"0px"}} >
-                  <DropDown targetId={reviewId} 
-                  targetRestaurant={getRestuarantIndex(restaurant)}
-                  wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
-                </div>
-              ) : null
+    <ReviewItemContainer>
+      {
+        imgLink === "" ? null : (
+          <ReviewImage
+            src={
+              config.NOW_STATUS === 0
+                ? 'https://seeandyougo.com/'+ imgLink
+                : `${imgLink}`
             }
-          </div>
+            alt="Loading.."
+          />
+        )
+      }
+      <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
+        <div>
+          <span style={{fontSize: 14}}>{writer}</span>
+          <ReviewItemStar style={{ fontWeight: 500 }}>
+            <FontAwesomeIcon icon={solidStar} />
+            {rate % 1 === 0 ? rate + ".0" : rate}
+          </ReviewItemStar>
         </div>
-        <div className="Row2" style={{ width: "100%", marginBottom: "10px" }}>
-          <ReviewItemComment>{comment}</ReviewItemComment>
+        <div style={{position:"relative", display: 'flex', flex: 1}}>
+          <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
+            {DisplayWriteTime(madeTime)}
+          </span>
+          {
+            token_id
+            ? (
+              <div style={{ position:"absolute", right:"0px"}} >
+                <DropDown targetId={reviewId} 
+                targetRestaurant={getRestuarantIndex(restaurant)}
+                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+              </div>
+            ) : null
+          }
         </div>
-        <div className="Row3" style={{width: "100%"}}>
-          {mainDishList && mainDishList.map((menu, index) => (
-            <MenuName key={index}>{menu}</MenuName>
-          ))}
-          <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
-            <FontAwesomeIcon icon={faHeart} /> {likeCountState}
-          </ReviewLike>
-        </div>
-      </ReviewItemContainer>
+      </div>
+      <div className="Row2" style={{ width: "100%", marginBottom: "10px" }}>
+        <ReviewItemComment>{comment}</ReviewItemComment>
+      </div>
+      <div className="Row3" style={{width: "100%"}}>
+        {mainDishList && mainDishList.map((menu, index) => (
+          <MenuName key={index}>{menu}</MenuName>
+        ))}
+        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
+          <FontAwesomeIcon icon={faHeart} /> {likeCountState}
+        </ReviewLike>
+      </div>
+    </ReviewItemContainer>
   );
 };
 
