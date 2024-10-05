@@ -1,10 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
-import moment from "moment";
 import { useSelector, useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpoon } from "@fortawesome/free-solid-svg-icons";
 import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
 
@@ -16,6 +13,11 @@ const ReviewItemContainer = styled.div`
 	margin-top: 10px;
 	float: left;
 	position: relative;
+`;
+
+const DivContainer = styled.div`
+	width: 100%;
+	float: left;
 `;
 
 const RestaurantName = styled.span`
@@ -54,12 +56,12 @@ const DeptName = styled.span`
 
 const MenuName = styled.p`
 	font-size: 12px;
-	margin: 0 0 5px 0;
-	font-weight: 500;
-	float: left;
-	border: 1px solid #ccc;
-	padding: 3px 10px;
-	border-radius: 20px;
+  margin: 0 5px 5px 0;
+  font-weight: 500;
+  float: left;
+  border: 1px solid #ccc;
+  padding: 2px 10px;
+  border-radius: 20px;
 `;
 
 const ReviewItemContent = styled.p`
@@ -88,15 +90,9 @@ const RemoveButton = styled.p`
 	cursor: pointer;
 `;
 
-const CalculateWriteTime = (inputTime, madeTime) => {
-	const checkMinutes = moment.duration(inputTime.diff(madeTime)).asMinutes();
-	if (checkMinutes < 60) {
-		return `${Math.floor(checkMinutes)}분 전`;
-	} else if (checkMinutes < 1440) {
-		return `${Math.floor(checkMinutes / 60)}시간 전`;
-	} else {
-		return `${madeTime.split(" ")[0]}`;
-	}
+const DisplayWriteTime = (inputTime) => {
+  const writeTime = inputTime.split(":").slice(0, 2).join(":");
+  return writeTime;
 };
 
 const StarRating = ({ rating }) => {
@@ -131,13 +127,11 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 		restaurant,
 		dept,
 		madeTime,
-		menuName,
+		mainDishList,
 		rate,
 		comment,
 		imgLink,
 	} = review;
-	const tempTargetTime = moment().format("YYYY-MM-DD HH:mm:ss");
-	const targetTime = moment(tempTargetTime);
 	const nowToken = useSelector((state) => state.user.value.token);
 	const dispatch = useDispatch();
 
@@ -154,20 +148,17 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 			})
 				.then((res) => res.json())
 				.then((res) => {
-					if (res.success === true) {
-						// 리뷰 삭제 성공
+					if (res.success === true) { // 리뷰 삭제 성공
 						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						const updatedReviewArr = beforeReviewList.filter(
 							(item) => item.reviewId !== reviewId
 						);
 						setReviewList(updatedReviewArr);
-					} else {
-						// 리뷰 삭제 권한이 없어 삭제 불가
+					} else { // 리뷰 삭제 권한이 없어 삭제 불가
 						dispatch(showToast({ contents: "review", toastIndex: 2 }));
 					}
 				})
-				.catch(() => {
-					// 리뷰 삭제 실패
+				.catch(() => { // 리뷰 삭제 실패
 					dispatch(showToast({ contents: "review", toastIndex: 4 }));
 				});
 		} else {
@@ -177,11 +168,11 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 
 	const getRestuarantIndex = (restaurantName) => {
 		switch (restaurantName) {
-			case "1학생회관":
+			case "제1학생회관":
 				return 1;
-			case "2학생회관":
+			case "제2학생회관":
 				return 2;
-			case "3학생회관":
+			case "제3학생회관":
 				return 3;
 			case "상록회관":
 				return 4;
@@ -195,14 +186,7 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 	return (
 		<>
 			<ReviewItemContainer>
-				<div
-					className="Row1"
-					style={{
-						width: "100%",
-						float: "left",
-						marginBottom: 5,
-					}}
-				>
+				<DivContainer style={{marginBottom: 5}}>
 					<RestaurantName>
 						<span className={"colorTag" + getRestuarantIndex(restaurant)}>
 							●&nbsp;
@@ -215,32 +199,22 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 					<RemoveButton id="remove" onClick={removeReview}>
 						삭제
 					</RemoveButton>
-				</div>
+				</DivContainer>
 				<hr />
-				<MenuName>
-					{menuName}&nbsp;
-					<FontAwesomeIcon icon={faSpoon} />
-				</MenuName>
-				<div className="Row2" style={{ float: "left", width: "100%" }}>
+				{mainDishList && mainDishList.map((menu, index) => (
+					<MenuName key={index}>{menu}</MenuName>
+				))}
+				<DivContainer>
 					<div style={{ float: "left" }}>
 						<div style={{ display: "flex" }}>
 							<StarRating rating={rate} />
-							<span
-								style={{
-									fontWeight: 400,
-									fontSize: "12px",
-									margin: "2px 7px",
-								}}
-							>
-								{CalculateWriteTime(targetTime, madeTime)}
-							</span>
+							<span style={{ fontWeight: 400, fontSize: 13, padding: "4px 0 0 5px" }}>
+              {DisplayWriteTime(madeTime)}
+            </span>
 						</div>
 					</div>
-				</div>
-				<div
-					className="Row3"
-					style={{ float: "left", width: "100%", marginTop: 5 }}
-				>
+				</DivContainer>
+				<DivContainer>
 					<ReviewItemContent>{comment}</ReviewItemContent>
 					{imgLink === "" ? null : (
 						<ReviewImage
@@ -252,7 +226,7 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 							alt="Loading.."
 						/>
 					)}
-				</div>
+				</DivContainer>
 			</ReviewItemContainer>
 		</>
 	);
