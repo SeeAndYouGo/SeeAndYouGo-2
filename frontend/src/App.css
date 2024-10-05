@@ -62,6 +62,6 @@ body {
   font-weight: 400;
 }
 
-@media screen and (min-width: 576px) {
+/* @media screen and (min-width: 576px) {
   .App3 {padding: 20px;}
-}
+} */

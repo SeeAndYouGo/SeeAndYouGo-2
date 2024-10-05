@@ -31,9 +31,9 @@ const ReviewWrapper = styled.div`
 	width: 100%;
 	padding: 30px 15px;
 	font-size: 14px;
-	@media (min-width: 576px) {
+	/* @media (min-width: 576px) {
 		padding: 30px 20px;
-	}
+	} */
 `;
 
 const MyReviewPage = () => {
