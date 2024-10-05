@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styled from "@emotion/styled";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
@@ -100,7 +100,6 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
-  const navigator = useNavigate();
   const dispatch = useDispatch();
   const outside = useRef();
   const user = useSelector((state) => state.user.value);
@@ -147,7 +146,9 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       dispatch(logout());
                       dispatch(showToast({ contents: "login", toastIndex: 4 }));
-                      navigator("/");
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 1000);
                       toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>
