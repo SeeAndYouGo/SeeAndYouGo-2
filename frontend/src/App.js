@@ -32,9 +32,9 @@ const PageWrapper = styled.div`
   max-width: 360px;
   margin: 0 auto;
   margin-top: 50px;
-  @media (min-width: 576px) {
+  /* @media (min-width: 576px) {
     max-width: 992px;
-  }
+  } */
 `;
 
 const App = () => {

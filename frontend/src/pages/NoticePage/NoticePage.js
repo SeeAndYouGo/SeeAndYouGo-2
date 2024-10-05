@@ -44,9 +44,9 @@ import styled from "@emotion/styled";
 
 const NoticeContainer = styled.div`
 	padding: 10px;
-	@media (min-width: 576px) {
+	/* @media (min-width: 576px) {
 		padding: 10px 20px;
-	};
+	}; */
 `;
 
 const Title = styled.div`

@@ -8,16 +8,16 @@ import * as config from "../../config";
 
 const MobileDisplay = styled.div`
 	display: block;
-	@media (min-width: 576px) {
+	/* @media (min-width: 576px) {
 		display: none;
-	}
+	} */
 `;
 
 const DesktopDisplay = styled.div`
 	display: none;
-	@media (min-width: 576px) {
+	/* @media (min-width: 576px) {
 		display: block;
-	}
+	} */
 `;
 
 const TabMenu = styled.ul`
@@ -35,17 +35,17 @@ const TabMenu = styled.ul`
 		margin: 0 auto;
 		border-radius: 20px;
 		cursor: pointer;
-		@media (min-width: 576px) {
+		/* @media (min-width: 576px) {
 			display: none;
 			padding: 4px 17px;
-		}
+		} */
 	}
-	.submenu.tablet {
+	/* .submenu.tablet {
 		display: none;
 		@media (min-width: 576px) {
 			display: block;
 		}
-	}
+	} */
 
 	.focused {
 		background-color: black;
@@ -62,13 +62,13 @@ const ChartWrapper = styled.div`
 `;
 
 const restaurantArray = ["1학", "2학", "3학", "상록회관", "생과대"];
-const tabletRestaurantArray = [
-	"1학생회관",
-	"2학생회관",
-	"3학생회관",
-	"상록회관",
-	"생활과학대학",
-];
+// const tabletRestaurantArray = [
+// 	"1학생회관",
+// 	"2학생회관",
+// 	"3학생회관",
+// 	"상록회관",
+// 	"생활과학대학",
+// ];
 
 const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
@@ -111,7 +111,7 @@ const StatisticsPage = () => {
 						{el}
 					</li>
 				))}
-				{tabletRestaurantArray.map((el, index) => (
+				{/* {tabletRestaurantArray.map((el, index) => (
 					<li
 						key={index}
 						className={
@@ -121,7 +121,7 @@ const StatisticsPage = () => {
 					>
 						{el}
 					</li>
-				))}
+				))} */}
 			</TabMenu>
 		);
 	};
