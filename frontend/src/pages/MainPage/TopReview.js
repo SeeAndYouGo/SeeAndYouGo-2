@@ -73,15 +73,15 @@ const NoReviewMessage = styled.p`
 const SelectOptionArray = [
 	[],
 	["전체", "라면&간식", "스낵", "한식", "일식", "중식", "양식"],
-	["전체", "조식", "중식-학생", "중식-교직원"],
-	["전체", "중식-학생", "중식-교직원", "석식"],
+	// ["전체", "조식", "중식-학생", "중식-교직원"],
+	// ["전체", "중식-학생", "중식-교직원", "석식"],
 ];
 
 const OptionValueArray = [
 	[],
 	["total", "noodle", "snack", "korean", "japanese", "chinese", "western"],
-	["total", "morning", "lunch-student", "lunch-staff", "dinner"],
-	["total", "lunch-student", "lunch-staff", "dinner"],
+	// ["total", "breakfast", "lunch-student", "lunch-staff", "dinner"],
+	// ["total", "lunch-student", "lunch-staff", "dinner"],
 ];
 
 const TopReview = ({
@@ -106,18 +106,18 @@ const TopReview = ({
 		switch (typeValue) {
 			case "total":
 				return beforeData;
-			case "morning":
-				return beforeData.filter((data) => data.menuType === "MORNING");
-			case "lunch-student":
-				return beforeData.filter(
-					(data) => data.menuType === "LUNCH" && data.dept === "STUDENT"
-				);
-			case "lunch-staff":
-				return beforeData.filter(
-					(data) => data.menuType === "LUNCH" && data.dept !== "STUDENT"
-				);
-			case "dinner":
-				return beforeData.filter((data) => data.menuType === "DINNER");
+			// case "breakfast":
+			// 	return beforeData.filter((data) => data.menuType === "BREAKFAST");
+			// case "lunch-student":
+			// 	return beforeData.filter(
+			// 		(data) => data.menuType === "LUNCH" && data.dept === "STUDENT"
+			// 	);
+			// case "lunch-staff":
+			// 	return beforeData.filter(
+			// 		(data) => data.menuType === "LUNCH" && data.dept !== "STUDENT"
+			// 	);
+			// case "dinner":
+			// 	return beforeData.filter((data) => data.menuType === "DINNER");
 
 			case "noodle":
 				return beforeData.filter((data) => data.dept === "NOODLE");
@@ -175,7 +175,8 @@ const TopReview = ({
 				사진 리뷰만
 			</label>
 
-			{idx === 4 || idx === 5 ? null : (
+			{/* {idx === 4 || idx === 5 ? null : ( */}
+			{idx === 1 ?  
 				<TopReviewSelect value={selectedReviewType} onChange={handleSelectType}>
 					{(SelectOptionArray[idx] || []).map((item, index) => (
 					<option key={index} value={OptionValueArray[idx][index]}>
@@ -183,7 +184,8 @@ const TopReview = ({
 					</option>
 					))}
 				</TopReviewSelect>
-			)}
+				: null
+			}
 
 			{reviewData.length === 0 ? (
 			<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
