@@ -86,12 +86,16 @@ const OptionValueArray = [
 
 const TopReview = ({
 	idx,
-	nowReviewList = [],
 	wholeReviewList,
 	setWholeReviewList,
 }) => {
 	const [isChecked, setIsChecked] = useState(false);
 	const [selectedReviewType, setSelectedReviewType] = useState("total");
+	const [nowReviewList, setNowReviewList] = useState(wholeReviewList[idx - 1] || []);
+
+	useEffect(() => {
+		setNowReviewList(wholeReviewList[idx - 1] || []);
+	}, [wholeReviewList, idx]);
 
 	useEffect(() => {
 		setSelectedReviewType("total");
@@ -186,10 +190,11 @@ const TopReview = ({
 			) : (
 			reviewData.map((nowData, index) => (
 				<ReviewItem
-				key={index}
-				review={nowData}
-				wholeReviewList={wholeReviewList}
-				setWholeReviewList={setWholeReviewList}
+					idx={idx}
+					key={index}
+					review={nowData}
+					wholeReviewList={wholeReviewList}
+					setWholeReviewList={setWholeReviewList}
 				/>
 			))
 			)}

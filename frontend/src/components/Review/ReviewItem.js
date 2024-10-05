@@ -76,7 +76,7 @@ const DisplayWriteTime = (inputTime) => {
 
 const ReviewItem = ({
   review,
-  isTotal,
+  idx,
   wholeReviewList,
   setWholeReviewList,
 }) => {
@@ -92,6 +92,7 @@ const ReviewItem = ({
     like,
     mainDishList,
   } = review;
+
   const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
@@ -99,13 +100,18 @@ const ReviewItem = ({
   const token_id = user.token;
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    setLikeState(like);
+    setLikeCountState(likeCount);
+  }, [review, idx])
+
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
-      case "1학생회관":
+      case "제1학생회관":
         return 1;
-      case "2학생회관":
+      case "제2학생회관":
         return 2;
-      case "3학생회관":
+      case "제3학생회관":
         return 3;
       case "상록회관":
         return 4;
@@ -116,9 +122,16 @@ const ReviewItem = ({
     }
   };
 
-  useEffect(() => {
-    setLikeState(!like);
-  }, [like]);
+  const updateWholeReviewList = (targetId, isLike) => {
+    const newReviewList = wholeReviewList[idx - 1].map((review) => {
+      if (review.reviewId === targetId) {
+        review.like = isLike;
+        review.likeCount = isLike ? review.likeCount + 1 : review.likeCount - 1;
+      }
+      return review;
+    });
+    setWholeReviewList([...wholeReviewList.slice(0, idx - 1), newReviewList, ...wholeReviewList.slice(idx)]);
+  }
 
   const handleLike = (targetId) => {
     if (likeLoading) return;
@@ -135,14 +148,16 @@ const ReviewItem = ({
         dispatch(showToast({ contents: "review", toastIndex: 9 }));
         return;
       }
-      setLikeState(!isLike);
       if (isLike === true) { // true면 공감이 된 상태
-        dispatch(showToast({ contents: "review", toastIndex: 7 }));
+        setLikeState(true);
         setLikeCountState(likeCountState + 1);
+        dispatch(showToast({ contents: "review", toastIndex: 7 }));
       } else { // false면 공감 취소된 상태
-        dispatch(showToast({ contents: "review", toastIndex: 8 }));
+        setLikeState(false);
         setLikeCountState(likeCountState - 1);
+        dispatch(showToast({ contents: "review", toastIndex: 8 }));
       }
+      updateWholeReviewList(targetId, isLike);
       setLikeLoading(false);
     }).catch((error) => {
       console.error(error);
@@ -152,55 +167,55 @@ const ReviewItem = ({
   };
 
   return (
-      <ReviewItemContainer>
-        {
-          imgLink === "" ? null : (
-            <ReviewImage
-              src={
-                config.NOW_STATUS === 0
-                  ? 'https://seeandyougo.com/'+ imgLink
-                  : `${imgLink}`
-              }
-              alt="Loading.."
-            />
-          )
-        }
-        <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
-          <div>
-            <span style={{fontSize: 14}}>{writer}</span>
-            <ReviewItemStar style={{ fontWeight: 500 }}>
-              <FontAwesomeIcon icon={solidStar} />
-              {rate % 1 === 0 ? rate + ".0" : rate}
-            </ReviewItemStar>
-          </div>
-          <div style={{position:"relative", display: 'flex', flex: 1}}>
-            <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
-              {DisplayWriteTime(madeTime)}
-            </span>
-            {
-              token_id
-              ? (
-                <div style={{ position:"absolute", right:"0px"}} >
-                  <DropDown targetId={reviewId} 
-                  targetRestaurant={getRestuarantIndex(restaurant)}
-                  wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
-                </div>
-              ) : null
+    <ReviewItemContainer>
+      {
+        imgLink === "" ? null : (
+          <ReviewImage
+            src={
+              config.NOW_STATUS === 0
+                ? 'https://seeandyougo.com/'+ imgLink
+                : `${imgLink}`
             }
-          </div>
+            alt="Loading.."
+          />
+        )
+      }
+      <div className="Row1" style={{display:"flex", width: "100%", justifyContent: 'space-between'}}>
+        <div>
+          <span style={{fontSize: 14}}>{writer}</span>
+          <ReviewItemStar style={{ fontWeight: 500 }}>
+            <FontAwesomeIcon icon={solidStar} />
+            {rate % 1 === 0 ? rate + ".0" : rate}
+          </ReviewItemStar>
         </div>
-        <div className="Row2" style={{ width: "100%", marginBottom: "10px" }}>
-          <ReviewItemComment>{comment}</ReviewItemComment>
+        <div style={{position:"relative", display: 'flex', flex: 1}}>
+          <span style={{ fontWeight: 400, fontSize: 14, position: "absolute", top:"2px", right:"20px" }}>
+            {DisplayWriteTime(madeTime)}
+          </span>
+          {
+            token_id
+            ? (
+              <div style={{ position:"absolute", right:"0px"}} >
+                <DropDown targetId={reviewId} 
+                targetRestaurant={getRestuarantIndex(restaurant)}
+                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+              </div>
+            ) : null
+          }
         </div>
-        <div className="Row3" style={{width: "100%"}}>
-          {mainDishList && mainDishList.map((menu, index) => (
-            <MenuName key={index}>{menu}</MenuName>
-          ))}
-          <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
-            <FontAwesomeIcon icon={faHeart} /> {likeCountState}
-          </ReviewLike>
-        </div>
-      </ReviewItemContainer>
+      </div>
+      <div className="Row2" style={{ width: "100%", marginBottom: "10px" }}>
+        <ReviewItemComment>{comment}</ReviewItemComment>
+      </div>
+      <div className="Row3" style={{width: "100%"}}>
+        {mainDishList && mainDishList.map((menu, index) => (
+          <MenuName key={index}>{menu}</MenuName>
+        ))}
+        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? 'liked' : ''}>
+          <FontAwesomeIcon icon={faHeart} /> {likeCountState}
+        </ReviewLike>
+      </div>
+    </ReviewItemContainer>
   );
 };
 

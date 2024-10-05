@@ -142,7 +142,6 @@ const MainPage = () => {
 						/>
 					)}
 					<TopReview
-						nowReviewList={topReviewData[restaurantId - 1]}
 						idx={restaurantId}
 						wholeReviewList={topReviewData}
 						setWholeReviewList={setTopReviewData}
