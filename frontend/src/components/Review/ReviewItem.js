@@ -76,7 +76,6 @@ const DisplayWriteTime = (inputTime) => {
 
 const ReviewItem = ({
   review,
-  isTotal,
   wholeReviewList,
   setWholeReviewList,
 }) => {
@@ -107,11 +106,11 @@ const ReviewItem = ({
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
-      case "1학생회관":
+      case "제1학생회관":
         return 1;
-      case "2학생회관":
+      case "제2학생회관":
         return 2;
-      case "3학생회관":
+      case "제3학생회관":
         return 3;
       case "상록회관":
         return 4;
@@ -126,7 +125,7 @@ const ReviewItem = ({
     setLikeState(!like);
   }, [like]);
 
-  const handleLike = (targetId) => {
+  const handleLike = () => {
     if (likeLoading) return;
     if (user.loginState === false) { // 로그인 안되어있을 때
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
@@ -202,7 +201,7 @@ const ReviewItem = ({
         {mainDishList && mainDishList.map((menu, index) => (
           <MenuName key={index}>{menu}</MenuName>
         ))}
-        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? '' : 'liked'}>
+        <ReviewLike onClick={handleLike} className={likeState ? '' : 'liked'}>
           <FontAwesomeIcon icon={faHeart} /> {likeCountState}
         </ReviewLike>
       </div>
