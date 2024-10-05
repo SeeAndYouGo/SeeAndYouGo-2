@@ -283,8 +283,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	return (
 		<ReviewWriteContainer>
 			{
-				// isWeekend ? ( // 주말인 경우
-				false ? ( // TODO 임시 처리용 << 수정 필요
+				isWeekend ? ( // 주말인 경우
 				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
 			) : !token ? ( // 로그인 안한 경우
 				<WriteImpossible>
