@@ -13,11 +13,15 @@ const Slider = styled.div`
   font-weight: 600;
   width: 100%;
   overflow-x: scroll;
-  -webkit-overflow-scrolling: touch;
+  touch-action: none;
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
   &::-webkit-scrollbar {
     display: none;
   }
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none
 `;
 
 const Container = styled.div`
@@ -34,9 +38,13 @@ const TabButton = styled.div`
   ${({ $active }) => $active && `
     color: #111;
   `}
+  transform: translateX(${(props) => props.slide}px);
+  transition: 0.5s ease;
 `;
 
 const TabBar = ({ restaurantId = 1 ,setRestaurantId, menuData }) => {
+  const [slider, setSlider] = useState(false);
+  const [nowSlide, setNowSlide] = useState(0);
   const [menu, setMenu] = useState([]);
 	const dispatch = useDispatch();
 
@@ -62,41 +70,64 @@ const TabBar = ({ restaurantId = 1 ,setRestaurantId, menuData }) => {
     setMenu(menuData);
   }, [menuData]);
 
+  useEffect(() => {
+    setNowSlide(slider ? -130 : 0);
+  }, [slider]);
+
   return (
-    <Slider>
-      <Container>
-        <TabButton 
-          $active={restaurantId === 1} 
-          onClick={() => initialSetting(1)}
-        >
-          1학생회관
-        </TabButton>
-        <TabButton 
-          $active={restaurantId === 2} 
-          onClick={() => initialSetting(2, "BREAKFAST")}
-        >
-          2학생회관
-        </TabButton>
-        <TabButton 
-          $active={restaurantId === 3} 
-          onClick={() => initialSetting(3, "LUNCH")}
-        >
-          3학생회관
-        </TabButton>
-        <TabButton 
-          $active={restaurantId === 4} 
-          onClick={() => initialSetting(4, "LUNCH")}
-        >
-          상록회관
-        </TabButton>
-        <TabButton 
-          $active={restaurantId === 5} 
-          onClick={() => initialSetting(5, "LUNCH")}
-        >
-          생활과학대
-        </TabButton>
-      </Container>
-    </Slider>
+    <>
+      <div style={{display: "flex", width: 380, marginLeft: -25, position: "absolute", top: 80}}>
+        {
+          slider ? 
+          <div className="prevBtn" onClick={() => setSlider(false)} style={{position: "absolute", left: 0, cursor: "pointer" }}>
+            <span className="material-symbols-outlined" onClick={() => setSlider(false)}>chevron_left</span>
+          </div>
+          :
+          <div className="nextBtn" onClick={() => setSlider(true)} style={{position: "absolute", right: 0, cursor: "pointer" }}>
+            <span className="material-symbols-outlined" onClick={() => setSlider(true)}>chevron_right</span>
+          </div>
+        }
+      </div>
+      <Slider>
+        <Container>
+          <TabButton
+            slide={nowSlide}
+            $active={restaurantId === 1} 
+            onClick={() => initialSetting(1)}
+          >
+            1학생회관
+          </TabButton>
+          <TabButton
+            slide={nowSlide}
+            $active={restaurantId === 2} 
+            onClick={() => initialSetting(2, "BREAKFAST")}
+          >
+            2학생회관
+          </TabButton>
+          <TabButton
+            slide={nowSlide}
+            $active={restaurantId === 3} 
+            onClick={() => initialSetting(3, "LUNCH")}
+          >
+            3학생회관
+          </TabButton>
+          <TabButton
+            slide={nowSlide}
+            $active={restaurantId === 4} 
+            onClick={() => initialSetting(4, "LUNCH")}
+          >
+            상록회관
+          </TabButton>
+          <TabButton
+            slide={nowSlide}
+            $active={restaurantId === 5} 
+            onClick={() => initialSetting(5, "LUNCH")}
+          >
+            생활과학대
+          </TabButton>
+        </Container>
+      </Slider>
+    </>
   );
 }
 
