@@ -76,6 +76,7 @@ const DisplayWriteTime = (inputTime) => {
 
 const ReviewItem = ({
   review,
+  idx,
   wholeReviewList,
   setWholeReviewList,
 }) => {
@@ -102,7 +103,7 @@ const ReviewItem = ({
   useEffect(() => {
     setLikeState(like);
     setLikeCountState(likeCount);
-  }, [review])
+  }, [review, idx])
 
   const getRestuarantIndex = (restaurantName) => {
     switch (restaurantName) {
@@ -121,11 +122,18 @@ const ReviewItem = ({
     }
   };
 
-  useEffect(() => {
-    setLikeState(!like);
-  }, [like]);
+  const updateWholeReviewList = (targetId, isLike) => {
+    const newReviewList = wholeReviewList[idx - 1].map((review) => {
+      if (review.reviewId === targetId) {
+        review.like = isLike;
+        review.likeCount = isLike ? review.likeCount + 1 : review.likeCount - 1;
+      }
+      return review;
+    });
+    setWholeReviewList([...wholeReviewList.slice(0, idx - 1), newReviewList, ...wholeReviewList.slice(idx)]);
+  }
 
-  const handleLike = () => {
+  const handleLike = (targetId) => {
     if (likeLoading) return;
     if (user.loginState === false) { // 로그인 안되어있을 때
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
@@ -140,14 +148,16 @@ const ReviewItem = ({
         dispatch(showToast({ contents: "review", toastIndex: 9 }));
         return;
       }
-      setLikeState(!isLike);
       if (isLike === true) { // true면 공감이 된 상태
+        setLikeState(true);
         setLikeCountState(likeCountState + 1);
         dispatch(showToast({ contents: "review", toastIndex: 7 }));
       } else { // false면 공감 취소된 상태
+        setLikeState(false);
         setLikeCountState(likeCountState - 1);
         dispatch(showToast({ contents: "review", toastIndex: 8 }));
       }
+      updateWholeReviewList(targetId, isLike);
       setLikeLoading(false);
     }).catch((error) => {
       console.error(error);
@@ -201,7 +211,7 @@ const ReviewItem = ({
         {mainDishList && mainDishList.map((menu, index) => (
           <MenuName key={index}>{menu}</MenuName>
         ))}
-        <ReviewLike onClick={handleLike} className={likeState ? '' : 'liked'}>
+        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? 'liked' : ''}>
           <FontAwesomeIcon icon={faHeart} /> {likeCountState}
         </ReviewLike>
       </div>
