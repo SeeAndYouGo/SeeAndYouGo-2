@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -296,7 +296,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
 				setTimeout(() => {
 					window.location.reload();
-				}, 2000);
+				}, 1000);
 			})
 			.catch(() => { // 리뷰 작성 실패
 				dispatch(showToast({ contents: "review", toastIndex: 1 }));
