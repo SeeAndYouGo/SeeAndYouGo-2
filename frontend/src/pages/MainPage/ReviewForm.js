@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "../RestaurantDetailPage/MenuSelector";
 import * as config from "../../config";
+import ImageCropper from "./ImageCropper";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -209,15 +210,26 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const todayDay = moment(new Date(todayDate)).format("dddd"); // 현재 요일
 	const isWeekend = todayDay === "Saturday" || todayDay === "Sunday"; // 주말인지 확인
 
+	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+	const [CropModal, setCropModal] = useState(false);
+
+	useEffect(() => {
+		console.log('croppedAreaPixels:', croppedAreaPixels);
+	}, [croppedAreaPixels]);
+
+	useEffect(() => {
+		console.log('image:', image);
+	}, [image])
+
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
 		if (e.target.files[0]) {
 			reader.readAsDataURL(e.target.files[0]);
-			setImage(e.target.files[0]);
 		}
 
 		reader.onloadend = (e) => {
 			setImageURL(e.target.result);
+			setCropModal(true);
 		};
 	};
 
@@ -262,6 +274,18 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
+		// // // FormData의 key 확인
+		// 	for (let key of formdata.keys()) {
+		// 		console.log(key);
+		// 	}
+
+		// 	// FormData의 value 확인
+		// 	for (let value of formdata.values()) {
+		// 		console.log(value);
+		// 	}
+
+		// 	return;
+
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
 				headers: {
@@ -281,105 +305,116 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	};
 
 	return (
-		<ReviewWriteContainer>
-			{
-				isWeekend ? ( // 주말인 경우
-				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
-			) : !token ? ( // 로그인 안한 경우
-				<WriteImpossible>
-					<GoToLogin
-						onClick={() => {
-							navigator("/login-page");
+		<>
+			<ImageCropper 
+				setImage={setImage}
+				isOpen={CropModal}
+				setIsOpen={setCropModal}
+				src={imageURL}
+				setImageURL={setImageURL}
+				setCroppedAreaPixels={setCroppedAreaPixels}
+				croppedAreaPixels={croppedAreaPixels}
+			/>
+			<ReviewWriteContainer>
+				{
+					isWeekend ? ( // 주말인 경우
+					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
+				) : !token ? ( // 로그인 안한 경우
+					<WriteImpossible>
+						<GoToLogin
+							onClick={() => {
+								navigator("/login-page");
+							}}
+						>
+							로그인이 필요합니다 !!
+						</GoToLogin>
+					</WriteImpossible>
+				) : null}
+				<div style={{ width: "100%", float: "left" }}>
+					<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
+					<ReviewStarRating>
+						<StarsRating
+							value={starVal}
+							onChange={(value) => {
+								setStarVal(value);
+							}}
+						/>
+					</ReviewStarRating>
+					<div style={{ float: "right", height: 30 }}>
+						<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
+						<ReviewWriteNameCheckbox
+							type="checkbox"
+							onChange={() => {
+								setAnonymous(!anonymous);
+							}}
+						/>
+					</div>
+				</div>
+
+				{restaurantNum === 1 ? (
+					<MenuSelector onSelectMenu={handleSelectMenu} />
+				) : null}
+
+				<div style={{ width: "100%", float: "left" }}>
+					<div
+						style={{
+							position: "relative",
+							width: "100%",
+							float: "left",
 						}}
 					>
-						로그인이 필요합니다 !!
-					</GoToLogin>
-				</WriteImpossible>
-			) : null}
-			<div style={{ width: "100%", float: "left" }}>
-				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
-				<ReviewStarRating>
-					<StarsRating
-						value={starVal}
-						onChange={(value) => {
-							setStarVal(value);
-						}}
-					/>
-				</ReviewStarRating>
-				<div style={{ float: "right", height: 30 }}>
-					<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
-					<ReviewWriteNameCheckbox
-						type="checkbox"
-						onChange={() => {
-							setAnonymous(!anonymous);
-						}}
-					/>
-				</div>
-			</div>
-
-			{restaurantNum === 1 ? (
-				<MenuSelector onSelectMenu={handleSelectMenu} />
-			) : null}
-
-			<div style={{ width: "100%", float: "left" }}>
-				<div
-					style={{
-						position: "relative",
-						width: "100%",
-						float: "left",
-					}}
-				>
-					<input
-						hidden
-						type="file"
-						accept="image/*"
-						id="Review-file-input"
-						onChange={onChangeImage}
-						ref={imageRef}
-					/>
-					<ReviewWriteInputWrapper>
-						<ReviewWriteInput
-							type="text"
-							onChange={(val) => setComment(val.target.value)}
-							placeholder="리뷰를 남겨주세요 :)"
+						<input
+							hidden
+							type="file"
+							accept="image/*"
+							id="Review-file-input"
+							onChange={onChangeImage}
+							ref={imageRef}
 						/>
-						<ReviewWriteCamera htmlFor="Review-file-input">
-							<FontAwesomeIcon icon={faCamera} />
-						</ReviewWriteCamera>
-					</ReviewWriteInputWrapper>
-					<div style={{ width: "100%", float: "left" }}>
-						{imageURL ? (
-								<div
-									className="PrevWrapper"
-									style={{ float: "left", position: "relative" }}
-								>
-									<ReviewPreviewImage src={imageURL} />
-									<ReviewImageDelete onClick={deleteImage}>
-										<span className="material-symbols-outlined">close</span>
-									</ReviewImageDelete>
-								</div>
-						) : null}
+						<ReviewWriteInputWrapper>
+							<ReviewWriteInput
+								type="text"
+								onChange={(val) => setComment(val.target.value)}
+								placeholder="리뷰를 남겨주세요 :)"
+							/>
+							<ReviewWriteCamera htmlFor="Review-file-input">
+								<FontAwesomeIcon icon={faCamera} />
+							</ReviewWriteCamera>
+						</ReviewWriteInputWrapper>
+						<div style={{ width: "100%", float: "left" }}>
+							{imageURL ? (
+									<div
+										className="PrevWrapper"
+										style={{ float: "left", position: "relative" }}
+									>
+										<ReviewPreviewImage src={imageURL} />
+										<ReviewImageDelete onClick={deleteImage}>
+											<span className="material-symbols-outlined">close</span>
+										</ReviewImageDelete>
+									</div>
+							) : null}
+						</div>
+						<div>
+						{
+							restaurantNum === 1 ? null :
+								(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
+									<MenuName key={index}>{dish}</MenuName>
+								))
+						}
+						</div>
 					</div>
-					<div>
-					{
-						restaurantNum === 1 ? null :
-							(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
-								<MenuName key={index}>{dish}</MenuName>
-							))
-					}
-					</div>
+					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
+						<ReviewWriteButton className="success" onClick={ReviewSubmit}>
+							작성
+						</ReviewWriteButton>
+					) : (
+						<ReviewWriteButton disabled onClick={ReviewSubmit}>
+							작성
+						</ReviewWriteButton>
+					)}
 				</div>
-				{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
-					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
-						작성
-					</ReviewWriteButton>
-				) : (
-					<ReviewWriteButton disabled onClick={ReviewSubmit}>
-						작성
-					</ReviewWriteButton>
-				)}
-			</div>
-		</ReviewWriteContainer>
+			</ReviewWriteContainer>
+		</>
 	);
 };
 
