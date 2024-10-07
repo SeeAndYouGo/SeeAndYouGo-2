@@ -6,7 +6,7 @@ import { faStar as solidStar, faCircleUser, faSpoon } from "@fortawesome/free-so
 import * as config from "../../config";
 
 const ReviewItemContainer = styled.div`
-	width: 330px;
+	width: 100%;
 	background: #fff;
 	padding: 8px 15px;
 	border-radius: 20px;

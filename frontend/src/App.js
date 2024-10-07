@@ -15,6 +15,7 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
 import MyKeywordPage from "./pages/MyKeywordPage/MyKeywordPage";
+import StatisticsPage from "./pages/StatisticsPage/StatisticsPage";
 import Toast from "./components/Toast";
 
 const HeaderWrapper = styled.div`
@@ -25,6 +26,15 @@ const HeaderWrapper = styled.div`
 	position: fixed;
 	top: 0;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+`;
+const PageWrapper = styled.div`
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  margin-top: 50px;
+  /* @media (min-width: 576px) {
+    max-width: 992px;
+  } */
 `;
 
 const App = () => {
@@ -40,7 +50,7 @@ const App = () => {
 			<HeaderWrapper>
 				<Header />
 			</HeaderWrapper>
-      <div className="pageWrapper" style={{maxWidth:"360px", margin:"0 auto", marginTop: 50}}>
+      <PageWrapper>
         <Routes>
           <Route exact path="/" element={<MainPage />} />
           <Route exact path="/view/:restaurant" element={<RestaurantDetailPage />} />
@@ -52,9 +62,10 @@ const App = () => {
           <Route exact path="/my-review-page" element={<MyReviewPage />} />
           <Route exact path="/notice-page" element={<NoticePage />} />
           <Route exact path="/my-keyword-page" element={<MyKeywordPage />} />
+          <Route exact path="/statistics" element={<StatisticsPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
-      </div>
+      </PageWrapper>
 			<Footer />
 		</>
 	);

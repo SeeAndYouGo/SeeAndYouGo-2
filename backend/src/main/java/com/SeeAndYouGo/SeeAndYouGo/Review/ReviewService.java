@@ -1,75 +1,82 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.Rate;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
+import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.imgscalr.Scalr;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ReviewService {
-    private final RestaurantRepository restaurantRepository;
+    private final RateService rateService;
     private final MenuService menuService;
     private final ReviewRepository reviewRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
-    static private final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+    private final RateRepository rateRepository;
+    private final MenuRepository menuRepository;
+    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
-    public Long registerReview(Review review, String restaurantName, String dept, String menuName) {
-        restaurantName = menuService.parseRestaurantName(restaurantName);
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant not found for name: " + restaurantName);
-        }
+    @Caching( evict = {
+            @CacheEvict(value="getTotalRestaurantRate", key="#data.restaurant"),
+            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")
+    })
+    public Long registerReview(ReviewData data) {
+        LocalDateTime time = LocalDateTime.now();
 
-        review.setRestaurant(restaurant);
-        Dept changeStringToDept = Dept.valueOf(dept);
-        Menu menu = findMenuByRestaurantAndDept(restaurant, changeStringToDept, menuName);
-        menu.addReview(review);
+        Restaurant restaurant = Restaurant.valueOf(data.getRestaurant());
+        Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
-        // 리뷰가 작성된다면 해당 메뉴의 평점을 갱신해야한다.
-        review.setMenu(menu);
+        // 연관관계 존재
+//        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
+        Menu menu = menuRepository.getReferenceById(data.getMenuId());
+        Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
+        menu.addReviewAndUpdateRate(review);
+        rateService.updateRateByRestaurant(restaurant, data.getRate());
         reviewRepository.save(review);
-
-        restaurant.updateTotalRate();
 
         return review.getId();
     }
+//
+//    /**
+//     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
+//     */
+//    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
+//        if(restaurant.name().contains("1")){
+//            for (Menu menu : restaurant.getMenuList()) {
+//                if(menu.getMenuName().equals(menuName)) return menu;
+//            }
+//        }
+//
+//        for (Menu menu : restaurant.getMenuList()) {
+//            if(menu.getDept().equals(dept))
+//                return menu;
+//        }
+//        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
+//    }
 
-    /**
-     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
-     */
-    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
-        if(restaurant.getName().contains("1")){
-            for (Menu menu : restaurant.getMenuList()) {
-                if(menu.getMenuName().equals(menuName)) return menu;
-            }
-        }
-
-        for (Menu menu : restaurant.getMenuList()) {
-            if(menu.getDept().equals(dept))
-                return menu;
-        }
-        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
-    }
-
-    /**
+        /**
      * top-review는 각 DEPT 별로 3개씩의 review를 불러온다.
      * 여기서 1학생회관은 모든 DEPT를 STUDENT로 취급한다. 즉, 모든 메뉴에서 딱 3개만 불러오기
      */
@@ -138,63 +145,23 @@ public class ReviewService {
     }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
-        restaurantName = MenuService.parseRestaurantName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+        String parseRestaurantName = Restaurant.parseName(restaurantName); // restaurant1 이런ㄱ ㅔ아니라 1학생회관 이런 식으로 이쁘게 이름을 바꿔줌.
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
 
-        List<Review> reviews = new ArrayList<>();
-        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, date).get(0);
-
-        reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STUDENT));
-
-        if(restaurantName.contains("2") || restaurantName.contains("3")) {
-            // 2학과 3학은 STAFF가 있으므로 이 review까지 더해준다.
-            reviews.addAll(getReviewsByRestaurantAndMainDishAndDept(restaurantName, restaurant, Dept.STAFF));
+        if(restaurant.equals(Restaurant.제1학생회관)){
+            // 1학의 경우 아래의 로직대로 하면 너무 오래 걸리므로 그냥 1학 리뷰는 싹다 가져오게 진행한다.
+            return reviewRepository.findByRestaurant(restaurant);
         }
 
-        return reviews;
-    }
+        List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
 
-    /**
-     * restaurant의 mainMenu 기준으로 동일한 학생식당의 과거 같은 mainDish에 달린 review들까지 모조리 불러온다.
-     */
-    public List<Review> getReviewsByRestaurantAndMainDishAndDept(String restaurantName, Restaurant restaurant, Dept dept) {
-        List<Review> result = new ArrayList<>();
-        for (Menu menu : restaurant.getMenuList()) {
-            // 학생 식당만 넣어준다.(1학에서는 모든 DEPT가 STUDENT로 취급하자.)
-            if(deptFilter(dept, menu.getDept())) continue;
-            Dish mainDish = menu.getMainDish();
-
-            if(mainDish == null) continue;
-
-            // mainDish가 같아도 restaurant이 다를 수 있으니, 같은 restaurant만 넣어주자.
-            for (Review review : mainDish.getReviews()) {
-                if(restaurantName.equals(review.getRestaurant().getName())){
-                    result.add(review);
-                }
-            }
+        List<Menu> param = new ArrayList<>();
+        // menus의 각 menu에서 mainDish에 해당하는 Dish를 갖고 있는 다른 menu들도 불러온다.
+        for (Menu menu : menus) {
+            param.addAll(menuService.findAllMenuByMainDish(menu));
         }
-
-        return result;
-    }
-
-    /**
-     * standard의 dept가 STUDENT이면 target이 JAPANESE와 같은 1학의 카테고리들이거나 STUDENT일 때 true로 반환하고,
-     * STAFF이면 오직 STAFF만 반환하는 메서드
-     * @return
-     */
-    public boolean deptFilter(Dept standard, Dept target){
-        if(standard.equals(Dept.STUDENT)){
-            if(target.equals(Dept.STAFF)) return true;
-            return false;
-        }
-
-        // STUDENT가 아니라면 STAFF일 것이다.
-        if(standard.equals(Dept.STAFF)){
-            if(target.equals(Dept.STAFF)) return false;
-            return true;
-        }
-
-        // 만약 STUDENT와 STAFF가 아닌 다른 DEPT가 stadard에 왔다면 잘못된 호출이다.
-        throw new IllegalArgumentException("standard에는 STUDENT와 STAFF만 올 수 있습니다.");
+        return reviewRepository.findByRestaurantAndMenuIn(restaurant, param);
+//        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
     }
 
     @Transactional
@@ -204,11 +171,15 @@ public class ReviewService {
     }
 
     @Transactional
+    @Caching( evict = {
+            @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
+        reviewRepository.deleteById(reviewId);
 
         review.getMenu().deleteReview(review);
-        reviewRepository.deleteById(reviewId);
 
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
@@ -225,16 +196,50 @@ public class ReviewService {
      * @return
      */
     @Transactional
+    @Caching( evict = {
+            @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
+        Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            review.getRestaurant().updateTotalRate();
+            Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+            rateByRestaurant.exceptRate(review.getReviewRate());
             return true;
         }
 
         return false;
+    }
+
+    public BufferedImage resize(MultipartFile file)
+            throws Exception {
+        BufferedImage bi = ImageIO.read(file.getInputStream());
+
+        // 리사이즈 이전에, 가운데만 4:3 비율로 크롭하기
+        int originalWidth = bi.getWidth();
+        int originalHeight = bi.getHeight();
+
+        int targetWidth = originalWidth;
+        int targetHeight = (originalWidth * 3) / 4;
+
+        if (targetHeight > originalHeight) {
+            targetHeight = originalHeight;
+            targetWidth = (originalHeight * 4) / 3;
+        }
+
+        int x = (originalWidth - targetWidth) / 2;
+        int y = (originalHeight - targetHeight) / 2;
+
+        BufferedImage croppedImage = bi.getSubimage(x, y, targetWidth, targetHeight);
+
+        // 리사이즈해서 리턴
+        return resizeImage(croppedImage, 800, 600);
+    }
+    BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
+        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }

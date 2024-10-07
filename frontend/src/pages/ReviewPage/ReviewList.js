@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import ReviewItem from "./ReviewItem";
+import ReviewItem from "../../components/Review/ReviewItem";
 
 const CheckBoxInput = styled.input`
 	display: none;
@@ -54,6 +54,26 @@ const SortingSelect = styled.select`
 	}
 `;
 
+const TypeSelect = styled.select`
+	width: 100%;
+	height: 20px;
+	margin-bottom: 10px;
+	font-size: 14px;
+	padding: 0px 0.5em;
+	border: 0px;
+	border-radius: 5px;
+	font-family: inherit;
+	background: url("/assets/images/arrow.png") no-repeat 98.5% 50%;
+	background-size: contain;
+	background-color: white;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	::-ms-expand {
+		display: none;
+	}
+`;
+
 const NoReviewMessage = styled.p`
 	margin-top: 10px;
 	font-weight: 400;
@@ -72,9 +92,12 @@ const ReviewList = ({
 	wholeReviewList,
 	setWholeReviewList,
 }) => {
-	const [review, setReview] = useState([]);
 	const [isChecked, setIsChecked] = useState(false);
 	const [sortOrder, setSortOrder] = useState("latest");
+
+	const toggleOnlyImageReviewVisiblity = () => {
+		setIsChecked(!isChecked);
+	};
 
 	const initialSetting = () => {
 		setIsChecked(false);
@@ -82,17 +105,17 @@ const ReviewList = ({
 	};
 
 	useEffect(() => {
-		nowReviewList &&
-			setReview(
-				[...nowReviewList].sort(
-					(a, b) => new Date(b.madeTime) - new Date(a.madeTime)
-				)
-			);
 		initialSetting();
-	}, [idx, nowReviewList]);
+		const beforeReviewList = [...wholeReviewList];
+		beforeReviewList[idx] = nowReviewList.sort(sortFunctions["latest"]);
+		setWholeReviewList(beforeReviewList);
+	}, [idx]);
 
-	const toggleOnlyImageReviewVisiblity = () => {
-		setIsChecked(!isChecked);
+	const sortFunctions = {
+		latest: (a, b) => new Date(b.madeTime) - new Date(a.madeTime),
+		earliest: (a, b) => new Date(a.madeTime) - new Date(b.madeTime),
+		highRate: (a, b) => b.rate - a.rate,
+		lowRate: (a, b) => a.rate - b.rate,
 	};
 
 	// 리뷰 정렬 구현하는 곳
@@ -100,23 +123,30 @@ const ReviewList = ({
 		const selectedSortOrder = event.target.value;
 		setSortOrder(selectedSortOrder);
 
-		if (selectedSortOrder === "latest") {
-			setReview(
-				[...review].sort((a, b) => new Date(b.madeTime) - new Date(a.madeTime))
-			);
-		} else if (selectedSortOrder === "earliest") {
-			setReview(
-				[...review].sort((a, b) => new Date(a.madeTime) - new Date(b.madeTime))
-			);
-		} else if (selectedSortOrder === "highRate") {
-			setReview([...review].sort((a, b) => b.rate - a.rate));
-		} else if (selectedSortOrder === "lowRate") {
-			setReview([...review].sort((a, b) => a.rate - b.rate));
+		if (selectedSortOrder && sortFunctions[selectedSortOrder]) {
+			const sortedReview = [...nowReviewList].sort(sortFunctions[selectedSortOrder]);
+			const afterReviewList = [...wholeReviewList];
+			afterReviewList[idx] = sortedReview;
+			setWholeReviewList(afterReviewList);
 		}
 	};
 
 	return (
 		<>
+			<div>
+				{/* <TypeSelect>
+					<option value="total">전체</option>
+					<option value="breakfast">조식</option>
+					<option value="lunch">중식</option>
+					<option value="dinner">석식</option>
+				</TypeSelect> */}
+				<SortingSelect>
+					<option value="total">전체</option>
+					<option value="breakfast">조식</option>
+					<option value="lunch">중식</option>
+					<option value="dinner">석식</option>
+				</SortingSelect>
+			</div>
 			<div>
 				<CheckBoxInput
 					type="checkbox"
@@ -128,16 +158,16 @@ const ReviewList = ({
 				<label htmlFor="check" style={{ marginLeft: 5, cursor: "pointer" }}>
 					사진 리뷰만 보기
 				</label>
-				<SortingSelect value={sortOrder} onChange={handleSortChange}>
+				{/* <SortingSelect value={sortOrder} onChange={handleSortChange}>
 					<option value="latest">최근 등록순</option>
 					<option value="earliest">오래된순</option>
 					<option value="lowRate">별점 낮은순</option>
 					<option value="highRate">별점 높은순</option>
-				</SortingSelect>
-				{review.length === 0 ? (
+				</SortingSelect> */}
+				{nowReviewList.length === 0 ? (
 					<NoReviewMessage>첫 리뷰의 주인공이 되어주세요!</NoReviewMessage>
 				) : (
-					review.map((nowReview, nowIndex) => {
+					nowReviewList.map((nowReview, nowIndex) => {
 						if (isChecked && nowReview.imgLink === "") {
 							return null;
 						}

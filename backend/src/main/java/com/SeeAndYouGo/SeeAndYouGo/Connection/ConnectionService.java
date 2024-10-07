@@ -1,7 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,13 +20,13 @@ import java.net.URL;
 @RequiredArgsConstructor
 public class ConnectionService {
     private final ConnectionRepository connectionRepository;
-    private final RestaurantService restaurantService;
     @Value("${CONN_KEY}")
     private String CONN_KEY;
 
     public Connection getRecentConnected(String restaurantName){
-        String changeRestaurantName = changeRestaurantName(restaurantName);
-        Connection result = connectionRepository.findRecent(changeRestaurantName);
+        String parseRestaurantName = Restaurant.parseName(restaurantName);
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+        Connection result = connectionRepository.findTopByRestaurantOrderByTimeDesc(restaurant);
 
         return result;
     }
@@ -53,12 +52,9 @@ public class ConnectionService {
             finalResult.add(locationInfo);
         }
 
-
-        Long aLong = connectionRepository.countNumberOfData();
-
         String time = extractTimeInJson(jsonObject);
-        if(aLong>0){
-            String recentTime = connectionRepository.findRecentTime();
+        if(connectionRepository.count() > 0){
+            String recentTime = connectionRepository.findTopByOrderByTimeDesc().getTime();
             if(recentTime.equals(time)) return;
         }
 
@@ -67,9 +63,9 @@ public class ConnectionService {
         for (JsonElement jsonElement : finalResult) {
             JsonObject asJsonObject = jsonElement.getAsJsonObject();
             String rawName = asJsonObject.get("name").toString();
-            String name = removeQuotes(rawName);
+            String restaurantName = Restaurant.parseName(removeQuotes(rawName));
             // 오늘 날짜의 학생식당에 해당하는 DB 값이 있는지 확인하고 있다면 가져오고, 없다면 생성하자.
-            Restaurant restaurant = restaurantService.getRestaurant(name, today);
+            Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
             // 만약 여기에 데이터가 없다면, restaurant를 새로 생성. 있다면, restaurant의 connection에 add하자.
             Integer connected = asJsonObject.get("connected").getAsInt();
@@ -104,9 +100,7 @@ public class ConnectionService {
         JsonElement element = resultArray.get(0);
         JsonObject entry = element.getAsJsonObject();
         String rawTime = entry.get("CRT_DT").getAsString();
-        String time = rawTime.substring(0, 4)+"-"+rawTime.substring(4, 6)+
-                "-"+rawTime.substring(6, 8)+" "+rawTime.substring(8, 10)+
-                ":"+rawTime.substring(10, 12)+":"+rawTime.substring(12);
+        String time = resolveTimeFormat(rawTime);
 
         return time; // 시간형식은 2023-11-23 22:02:01 이다.
     }
@@ -122,13 +116,13 @@ public class ConnectionService {
             String location = entry.get("LOCATION").getAsString();
 
 
-            location = changeRestaurantNameForCache(location);
+            location = Connection.parseRestaurantNameForCache(location);
             if(location.equals("NULL")) continue;
 
             int client = entry.get("CLIENT").getAsInt();
             if(time.equals("NULL")){
                 String rawTime = entry.get("CRT_DT").getAsString();
-                time = rawTime.substring(0, 4)+"-"+rawTime.substring(4, 6)+"-"+rawTime.substring(6, 8)+" "+rawTime.substring(8, 10)+":"+rawTime.substring(10, 12)+":"+rawTime.substring(12);
+                time = resolveTimeFormat(rawTime);
             }
 
             if (locationData.has(location)) {
@@ -142,18 +136,26 @@ public class ConnectionService {
         return locationData;
     }
 
-    private String fetchConnectionInfoToString() throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY="+CONN_KEY;
+    /**
+     * 20240311131508 형식을 2024-03-11 13:15:08로 바꾸기
+     */
+    private static String resolveTimeFormat(String rawTime){
+        return rawTime.substring(0, 4)+"-"+rawTime.substring(4, 6)+"-"+rawTime.substring(6, 8)+
+                " "+rawTime.substring(8, 10)+":"+rawTime.substring(10, 12)+":"+rawTime.substring(12);
+    }
+
+    public String fetchConnectionInfoToString() throws Exception {
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=" + CONN_KEY;
+//        String apiUrl = "http://www.seeandyougo.com:80/api/connection/test";
 
         // URL 생성
         URL url = new URL(apiUrl);
         // HttpURLConnection 설정
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        connection.setRequestMethod("POST");
 
         // 응답 코드 확인
         int responseCode = connection.getResponseCode();
-        System.out.println(responseCode);
         String json = new String();
 
         // 응답 내용 읽기
@@ -172,24 +174,5 @@ public class ConnectionService {
         }
 
         return json;
-    }
-
-    public String changeRestaurantNameForCache(String name){
-        if(name.contains("Je1")) return "1학생회관";
-        else if(name.contains("제2학생회관")) return "2학생회관";
-        else if(name.contains("Je3_Hak") || name.contains("3학생")) return "3학생회관";
-        else if(name.contains("제4학생")) return "상록회관";
-        else if(name.contains("생활과학대 1F")) return "생활과학대";
-        else return "NULL";
-    }
-
-
-    public String changeRestaurantName(String name){
-        if(name.contains("1")) return "1학생회관";
-        else if(name.contains("2")) return "2학생회관";
-        else if(name.contains("3")) return "3학생회관";
-        else if(name.contains("4")) return "상록회관";
-        else if(name.contains("5")) return "생활과학대";
-        return "Null";
     }
 }

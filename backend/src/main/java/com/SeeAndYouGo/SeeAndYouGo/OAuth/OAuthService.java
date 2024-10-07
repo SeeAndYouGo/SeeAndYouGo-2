@@ -121,8 +121,8 @@ public class OAuthService {
         UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
         String message = "login";
         String email = userIdentityDto.getEmail();
-        List<User> users = userRepository.findByEmail(email);
-        if (users.size() == 0) {
+
+        if (!userRepository.existsByEmail(email)) {
             signUp(userIdentityDto);
             message = "join";
         }

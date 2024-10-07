@@ -1,23 +1,34 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.AOP.InvalidTokenException;
+import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -26,24 +37,11 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final MenuService menuService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
-    private static final List<String> restaurantNames = List.of("1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대");
-
-    // 탑 리뷰 조회
-    @GetMapping(value = {"/top-review/{restaurant}/{token_id}", "/top-review/{restaurant}"})
-    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant,
-                                                                 @PathVariable(value = "token_id", required = false) String tokenId) {
-        String restaurantName = menuService.parseRestaurantName(restaurant);
-        String date = LocalDate.now().toString();
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
-        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewResponseDto> response = getReviewDtos(reviews, userEmail);
-        return ResponseEntity.ok(response);
-    }
+    private static final List<String> restaurantNames = List.of("제1학생회관", "제2학생회관", "제3학생회관", "상록회관", "생활과학대");
 
     private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
@@ -54,15 +52,14 @@ public class ReviewController {
             }else{
                 response.add(new ReviewResponseDto(review, false));
             }
-
         }
-
         return response;
     }
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
+    @ValidateToken
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = LocalDate.now().toString();
+        String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         for (String restaurantName : restaurantNames) {
@@ -73,11 +70,22 @@ public class ReviewController {
         return ResponseEntity.ok(getReviewDtos(allReviews, userEmail));
     }
 
+    // 탑 리뷰 조회
+    @GetMapping(value = "/top-review/{restaurant}")
+    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
+        String restaurantName = Restaurant.parseName(restaurant);
+        String date = MenuController.getTodayDate();
+        List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+        List<ReviewResponseDto> response = getReviewDtos(reviews, "");
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
+    @ValidateToken
     public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
-        String date = LocalDate.now().toString();
-        String restaurantName = menuService.parseRestaurantName(restaurant);
+        String date = MenuController.getTodayDate();
+        String restaurantName = Restaurant.parseName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         return ResponseEntity.ok(getReviewDtos(restaurantReviews, userEmail));
@@ -95,81 +103,85 @@ public class ReviewController {
     }
 
     // 리뷰 게시
+    private static final String IMAGE_DIR = "imageStorage";
     @PostMapping(value = "/review")
-    public ResponseEntity<Long> postReview(
-            @RequestParam("restaurant") String restaurant,
-            @RequestParam("dept") String dept,
-            @RequestParam("menuName") String menuName,
-            @RequestParam("rate") Double rate,
-            @RequestParam("writer") String writer,
-            @RequestParam("comment") String comment,
-            @RequestParam("anonymous") boolean anonymous,
-            @RequestParam(name="image", required = false) MultipartFile image) {
-
-         NCloudObjectStorage NCloudObjectStorage = new NCloudObjectStorage();
-        String imgUrl = "";
-         if (image != null) {
-             try {
-                 imgUrl = NCloudObjectStorage.imgUpload(image.getInputStream(), image.getContentType());
-             } catch (Exception e) {
-                 throw new RuntimeException(e);
-             }
-         }
-
-        Review review = new Review();
-        // 원하는 날짜 및 시간 형식을 정의합니다.
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-        String email = tokenProvider.decodeToEmail(writer);
+    public ResponseEntity<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
+                                           @RequestPart(value = "image", required = false) MultipartFile image) {
+        String tokenId = dto.getWriter();
+        if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
+        String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.findNickname(email);
-        review.setWriterEmail(email);
 
-        if(anonymous){
-            review.setWriterNickname("익명");
-        }else{
-            review.setWriterNickname(nickname);
+        String imgUrl = "";
+        if (image != null) {
+            try {
+                Files.createDirectories(Paths.get(IMAGE_DIR));
+                String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
+                Path targetPath = Paths.get(IMAGE_DIR, imgName);
+
+                BufferedImage resized = reviewService.resize(image);
+                ImageIO.write(resized,"jpg",new File(targetPath.toUri()));
+
+                imgUrl = "/api/images/" + imgName;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        review.setReviewRate(rate);
-        review.setComment(comment);
-        review.setImgLink(imgUrl);
-        review.setLikeCount(0);
-        review.setMadeTime(LocalDateTime.now().format(formatter)); // 문자열 형태의 madeTime을 그대로 전달
+        ReviewData data = ReviewData.builder()
+                .restaurant(Restaurant.parseName(dto.getRestaurant()))
+                .menuId(dto.getMenuId())
+                .dept(dto.getDept())
+                .menuName(dto.getMenuName())
+                .rate(dto.getRate())
+                .email(email)
+                .nickName(dto.isAnonymous() ? "익명" : nickname)
+                .comment(dto.getComment())
+                .imgUrl(imgUrl)
+                .build();
 
-        Long reviewId = reviewService.registerReview(review, restaurant, dept, menuName);
+        Long reviewId = reviewService.registerReview(data);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
 
+    @ResponseBody
+    @GetMapping("/images/{imgName}")
+    @Cacheable(value="reviewImages", key="#imgName")
+    public UrlResource showImage(@PathVariable String imgName) throws Exception {
+        File file =new File(IMAGE_DIR + "/" + imgName);
+        return new UrlResource("file:" + file.getAbsolutePath());
+    }
+
     @GetMapping("/reviews/{token}")
-    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable String token){
-        String userEmail = tokenProvider.decodeToEmail(token);
+    @ValidateToken
+    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable("token") String tokenId){
+        String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 
         return ResponseEntity.ok(getReviewDtos(reviews, userEmail));
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
+    @ValidateToken
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
-            @PathVariable("token") String token){
+            @PathVariable("token") String tokenId){
 
         ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
                 .success(false)
                 .build();
-
         try{
-            String userEmail = tokenProvider.decodeToEmail(token);
+            String userEmail = tokenProvider.decodeToEmail(tokenId);
             boolean isWriter = reviewService.deleteReview(userEmail, reviewId);
             if(isWriter){
                 responseDto = ReviewDeleteResponseDto.builder()
                         .success(true)
                         .build();
             }
-
         }catch (ArrayIndexOutOfBoundsException e){
             return responseDto;
         }
-
         return responseDto;
     }
 }

@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.IterService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,20 +27,19 @@ import java.util.List;
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
-    private final RestaurantService restaurantService;
 
     @Value("${DISH_KEY}")
     private String DISH_KEY;
 
     @Transactional
     public void saveAndCacheWeekDish(Integer page) throws Exception{
-        String wifiInfo = fetchDishInfoToString(page);
+        String foodInfo = fetchDishInfoToString(page);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate monday = IterService.getNearestMonday(LocalDate.now());
         LocalDate friday = IterService.getFridayOfWeek(monday);
 
         JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
+        JsonObject jsonObject = jsonParser.parse(foodInfo).getAsJsonObject();
 
         JsonArray resultArray = jsonObject.getAsJsonArray("RESULT");
 
@@ -54,14 +52,15 @@ public class DishService {
 
             // 필드 값 추출
             String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
-            restaurantName = MenuService.parseRestaurantName(restaurantName);
+            restaurantName = Restaurant.parseName(restaurantName);
 
             String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
             Dept dept = Dept.changeStringToDept(deptStr);
 
             String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
             MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
-            if(!menuType.equals(MenuType.LUNCH)) continue;
+
+//            if(!menuType.equals(MenuType.LUNCH)) continue; 이제부터는 점심만 보여주는 것이 아니라, 아침/점심/저녁을 보여준다.
 
             String menuName = menuObject.get("MENU_KORN_NM").getAsString();
             if(menuName.contains("매주 수요일은")) continue;
@@ -77,7 +76,7 @@ public class DishService {
             // DishDto 구성하기
             if(objDate.isAfter(monday) && objDate.isBefore(friday) || objDate.isEqual(monday) || objDate.isEqual(friday)) {
                 // 식당, 날짜, DEPT, 메뉴타입을 기준으로 해당하는 식당을 찾는다.
-                Restaurant restaurant = restaurantService.getRestaurant(restaurantName, objDate.toString());
+                Restaurant restaurant = Restaurant.valueOf(restaurantName);
                 DishDto dishDto = DishDto.builder()
                         .name(menuName)
                         .dept(dept)
@@ -87,12 +86,6 @@ public class DishService {
                         .menuType(menuType)
                         .price(price)
                         .build();
-
-//                어떤 문제가 될까? 모르겠지만 일단 주석처리하기로 했다.
-//                if(page != 1){
-//                    Dish dish1 = searchAndAddDish(restaurant, dept, dish);
-//                    dishRepository.save(dish1);
-//                }
 
                 // DB에 없던 dish면 등록하기
                 if (dishRepository.findByName(dishDto.getName()) == null) {
@@ -108,15 +101,16 @@ public class DishService {
         }
     }
 
-    private String fetchDishInfoToString(Integer page) throws Exception {
+    public String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-            String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
+        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
+//        String apiUrl = "http://www.seeandyougo.com:80/api/dish/test/"+page;
 
             // URL 생성
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+            connection.setRequestMethod("POST");
 
             // 응답 코드 확인
             int responseCode = connection.getResponseCode();
@@ -140,14 +134,16 @@ public class DishService {
     public void updateMainDish(List<MainDishRequestDto> mainDishRequestDtos) {
 
         for (MainDishRequestDto mainDishRequestDto : mainDishRequestDtos) {
-            String mainDishName = mainDishRequestDto.getMainDishName();
+            List<String> mainDishNames = mainDishRequestDto.getMainDishList();
 
-            Dish dish = dishRepository.findByName(mainDishName);
-            dish.setDishType(DishType.MAIN);
+            for (String mainDishName : mainDishNames) {
+                Dish dish = dishRepository.findByName(mainDishName);
+                dish.updateMainDish();
+            }
 
-            for (String subDishName : mainDishRequestDto.getSubDishList()) {
-                Dish subDish = dishRepository.findByName(subDishName);
-                subDish.setDishType(DishType.SIDE);
+            for (String sideDishName : mainDishRequestDto.getSideDishList()) {
+                Dish sideDish = dishRepository.findByName(sideDishName);
+                sideDish.updateSideDish();
             }
         }
     }

@@ -1,19 +1,16 @@
 package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface ConnectionRepository extends JpaRepository<Connection, Long> {
-    @Query("SELECT c FROM Connection c " +
-            "WHERE c.time = (SELECT MAX(c2.time) FROM Connection c2 " +
-            "WHERE c2.restaurant.name = :name) " +
-            "AND c.restaurant.name = :name")
-    Connection findRecent(@Param("name") String name);
 
-    @Query("SELECT MAX(ct2.time) FROM Connection ct2")
-    String findRecentTime();
+    Connection findTopByRestaurantOrderByTimeDesc(Restaurant name);
 
-    @Query("SELECT COUNT(*) FROM Connection")
-    Long countNumberOfData();
+//    @Query("SELECT MAX(ct.time) FROM Connection ct")
+    Connection findTopByOrderByTimeDesc();
+
+    List<Connection> findByRestaurantAndTimeStartsWith(Restaurant restaurant, String date);
 }

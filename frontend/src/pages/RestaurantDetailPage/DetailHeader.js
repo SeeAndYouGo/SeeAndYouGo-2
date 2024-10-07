@@ -9,6 +9,22 @@ import ModalLocation from "./ModalLocation";
 import ModalMenuTable from "./ModalMenuTable";
 import * as config from "../../config";
 
+const DetailHeaderContainer = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+`;
+
+const LeftDiv = styled.div`
+	display: flex;
+	flex: 1;
+	order: 1;
+`;
+
+const RightDiv = styled.div`
+	flex: 1;
+	order: 2;
+`;
+
 const CafeteriaName = styled.div`
 	display: flex;
 	align-items: center;
@@ -28,7 +44,11 @@ const TimeInfo = styled.div`
 const Congestion = styled.div`
 	text-align: center;
 	padding-top: 10px;
-	padding-left: 5px;
+`;
+
+const ModalContainer = styled.div`
+	display: flex;
+	float: right;
 `;
 
 const ModalContent = styled.div`
@@ -78,58 +98,62 @@ const DetailHeader = ({ idx }) => {
 	}, [idx]);
 
 	return (
-		<div style={{ display: "flex" }}>
-			<div style={{ width: 160 }}>
-				<CafeteriaName>
-					<Link to={`/`}>
-						<FontAwesomeIcon icon={faAngleLeft} />
-					</Link>
-					<p style={{ margin: "0px 0px 0px 5px" }}>{operatingTime[idx][0]} </p>
-				</CafeteriaName>
-				<TimeInfo>
-					{idx === 1 ? null : (
+		<DetailHeaderContainer>
+			<LeftDiv>
+				<div style={{ width: 160 }}>
+					<CafeteriaName>
+						<Link to={`/`}>
+							<FontAwesomeIcon icon={faAngleLeft} />
+						</Link>
+						<p style={{ margin: "0px 0px 0px 5px" }}>{operatingTime[idx][0]} </p>
+					</CafeteriaName>
+					<TimeInfo>
+						{idx === 1 ? null : (
+							<>
+								<FontAwesomeIcon icon={faClock} />
+								<label style={{ marginLeft: 5 }}>
+									운영 시간 {operatingTime[idx][1]}
+								</label>
+							</>
+						)}
+					</TimeInfo>
+				</div>
+				<Congestion>
+					<img src={"/assets/images/People.png"} alt={"Loading..."} />
+					<p style={{ margin: "0", fontSize: 10 }}>
+						{rate < 33 ? "원활" : rate < 66 ? "보통" : "혼잡"}
+					</p>
+				</Congestion>
+			</LeftDiv>
+			<RightDiv>
+				<ModalContainer>
+					<ModalContent
+						style={idx === 1 ? { marginLeft: 90 } : { marginLeft: 30 }}
+						onClick={() => setVisible1(true)}
+					>
+						<FontAwesomeIcon icon={faMapLocationDot} />
+						<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
+					</ModalContent>
+					<Modal visible={visible1} onClose={() => setVisible1(false)}>
+						<ModalLocation restaurant={2} />
+					</Modal>
+					{idx !== 1 ? (
 						<>
-							<FontAwesomeIcon icon={faClock} />
-							<label style={{ marginLeft: 5 }}>
-								운영 시간 {operatingTime[idx][1]}
-							</label>
+							<ModalContent
+								style={{ marginLeft: 5 }}
+								onClick={() => setVisible2(true)}
+							>
+								<FontAwesomeIcon icon={faCalendarDays} />
+								<p style={{ margin: 0, fontSize: 10 }}>식단표</p>
+							</ModalContent>
+							<Modal visible={visible2} onClose={() => setVisible2(false)}>
+								<ModalMenuTable idx={idx} />
+							</Modal>
 						</>
-					)}
-				</TimeInfo>
-			</div>
-			<Congestion>
-				<img src={"/assets/images/People.png"} alt={"Loading..."} />
-				<p style={{ margin: "0", fontSize: 10 }}>
-					{rate < 33 ? "원활" : rate < 66 ? "보통" : "혼잡"}
-				</p>
-			</Congestion>
-			<>
-				<ModalContent
-					style={idx === 1 ? { marginLeft: 90 } : { marginLeft: 30 }}
-					onClick={() => setVisible1(true)}
-				>
-					<FontAwesomeIcon icon={faMapLocationDot} />
-					<p style={{ margin: 0, fontSize: 10 }}>식당위치</p>
-				</ModalContent>
-				<Modal visible={visible1} onClose={() => setVisible1(false)}>
-					<ModalLocation restaurant={2} />
-				</Modal>
-				{idx !== 1 ? (
-					<>
-						<ModalContent
-							style={{ marginLeft: 5 }}
-							onClick={() => setVisible2(true)}
-						>
-							<FontAwesomeIcon icon={faCalendarDays} />
-							<p style={{ margin: 0, fontSize: 10 }}>식단표</p>
-						</ModalContent>
-						<Modal visible={visible2} onClose={() => setVisible2(false)}>
-							<ModalMenuTable idx={idx} />
-						</Modal>
-					</>
-				) : null}
-			</>
-		</div>
+					) : null}
+				</ModalContainer>
+			</RightDiv>
+		</DetailHeaderContainer>
 	);
 };
 

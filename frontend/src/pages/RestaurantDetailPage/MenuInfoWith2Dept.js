@@ -103,7 +103,7 @@ const MenuInfoWith2Dept = ({ idx }) => {
 
 				<FontAwesomeIcon
 					icon={faCircleExclamation}
-					style={{ marginLeft: 15, fontSize: 12 }}
+					style={{ marginLeft: 5, fontSize: 12 }}
 				/>
 				<span style={{ fontSize: 10, marginLeft: 5, fontWeight: 400 }}>
 					교직원은 학생도 이용 가능합니다.
@@ -117,11 +117,11 @@ const MenuInfoWith2Dept = ({ idx }) => {
 			<TabMenuUl />
 			<Desc>
 				{currentTab === 0
-					? studentMenu.map((val, idx) => {
-							return <MenuItem key={idx} menuData={val} />;
+					? studentMenu.map((val, index) => {
+							return <MenuItem key={index} menuData={val} restaurantNum={idx} />;
 					  })
-					: staffMenu.map((val, idx) => {
-							return <MenuItem key={idx} menuData={val} />;
+					: staffMenu.map((val, index) => {
+							return <MenuItem key={index} menuData={val} />;
 					  })}
 			</Desc>
 		</div>

@@ -27,6 +27,15 @@ const GoToLogin = styled.span`
 	}
 `;
 
+const ReviewWrapper = styled.div`
+	width: 100%;
+	padding: 30px 15px;
+	font-size: 14px;
+	/* @media (min-width: 576px) {
+		padding: 30px 20px;
+	} */
+`;
+
 const MyReviewPage = () => {
 	const [reviewList, setReviewList] = useState([]);
 	const navigator = useNavigate();
@@ -55,7 +64,7 @@ const MyReviewPage = () => {
 	return (
 		<>
 			{nowToken ? (
-				<div style={{ fontSize: 14, margin: "70px 15px 0 15px" }}>
+				<ReviewWrapper>
 					<div style={{ textAlign: "center" }}>
 						<p style={{ fontSize: 20, margin: 10 }}>작성한 리뷰</p>
 						<p style={{ margin: 0, fontWeight: 600 }}>
@@ -80,7 +89,7 @@ const MyReviewPage = () => {
 						))
 					)}
 					<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
-				</div>
+				</ReviewWrapper>
 			) : (
 				<NotLogin>
 					<GoToLogin

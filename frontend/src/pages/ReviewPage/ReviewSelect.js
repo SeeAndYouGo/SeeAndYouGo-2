@@ -3,8 +3,6 @@ import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/slice/UserSlice";
 import ReviewList from "./ReviewList";
-import ReviewInfo from "./ReviewInfo";
-import ReviewListType2 from "./ReviewListType2";
 import * as config from "../../config";
 
 const TabMenu = styled.ul`
@@ -22,6 +20,16 @@ const TabMenu = styled.ul`
 		margin: 0 auto;
 		border-radius: 20px;
 		cursor: pointer;
+		@media (min-width: 576px) {
+			display: none;
+			padding: 4px 17px;
+		}
+	}
+	.submenu.tablet {
+		display: none;
+		@media (min-width: 576px) {
+			display: block;
+		}
 	}
 
 	.focused {
@@ -31,6 +39,7 @@ const TabMenu = styled.ul`
 `;
 
 const reviewTitleArray = ["전체", "1학", "2학", "3학", "상록회관", "생과대"];
+const tabletReviewTitleArray = ["전체", "1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대학"];
 
 const ReviewSelect = ({idx = 0}) => {
 	const token_id = useSelector((state) => state.user.value.token);
@@ -38,10 +47,7 @@ const ReviewSelect = ({idx = 0}) => {
 	const dispatch = useDispatch();
 
 	const [reviewArray, setReviewArray] = useState([]);
-	const [menuArray, setMenuArray] = useState([]);
-
 	const CreateReviewUrl = (restaurantUrl) => config.BASE_URL + restaurantUrl + (config.NOW_STATUS === 0 ? ".json" : (token_id !== '' ? `/${token_id}` : ""));
-	const CreateMenuUrl = (restaurantIdx) => config.BASE_URL + "/daily-menu/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
 
 	useEffect(() => {
 		const reviewUrl = [
@@ -53,23 +59,9 @@ const ReviewSelect = ({idx = 0}) => {
 			)
 		)
 		.then((dataArray) => {
-			console.log(dataArray, "확인용 reviewArray");
 			return setReviewArray(dataArray)
 		})
 		.catch((error) => console.error("Error fetching JSON:", error));
-
-		const menuUrl = [CreateMenuUrl(2), CreateMenuUrl(3), CreateMenuUrl(4), CreateMenuUrl(5)];
-		Promise.all(
-			menuUrl.map((path) =>
-				fetch(path).then((response) => response.json())
-			)
-		)
-		.then((dataArray) => setMenuArray(dataArray))
-		.catch((error) => {
-			console.error("Error fetching JSON:", error)
-			dispatch(logout());
-			window.location.reload();
-		});
 	}, [dispatch, token_id]);
 
 	const selectMenuHandler = (index) => {
@@ -90,6 +82,17 @@ const ReviewSelect = ({idx = 0}) => {
 						{el}
 					</li>
 				))}
+				{tabletReviewTitleArray.map((el, index) => (
+					<li
+						key={index}
+						className={
+							index === currentTab ? "submenu focused tablet" : "submenu tablet"
+						}
+						onClick={() => selectMenuHandler(index)}
+					>
+						{el}
+					</li>
+				))}
 			</TabMenu>
 		);
 	};
@@ -99,7 +102,24 @@ const ReviewSelect = ({idx = 0}) => {
 			<div>
 				<TabMenuUl />
 				<div className="desc">
-					{currentTab < 2 ? ( // 전체, 1학 탭
+					{
+						reviewArray.length !== 0 &&
+							<ReviewList
+								idx={currentTab}
+								nowReviewList={reviewArray[currentTab]}
+								wholeReviewList={reviewArray}
+								setWholeReviewList={setReviewArray}
+							/>
+					}
+				</div>
+			</div>
+		</>
+	);
+};
+
+export default ReviewSelect;
+
+{/* {currentTab < 2 ? ( // 전체, 1학 탭
 						reviewArray.length > 0 &&
 						<ReviewList
 							idx={currentTab}
@@ -130,11 +150,4 @@ const ReviewSelect = ({idx = 0}) => {
 							wholeReviewList={reviewArray}
 							setWholeReviewList={setReviewArray}
 						/>
-					)}
-				</div>
-			</div>
-		</>
-	);
-};
-
-export default ReviewSelect;
+					)} */}

@@ -10,11 +10,11 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menu_id")
@@ -25,8 +25,7 @@ public class Menu {
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)  // Menu를 저장할 때 연관된 MenuDish가 자동으로 저장되어야 함
     private List<MenuDish> menuDishes = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id")
+    @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL)
@@ -48,7 +47,6 @@ public class Menu {
         this.dept = dept;
         this.menuType = menuType;
         this.restaurant = restaurant;
-        restaurant.getMenuList().add(this);
     }
 
     public String getMenuName(){
@@ -68,10 +66,16 @@ public class Menu {
         }
     }
 
+    /**
+     * dish가 이 menu에 저장되어 있지 않다면 저장해준다.
+     */
     public void addDish(Dish dish) {
-        MenuDish menuDish = new MenuDish(this, dish);
-        this.menuDishes.add(menuDish);
-        dish.getMenuDishes().add(menuDish);
+        List<Dish> dishList = this.getDishList();
+        if (!dishList.contains(dish)) {
+            MenuDish menuDish = new MenuDish(this, dish);
+            this.menuDishes.add(menuDish);
+            dish.getMenuDishes().add(menuDish);
+        }
     }
 
     public List<Dish> getDishList() {
@@ -82,10 +86,13 @@ public class Menu {
         return dishes;
     }
 
-    public Long addReview(Review review) {
-        this.reviewList.add(review);
-        this.rate = (this.rate+review.getReviewRate())/this.reviewList.size();
+    public List<String> getDishListToString() {
+        return getDishList().stream().map(Dish::toString).collect(Collectors.toList());
+    }
 
+    public Long addReviewAndUpdateRate(Review review) {
+        this.reviewList.add(review);
+        this.rate = (this.rate + review.getReviewRate()) / this.reviewList.size();
         return review.getId();
     }
 
@@ -102,15 +109,34 @@ public class Menu {
         return review.getId();
     }
 
-    public Dish getMainDish() {
-        for (MenuDish menuDish : menuDishes) {
-            Dish dish = menuDish.getDish();
-            if(dish.getDishType().equals(DishType.MAIN)){
-                return dish;
-            }
-        }
+    public List<Dish> getMainDish() {
+        List<Dish> dishes = getDishList();
+        return dishes.stream()
+                .filter(
+                        dish -> dish.getDishType().equals(DishType.MAIN)
+                ).collect(Collectors.toList());
+    }
 
-        return null;
+    public List<String> getMainDishToString() {
+        return getMainDish()
+                .stream()
+                .map(Dish::toString)
+                .collect(Collectors.toList());
+    }
+
+    public List<Dish> getSideDish() {
+        List<Dish> dishes = getDishList();
+        return dishes.stream()
+                .filter(
+                        dish -> dish.getDishType().equals(DishType.SIDE)
+                ).collect(Collectors.toList());
+    }
+
+    public List<String> getSideDishToString() {
+        return getSideDish()
+                .stream()
+                .map(Dish::toString)
+                .collect(Collectors.toList());
     }
 
 

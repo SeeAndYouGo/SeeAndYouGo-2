@@ -2,13 +2,14 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.RestaurantService;
+import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
+import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,14 +22,15 @@ import static java.time.DayOfWeek.*;
 @RequiredArgsConstructor
 public class IterService {
     private final DishService dishService;
-    private final RestaurantService restaurantService;
     private final MenuService menuService;
+    private final MenuRepository menuRepository;
+    private final HolidayService holidayService;
     private final ConnectionService connectionService;
+    private final StatisticsService statisticsService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
     @Scheduled(cron="0 0 0 * * SAT")
-    @Transactional
     public void weeklyIterative(){
         // 기본적으로 토요일에 호출되는 메섣.
 
@@ -37,9 +39,9 @@ public class IterService {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
 
         try {
-            if(!restaurantService.existWeekRestaurant(nearestMonday)) {
-                // 해당 주의 식당을 만든다.
-                restaurantService.createWeeklyRestaurant(nearestMonday);
+            // Restaurant가 Enum으로 변경되었으므로 Restaurant가 아닌 Menu의 유무를 통해서 해당 메뉴를 캐싱했는지 파악한다.
+            if(!menuRepository.existsByDate(nearestMonday.toString())) {
+                menuService.createRestaurant1Menu(nearestMonday);
 
                 // 월요일부터 금요일까지의 메뉴를 캐싱한다.
                 dishService.saveAndCacheWeekDish(1);
@@ -53,14 +55,17 @@ public class IterService {
         }
     }
 
-//    @Scheduled(cron="0 0 0 * * MON-FRI")
-//    public void dailyIterative(){
-//        try {
-//            dishService.saveAndCacheTodayDish(LocalDate.now());
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+    @Scheduled(cron="0 0 21 * * MON-FRI")
+    public void updateConnectionStatistics(){
+        // 모두 모아진 connection 데이터의 평균을 업데이트해준다.
+        LocalDate now = LocalDate.now();
+
+        try {
+            statisticsService.updateConnectionStatistics(now);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     @Scheduled(cron = "40 0/5 7-20 * * *")
     public void continuousIterative(){
@@ -74,6 +79,19 @@ public class IterService {
             connectionService.saveAndCacheConnection();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    // 평일 점심 정보는 10시에 올리기
+    @Scheduled(cron = "0 0 10 * * MON-FRI")
+    public void postMenuInfo(){
+        Restaurant[] restaurantNames = Restaurant.values();
+
+        for (Restaurant restaurant : restaurantNames) {
+            if(restaurant.equals(Restaurant.제1학생회관))
+                continue;
+
+            menuService.postMenu(restaurant, LocalDate.now().toString());
         }
     }
 
@@ -95,5 +113,11 @@ public class IterService {
 
         // 입력된 날짜에서 금요일까지의 날짜를 반환합니다.
         return inputDate.plusDays(daysUntilFriday);
+    }
+
+    @Scheduled(cron = "0 0 22 31 12 *")
+    public void saveNextYearHolidayInfo(){
+        // 내년의 정보는 매년 말일에 해야하므로, 다음 날을 return하여 2025년을 계산하도록 진행
+        holidayService.saveThisYearHoliday(LocalDate.now().plusDays(1));
     }
 }

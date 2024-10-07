@@ -1,327 +1,242 @@
 [
-    {
-        "dishList": [
-            "날치알새싹비빔밥",
-            "타코야끼",
-            "배추김치",
-            "쥬스",
-            "맑은우동국물"
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "김치",
-            "추가밥"
-        ],
-        "restaurantName": "4학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "돈까스"
-        ],
-        "restaurantName": "5학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-25"
-    },
-    {
-        "dishList": [
-            "날치알새싹비빔밥",
-            "타코야끼",
-            "배추김치",
-            "쥬스",
-            "맑은우동국물"
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "김치",
-            "추가밥"
-        ],
-        "restaurantName": "4학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "돈까스"
-        ],
-        "restaurantName": "5학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-26"
-    },
-    {
-        "dishList": [
-            "날치알새싹비빔밥",
-            "타코야끼",
-            "배추김치",
-            "쥬스",
-            "맑은우동국물"
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "김치",
-            "추가밥"
-        ],
-        "restaurantName": "4학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "돈까스"
-        ],
-        "restaurantName": "5학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-27"
-    },
-    {
-        "dishList": [
-            "날치알새싹비빔밥",
-            "타코야끼",
-            "배추김치",
-            "쥬스",
-            "맑은우동국물"
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "김치",
-            "추가밥"
-        ],
-        "restaurantName": "4학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "돈까스"
-        ],
-        "restaurantName": "5학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-28"
-    },
-    {
-        "dishList": [
-            "날치알새싹비빔밥",
-            "타코야끼",
-            "배추김치",
-            "쥬스",
-            "맑은우동국물"
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-29"
-    },
-    {
-        "dishList": [
-        ],
-        "restaurantName": "2학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-29"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-29"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3"
-        ],
-        "restaurantName": "3학생회관",
-        "dept": "STAFF",
-        "date": "2024-01-29"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "김치",
-            "추가밥"
-        ],
-        "restaurantName": "4학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-29"
-    },
-    {
-        "dishList": [
-            "메뉴1",
-            "메뉴2",
-            "메뉴3",
-            "메뉴4",
-            "돈까스"
-        ],
-        "restaurantName": "5학생회관",
-        "dept": "STUDENT",
-        "date": "2024-01-29"
-    }
+	{
+		"mainDishName": "",
+		"subDishList": [
+			"날치알새싹비빔밥",
+			"타코야끼",
+			"배추김치",
+			"쥬스",
+			"맑은우동국물"
+		],
+		"restaurantName": "2학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "메인이다",
+		"subDishList": [],
+		"restaurantName": "2학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "메인일걸",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4"],
+		"restaurantName": "3학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "메인일걸11",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3"],
+		"restaurantName": "3학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "메인일걸22",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "김치", "추가밥"],
+		"restaurantName": "4학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "돈까스"],
+		"restaurantName": "5학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-25"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": [
+			"날치알새싹비빔밥",
+			"타코야끼",
+			"배추김치",
+			"쥬스",
+			"맑은우동국물"
+		],
+		"restaurantName": "2학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "메인들어간다3",
+		"subDishList": [],
+		"restaurantName": "2학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "메인들어간다1",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4"],
+		"restaurantName": "3학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "메인들어간다2",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3"],
+		"restaurantName": "3학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "김치", "추가밥"],
+		"restaurantName": "4학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "돈까스"],
+		"restaurantName": "5학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-26"
+	},
+	{
+		"mainDishName": "메인들어간다3333",
+		"subDishList": [
+			"날치알새싹비빔밥",
+			"타코야끼",
+			"배추김치",
+			"쥬스",
+			"맑은우동국물"
+		],
+		"restaurantName": "2학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인들어간다1111",
+		"subDishList": [],
+		"restaurantName": "2학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인들어간다8989",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4"],
+		"restaurantName": "3학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인메인",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3"],
+		"restaurantName": "3학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인메인",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "김치", "추가밥"],
+		"restaurantName": "4학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인메인22",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "돈까스"],
+		"restaurantName": "5학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-27"
+	},
+	{
+		"mainDishName": "메인메인11",
+		"subDishList": [
+			"날치알새싹비빔밥",
+			"타코야끼",
+			"배추김치",
+			"쥬스",
+			"맑은우동국물"
+		],
+		"restaurantName": "2학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "메인메인33",
+		"subDishList": [],
+		"restaurantName": "2학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4"],
+		"restaurantName": "3학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3"],
+		"restaurantName": "3학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "김치", "추가밥"],
+		"restaurantName": "4학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "메인이당",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "돈까스"],
+		"restaurantName": "5학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-28"
+	},
+	{
+		"mainDishName": "메인이당222",
+		"subDishList": [
+			"날치알새싹비빔밥",
+			"타코야끼",
+			"배추김치",
+			"쥬스",
+			"맑은우동국물"
+		],
+		"restaurantName": "2학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-29"
+	},
+	{
+		"mainDishName": "메인이당333",
+		"subDishList": [],
+		"restaurantName": "2학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-29"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4"],
+		"restaurantName": "3학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-29"
+	},
+	{
+		"mainDishName": "",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3"],
+		"restaurantName": "3학생회관",
+		"dept": "STAFF",
+		"date": "2024-01-29"
+	},
+	{
+		"mainDishName": "메인입니다요1",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "김치", "추가밥"],
+		"restaurantName": "4학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-29"
+	},
+	{
+		"mainDishName": "메인입니다요2",
+		"subDishList": ["메뉴1", "메뉴2", "메뉴3", "메뉴4", "돈까스"],
+		"restaurantName": "5학생회관",
+		"dept": "STUDENT",
+		"date": "2024-01-29"
+	}
 ]

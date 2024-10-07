@@ -8,28 +8,33 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 
+@Component
+@ConfigurationProperties(value = "ncloud")
+@PropertySource("classpath:key.yml")
 public class NCloudObjectStorage {
 
-    final String endPoint = "https://kr.object.ncloudstorage.com";
-    final String regionName = "kr-standard";
+    private final String endPoint = "https://kr.object.ncloudstorage.com";
+    private final String regionName = "kr-standard";
+    private static String accessKey;
+    private static String secretKey;
 
-    String accessKey;
-    String secretKey;
 
-    public NCloudObjectStorage() {
-        this.accessKey = System.getenv("ACCESS_KEY");
-        this.secretKey = System.getenv("SECRET_KEY");
+    public NCloudObjectStorage(@Value("${ACCESS_KEY}") String accessKey, @Value("${SECRET_KEY}") String secretKey) {
+        NCloudObjectStorage.accessKey = accessKey;
+        NCloudObjectStorage.secretKey = secretKey;
     }
 
     public String imgUpload(InputStream file, String contentType) throws Exception {
-        // S3 client
         // S3 client
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
@@ -51,18 +56,14 @@ public class NCloudObjectStorage {
         UUID one = UUID.randomUUID();
         // upload local file
         String objectName = one.toString();
-        String filePath = "/tmp/sample.txt";
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(contentType);
         metadata.setContentLength(file.available());
+        s3.putObject(new PutObjectRequest(bucketName,folderName+one, file,metadata).withCannedAcl(CannedAccessControlList.PublicRead));
 
-
-        PutObjectResult putObjectResult = s3.putObject(new PutObjectRequest(bucketName,folderName+one.toString(), file,metadata).withCannedAcl(CannedAccessControlList.PublicRead));
-
-        URL seeandyougoUrl = s3.getUrl("seeandyougo", "img-folder/" + one.toString());
+        URL seeandyougoUrl = s3.getUrl("seeandyougo", "img-folder/" + one);
         System.out.format("Object %s has been created.\n", objectName);
         return seeandyougoUrl.toURI().toString();
     }
 }
-

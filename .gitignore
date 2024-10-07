@@ -9,6 +9,8 @@
 **/data
 backend/src/main/resources/key.yml
 .vscode
+cert_file
+backend/imageStorage
 
 ### Java ###
 # Compiled class file

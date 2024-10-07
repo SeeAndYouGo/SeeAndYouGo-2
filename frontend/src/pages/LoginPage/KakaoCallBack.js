@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
@@ -13,6 +13,8 @@ const KakaoCallBack = () => {
 	const params = new URL(document.location.toString()).searchParams;
 	const code = params.get("code");
 	const dispatch = useDispatch();
+	const restaurantId = useSelector((state) => state.user).value
+		.selectedRestaurant;
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
@@ -36,7 +38,7 @@ const KakaoCallBack = () => {
 			try {
 				const nowToken = await getJWTToken(code);
 				dispatch(
-					login({ token: nowToken.token, nickname: "", loginState: true })
+					login({ token: nowToken.token, nickname: "", loginState: true, selectedRestaurant: restaurantId })
 				);
 
 				if (nowToken.message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동

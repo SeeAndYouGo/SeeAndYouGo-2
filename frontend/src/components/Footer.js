@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React from "react";
 
 const FooterWrapper = styled.div`
   width: 100%;

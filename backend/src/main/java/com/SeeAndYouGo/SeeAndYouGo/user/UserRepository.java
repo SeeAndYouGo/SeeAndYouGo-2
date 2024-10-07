@@ -9,5 +9,6 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     Long countByNickname(String nickname);
 
-    List<User> findByEmail(String email);
+    User findByEmail(String email);
+    boolean existsByEmail(String email);
 }

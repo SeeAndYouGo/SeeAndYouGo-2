@@ -13,11 +13,30 @@ const HeaderContainer = styled.div`
   justify-content: center;
   position: relative;
 	line-height: 50px;
+  @media (min-width: 576px) {
+    max-width: 992px;
+  }
 `;
 
-const Logo = styled.img`
-
+const MenuWrapper = styled.div`
+  position: absolute;
+  right: 15px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  & > .event-icon {
+    background-color: #d32f2f;
+    border-radius: 50%;
+    color: white;
+    font-size: 13px;
+    padding: 3px;
+    position: absolute;
+    right: -12px;
+    top: 5px;
+    border: 3px solid #222;
+  }
 `;
+
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,19 +56,18 @@ const Header = () => {
             style={{height: "100%"}}
           />
         </Link>
-        <span
-          onClick={toggleMenu}
-          className="material-symbols-outlined"
-          style={{
-            position: "absolute",
-            right: 15,
-            fontSize: 30,
-            cursor: "pointer",
-						color: "#fff"
-          }}
-        >
-          menu
-        </span>
+        <MenuWrapper>
+          <span
+            onClick={toggleMenu}
+            className="material-symbols-outlined"
+            style={{color: "white", fontSize: 32, cursor: "pointer"}}
+          >
+            menu
+          </span>
+          {/* <span class="material-symbols-outlined event-icon">
+            celebration
+          </span> */}
+        </MenuWrapper>
       </HeaderContainer>
       <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />
     </>

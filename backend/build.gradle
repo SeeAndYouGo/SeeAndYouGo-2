@@ -25,16 +25,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	 runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
 	implementation 'mysql:mysql-connector-java:8.0.27'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'com.google.code.gson:gson:2.8.8'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
-	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+	implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
 
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
 	implementation 'com.amazonaws:aws-java-sdk-s3'

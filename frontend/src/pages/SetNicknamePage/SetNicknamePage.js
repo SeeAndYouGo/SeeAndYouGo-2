@@ -7,6 +7,32 @@ import { useNavigate } from "react-router-dom";
 import { setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 
+const SetNicknameWrapper = styled.div`
+  width: 100%;
+  max-width: 800px;
+  float: left;
+  padding: 30px 20px;
+  border-radius: 20px;
+  background: #fff;
+  margin: 0 auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  /* @media (min-width: 576px) {
+    margin-top: 30px;
+  } */
+`;
+
+const NicknameInfo = styled.p`
+  font-size: 12px;
+  color: #555;
+  font-weight: 300;
+  margin: 0;
+  /* @media (min-width: 576px) {
+    font-size: 14px;
+  } */
+`;
+
 const NicknameInput = styled.input`
 color: #999;
 border: 1px solid #d9d9d9;
@@ -34,7 +60,7 @@ const InputWrapper = styled.div`
   float: left;
   margin-bottom: 10px;
   & > input {
-    width: 210px;
+    width: calc(100% - 80px);
     float: left;
   }
   & > button {
@@ -49,6 +75,20 @@ const InputWrapper = styled.div`
     color: #777;
     cursor: pointer;
   }
+  /* @media (min-width: 576px) {
+    margin: 20px 0 30px 0;
+    & > input, & > button {
+      font-size: 14px;
+      height: 40px;
+    }
+    & > input {
+      padding: 0 15px;
+      width: calc(100% - 100px);
+    }
+    & > button {
+      width: 90px;
+    }
+  } */
 `;
 
 const SetButton = styled.button`
@@ -73,11 +113,24 @@ const SetButton = styled.button`
   }
 `;
 
+const NicknmaeWarning = styled.p`
+  font-size: 12px;
+  float: left;
+  color: red;
+  font-weight: 300;
+  margin: 5px 0 0 0;
+  /* @media (min-width: 576px) {
+    font-size: 14px;
+  } */
+`;
+
 const SetNicknamePage = () => {
   const navigator = useNavigate();
 	const [nicknameValue, setNicknameValue] = useState("");
   const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
   const user = useSelector((state) => state.user.value);
+  const [nicknameDate, setNicknameDate] = useState(""); // 닉네임 변경 가능 날짜 [YYYY-MM-DD
+  const [nicknameDateCheck, setNicknameDateCheck] = useState(true); // 닉네임 변경 가능 여부 [true: 변경 가능, false: 변경 불가능
   const dispatch = useDispatch();
 
   const handleInputChange = (val) => {
@@ -105,7 +158,7 @@ const SetNicknamePage = () => {
     });
   }
 
-  const NicknameSet = () => {
+  const NicknameSet = async () => {
     const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
     const Token = user.token;
 
@@ -113,39 +166,45 @@ const SetNicknamePage = () => {
       "token": Token,
       "nickname": nicknameValue
     }
-    
-		fetch(url, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(nicknameRequestJson),
-		})
-    .then(() => { // 닉네임 설정 완료
-      dispatch(setNickname(nicknameValue));
-      dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
-      navigator("/");
-    }).catch(() => { // 닉네임 설정 실패
-      dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
+
+    await axios.put(url, nicknameRequestJson)
+    .then((res) => {
+      const data = res.data;
+      if (data.update === false) {
+        setNicknameDateCheck(false);
+        const date = new Date(data.last_update);
+        date.setDate(date.getDate() + 14);
+        setNicknameDate(date.toISOString().substring(0,10));
+        dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
+      } else {
+        setNicknameDateCheck(true);
+        dispatch(setNickname(nicknameValue));
+        dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
+        navigator("/");
+      }
     });
   }
 
 	return (
 		<div className="App3">
-      <div className="setNicknameWrapper" style={{background: "#fff", padding: "30px 20px", borderRadius: 20, float: "left"}}>
+      <SetNicknameWrapper>
         <p style={{margin: "0 0 10px 0", fontSize: 20}}>닉네임 설정</p>
-        <p style={{fontSize: 12, color: "#555", fontWeight: 300, margin: "0 0 20px 0"}}>커뮤니티 활동을 위한 닉네임을 설정해주세요. 건너뛰기 클릭시 익명으로 처리됩니다.</p>
+        <NicknameInfo style={{marginBottom: "2px"}}>커뮤니티 활동을 위한 닉네임을 설정해주세요. 건너뛰기 클릭시 익명으로 처리됩니다. </NicknameInfo>
+        <NicknameInfo style={{margin: "0 0 20px 0"}}>(닉네임 변경시 <span style={{fontWeight: 500}}>15일</span> 후에 변경가능합니다.)</NicknameInfo>
         <InputWrapper>
           <NicknameInput 
             type="text" 
-            placeholder="닉네임 입력"
+            placeholder="2~6자 사이로 입력해주세요."
             className={nicknameCheck ? "success" : "null"}
             minLength={2} maxLength={6} 
             onChange={(val) => handleInputChange(val)
           }>
           </NicknameInput>
           <button onClick={CheckNickname}>중복확인</button>
-          <p style={{fontSize: 12, float: "left", color: "#999", fontWeight: 300, margin: "5px 0 0 0"}}>* 닉네임은 2~6자 사이로 설정가능합니다.</p>
+          {!nicknameDateCheck ? 
+            <NicknmaeWarning>* 닉네임은 {nicknameDate}이후부터 변경가능합니다.</NicknmaeWarning>
+            : null
+          }
         </InputWrapper>
         <SetButton onClick={() => {navigator("/")}} style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
         {
@@ -153,7 +212,7 @@ const SetNicknamePage = () => {
           <SetButton onClick={NicknameSet} className="success">설정완료</SetButton> : 
           <SetButton disabled className="error">설정완료</SetButton>
         }
-      </div>
+      </SetNicknameWrapper>
 		</div>
 	);
 };

@@ -35,4 +35,10 @@
             <appender-ref ref="FILE-ERROR"/>
         </root>
 
+<!--    쫑알 로그-->
+        <include resource="file-jjongal-tracer-appender.xml" />
+        <root level="INFO">
+            <appender-ref ref="FILE-JJONGAL-TRACER"/>
+        </root>
+
 </configuration>

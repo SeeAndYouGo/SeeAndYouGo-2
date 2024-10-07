@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styled from "@emotion/styled";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
@@ -55,11 +55,6 @@ const MenuList = styled.div`
     width: 100%;
     float: left;
   }
-  &.feedback {
-    width: calc(100% - 30px);
-    position: absolute;
-    bottom: 20px;
-  }
 `;
 
 const MenuName = styled.p`
@@ -105,7 +100,6 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
-  const navigator = useNavigate();
   const dispatch = useDispatch();
   const outside = useRef();
   const user = useSelector((state) => state.user.value);
@@ -152,7 +146,9 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       dispatch(logout());
                       dispatch(showToast({ contents: "login", toastIndex: 4 }));
-                      navigator("/");
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 1000);
                       toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>
@@ -179,18 +175,24 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
+            <Link to="/set-nickname" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+              <MenuName>
+              <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>manage_accounts</span>
+                <span>닉네임 수정</span>
+              </MenuName>
+            </Link>
             <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+            {/* <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20}}>collections_bookmark</span>
                 <span>나의 키워드</span>
               </MenuName>
-            </Link>
+            </Link> */}
           </MenuList>
           <div style={{marginBottom: 10}}>
             <span>
@@ -198,10 +200,16 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
+            {/* <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
                 <span>리뷰페이지</span>
+              </MenuName>
+            </Link> */}
+            <Link to="/statistics" onClick={toggleMenu} style={{marginBottom: 10}}>
+              <MenuName>
+                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>bar_chart</span>
+                <span>혼잡도 통계보기</span>
               </MenuName>
             </Link>
             <Link to="/notice-page" onClick={toggleMenu} style={{marginBottom: 10}}>
@@ -211,13 +219,19 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
-          <MenuList className='feedback'>
+          <MenuList>
             <Link to="https://forms.gle/xy71uZ7gzueWcK6UA" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat_paste_go</span>
                 <span>의견 보내기</span>
               </MenuName>
             </Link>
+            {/* <Link to="https://forms.gle/bPD39RuBwSRKjpRn6" target="_blank" onClick={toggleMenu} style={{marginBottom: 10}}>
+              <MenuName>
+                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>celebration</span>
+                <span>이벤트 참여하기 (05.20 ~ 05.31)</span>
+              </MenuName>
+            </Link> */}
           </MenuList>
         </div>
       </SideBarWrap>

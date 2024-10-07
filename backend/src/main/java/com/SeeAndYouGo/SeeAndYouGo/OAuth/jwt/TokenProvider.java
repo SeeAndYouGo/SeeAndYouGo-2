@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -32,22 +31,19 @@ public class TokenProvider implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
-    private final String secret;
     private final long tokenValidityInMilliseconds;
-    private Key key;
+    private final Key key;
 
     public TokenProvider(
             @Value("${secret}") String secret,
             @Value("${token-validity-in-seconds}") long tokenValidityInSeconds) {
-        this.secret = secret;
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
     }
 
-    // 빈이 생성되고 주입을 받은 후에 secret값을 Base64 Decode해서 key 변수에 할당하기 위해
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String createToken(String userEmail) {
@@ -90,13 +86,10 @@ public class TokenProvider implements InitializingBean {
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             logger.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-
             logger.info("만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-
             logger.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-
             logger.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
@@ -106,16 +99,15 @@ public class TokenProvider implements InitializingBean {
     public String decodeToEmail(String jwtToken) throws ArrayIndexOutOfBoundsException{
         // 사용자가 불분명할 때는 빈 string을 준다.
         if(jwtToken == null || jwtToken.equals("null")) return "";
-
-        String[] chunks = jwtToken.split("\\.");
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-
-        String payload = new String(decoder.decode(chunks[1]));
-
-        return extractEmail(payload);
-    }
-
-    private String extractEmail(String payload) {
-        return payload.split(",")[1].split("\"")[3];
+        try {
+            // JWT 디코드 및 검증
+            Claims claims = Jwts.parser()
+                    .setSigningKey(key)
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
+            return (String) claims.get("sub");  // 이메일 추출
+        } catch (SignatureException e) {
+            return "";
+        }
     }
 }

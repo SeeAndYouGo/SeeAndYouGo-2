@@ -1,7 +1,19 @@
+import React from "react";
 import styled from "@emotion/styled";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import * as config from "../../config";
+
+const MyKeywordItemContainer = styled.div`
+	margin: 5px 0;
+	padding: 8px 10px 0 10px;
+	@media (min-width: 576px) {
+		width: 50%;
+		margin: 0 auto;
+		max-width: 992px;
+		float: left;
+	};
+`;
 
 const RemoveBtn = styled.span`
 	position: absolute;
@@ -9,6 +21,13 @@ const RemoveBtn = styled.span`
 	top: -1px;
 	right: 7px;
 	cursor: pointer;
+`;
+
+const UnderLine = styled.hr`
+	border: 0;
+	height: 2px;
+	margin: 0px auto;
+	background-color: #ccc;
 `;
 
 const MyKeywordItem = ({ keyword, setKeywordList }) => {
@@ -41,20 +60,24 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 	};
 
 	return (
-		<div style={{ margin: "5px 0", padding: "8px 10px" }}>
-			<div
-				style={{
-					margin: "0 0 0 5px",
-					position: "relative",
-					fontWeight: 500,
-				}}
-			>
-				#&nbsp;{`${keyword}`}
-				<RemoveBtn className="material-symbols-outlined" onClick={handleSubmit}>
-					do_not_disturb_on
-				</RemoveBtn>
-			</div>
-		</div>
+		<>
+			<MyKeywordItemContainer>
+				<div
+					style={{
+						margin: "0 0 0 5px",
+						position: "relative",
+						fontWeight: 500,
+						paddingBottom: 10,
+					}}
+				>
+					#&nbsp;{`${keyword}`}
+					<RemoveBtn className="material-symbols-outlined" onClick={handleSubmit}>
+						do_not_disturb_on
+					</RemoveBtn>
+				</div>
+				<UnderLine />
+			</MyKeywordItemContainer>
+		</>
 	);
 };
 

@@ -10,6 +10,6 @@ public class MainDishRequestDto {
     private String restaurantName;
     private String dept;
     private String date; // YYYY-mm-DD
-    private String mainDishName;
-    private List<String> subDishList;
+    private List<String> mainDishList;
+    private List<String> sideDishList;
 }

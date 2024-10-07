@@ -1,0 +1,722 @@
+[
+  {
+    "time": "07:30",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "07:35",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "07:40",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "07:45",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "07:50",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "07:55",
+    "averageValue": 49.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:00",
+    "averageValue": 50.55,
+    "type": "BREAKFAST"
+  },
+	{
+		"time": "08:05",
+		"averageValue": 55.55,
+		"type": "BREAKFAST"
+	},
+  {
+    "time": "08:10",
+    "averageValue": 56.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:15",
+    "averageValue": 57.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:20",
+    "averageValue": 58.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:25",
+    "averageValue": 59.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:30",
+    "averageValue": 60.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:35",
+    "averageValue": 61.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:40",
+    "averageValue": 62.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:45",
+    "averageValue": 63.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:50",
+    "averageValue": 64.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "08:55",
+    "averageValue": 65.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:00",
+    "averageValue": 66.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:05",
+    "averageValue": 67.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:10",
+    "averageValue": 68.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:15",
+    "averageValue": 69.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:20",
+    "averageValue": 70.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:25",
+    "averageValue": 71.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:30",
+    "averageValue": 72.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:35",
+    "averageValue": 73.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:40",
+    "averageValue": 74.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:45",
+    "averageValue": 75.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:50",
+    "averageValue": 76.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "09:55",
+    "averageValue": 77.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:00",
+    "averageValue": 78.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:05",
+    "averageValue": 79.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:10",
+    "averageValue": 80.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:15",
+    "averageValue": 81.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:20",
+    "averageValue": 82.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:25",
+    "averageValue": 83.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:30",
+    "averageValue": 84.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:35",
+    "averageValue": 85.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:40",
+    "averageValue": 86.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:45",
+    "averageValue": 87.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:50",
+    "averageValue": 88.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "10:55",
+    "averageValue": 89.55,
+    "type": "BREAKFAST"
+  },
+  {
+    "time": "11:00",
+    "averageValue": 100.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:05",
+    "averageValue": 101.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:10",
+    "averageValue": 102.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:15",
+    "averageValue": 103.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:20",
+    "averageValue": 104.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:25",
+    "averageValue": 105.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:30",
+    "averageValue": 106.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:35",
+    "averageValue": 107.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:40",
+    "averageValue": 108.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:45",
+    "averageValue": 109.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:50",
+    "averageValue": 110.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "11:55",
+    "averageValue": 111.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:00",
+    "averageValue": 112.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:05",
+    "averageValue": 113.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:10",
+    "averageValue": 114.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:15",
+    "averageValue": 115.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:20",
+    "averageValue": 116.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:25",
+    "averageValue": 117.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:30",
+    "averageValue": 118.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:35",
+    "averageValue": 119.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:40",
+    "averageValue": 220.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:45",
+    "averageValue": 221.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:50",
+    "averageValue": 322.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "12:55",
+    "averageValue": 323.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:00",
+    "averageValue": 324.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:05",
+    "averageValue": 325.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:10",
+    "averageValue": 326.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:15",
+    "averageValue": 327.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:20",
+    "averageValue": 328.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:25",
+    "averageValue": 329.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:30",
+    "averageValue": 210.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:35",
+    "averageValue": 211.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:40",
+    "averageValue": 212.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:45",
+    "averageValue": 213.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:50",
+    "averageValue": 214.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "13:55",
+    "averageValue": 215.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:00",
+    "averageValue": 210.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:05",
+    "averageValue": 210.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:10",
+    "averageValue": 210.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:15",
+    "averageValue": 210.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:20",
+    "averageValue": 40.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:25",
+    "averageValue": 41.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:30",
+    "averageValue": 42.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:35",
+    "averageValue": 33.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:40",
+    "averageValue": 24.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:45",
+    "averageValue": 25.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:50",
+    "averageValue": 46.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "14:55",
+    "averageValue": 57.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "15:00",
+    "averageValue": 48.55,
+    "type": "LUNCH"
+  },
+  {
+    "time": "15:05",
+    "averageValue": 130.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:10",
+    "averageValue": 131.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:15",
+    "averageValue": 132.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:20",
+    "averageValue": 133.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:25",
+    "averageValue": 134.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:30",
+    "averageValue": 135.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:35",
+    "averageValue": 136.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:40",
+    "averageValue": 137.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:45",
+    "averageValue": 138.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:50",
+    "averageValue": 139.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "15:55",
+    "averageValue": 140.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:00",
+    "averageValue": 141.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:05",
+    "averageValue": 142.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:10",
+    "averageValue": 143.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:15",
+    "averageValue": 144.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:20",
+    "averageValue": 145.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:25",
+    "averageValue": 146.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:30",
+    "averageValue": 145.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:35",
+    "averageValue": 144.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:40",
+    "averageValue": 143.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:45",
+    "averageValue": 142.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:50",
+    "averageValue": 141.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "16:55",
+    "averageValue": 140.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:00",
+    "averageValue": 139.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:05",
+    "averageValue": 138.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:10",
+    "averageValue": 137.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:15",
+    "averageValue": 136.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:20",
+    "averageValue": 135.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:25",
+    "averageValue": 134.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:30",
+    "averageValue": 133.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:35",
+    "averageValue": 132.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:40",
+    "averageValue": 131.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:45",
+    "averageValue": 130.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:50",
+    "averageValue": 129.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "17:55",
+    "averageValue": 128.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:00",
+    "averageValue": 127.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:05",
+    "averageValue": 126.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:10",
+    "averageValue": 125.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:15",
+    "averageValue": 124.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:20",
+    "averageValue": 123.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:25",
+    "averageValue": 122.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:30",
+    "averageValue": 121.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:35",
+    "averageValue": 120.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:40",
+    "averageValue": 119.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:45",
+    "averageValue": 118.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:50",
+    "averageValue": 117.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "18:55",
+    "averageValue": 116.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:00",
+    "averageValue": 115.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:05",
+    "averageValue": 114.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:10",
+    "averageValue": 113.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:15",
+    "averageValue": 112.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:20",
+    "averageValue": 111.45,
+    "type": "DINNER"
+  },
+  {
+    "time": "19:25",
+    "averageValue": 110.45,
+    "type": "DINNER"
+  }
+]
