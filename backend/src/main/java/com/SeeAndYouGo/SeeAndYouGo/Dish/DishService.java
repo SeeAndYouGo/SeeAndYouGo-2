@@ -31,6 +31,9 @@ public class DishService {
     @Value("${DISH_KEY}")
     private String DISH_KEY;
 
+    @Value("${URL.DISH_URL}")
+    private String DISH_URL;
+
     @Transactional
     public void saveAndCacheWeekDish(Integer page) throws Exception{
         String foodInfo = fetchDishInfoToString(page);
@@ -104,30 +107,29 @@ public class DishService {
     public String fetchDishInfoToString(Integer page) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
 
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo?page="+page+"&AUTH_KEY="+DISH_KEY;
-//        String apiUrl = "http://www.seeandyougo.com:80/api/dish/test/"+page;
+        String apiUrl = DISH_URL + "?page=" + page+"&AUTH_KEY="+DISH_KEY;
 
-            // URL 생성
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
+        // URL 생성
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
 
-            // 응답 코드 확인
-            int responseCode = connection.getResponseCode();
+        // 응답 코드 확인
+        int responseCode = connection.getResponseCode();
 
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                StringBuilder response = new StringBuilder();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            StringBuilder response = new StringBuilder();
 
-                while ((line = reader.readLine()) != null) response.append(line);
+            while ((line = reader.readLine()) != null) response.append(line);
 
-                reader.close();
-                rawMenu.append(response);
-            }
+            reader.close();
+            rawMenu.append(response);
+        }
 
-        return rawMenu.toString();
+    return rawMenu.toString();
     }
 
     @Transactional
@@ -146,5 +148,9 @@ public class DishService {
                 sideDish.updateSideDish();
             }
         }
+    }
+
+    public boolean checkSecretKey(String authKey) {
+        return DISH_KEY.equals(authKey);
     }
 }

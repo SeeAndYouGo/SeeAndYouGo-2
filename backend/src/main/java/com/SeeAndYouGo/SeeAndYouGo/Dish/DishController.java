@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -37,8 +38,15 @@ public class DishController {
         dishService.saveAndCacheWeekDish(3);
     }
 
-    @PostMapping("/dish/test/{page}")
-    public String bridgeDish(@PathVariable int page) throws Exception {
+    @PostMapping("/dish/test")
+    public String bridgeDish(@RequestParam int page, @RequestParam String AUTH_KEY, HttpServletResponse response) throws Exception {
+        boolean isRightSecretKey = dishService.checkSecretKey(AUTH_KEY);
+
+        if(!isRightSecretKey){
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return "Invalid AUTH_KEY: Unauthorized access";
+        }
+
         return dishService.fetchDishInfoToString(page);
     }
 }

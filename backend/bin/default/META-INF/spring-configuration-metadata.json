@@ -1,0 +1,21 @@
+{
+  "groups": [
+    {
+      "name": "jwt",
+      "type": "com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider",
+      "sourceType": "com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider"
+    },
+    {
+      "name": "kakao",
+      "type": "com.SeeAndYouGo.SeeAndYouGo.OAuth.OAuthService",
+      "sourceType": "com.SeeAndYouGo.SeeAndYouGo.OAuth.OAuthService"
+    },
+    {
+      "name": "ncloud",
+      "type": "com.SeeAndYouGo.SeeAndYouGo.Review.NCloudObjectStorage",
+      "sourceType": "com.SeeAndYouGo.SeeAndYouGo.Review.NCloudObjectStorage"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}
