@@ -198,6 +198,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [selectedMenu, setSelectedMenu] = useState({});
 	const [image, setImage] = useState();
 	const [imageURL, setImageURL] = useState("");
+	const [prevImage, setPrevImage] = useState(null);
 	const imageRef = useRef(null);
 	const navigator = useNavigate();
 	const dispatch = useDispatch();
@@ -213,14 +214,6 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 	const [CropModal, setCropModal] = useState(false);
 
-	useEffect(() => {
-		console.log('croppedAreaPixels:', croppedAreaPixels);
-	}, [croppedAreaPixels]);
-
-	useEffect(() => {
-		console.log('image:', image);
-	}, [image])
-
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
 		if (e.target.files[0]) {
@@ -231,11 +224,14 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			setImageURL(e.target.result);
 			setCropModal(true);
 		};
+
+		e.target.value = '';
 	};
 
 	const deleteImage = () => {
 		setImage(null);
 		setImageURL("");
+		setPrevImage(null);
 		imageRef.current.value = null;
 	};
 
@@ -274,18 +270,6 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
-		// // // FormData의 key 확인
-		// 	for (let key of formdata.keys()) {
-		// 		console.log(key);
-		// 	}
-
-		// 	// FormData의 value 확인
-		// 	for (let value of formdata.values()) {
-		// 		console.log(value);
-		// 	}
-
-		// 	return;
-
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
 				headers: {
@@ -306,7 +290,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 
 	return (
 		<>
-			<ImageCropper 
+			<ImageCropper
+				setPrevImage={setPrevImage}
 				setImage={setImage}
 				isOpen={CropModal}
 				setIsOpen={setCropModal}
@@ -382,12 +367,12 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 							</ReviewWriteCamera>
 						</ReviewWriteInputWrapper>
 						<div style={{ width: "100%", float: "left" }}>
-							{imageURL ? (
+							{prevImage ? (
 									<div
 										className="PrevWrapper"
 										style={{ float: "left", position: "relative" }}
 									>
-										<ReviewPreviewImage src={imageURL} />
+										<ReviewPreviewImage src={prevImage} />
 										<ReviewImageDelete onClick={deleteImage}>
 											<span className="material-symbols-outlined">close</span>
 										</ReviewImageDelete>
