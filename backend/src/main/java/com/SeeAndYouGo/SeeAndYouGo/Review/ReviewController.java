@@ -10,8 +10,9 @@ import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
-import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -29,10 +30,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
 
@@ -42,6 +44,15 @@ public class ReviewController {
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
     private static final List<String> restaurantNames = List.of("제1학생회관", "제2학생회관", "제3학생회관", "상록회관", "생활과학대");
+    private final Executor executor;
+
+    public ReviewController(ReviewService reviewService, TokenProvider tokenProvider, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
+        this.reviewService = reviewService;
+        this.tokenProvider = tokenProvider;
+        this.userService = userService;
+        this.likeService = likeService;
+        this.executor = executor;
+    }
 
     private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
@@ -114,18 +125,9 @@ public class ReviewController {
 
         String imgUrl = "";
         if (image != null) {
-            try {
-                Files.createDirectories(Paths.get(IMAGE_DIR));
-                String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
-                Path targetPath = Paths.get(IMAGE_DIR, imgName);
-
-                BufferedImage resized = reviewService.resize(image);
-                ImageIO.write(resized,"jpg",new File(targetPath.toUri()));
-
-                imgUrl = "/api/images/" + imgName;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
+            saveImage(image, imgName);
+            imgUrl = "/api/images/" + imgName;
         }
 
         ReviewData data = ReviewData.builder()
@@ -143,6 +145,21 @@ public class ReviewController {
         Long reviewId = reviewService.registerReview(data);
 
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
+    }
+
+    private void saveImage(MultipartFile image, String imgName) {
+        Runnable runnable = () -> {
+            try {
+                Files.createDirectories(Paths.get(IMAGE_DIR));
+                Path targetPath = Paths.get(IMAGE_DIR, imgName);
+
+                BufferedImage resized = reviewService.resize(image);
+                ImageIO.write(resized, "jpg", new File(targetPath.toUri()));
+            } catch (Exception e) {
+                log.error("[리뷰업로드] 오류 {}", e.getMessage());
+            }
+        };
+        executor.execute(runnable);
     }
 
     @ResponseBody
