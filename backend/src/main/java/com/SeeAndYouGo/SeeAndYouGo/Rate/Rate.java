@@ -20,8 +20,7 @@ public class Rate {
     @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
-    @ColumnDefault("0.0")
-    private double rate = 0.0;
+    private double sum = 0;
 
     @Column(columnDefinition = "integer default 0")
     private Integer reflectedNumber = 0;
@@ -32,18 +31,16 @@ public class Rate {
     }
 
     public void reflectRate(double rate){
-        double totalSum = this.rate * reflectedNumber;
-        double updateSum = totalSum + rate;
-
+        this.sum += rate;
         this.reflectedNumber++;
-        this.rate = updateSum/reflectedNumber;
     }
 
     public void exceptRate(double rate) {
-        double totalSum = this.rate * reflectedNumber;
-        double updateSum = totalSum - rate;
-
+        this.sum -= rate;
         this.reflectedNumber--;
-        this.rate = updateSum / reflectedNumber;
+    }
+
+    public double getRate(){
+        return this.sum / this.reflectedNumber;
     }
 }
