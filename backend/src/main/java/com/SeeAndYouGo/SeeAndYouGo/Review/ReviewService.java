@@ -207,8 +207,15 @@ public class ReviewService {
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept());
+            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
             rateByRestaurant.exceptRate(review.getReviewRate());
+
+            // 1학의 경우 실제 dept를 가지고 있는 데이터도 갱신하지만, 각 메뉴에 대한 정보를 갖고 있는 데이터에도 반영해야한다.
+            if(restaurant.equals(Restaurant.제1학생회관)){
+                Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
+                rateByMenu.exceptRate(review.getReviewRate());
+            }
+
             return true;
         }
 

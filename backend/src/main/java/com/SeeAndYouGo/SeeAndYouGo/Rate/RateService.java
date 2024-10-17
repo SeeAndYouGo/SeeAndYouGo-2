@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -125,7 +126,15 @@ public class RateService {
     @Transactional
     public void updateRateByRestaurant(Restaurant restaurant, Menu menu, Double rate) {
         Dept dept = menu.getDept();
-        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept);
+        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept.toString());
+
+        // 1학일 경우, 실제 dept에도 평점을 반영해야하고, 각 메뉴별 데이터에도 평점을 반영해줘야한다.
+        // 따라서 개인 메뉴로 한번 더 찾아와서 업데이트해야한다.
+        if(menu.getRestaurant().equals(Restaurant.제1학생회관)){
+            Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName());
+            rateByMenu.reflectRate(rate);
+        }
+
         rateByRestaurant.reflectRate(rate);
     }
 
@@ -139,9 +148,18 @@ public class RateService {
 
         List<Rate> rates = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
-            List<Dept> possibleDept = restaurant.getPossibleDept();
+            List<String> possibleDept = restaurant.getPossibleDept()
+                                                    .stream()
+                                                    .map(Dept::toString)
+                                                    .collect(Collectors.toList());
 
-            for (Dept dept : possibleDept) {
+            if(restaurant.equals(Restaurant.제1학생회관)){
+                // 만약 1학생회관이라면 일반 메뉴들도 rate 테이블에 넣어야함.
+                // 따라서 아래의 메서드에서 1학의 메뉴들을 추가적으로 넣어줘야함.
+                possibleDept.addAll(restaurant1MenuByPrice.keySet());
+            }
+
+            for (String dept : possibleDept) {
                 Rate rate = Rate.builder()
                         .restaurant(restaurant)
                         .dept(dept)
