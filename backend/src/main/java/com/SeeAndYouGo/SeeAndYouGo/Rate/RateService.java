@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Rate;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantDetailRateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantRateMenuResponseDto;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,9 +69,9 @@ public class RateService {
     @Cacheable(value="getTotalRestaurantRate", key="#restaurantName")
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
-        Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+        List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
 
-        return new RestaurantTotalRateResponseDto(rateByRestaurant);
+        return new RestaurantTotalRateResponseDto(ratesByRestaurant);
 //        현재는 1학 리뷰의 전체를 하므로 아래의 코드는 쓰지 않는다. 아래의 코드는 당일 1학에 대한 평점을 반환하는 코드이다.
 //        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
 //        return RestaurantTotalRateResponseDto.builder()
@@ -119,10 +121,20 @@ public class RateService {
 
     /**
      * 입력받은 restaurant에 rate를 등록해준다.
+     * 1학이라면 해당 메뉴를 찾아서 해당 메뉴에도 등록해줘야한다.
      */
     @Transactional
-    public void updateRateByRestaurant(Restaurant restaurant, Double rate) {
-        Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+    public void updateRateByRestaurant(Restaurant restaurant, Menu menu, Double rate) {
+        Dept dept = menu.getDept();
+        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept.toString());
+
+        // 1학일 경우, 실제 dept에도 평점을 반영해야하고, 각 메뉴별 데이터에도 평점을 반영해줘야한다.
+        // 따라서 개인 메뉴로 한번 더 찾아와서 업데이트해야한다.
+        if(menu.getRestaurant().equals(Restaurant.제1학생회관)){
+            Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName());
+            rateByMenu.reflectRate(rate);
+        }
+
         rateByRestaurant.reflectRate(rate);
     }
 
@@ -136,11 +148,25 @@ public class RateService {
 
         List<Rate> rates = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
-            Rate rate = Rate.builder()
-                            .restaurant(restaurant)
-                            .build();
+            List<String> possibleDept = restaurant.getPossibleDept()
+                                                    .stream()
+                                                    .map(Dept::toString)
+                                                    .collect(Collectors.toList());
 
-            rates.add(rate);
+            if(restaurant.equals(Restaurant.제1학생회관)){
+                // 만약 1학생회관이라면 일반 메뉴들도 rate 테이블에 넣어야함.
+                // 따라서 아래의 메서드에서 1학의 메뉴들을 추가적으로 넣어줘야함.
+                possibleDept.addAll(restaurant1MenuByPrice.keySet());
+            }
+
+            for (String dept : possibleDept) {
+                Rate rate = Rate.builder()
+                        .restaurant(restaurant)
+                        .dept(dept)
+                        .build();
+
+                rates.add(rate);
+            }
         }
 
         rateRepository.saveAll(rates);
