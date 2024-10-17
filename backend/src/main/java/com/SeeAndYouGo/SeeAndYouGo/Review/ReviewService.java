@@ -14,11 +14,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -215,11 +214,9 @@ public class ReviewService {
         return false;
     }
 
-    public BufferedImage resize(MultipartFile file)
-            throws Exception {
-        BufferedImage bi = ImageIO.read(file.getInputStream());
+    public BufferedImage resize(File file) throws Exception {
+        BufferedImage bi = ImageIO.read(file);
 
-        // 리사이즈 이전에, 가운데만 4:3 비율로 크롭하기
         int originalWidth = bi.getWidth();
         int originalHeight = bi.getHeight();
 
@@ -239,6 +236,7 @@ public class ReviewService {
         // 리사이즈해서 리턴
         return resizeImage(croppedImage, 800, 600);
     }
+
     BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
         return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }

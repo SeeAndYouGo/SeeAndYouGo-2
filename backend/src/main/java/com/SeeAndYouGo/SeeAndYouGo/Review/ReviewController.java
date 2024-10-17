@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -126,7 +128,8 @@ public class ReviewController {
         String imgUrl = "";
         if (image != null) {
             String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
-            saveImage(image, imgName);
+            File file = createTempFileFromMultipart(image);
+            saveImage(file, imgName);
             imgUrl = "/api/images/" + imgName;
         }
 
@@ -147,14 +150,31 @@ public class ReviewController {
         return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
     }
 
-    private void saveImage(MultipartFile image, String imgName) {
+    private File createTempFileFromMultipart(MultipartFile image) {
+        File dir = new File("./tmpImage");
+        if (!dir.exists()) {
+            dir.mkdirs();  // 디렉터리가 없으면 생성
+        }
+
+        File file = new File(String.format("%s/%s.jpg", dir.getPath(), UUID.randomUUID()));
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            file.createNewFile();
+            fos.write(image.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return file;
+    }
+
+    private void saveImage(File image, String imgName) {
         Runnable runnable = () -> {
             try {
                 Files.createDirectories(Paths.get(IMAGE_DIR));
                 Path targetPath = Paths.get(IMAGE_DIR, imgName);
-
                 BufferedImage resized = reviewService.resize(image);
                 ImageIO.write(resized, "jpg", new File(targetPath.toUri()));
+                image.delete();
             } catch (Exception e) {
                 log.error("[리뷰업로드] 오류 {}", e.getMessage());
             }
