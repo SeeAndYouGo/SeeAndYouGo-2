@@ -53,7 +53,7 @@ public class ReviewService {
         Menu menu = menuRepository.getReferenceById(data.getMenuId());
         Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
         menu.addReviewAndUpdateRate(review);
-        rateService.updateRateByRestaurant(restaurant, data.getRate());
+        rateService.updateRateByRestaurant(restaurant, menu, data.getRate());
         reviewRepository.save(review);
 
         return review.getId();
@@ -207,7 +207,7 @@ public class ReviewService {
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept());
             rateByRestaurant.exceptRate(review.getReviewRate());
             return true;
         }

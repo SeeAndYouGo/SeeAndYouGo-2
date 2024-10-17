@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Rate;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantDetailRateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantRateMenuResponseDto;
@@ -67,9 +68,9 @@ public class RateService {
     @Cacheable(value="getTotalRestaurantRate", key="#restaurantName")
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
-        Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+        List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
 
-        return new RestaurantTotalRateResponseDto(rateByRestaurant);
+        return new RestaurantTotalRateResponseDto(ratesByRestaurant);
 //        현재는 1학 리뷰의 전체를 하므로 아래의 코드는 쓰지 않는다. 아래의 코드는 당일 1학에 대한 평점을 반환하는 코드이다.
 //        Restaurant restaurant = restaurantRepository.findByNameAndDate(restaurantName, LocalDate.now().toString()).get(0);
 //        return RestaurantTotalRateResponseDto.builder()
@@ -119,10 +120,12 @@ public class RateService {
 
     /**
      * 입력받은 restaurant에 rate를 등록해준다.
+     * 1학이라면 해당 메뉴를 찾아서 해당 메뉴에도 등록해줘야한다.
      */
     @Transactional
-    public void updateRateByRestaurant(Restaurant restaurant, Double rate) {
-        Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+    public void updateRateByRestaurant(Restaurant restaurant, Menu menu, Double rate) {
+        Dept dept = menu.getDept();
+        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept);
         rateByRestaurant.reflectRate(rate);
     }
 
@@ -136,11 +139,16 @@ public class RateService {
 
         List<Rate> rates = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
-            Rate rate = Rate.builder()
-                            .restaurant(restaurant)
-                            .build();
+            List<Dept> possibleDept = restaurant.getPossibleDept();
 
-            rates.add(rate);
+            for (Dept dept : possibleDept) {
+                Rate rate = Rate.builder()
+                        .restaurant(restaurant)
+                        .dept(dept)
+                        .build();
+
+                rates.add(rate);
+            }
         }
 
         rateRepository.saveAll(rates);
