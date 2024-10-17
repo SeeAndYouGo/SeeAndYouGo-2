@@ -16,7 +16,7 @@ public class RateController {
 
     private final RateService rateService;
 
-    @GetMapping("/restaurant/{restaurantNumber}/rate/main/{restaurantNumber}")
+    @GetMapping("/restaurant/{restaurantNumber}/rate/main")
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
         String restaurantName = Restaurant.parseName(String.valueOf(restaurantNumber));
         return rateService.getTotalRestaurantRate(restaurantName);
