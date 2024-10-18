@@ -14,11 +14,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -207,19 +206,24 @@ public class ReviewService {
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept());
+            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
             rateByRestaurant.exceptRate(review.getReviewRate());
+
+            // 1학의 경우 실제 dept를 가지고 있는 데이터도 갱신하지만, 각 메뉴에 대한 정보를 갖고 있는 데이터에도 반영해야한다.
+            if(restaurant.equals(Restaurant.제1학생회관)){
+                Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
+                rateByMenu.exceptRate(review.getReviewRate());
+            }
+
             return true;
         }
 
         return false;
     }
 
-    public BufferedImage resize(MultipartFile file)
-            throws Exception {
-        BufferedImage bi = ImageIO.read(file.getInputStream());
+    public BufferedImage resize(File file) throws Exception {
+        BufferedImage bi = ImageIO.read(file);
 
-        // 리사이즈 이전에, 가운데만 4:3 비율로 크롭하기
         int originalWidth = bi.getWidth();
         int originalHeight = bi.getHeight();
 
@@ -239,6 +243,7 @@ public class ReviewService {
         // 리사이즈해서 리턴
         return resizeImage(croppedImage, 800, 600);
     }
+
     BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
         return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }

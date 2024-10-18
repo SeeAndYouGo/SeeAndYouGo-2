@@ -21,8 +21,7 @@ public class Rate {
     @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
-    @Enumerated(value = EnumType.STRING)
-    private Dept dept;
+    private String dept;
 
     private double sum = 0;
 
@@ -30,7 +29,7 @@ public class Rate {
     private Integer reflectedNumber = 0;
 
     @Builder
-    public Rate(Restaurant restaurant, Dept dept) {
+    public Rate(Restaurant restaurant, String dept) {
         this.restaurant = restaurant;
         this.dept = dept;
     }
