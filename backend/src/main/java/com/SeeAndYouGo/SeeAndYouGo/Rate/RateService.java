@@ -84,7 +84,41 @@ public class RateService {
      */
     @Cacheable(value="getDetailRestaurantRate", key="#restaurantName")
     public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(String restaurantName) {
-        return getDetailRestaurant1Rate();
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+
+        if(!restaurant.equals(Restaurant.제1학생회관)){
+            // 1학생활관이 아니라면 아직 기능을 제공 안함.
+            throw new IllegalArgumentException("1학을 제외하고는 지원하지 않는 메서드입니다.");
+        }
+
+        // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기
+        List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
+        List<RestaurantDetailRateResponseDto> detailRate = new ArrayList<>();
+
+        for (String deptToString : restaurant1MenuByCategory.keySet()) {
+            List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
+            List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
+            for (String dishName : dishNames) {
+                Rate rate = rateRepository.findByDept(dishName).get(0);
+
+                RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
+                        .menuName(dishName)
+                        .price(restaurant1MenuByPrice.get(dishName))
+                        .averageRate(rate.getRate())
+                        .build();
+
+                dishRate.add(rateDto);
+            }
+
+            RestaurantDetailRateResponseDto detailRateDto = RestaurantDetailRateResponseDto.builder()
+                    .category(deptToString)
+                    .avgRateByMenu(dishRate)
+                    .build();
+
+            detailRate.add(detailRateDto);
+        }
+
+        return detailRate;
     }
 
     /**
