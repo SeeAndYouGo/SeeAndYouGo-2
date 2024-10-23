@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Rate;
 
+import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,30 +21,34 @@ public class Rate {
     @Enumerated(value = EnumType.STRING)
     private Restaurant restaurant;
 
-    @ColumnDefault("0.0")
-    private double rate = 0.0;
+    private String dept;
+
+    private double sum = 0;
 
     @Column(columnDefinition = "integer default 0")
     private Integer reflectedNumber = 0;
 
     @Builder
-    public Rate(Restaurant restaurant) {
+    public Rate(Restaurant restaurant, String dept) {
         this.restaurant = restaurant;
+        this.dept = dept;
     }
 
     public void reflectRate(double rate){
-        double totalSum = this.rate * reflectedNumber;
-        double updateSum = totalSum + rate;
-
+        this.sum += rate;
         this.reflectedNumber++;
-        this.rate = updateSum/reflectedNumber;
     }
 
     public void exceptRate(double rate) {
-        double totalSum = this.rate * reflectedNumber;
-        double updateSum = totalSum - rate;
-
+        this.sum -= rate;
         this.reflectedNumber--;
-        this.rate = updateSum / reflectedNumber;
+    }
+
+    public double getRate(){
+        if(reflectedNumber == 0){
+            return 0.0;
+        }
+
+        return this.sum / this.reflectedNumber;
     }
 }

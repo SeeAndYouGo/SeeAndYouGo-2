@@ -1,17 +1,20 @@
-FROM node:18.17.1-slim
+# react
+FROM node:18.17.1-slim as build
 
 WORKDIR /app
-
-COPY package.json yarn.lock ./
+COPY frontend/package.json frontend/yarn.lock ./
 RUN yarn cache clean
 RUN yarn install --network-timeout 1000000
 
-COPY . .
-
+COPY frontend/. .
 RUN yarn build
 
-RUN npm install -g serve
+# prod
+FROM nginx:latest
 
-EXPOSE 3000
+COPY --from=build /app/build /usr/share/nginx/html
+COPY default.conf /etc/nginx/conf.d/default.conf
 
-CMD ["serve", "-s", "build"]
+# finish
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

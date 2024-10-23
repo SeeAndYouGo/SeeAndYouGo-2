@@ -7,3 +7,7 @@ spring:
  jpa:
    properties:
      dialect: org.hibernate.dialect.H2Dialect
+
+URL:
+  CONN_URL: http://www.seeandyougo.com:80/api/connection/test
+  DISH_URL: http://www.seeandyougo.com:80/api/dish/test

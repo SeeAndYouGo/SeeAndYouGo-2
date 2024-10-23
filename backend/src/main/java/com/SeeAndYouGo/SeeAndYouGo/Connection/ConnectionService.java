@@ -19,9 +19,14 @@ import java.net.URL;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ConnectionService {
+
     private final ConnectionRepository connectionRepository;
+
     @Value("${CONN_KEY}")
     private String CONN_KEY;
+
+    @Value("${URL.CONN_URL}")
+    private String CONN_URL;
 
     /**
      * restaurantName에 해당하는 학생식당의 connection 정보를 반환한다.
@@ -152,8 +157,8 @@ public class ConnectionService {
     }
 
     public String fetchConnectionInfoToString() throws Exception {
-        String apiUrl = "https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo?AUTH_KEY=" + CONN_KEY;
-//        String apiUrl = "http://www.seeandyougo.com:80/api/connection/test";
+
+        String apiUrl = CONN_URL + "?AUTH_KEY=" + CONN_KEY;
 
         // URL 생성
         URL url = new URL(apiUrl);
@@ -181,5 +186,9 @@ public class ConnectionService {
         }
 
         return json;
+    }
+
+    public boolean checkSecretKey(String authKey) {
+        return CONN_KEY.equals(authKey);
     }
 }
