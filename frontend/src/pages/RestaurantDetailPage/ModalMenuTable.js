@@ -79,7 +79,7 @@ const ModalMenuTable = ({ idx }) => {
 							return (
 								<tr key={index}>
 									<TableHeader>{days[index]}</TableHeader>
-									<TableData>{nowValue.dishList[0]}</TableData>
+									<TableData>{nowValue.dishList && nowValue.dishList[0]}</TableData>
 								</tr>
 							);
 						})}

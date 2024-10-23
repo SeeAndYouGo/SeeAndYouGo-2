@@ -1,78 +1,155 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
-import { Link } from "react-router-dom";
-import UpdateLog from "./UpdateLog";
-import Cafeteria from "./Cafeteria";
+import TabBar from "./TabBar";
 import * as config from "../../config";
-// import Modal from "../../components/Modal";
-// import InfoModal from "../../components/InfoModal";
-
-// const modalComment = [
-//   "안녕하세요. 씨앤유고 팀입니다.",
-// 	"서버 제공 측과의 소통 오류로 인해 데이터들이 모두 소실되고, 서비스가 약 1달 동안 중단되었습니다.",
-// 	"기존에 저희 서비스를 이용하신 분들은 재가입이 필요한 상황입니다.",
-// 	"이용에 불편을 드려 죄송합니다. 앞으로는 이런 일이 재발하지 않도록 주의하겠습니다.",
-// 	"감사합니다.",
-// 	"-씨앤유고 팀 일동-",
-// ]
+import Info from "./Info";
+import Progress from "./Progress";
+import TopReview from "./TopReview";
+import TodayMenu from "./TodayMenu";
+import ReviewWriteForm from "./ReviewForm";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
+import { changeDept } from "../../redux/slice/DeptSlice";
+import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
+import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
+import Loading from "../../components/Loading";
 
 const MainPage = () => {
-	// const [modalVisible, setModalVisible] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [restaurantData, setRestaurantData] = useState([]);
-	const createUrl = (restaurantIdx) => config.BASE_URL + "/connection/restaurant" + restaurantIdx + (config.NOW_STATUS === 0 ? ".json" : "");
-  
-	// useEffect(() => {
-	// 	const seeandyougoModalShown = localStorage.getItem("seeandyougoModalShown");
-	// 	console.log(seeandyougoModalShown)
-	// 	if(!seeandyougoModalShown) {
-	// 		setModalVisible(true);
-	// 	} 
-	// }, []);
-
-	// useEffect(() => {
-	// 	if(modalVisible) {
-	// 		document.body.style.overflow = "hidden";
-	// 	} else {
-	// 		document.body.style.overflow = "auto";
-	// 	}
-	// 	return () => {
-	// 		document.body.style.overflow = "auto";
-	// 	}
-	// }, [modalVisible])
+	const [menuData, setMenuData] = useState([]);
+	const [topReviewData, setTopReviewData] = useState([]);
+	const token = useSelector((state) => state.user).value.token;
+	const restaurantId = useSelector((state) => state.user).value
+		.selectedRestaurant;
+	const nowDept = useSelector((state) => state.dept).value;
+	const ratio =
+		(restaurantData[restaurantId - 1]?.connected /
+			restaurantData[restaurantId - 1]?.capacity) *
+		100;
+	const dispatch = useDispatch();
 
 	useEffect(() => {
-		const url = [createUrl(1), createUrl(2), createUrl(3), createUrl(4), createUrl(5)];
+		dispatch(changeDept(1));
+		if (restaurantId === 2) {
+			dispatch(changeMenuType("BREAKFAST"));
+		}
+	}, [restaurantId, dispatch]);
 
-		Promise.all(
-			url.map((path) => fetch(path).then((response) => response.json()))
-		)
-			.then((dataArray) => setRestaurantData(dataArray))
-			.catch((error) => console.error("Error fetching JSON:", error));
+	const handleSetRestaurantId = (id) => {
+		dispatch(setSelectedRestaurant(id));
+	};
+
+	const fetchRestaurantData = async () => {
+		const results = [];
+		try {
+			for (let i = 0; i < 5; i++) {
+				const response = await axios.get(
+					`${config.BASE_URL}/connection/restaurant${i + 1}`
+				);
+				results.push(response.data);
+			}
+			setRestaurantData(results);
+		} catch (error) {
+			console.error("Error fetching JSON:", error);
+		}
+	};
+
+	const fetchMenuData = async () => {
+		const results = [];
+		try {
+			for (let i = 0; i < 5; i++) {
+				const response = await axios.get(
+					`${config.BASE_URL}/daily-menu/restaurant${i + 1}`
+				);
+				if (i === 0) {
+					const tempObject = {};
+					for (let j = 0; j < response.data.length; j++) {
+						tempObject[response.data[j].mainDishList[0]] = response.data[j].menuId;
+					}
+					results.push(tempObject);
+				} else {
+					results.push(response.data);
+				}
+			}
+			setMenuData(results);
+		} catch (error) {
+			console.error("Error fetching JSON:", error);
+		}
+	};
+
+	const fetchTopReviewData = async () => {
+		const results = [];
+		try {
+			for (let i = 0; i < 5; i++) {
+				const response = await axios.get(
+					`${config.BASE_URL}/review/restaurant${i + 1}` + (token !== "" ? `/${token}` : "")
+				);
+				results.push(response.data);
+			}
+			setTopReviewData(results);
+		} catch (error) {
+			console.error("Error fetching JSON:", error);
+		}
+	};
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				await Promise.all([
+					fetchRestaurantData(),
+					fetchMenuData(),
+					fetchTopReviewData()
+				])
+			} catch (error) {
+				console.error("Error fetching JSON:", error);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchData();
 	}, []);
 
 	return (
 		<div className="App">
-      {/* <Modal visible={modalVisible}>
-        <InfoModal comment={modalComment} setVisible={setModalVisible}/>
-      </Modal> */}
-			{restaurantData.map((val, idx) =>
-				idx === 0 ? (
-					<UpdateLog key={idx} updateTime={val.dateTime} />
-				) : null
-			)}
-			{restaurantData.map((val, idx) => {
-				return (
-					<Link to={`/view/${idx + 1}`} key={idx + 1}>
-						<Cafeteria
-							idx={idx + 1}
-							key={idx}
-							value={(val.connected / val.capacity) * 100}
+			{ // 데이터 로드 중
+				loading ? <Loading /> : 
+				restaurantId !== 0 && 
+				<>
+					<TabBar
+						restaurantId={restaurantId}
+						setRestaurantId={handleSetRestaurantId}
+						menuData={menuData}
+					/>
+					<Info idx={restaurantId} />
+					<Progress
+						ratio={ratio}
+						time={restaurantData[restaurantId - 1]?.dateTime}
+					/>
+					{restaurantId === 1 ? (
+						<MenuInfoForRestaurant1 />
+					) : (
+						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
+					)}
+					{menuData.length > 0 && (
+						<ReviewWriteForm
+							restaurantNum={restaurantId}
+							deptNum={nowDept}
+							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
 						/>
-					</Link>
-				);
-			})}
+					)}
+					<TopReview
+						idx={restaurantId}
+						wholeReviewList={topReviewData}
+						setWholeReviewList={setTopReviewData}
+					/>
+				</>
+			}
 		</div>
 	);
-}
+};
 
 export default MainPage;

@@ -18,9 +18,9 @@ const SetNicknameWrapper = styled.div`
   position: relative;
   left: 50%;
   transform: translateX(-50%);
-  @media (min-width: 576px) {
+  /* @media (min-width: 576px) {
     margin-top: 30px;
-  }
+  } */
 `;
 
 const NicknameInfo = styled.p`
@@ -28,9 +28,9 @@ const NicknameInfo = styled.p`
   color: #555;
   font-weight: 300;
   margin: 0;
-  @media (min-width: 576px) {
+  /* @media (min-width: 576px) {
     font-size: 14px;
-  }
+  } */
 `;
 
 const NicknameInput = styled.input`
@@ -75,7 +75,7 @@ const InputWrapper = styled.div`
     color: #777;
     cursor: pointer;
   }
-  @media (min-width: 576px) {
+  /* @media (min-width: 576px) {
     margin: 20px 0 30px 0;
     & > input, & > button {
       font-size: 14px;
@@ -88,7 +88,7 @@ const InputWrapper = styled.div`
     & > button {
       width: 90px;
     }
-  }
+  } */
 `;
 
 const SetButton = styled.button`
@@ -119,9 +119,9 @@ const NicknmaeWarning = styled.p`
   color: red;
   font-weight: 300;
   margin: 5px 0 0 0;
-  @media (min-width: 576px) {
+  /* @media (min-width: 576px) {
     font-size: 14px;
-  }
+  } */
 `;
 
 const SetNicknamePage = () => {

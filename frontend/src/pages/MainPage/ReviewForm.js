@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "../RestaurantDetailPage/MenuSelector";
 import * as config from "../../config";
+import ImageCropper from "./ImageCropper";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -74,11 +75,12 @@ const ReviewWriteInput = styled.textarea`
 const ReviewWriteCamera = styled.label`
 	color: #d9d9d9;
 	font-size: 22px;
-	padding: 2px 12px;
+	line-height: 40px;
 	cursor: pointer;
 	border-radius: 5px;
 	float: right;
   margin: 0;
+	padding: 0 10px;
 `;
 
 const ReviewWriteButton = styled.button`
@@ -126,7 +128,7 @@ const ReviewWriteNameCheckbox = styled.input`
 
 const ReviewPreviewImage = styled.img`
 	max-width: 220px;
-	height: 42.5px;
+	height: 70px;
 	border-radius: 5px;
 	float: left;
 	margin-top: 5px;
@@ -189,7 +191,7 @@ const MenuName = styled.p`
 	margin-right: 5px;
 `;
 
-const ReviewWrite = ({ restaurantNum, deptNum }) => {
+const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -208,15 +210,26 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 	const todayDay = moment(new Date(todayDate)).format("dddd"); // 현재 요일
 	const isWeekend = todayDay === "Saturday" || todayDay === "Sunday"; // 주말인지 확인
 
+	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+	const [CropModal, setCropModal] = useState(false);
+
+	useEffect(() => {
+		console.log('croppedAreaPixels:', croppedAreaPixels);
+	}, [croppedAreaPixels]);
+
+	useEffect(() => {
+		console.log('image:', image);
+	}, [image])
+
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
 		if (e.target.files[0]) {
 			reader.readAsDataURL(e.target.files[0]);
-			setImage(e.target.files[0]);
 		}
 
 		reader.onloadend = (e) => {
 			setImageURL(e.target.result);
+			setCropModal(true);
 		};
 	};
 
@@ -234,6 +247,17 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 		e.preventDefault();
 		const formdata = new FormData();
 
+		let selectedMenuId = 0;
+
+		if (restaurantNum === 1) {
+			for (let key in menuInfo) {
+				if (key === selectedMenu.value) {
+					selectedMenuId = menuInfo[key];
+					break;
+				}
+			}
+		}
+
 		const dto = {
 			restaurant: restaurantNum,
 			dept: restaurantNum === 1 ? selectedMenu.category : (deptNum === 1 ? "STUDENT" : "STAFF"),
@@ -242,13 +266,25 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 			writer: token,
 			anonymous: anonymous,
 			comment: comment,
-			menuId: nowMenuId,
+			menuId: restaurantNum === 1 ? selectedMenuId : nowMenuId,
 		};
 
 		formdata.append("image", image);
 		formdata.append(
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
+
+		// // // FormData의 key 확인
+		// 	for (let key of formdata.keys()) {
+		// 		console.log(key);
+		// 	}
+
+		// 	// FormData의 value 확인
+		// 	for (let value of formdata.values()) {
+		// 		console.log(value);
+		// 	}
+
+		// 	return;
 
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
@@ -260,7 +296,7 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
 				setTimeout(() => {
 					window.location.reload();
-				}, 2000);
+				}, 1000);
 			})
 			.catch(() => { // 리뷰 작성 실패
 				dispatch(showToast({ contents: "review", toastIndex: 1 }));
@@ -269,111 +305,126 @@ const ReviewWrite = ({ restaurantNum, deptNum }) => {
 	};
 
 	return (
-		<ReviewWriteContainer>
-			{/* {isWeekend ? ( // 주말인 경우
-				<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
-			) : !token ? ( // 로그인 안한 경우
-				<WriteImpossible>
-					<GoToLogin
-						onClick={() => {
-							navigator("/login-page");
+		<>
+			<ImageCropper 
+				setImage={setImage}
+				isOpen={CropModal}
+				setIsOpen={setCropModal}
+				src={imageURL}
+				setImageURL={setImageURL}
+				setCroppedAreaPixels={setCroppedAreaPixels}
+				croppedAreaPixels={croppedAreaPixels}
+			/>
+			<ReviewWriteContainer>
+				{
+					isWeekend ? ( // 주말인 경우
+					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
+				) : !token ? ( // 로그인 안한 경우
+					<WriteImpossible>
+						<GoToLogin
+							onClick={() => {
+								navigator("/login-page");
+							}}
+						>
+							로그인이 필요합니다 !!
+						</GoToLogin>
+					</WriteImpossible>
+				) : null}
+				<div style={{ width: "100%", float: "left" }}>
+					<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
+					<ReviewStarRating>
+						<StarsRating
+							value={starVal}
+							onChange={(value) => {
+								setStarVal(value);
+							}}
+						/>
+					</ReviewStarRating>
+					<div style={{ float: "right", height: 30 }}>
+						<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
+						<ReviewWriteNameCheckbox
+							type="checkbox"
+							onChange={() => {
+								setAnonymous(!anonymous);
+							}}
+						/>
+					</div>
+				</div>
+
+				{restaurantNum === 1 ? (
+					<MenuSelector onSelectMenu={handleSelectMenu} />
+				) : null}
+
+				<div style={{ width: "100%", float: "left" }}>
+					<div
+						style={{
+							position: "relative",
+							width: "100%",
+							float: "left",
 						}}
 					>
-						로그인이 필요합니다 !!
-					</GoToLogin>
-				</WriteImpossible>
-			) : null} */}
-			<div style={{ width: "100%", float: "left" }}>
-				<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
-				<ReviewStarRating>
-					<StarsRating
-						value={starVal}
-						onChange={(value) => {
-							setStarVal(value);
-						}}
-					/>
-				</ReviewStarRating>
-				<div style={{ float: "right", height: 30 }}>
-					<ReviewWriteAnonymousLabel>익명</ReviewWriteAnonymousLabel>
-					<ReviewWriteNameCheckbox
-						type="checkbox"
-						onChange={() => {
-							setAnonymous(!anonymous);
-						}}
-					/>
-				</div>
-			</div>
-
-			{restaurantNum === 1 ? (
-				<MenuSelector onSelectMenu={handleSelectMenu} />
-			) : null}
-
-			<div style={{ width: "100%", float: "left" }}>
-				<div
-					style={{
-						position: "relative",
-						width: "100%",
-						float: "left",
-					}}
-				>
-					<input
-						hidden
-						type="file"
-						accept="image/*"
-						id="Review-file-input"
-						onChange={onChangeImage}
-						ref={imageRef}
-					/>
-					<ReviewWriteInputWrapper>
-						<ReviewWriteInput
-							type="text"
-							onChange={(val) => setComment(val.target.value)}
-							placeholder="리뷰를 남겨주세요 :)"
+						<input
+							hidden
+							type="file"
+							accept="image/*"
+							id="Review-file-input"
+							onChange={onChangeImage}
+							ref={imageRef}
 						/>
-						<ReviewWriteCamera htmlFor="Review-file-input">
-							<FontAwesomeIcon icon={faCamera} />
-						</ReviewWriteCamera>
-						{imageURL ? (
-							<div
-								className="PrevWrapper"
-								style={{ float: "left", position: "relative" }}
-							>
-								<ReviewPreviewImage src={imageURL} />
-								<ReviewImageDelete onClick={deleteImage}>
-									<span className="material-symbols-outlined">close</span>
-								</ReviewImageDelete>
-							</div>
-						) : null}
-					</ReviewWriteInputWrapper>
-
-					<div>
-					{(nowMainMenuList.length !== 0)&&  nowMainMenuList.map((dish, index) => (
-            <MenuName key={index}>{dish}</MenuName>
-          ))}
+						<ReviewWriteInputWrapper>
+							<ReviewWriteInput
+								type="text"
+								onChange={(val) => setComment(val.target.value)}
+								placeholder="리뷰를 남겨주세요 :)"
+							/>
+							<ReviewWriteCamera htmlFor="Review-file-input">
+								<FontAwesomeIcon icon={faCamera} />
+							</ReviewWriteCamera>
+						</ReviewWriteInputWrapper>
+						<div style={{ width: "100%", float: "left" }}>
+							{imageURL ? (
+									<div
+										className="PrevWrapper"
+										style={{ float: "left", position: "relative" }}
+									>
+										<ReviewPreviewImage src={imageURL} />
+										<ReviewImageDelete onClick={deleteImage}>
+											<span className="material-symbols-outlined">close</span>
+										</ReviewImageDelete>
+									</div>
+							) : null}
+						</div>
+						<div>
+						{
+							restaurantNum === 1 ? null :
+								(nowMainMenuList?.length > 0) && nowMainMenuList.map((dish, index) => (
+									<MenuName key={index}>{dish}</MenuName>
+								))
+						}
+						</div>
 					</div>
-
+					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
+						<ReviewWriteButton className="success" onClick={ReviewSubmit}>
+							작성
+						</ReviewWriteButton>
+					) : (
+						<ReviewWriteButton disabled onClick={ReviewSubmit}>
+							작성
+						</ReviewWriteButton>
+					)}
 				</div>
-				{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
-					<ReviewWriteButton className="success" onClick={ReviewSubmit}>
-						작성
-					</ReviewWriteButton>
-				) : (
-					<ReviewWriteButton disabled onClick={ReviewSubmit}>
-						작성
-					</ReviewWriteButton>
-				)}
-			</div>
-		</ReviewWriteContainer>
+			</ReviewWriteContainer>
+		</>
 	);
 };
 
-const ReviewWriteForm = ({ restaurantNum, deptNum }) => {
+const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1 }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
-			<p style={{ fontSize: 18, margin: 0, textAlign: "left" }}>
+			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} />
+			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} menuInfo={menuInfoForRestaurant1}/>
 		</div>
 	);
 };

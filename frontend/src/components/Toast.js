@@ -80,7 +80,7 @@ const Toast = ({ contentsName, toastIndex }) => {
   useEffect (() => {
     const timer = setTimeout(() => {
       dispatch(changeToInitialState());
-    }, 2000);
+    }, 1000);
     return () => {
       clearTimeout(timer);
     };

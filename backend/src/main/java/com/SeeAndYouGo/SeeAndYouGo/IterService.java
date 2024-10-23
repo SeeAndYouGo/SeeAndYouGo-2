@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ public class IterService {
     private final DishService dishService;
     private final MenuService menuService;
     private final MenuRepository menuRepository;
+    private final HolidayService holidayService;
     private final ConnectionService connectionService;
     private final StatisticsService statisticsService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
@@ -56,7 +58,13 @@ public class IterService {
     @Scheduled(cron="0 0 21 * * MON-FRI")
     public void updateConnectionStatistics(){
         // 모두 모아진 connection 데이터의 평균을 업데이트해준다.
-        statisticsService.updateConnectionStatistics(LocalDate.now());
+        LocalDate now = LocalDate.now();
+
+        try {
+            statisticsService.updateConnectionStatistics(now);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Scheduled(cron = "40 0/5 7-20 * * *")
@@ -105,5 +113,11 @@ public class IterService {
 
         // 입력된 날짜에서 금요일까지의 날짜를 반환합니다.
         return inputDate.plusDays(daysUntilFriday);
+    }
+
+    @Scheduled(cron = "0 0 22 31 12 *")
+    public void saveNextYearHolidayInfo(){
+        // 내년의 정보는 매년 말일에 해야하므로, 다음 날을 return하여 2025년을 계산하도록 진행
+        holidayService.saveThisYearHoliday(LocalDate.now().plusDays(1));
     }
 }

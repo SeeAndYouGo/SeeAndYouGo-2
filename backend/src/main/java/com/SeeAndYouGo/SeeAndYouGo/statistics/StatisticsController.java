@@ -1,12 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
+import com.SeeAndYouGo.SeeAndYouGo.IterService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,5 +19,15 @@ public class StatisticsController {
     public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@PathVariable String restaurantNumber){
         String restaurantName = Restaurant.parseName(restaurantNumber);
         return statisticsService.getConnectionStatistics(restaurantName);
+    }
+
+//    @GetMapping("/{year}/{month}/{day}")
+//    public boolean test(@PathVariable int year, @PathVariable int month, @PathVariable int day) throws IOException, JSONException {
+//        return CalendarService.isHoliday(LocalDate.of(year, month, day));
+//    }
+
+    @GetMapping("/{year}/{month}/{day}")
+    public void test(@PathVariable int year, @PathVariable int month, @PathVariable int day){
+        statisticsService.updateConnectionStatistics(LocalDate.of(year, month, day));
     }
 }

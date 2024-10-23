@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import ReviewItem from "./ReviewItem";
+import ReviewItem from "../../components/Review/ReviewItem";
 
 const CheckBoxInput = styled.input`
 	display: none;

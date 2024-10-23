@@ -1,10 +1,20 @@
-FROM yenyeny1/seeandyougo-react:latest
+# react
+FROM node:18.17.1-slim as build
 
 WORKDIR /app
-COPY . .
+COPY frontend/package.json frontend/yarn.lock ./
+RUN yarn cache clean
+RUN yarn install --network-timeout 1000000
 
-RUN yarn install
+COPY frontend/. .
 RUN yarn build
-EXPOSE 3000
 
-CMD ["serve", "-s", "build"]
+# prod
+FROM nginx:latest
+
+COPY --from=build /app/build /usr/share/nginx/html
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+# finish
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

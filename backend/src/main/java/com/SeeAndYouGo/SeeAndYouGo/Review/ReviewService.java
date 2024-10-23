@@ -9,14 +9,19 @@ import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import org.imgscalr.Scalr;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,7 +39,8 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", key="#data.restaurant"),
-            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")})
+            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")
+    })
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
@@ -46,7 +52,7 @@ public class ReviewService {
         Menu menu = menuRepository.getReferenceById(data.getMenuId());
         Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
         menu.addReviewAndUpdateRate(review);
-        rateService.updateRateByRestaurant(restaurant, data.getRate());
+        rateService.updateRateByRestaurant(restaurant, menu, data.getRate());
         reviewRepository.save(review);
 
         return review.getId();
@@ -166,12 +172,13 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
+        reviewRepository.deleteById(reviewId);
 
         review.getMenu().deleteReview(review);
-        reviewRepository.deleteById(reviewId);
 
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
@@ -190,7 +197,8 @@ public class ReviewService {
     @Transactional
     @Caching( evict = {
             @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)})
+            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
+    })
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
         Restaurant restaurant = review.getRestaurant();
@@ -198,11 +206,45 @@ public class ReviewService {
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurant(restaurant);
+            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
             rateByRestaurant.exceptRate(review.getReviewRate());
+
+            // 1학의 경우 실제 dept를 가지고 있는 데이터도 갱신하지만, 각 메뉴에 대한 정보를 갖고 있는 데이터에도 반영해야한다.
+            if(restaurant.equals(Restaurant.제1학생회관)){
+                Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
+                rateByMenu.exceptRate(review.getReviewRate());
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    public BufferedImage resize(File file) throws Exception {
+        BufferedImage bi = ImageIO.read(file);
+
+        int originalWidth = bi.getWidth();
+        int originalHeight = bi.getHeight();
+
+        int targetWidth = originalWidth;
+        int targetHeight = (originalWidth * 3) / 4;
+
+        if (targetHeight > originalHeight) {
+            targetHeight = originalHeight;
+            targetWidth = (originalHeight * 4) / 3;
+        }
+
+        int x = (originalWidth - targetWidth) / 2;
+        int y = (originalHeight - targetHeight) / 2;
+
+        BufferedImage croppedImage = bi.getSubimage(x, y, targetWidth, targetHeight);
+
+        // 리사이즈해서 리턴
+        return resizeImage(croppedImage, 800, 600);
+    }
+
+    BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
+        return Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight, Scalr.OP_ANTIALIAS);
     }
 }

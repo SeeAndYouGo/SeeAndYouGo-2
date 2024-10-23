@@ -1,9 +1,13 @@
 spring:
-  datasource:
-    url: jdbc:h2:tcp://localhost/~/seeandyougo
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
-  jpa:
-    properties:
-      dialect: org.hibernate.dialect.H2Dialect
+ datasource:
+   url: jdbc:h2:tcp://localhost/~/seeandyougo
+   username: sa
+   password:
+   driver-class-name: org.h2.Driver
+ jpa:
+   properties:
+     dialect: org.hibernate.dialect.H2Dialect
+
+URL:
+  CONN_URL: http://www.seeandyougo.com:80/api/connection/test
+  DISH_URL: http://www.seeandyougo.com:80/api/dish/test

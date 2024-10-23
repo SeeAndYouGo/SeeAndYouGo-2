@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.statistics;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 public class StatisticsService {
     private final ConnectionRepository connectionRepository;
     private final StatisticsRepository statisticsRepository;
+    private final HolidayService holidayService;
     private static final LocalTime START_TIME = LocalTime.of(7, 30, 0);
     private static final LocalTime END_TIME = LocalTime.of(19, 30, 0);
     private static final Long TIME_QUANTUM = 5l; // 5분 간격으로 connection이 갱신되는 것을 의미.
@@ -34,7 +36,11 @@ public class StatisticsService {
 
 
     @Transactional
-    public void updateConnectionStatistics(LocalDate date) {
+    public void updateConnectionStatistics(LocalDate date){
+        if(holidayService.isHoliday(date)){ // 오늘이 휴일이라면 업데이트 안함. 즉 반영 안함.
+            return;
+        }
+
         Restaurant[] restaurants = Restaurant.values();
 
         for (Restaurant restaurant : restaurants) {
