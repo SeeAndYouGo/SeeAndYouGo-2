@@ -1,12 +1,11 @@
-package com.SeeAndYouGo.SeeAndYouGo.Keyword.dto;
+package com.SeeAndYouGo.SeeAndYouGo.keyword.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.Keyword;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.Keyword;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

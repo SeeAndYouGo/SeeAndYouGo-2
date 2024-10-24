@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,7 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
+package com.SeeAndYouGo.SeeAndYouGo.menu.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

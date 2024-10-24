@@ -1,6 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.MenuDish;
+package com.SeeAndYouGo.SeeAndYouGo.menuDish;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

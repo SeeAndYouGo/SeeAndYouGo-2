@@ -1,13 +1,13 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
-import com.SeeAndYouGo.SeeAndYouGo.AOP.InvalidTokenException;
-import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuController;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewDeleteResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewRequestDto;
-import com.SeeAndYouGo.SeeAndYouGo.Review.dto.ReviewResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.aop.InvalidTokenException;
+import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
+import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 

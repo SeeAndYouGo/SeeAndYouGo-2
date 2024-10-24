@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
+package com.SeeAndYouGo.SeeAndYouGo.menu.dto;
 
 import lombok.*;
 

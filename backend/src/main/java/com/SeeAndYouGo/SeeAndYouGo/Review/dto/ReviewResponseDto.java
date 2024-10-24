@@ -1,11 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
+package com.SeeAndYouGo.SeeAndYouGo.review.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
-import lombok.Builder;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 

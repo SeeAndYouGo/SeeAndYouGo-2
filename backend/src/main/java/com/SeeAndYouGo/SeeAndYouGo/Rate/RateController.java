@@ -1,8 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Rate;
+package com.SeeAndYouGo.SeeAndYouGo.rate;
 
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantDetailRateResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantTotalRateResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.dto.RestaurantDetailRateResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.dto.RestaurantTotalRateResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

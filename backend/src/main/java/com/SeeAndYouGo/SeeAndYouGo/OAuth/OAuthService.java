@@ -1,9 +1,9 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth;
+package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,7 +15,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.*;
-import java.util.List;
 
 @Service
 @ConfigurationProperties(value = "kakao")

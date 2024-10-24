@@ -1,7 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
+package com.SeeAndYouGo.SeeAndYouGo.menu.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import lombok.*;
 
 import java.util.LinkedList;
@@ -27,10 +26,4 @@ public class MenuResponseDto {
         this.date = menu.getDate();
         this.menuType = menu.getMenuType().toString();
     }
-
-//    private void setDishList(Menu menu){
-//        for (Dish dish : menu.getDishList()) {
-//            this.dishList.add(dish.toString());
-//        }
-//    }
 }

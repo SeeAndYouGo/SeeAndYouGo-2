@@ -1,8 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
-import com.SeeAndYouGo.SeeAndYouGo.Connection.Connection;
-import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
+import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

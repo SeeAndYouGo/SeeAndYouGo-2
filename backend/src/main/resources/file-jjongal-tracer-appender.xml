@@ -1,5 +1,5 @@
 <appender name="FILE-JJONGAL-TRACER" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <filter class="com.SeeAndYouGo.SeeAndYouGo.AOP.LOG.ApiFilter" />
+    <filter class="com.SeeAndYouGo.SeeAndYouGo.aop.log.ApiFilter" />
     <encoder>
         <pattern>${FILE_LOG_PATTERN}</pattern>
     </encoder>

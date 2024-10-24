@@ -1,8 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
 
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.Keyword;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.Keyword;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeyword;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

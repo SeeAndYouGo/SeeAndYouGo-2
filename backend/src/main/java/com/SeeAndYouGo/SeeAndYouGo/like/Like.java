@@ -1,6 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.like;
 
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;

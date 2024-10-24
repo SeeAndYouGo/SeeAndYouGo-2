@@ -1,9 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Dish;
+package com.SeeAndYouGo.SeeAndYouGo.dish;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.Builder;
 import lombok.Getter;
 

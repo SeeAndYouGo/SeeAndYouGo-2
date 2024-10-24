@@ -1,10 +1,9 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.*;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Location;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.dish.*;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Location;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -93,22 +92,6 @@ public class MenuService {
         }
         return weekMenuList;
     }
-
-    private static boolean containLunch(Menu menu) {
-        return menu.getMenuType().equals(MenuType.LUNCH);
-    }
-
-//    /**
-//     * 현재 서비스에서는 점심 식단만 제공하므로, 점심에 해당하지 않는 것은 제외한다.
-//     */
-//    private List<Menu> extractNotLunch(List<Menu> weekMenuList) {
-//        List<Menu> weekLunchMenus = new ArrayList<>();
-//        for (Menu menu : weekMenuList) {
-//            if(containLunch(menu))
-//                weekLunchMenus.add(menu);
-//        }
-//        return weekLunchMenus;
-//    }
 
     /**
      * 그 날의 Menu 엔티티가 없다면 만들어야한다.

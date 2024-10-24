@@ -1,10 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
+package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
-
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import lombok.Getter;
-
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 

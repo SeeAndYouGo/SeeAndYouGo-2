@@ -1,6 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Connection;
+package com.SeeAndYouGo.SeeAndYouGo.connection;
 
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

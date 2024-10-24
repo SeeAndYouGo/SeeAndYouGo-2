@@ -1,13 +1,13 @@
-package com.SeeAndYouGo.SeeAndYouGo.Rate;
+package com.SeeAndYouGo.SeeAndYouGo.rate;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantDetailRateResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantRateMenuResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto.RestaurantTotalRateResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.dto.RestaurantDetailRateResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.dto.RestaurantRateMenuResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.dto.RestaurantTotalRateResponseDto;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

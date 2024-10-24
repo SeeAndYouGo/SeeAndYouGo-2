@@ -1,9 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto;
+package com.SeeAndYouGo.SeeAndYouGo.restaurant.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Rate.Rate;
+import com.SeeAndYouGo.SeeAndYouGo.rate.Rate;
 import lombok.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Getter

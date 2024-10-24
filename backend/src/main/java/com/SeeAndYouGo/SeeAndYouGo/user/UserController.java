@@ -1,13 +1,12 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
-import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

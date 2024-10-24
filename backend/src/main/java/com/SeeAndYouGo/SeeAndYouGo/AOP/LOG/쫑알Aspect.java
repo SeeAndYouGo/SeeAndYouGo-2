@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.AOP.LOG;
+package com.SeeAndYouGo.SeeAndYouGo.aop.log;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

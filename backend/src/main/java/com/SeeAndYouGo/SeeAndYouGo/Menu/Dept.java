@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 public enum Dept {
     STUDENT, STAFF, SPECIAL, NOODLE, WESTERN, SNACK, KOREAN, JAPANESE, CHINESE;

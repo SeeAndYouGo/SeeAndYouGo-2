@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Restaurant.dto;
+package com.SeeAndYouGo.SeeAndYouGo.restaurant.dto;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth.config;
+package com.SeeAndYouGo.SeeAndYouGo.oAuth.config;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.JwtFilter;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.JwtFilter;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

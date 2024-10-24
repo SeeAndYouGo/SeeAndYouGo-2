@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Keyword;
+package com.SeeAndYouGo.SeeAndYouGo.keyword;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

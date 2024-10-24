@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
+package com.SeeAndYouGo.SeeAndYouGo.review.dto;
 
 import lombok.Builder;
 import lombok.Getter;

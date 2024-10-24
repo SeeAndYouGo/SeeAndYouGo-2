@@ -1,8 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Dish;
+package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.IterService;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.*;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.menu.*;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

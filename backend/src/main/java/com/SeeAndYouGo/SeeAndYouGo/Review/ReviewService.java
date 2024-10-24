@@ -1,13 +1,13 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
-import com.SeeAndYouGo.SeeAndYouGo.Rate.Rate;
-import com.SeeAndYouGo.SeeAndYouGo.Rate.RateRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.rate.Rate;
+import com.SeeAndYouGo.SeeAndYouGo.rate.RateRepository;
+import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.imgscalr.Scalr;
 import org.springframework.cache.annotation.CacheEvict;
@@ -57,23 +57,6 @@ public class ReviewService {
 
         return review.getId();
     }
-//
-//    /**
-//     * 1학은 메뉴 이름으로 메뉴를 찾고, 그 외에는 Dept를 기준으로 메뉴를 찾는다.
-//     */
-//    private Menu findMenuByRestaurantAndDept(Restaurant restaurant, Dept dept, String menuName) {
-//        if(restaurant.name().contains("1")){
-//            for (Menu menu : restaurant.getMenuList()) {
-//                if(menu.getMenuName().equals(menuName)) return menu;
-//            }
-//        }
-//
-//        for (Menu menu : restaurant.getMenuList()) {
-//            if(menu.getDept().equals(dept))
-//                return menu;
-//        }
-//        throw new RuntimeException("[ERROR] : 해당 일자에 일치하는 메뉴가 없습니다.");
-//    }
 
         /**
      * top-review는 각 DEPT 별로 3개씩의 review를 불러온다.
