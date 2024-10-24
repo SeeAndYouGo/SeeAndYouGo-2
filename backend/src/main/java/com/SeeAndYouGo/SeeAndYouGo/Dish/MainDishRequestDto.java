@@ -6,6 +6,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MainDishRequestDto {
     private String restaurantName;
     private String dept;
