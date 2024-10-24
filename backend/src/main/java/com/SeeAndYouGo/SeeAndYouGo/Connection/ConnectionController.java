@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Connection;
+package com.SeeAndYouGo.SeeAndYouGo.connection;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Dish;
+package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
