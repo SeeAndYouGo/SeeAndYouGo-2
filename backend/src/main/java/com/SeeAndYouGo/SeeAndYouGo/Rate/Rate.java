@@ -1,12 +1,10 @@
-package com.SeeAndYouGo.SeeAndYouGo.Rate;
+package com.SeeAndYouGo.SeeAndYouGo.rate;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 

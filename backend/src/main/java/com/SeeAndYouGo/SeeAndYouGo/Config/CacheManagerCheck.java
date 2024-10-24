@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Config;
+package com.SeeAndYouGo.SeeAndYouGo.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.cache.CacheManager;

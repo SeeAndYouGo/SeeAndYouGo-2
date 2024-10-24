@@ -1,6 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Connection;
+package com.SeeAndYouGo.SeeAndYouGo.connection;
 
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.*;
 
 import javax.persistence.*;

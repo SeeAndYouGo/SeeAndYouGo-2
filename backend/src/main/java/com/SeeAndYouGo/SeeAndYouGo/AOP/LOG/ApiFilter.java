@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.AOP.LOG;
+package com.SeeAndYouGo.SeeAndYouGo.aop.log;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;

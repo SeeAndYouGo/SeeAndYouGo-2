@@ -1,9 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
@@ -12,6 +11,4 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     boolean existsByDateAndDeptAndRestaurantAndMenuType(String date, Dept dept, Restaurant restaurant, MenuType menuType);
 
     List<Menu> findByRestaurantAndDate(Restaurant restaurant, String date);
-
-    boolean existsByDate(String nearestMonday);
 }

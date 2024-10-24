@@ -1,7 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
+package com.SeeAndYouGo.SeeAndYouGo.review.dto;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

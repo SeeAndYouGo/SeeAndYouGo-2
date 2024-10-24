@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import java.time.LocalTime;
 

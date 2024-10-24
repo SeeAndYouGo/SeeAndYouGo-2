@@ -1,10 +1,10 @@
-package com.SeeAndYouGo.SeeAndYouGo.Keyword;
+package com.SeeAndYouGo.SeeAndYouGo.keyword;
 
-import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordAddResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordRequestDto;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordAddResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordRequestDto;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

@@ -1,7 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.Keyword;
+package com.SeeAndYouGo.SeeAndYouGo.keyword;
 
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordAddResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.dto.KeywordResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordAddResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter

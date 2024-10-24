@@ -1,15 +1,14 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-import com.SeeAndYouGo.SeeAndYouGo.AOP.LOG.TraceMethodLog;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
-import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByAdminDto;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseByUserDto;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeywordRepository;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByAdminDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByUserDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -90,14 +89,6 @@ public class MenuController {
         for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
             List<String> dishes = dayRestaurantMenu.getDishListToString();
             List<String> keyStrings = findOverlappingThing(dishes, keywords);
-//            List<String> keyStrings = new ArrayList<>();
-//            for(Dish dish : dishes){
-//                for(String key : keywords){
-//                    if (dish.getName().contains(key)){
-//                        keyStrings.add(dish.getName());
-//                    }
-//                }
-//            }
             MenuResponseByUserDto dto = new MenuResponseByUserDto(dayRestaurantMenu, keyStrings);
             menuResponseDtos.add(dto);
         }

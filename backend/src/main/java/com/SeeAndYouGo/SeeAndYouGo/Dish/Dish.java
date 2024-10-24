@@ -1,8 +1,8 @@
-package com.SeeAndYouGo.SeeAndYouGo.Dish;
+package com.SeeAndYouGo.SeeAndYouGo.dish;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
+import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;

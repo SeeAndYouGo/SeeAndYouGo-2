@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt;
+package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;

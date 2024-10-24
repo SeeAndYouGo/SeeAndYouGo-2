@@ -1,11 +1,9 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import lombok.Builder;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 

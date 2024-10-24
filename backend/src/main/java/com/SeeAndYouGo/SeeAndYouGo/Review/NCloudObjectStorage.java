@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Review;
+package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

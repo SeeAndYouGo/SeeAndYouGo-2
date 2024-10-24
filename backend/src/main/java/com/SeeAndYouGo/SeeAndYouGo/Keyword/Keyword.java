@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.Keyword;
+package com.SeeAndYouGo.SeeAndYouGo.keyword;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

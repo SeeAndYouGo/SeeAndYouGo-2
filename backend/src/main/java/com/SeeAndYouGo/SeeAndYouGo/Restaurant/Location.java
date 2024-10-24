@@ -1,8 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.Restaurant;
+package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 

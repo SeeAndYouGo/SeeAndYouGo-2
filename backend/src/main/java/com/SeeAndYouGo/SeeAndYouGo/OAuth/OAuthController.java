@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.OAuth;
+package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

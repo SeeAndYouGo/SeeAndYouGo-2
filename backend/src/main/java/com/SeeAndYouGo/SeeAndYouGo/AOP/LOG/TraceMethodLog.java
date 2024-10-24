@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.AOP.LOG;
+package com.SeeAndYouGo.SeeAndYouGo.aop.log;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

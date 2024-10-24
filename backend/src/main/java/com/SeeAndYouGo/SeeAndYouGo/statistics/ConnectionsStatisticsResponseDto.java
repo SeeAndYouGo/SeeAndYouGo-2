@@ -1,6 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.statistics;
 
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,10 +16,4 @@ public class ConnectionsStatisticsResponseDto {
         this.averageValue = (int) statistics.getAverageConnection();
         this.type = MenuType.resolveToMenuType(statistics.getTime()).toString();
     }
-
-    // public ConnectionsStatisticsResponseDto(ConnectionStatisticsDto statistics){
-    //     this.time = statistics.getTime().toString();
-    //     this.averageValue = (int) statistics.getAvgConnection();
-    //     this.type = MenuType.resolveToMenuType(statistics.getTime()).toString();
-    // }
 }

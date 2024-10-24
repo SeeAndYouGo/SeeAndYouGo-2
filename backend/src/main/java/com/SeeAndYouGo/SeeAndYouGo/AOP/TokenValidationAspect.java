@@ -1,6 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.AOP;
+package com.SeeAndYouGo.SeeAndYouGo.aop;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

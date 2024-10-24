@@ -1,15 +1,15 @@
-package com.SeeAndYouGo.SeeAndYouGo.MenuDish;
+package com.SeeAndYouGo.SeeAndYouGo.menuDish;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity @Getter
-//@IdClass(MenuDishId.class) // 복합 키를 사용하기 위한 식별자 클래스
+@Entity
+@Getter
 @NoArgsConstructor
 public class MenuDish implements Serializable {
     @Id

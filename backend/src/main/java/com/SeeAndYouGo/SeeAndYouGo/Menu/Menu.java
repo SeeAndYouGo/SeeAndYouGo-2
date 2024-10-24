@@ -1,10 +1,10 @@
-package com.SeeAndYouGo.SeeAndYouGo.Menu;
+package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishType;
-import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import lombok.*;
 
 import javax.persistence.*;
@@ -138,10 +138,4 @@ public class Menu {
                 .map(Dish::toString)
                 .collect(Collectors.toList());
     }
-
-
-//    @Override
-//    public String toString(){
-//        return price+" "+date+" "+dept.toString()+" "+menuType.toString()+" "+restaurant.getName()+" "+dishList.toString();
-//    }
 }
