@@ -132,7 +132,8 @@ public class LikeControllerTest {
     @Test
     void 자신_공감() {
         // when
-        LikeResponseDto likeResponse = likeController.postLikeCount(1l, "test1");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
+        Review review = reviewRepository.findAll().get(0); // 리뷰는 1개밖에 없으므로 .get(0) 함.
+        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), "test1");
 
         // then
         // 자신의 리뷰이므로 공감할 수 없다.
@@ -145,7 +146,8 @@ public class LikeControllerTest {
     void 공감() {
         // when
         // test2 유저가 좋아요를 누른다.
-        LikeResponseDto likeResponse = likeController.postLikeCount(1l, "test2");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
+        Review review = reviewRepository.findAll().get(0); // 리뷰는 1개밖에 없으므로 .get(0) 함.
+        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), "test2");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
 
         // then
         // 공감 성공
