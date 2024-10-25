@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection;
 
+import com.SeeAndYouGo.SeeAndYouGo.TestSetUp;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +15,6 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Transactional
 public class ConnectionControllerTest {
@@ -26,6 +26,8 @@ public class ConnectionControllerTest {
     private ConnectionRepository connectionRepository;
 
     private List<Connection> connections = new ArrayList<>();
+    private final String oldConnectionDateTime = "2023-11-23 22:02:01";
+    private final String newConnectionDateTime = "2023-11-23 23:02:01";
 
     @BeforeEach
     void init(){
@@ -36,26 +38,18 @@ public class ConnectionControllerTest {
         Random random = new Random();
 
         for (Restaurant restaurant : Restaurant.values()) {
-            Connection oldConnection = Connection.builder()
-                    .connected(random.nextInt(30)+30) // connected는 30에서 60까지!
-                    .time("2023-11-23 22:02:01")
-                    .restaurant(restaurant)
-                    .build();
+            int connected = random.nextInt(30) + 30;
+            Connection connection = TestSetUp.saveConnection(connectionRepository, connected, oldConnectionDateTime, restaurant);
 
-            connections.add(oldConnection);
+            connections.add(connection);
         }
 
         for (Restaurant restaurant : Restaurant.values()) {
-            Connection newConnection = Connection.builder()
-                    .connected(31)
-                    .time("2023-11-23 23:02:01")
-                    .restaurant(restaurant)
-                    .build();
+            int connected = random.nextInt(30) + 30;
+            Connection connection = TestSetUp.saveConnection(connectionRepository, connected, newConnectionDateTime, restaurant);
 
-            connections.add(newConnection);
+            connections.add(connection);
         }
-
-        connectionRepository.saveAll(connections);
     }
 
     @DisplayName("최근 혼잡도 불러오기")
@@ -63,7 +57,7 @@ public class ConnectionControllerTest {
     void getRecentConnection() throws Exception {
         // given(최신 Connection을 Connections에서 찾기)
         Restaurant restaurant = Restaurant.제2학생회관;
-        Connection newConnection = getRecentConnectionInConnections(restaurant, "2023-11-23 23:02:01");
+        Connection newConnection = getRecentConnectionInConnections(restaurant, newConnectionDateTime);
 
         // when
         ConnectionResponseDto getConnection = connectionController.congestionRequest(restaurant.toString());
