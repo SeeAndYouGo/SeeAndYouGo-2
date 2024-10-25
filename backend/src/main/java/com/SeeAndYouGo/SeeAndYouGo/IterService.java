@@ -1,10 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo;
 
-import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.DishService;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuService;
-import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
