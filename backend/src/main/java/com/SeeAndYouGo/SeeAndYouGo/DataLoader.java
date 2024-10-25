@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo;
 
-import com.SeeAndYouGo.SeeAndYouGo.Connection.ConnectionService;
-import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
+import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
+import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;

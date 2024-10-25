@@ -14,8 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review {
     @Builder
-    public Review(Long id, String writerEmail, String writerNickname, String madeTime, Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate, Restaurant restaurant, Integer reportCount) {
-        this.id = id;
+    public Review(String writerEmail, String writerNickname, String madeTime, Integer likeCount, Menu menu, String comment, String imgLink, Double reviewRate, Restaurant restaurant, Integer reportCount) {
         this.writerEmail = writerEmail;
         this.writerNickname = writerNickname;
         this.madeTime = madeTime;
@@ -36,6 +35,7 @@ public class Review {
     private String writerEmail;
     private String writerNickname;
 
+    // 형식은 2024-05-17 13:55:17
     private String madeTime;
 
     private Integer likeCount;

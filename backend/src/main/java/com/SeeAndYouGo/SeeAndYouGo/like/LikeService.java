@@ -32,7 +32,7 @@ public class LikeService {
                     .build();
         }
 
-        boolean isLike = likeRepository.countByReviewAndUser(review, user)>0? true : false;
+        boolean isLike = likeRepository.countByReviewAndUser(review, user) > 0;
 
         if(isLike){
             return deleteLike(review, user);

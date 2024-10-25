@@ -73,7 +73,7 @@ public class User {
     }
 
     public List<Keyword> getKeywords() {
-        return this.getUserKeywords().stream().map(x -> x.getKeyword()).collect(Collectors.toList());
+        return this.getUserKeywords().stream().map(UserKeyword::getKeyword).collect(Collectors.toList());
     }
 
     /**
