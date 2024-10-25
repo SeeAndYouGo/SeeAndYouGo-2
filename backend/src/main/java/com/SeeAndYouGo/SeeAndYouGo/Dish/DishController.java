@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,10 +21,10 @@ public class DishController {
     @Caching(evict = {
             @CacheEvict(value="getWeeklyMenu",  allEntries=true),
             @CacheEvict(value="getDailyMenu", allEntries=true)})
-    public ResponseEntity updateMainDish(@RequestBody LinkedList<MainDishRequestDto> mainDishResponsDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
+    public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponsDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponsDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponsDtos);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return "Main Menu reflect Success.";
     }
 
     @GetMapping("/week")

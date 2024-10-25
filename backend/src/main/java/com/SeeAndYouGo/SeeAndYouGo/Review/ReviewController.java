@@ -95,13 +95,13 @@ public class ReviewController {
 
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
-    public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
+    public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
         String restaurantName = Restaurant.parseName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        return ResponseEntity.ok(getReviewDtos(restaurantReviews, userEmail));
+        return getReviewDtos(restaurantReviews, userEmail);
     }
 
     @PutMapping("/report/{reviewId}")

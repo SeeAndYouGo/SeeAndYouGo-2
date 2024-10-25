@@ -16,6 +16,7 @@ public class Connection {
 
     private Integer connected;
 
+    // 2023-11-23 22:02:01
     private String time;
 
     @Enumerated(value = EnumType.STRING)

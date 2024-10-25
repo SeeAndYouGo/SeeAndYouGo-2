@@ -22,7 +22,6 @@ public class Dish {
     @OneToMany(mappedBy = "dish")
     private List<MenuDish> menuDishes = new ArrayList<>();
 
-
     @Builder
     public Dish(String name, DishType dishType) {
         this.name = name;
@@ -73,5 +72,11 @@ public class Dish {
 
     public void updateSideDish(){
         this.dishType = DishType.SIDE;
+    }
+
+    // 양방향 관계를 위한 헬퍼 메서드
+    public void addMenuDish(MenuDish menuDish) {
+        this.menuDishes.add(menuDish);
+        menuDish.setDish(this);  // 양방향 관계 설정
     }
 }

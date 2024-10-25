@@ -74,7 +74,7 @@ public class Menu {
         if (!dishList.contains(dish)) {
             MenuDish menuDish = new MenuDish(this, dish);
             this.menuDishes.add(menuDish);
-            dish.getMenuDishes().add(menuDish);
+            dish.addMenuDish(menuDish);
         }
     }
 
