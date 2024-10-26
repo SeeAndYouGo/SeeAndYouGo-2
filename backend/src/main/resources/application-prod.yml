@@ -4,6 +4,9 @@ spring:
     url: jdbc:mysql://mysql:3306/seeandyougo?useSSL=false&allowPublicKeyRetrieval=true
     username: seeandyougo
     password: seeandyougo
+  jpa:
+    properties:
+      dialect: org.hibernate.dialect.MySQL8Dialec
 
 URL:
   CONN_URL: https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo
