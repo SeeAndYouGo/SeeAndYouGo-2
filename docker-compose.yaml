@@ -8,7 +8,7 @@ networks:
 services:
   mysql:
     container_name: mysql
-    image: mysql:latest
+    image: mysql:8.4.0
     restart: always
     environment:
       MYSQL_DATABASE: seeandyougo
