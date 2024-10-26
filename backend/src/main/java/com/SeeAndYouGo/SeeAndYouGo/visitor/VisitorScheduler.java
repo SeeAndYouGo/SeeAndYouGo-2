@@ -56,7 +56,12 @@ public class VisitorScheduler {
         String newCount = redisTemplate.opsForValue().get(Const.KEY_TOTAL_VISITOR_COUNT);
         if (newCount != null) {
             int cnt = Integer.parseInt(newCount);
-            repository.updateCountForTodayTempData(cnt);
+            Optional<VisitorCount> todayTempData = repository.findTodayTempData();
+            if (todayTempData.isPresent()) {
+                repository.updateCountForTodayTempData(cnt);
+            } else {
+                repository.save(VisitorCount.from(cnt, false));
+            }
         }
     }
 }

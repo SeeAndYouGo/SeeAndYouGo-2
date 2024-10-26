@@ -1,7 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.AOP.LOG.TraceMethodLog;
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.Keyword.UserKeywordRepository;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
@@ -14,7 +13,6 @@ import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
@@ -37,7 +35,8 @@ public class MenuController {
     private final TokenProvider tokenProvider;
 
     @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
-    public ResponseEntity<List<MenuResponseByUserDto>> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
+    @Cacheable(value="menu:daily:", key="#place")
+    public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                                @PathVariable(value = "user_id", required = false) String tokenId) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
@@ -50,7 +49,7 @@ public class MenuController {
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
         }
 
-        return ResponseEntity.ok(parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings));
+        return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings);
     }
 
     public static String getTodayDate() {
@@ -87,8 +86,8 @@ public class MenuController {
      */
     private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
         List<MenuResponseByUserDto> menuResponseDtos = new ArrayList<>();
-        for (Menu dayRestaurantMenu : oneDayRestaurantMenu) {
-            List<String> dishes = dayRestaurantMenu.getDishListToString();
+        for (Menu menu : oneDayRestaurantMenu) {
+            List<String> dishes = menu.getDishListToString();
             List<String> keyStrings = findOverlappingThing(dishes, keywords);
 //            List<String> keyStrings = new ArrayList<>();
 //            for(Dish dish : dishes){
@@ -98,7 +97,18 @@ public class MenuController {
 //                    }
 //                }
 //            }
-            MenuResponseByUserDto dto = new MenuResponseByUserDto(dayRestaurantMenu, keyStrings);
+//            MenuResponseByUserDto dto = new MenuResponseByUserDto(menu, keyStrings);
+            MenuResponseByUserDto dto = MenuResponseByUserDto.builder()
+                    .menuId(menu.getId())
+                    .menuType(menu.getMenuType().toString())
+                    .price(menu.getPrice())
+                    .dept(menu.getDept().toString())
+                    .sideDishList(menu.getSideDishToString())
+                    .mainDishList(menu.getMainDishToString())
+                    .restaurantName(menu.getRestaurant().toString())
+                    .date(menu.getDate())
+                    .keywordList(keywords)
+                    .build();
             menuResponseDtos.add(dto);
         }
         return menuResponseDtos;
@@ -116,8 +126,8 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu/{restaurant}")
-    @Cacheable(value="getWeeklyMenu", key="#place")
-    public ResponseEntity<List<MenuResponseDto>> restaurantMenuWeek(@PathVariable("restaurant") String place) {
+    @Cacheable(value="menu:weekly:", key="#place")
+    public List<MenuResponseDto> restaurantMenuWeek(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
         List<MenuResponseDto> menuListArr = new ArrayList<>();
@@ -126,12 +136,12 @@ public class MenuController {
             List<MenuResponseDto> menuResponseDtos = parseOneDayRestaurantMenu(dayRestaurantMenu);
             menuListArr.addAll(menuResponseDtos);
         }
-        return ResponseEntity.ok(menuListArr);
+        return menuListArr;
     }
 
     @GetMapping("/weekly-menu")
-    @Cacheable(value="getWeeklyMenu")
-    public ResponseEntity<List<MenuResponseByAdminDto>> allRestaurantMenuWeekForAdmin() {
+    @Cacheable(value="menu:weekly:")
+    public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
@@ -146,7 +156,7 @@ public class MenuController {
                 menuListArr.addAll(menuResponsDtos);
             }
         }
-        return ResponseEntity.ok(menuListArr);
+        return menuListArr;
     }
 
     @TraceMethodLog

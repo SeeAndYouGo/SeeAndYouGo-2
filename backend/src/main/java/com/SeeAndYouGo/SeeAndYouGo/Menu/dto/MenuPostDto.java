@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
 import lombok.*;
 
 @Getter
+@NoArgsConstructor
 public class MenuPostDto {
     private String latitude;
     private String longitude;

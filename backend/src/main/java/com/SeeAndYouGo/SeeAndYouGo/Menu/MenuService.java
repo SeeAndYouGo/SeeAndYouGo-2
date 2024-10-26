@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.Dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.MenuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import com.google.gson.JsonArray;
@@ -12,7 +11,6 @@ import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +38,6 @@ public class MenuService {
      * 1, 2, 3학은 식당에서 메뉴를 2개 제공하고
      * 4, 5학은 식당에서 메뉴를 1개 제공하므로 List로 반환한다.
      */
-    @Cacheable(value="getDailyMenu", key="#restaurantName.concat('-').concat(#date)")
     public List<Menu> getOneDayRestaurantMenu(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);

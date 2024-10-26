@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Connection;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -15,9 +14,9 @@ public class ConnectionController {
     private final ConnectionService connectionService;
 
     @GetMapping("/connection/{restaurant}")
-    public ResponseEntity<ConnectionResponseDto> congestionRequest(@PathVariable("restaurant") String restaurant) throws Exception {
+    public ConnectionResponseDto congestionRequest(@PathVariable("restaurant") String restaurant) throws Exception {
         Connection recentConnection = connectionService.getRecentConnected(restaurant);
-        return ResponseEntity.ok(new ConnectionResponseDto(recentConnection, restaurant));
+        return new ConnectionResponseDto(recentConnection, restaurant);
     }
 
     @GetMapping("/connection/cache")

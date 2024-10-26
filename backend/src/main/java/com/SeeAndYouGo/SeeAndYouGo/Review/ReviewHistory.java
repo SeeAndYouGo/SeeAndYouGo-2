@@ -2,16 +2,16 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class ReviewHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

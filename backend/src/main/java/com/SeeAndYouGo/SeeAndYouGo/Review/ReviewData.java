@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.Review;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter

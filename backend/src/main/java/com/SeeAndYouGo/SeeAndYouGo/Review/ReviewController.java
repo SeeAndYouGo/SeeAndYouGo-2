@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,7 +70,7 @@ public class ReviewController {
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
     @ValidateToken
-    public ResponseEntity<List<ReviewResponseDto>> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
+    public List<ReviewResponseDto> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
@@ -80,45 +79,43 @@ public class ReviewController {
             allReviews.addAll(restaurantReviews);
         }
 
-        return ResponseEntity.ok(getReviewDtos(allReviews, userEmail));
+        return getReviewDtos(allReviews, userEmail);
     }
 
     // 탑 리뷰 조회
     @GetMapping(value = "/top-review/{restaurant}")
-    public ResponseEntity<List<ReviewResponseDto>> getTopReviews(@PathVariable("restaurant") String restaurant) {
+    public List<ReviewResponseDto> getTopReviews(@PathVariable("restaurant") String restaurant) {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-        List<ReviewResponseDto> response = getReviewDtos(reviews, "");
-        return ResponseEntity.ok(response);
+        return getReviewDtos(reviews, "");
     }
 
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
-    public ResponseEntity<List<ReviewResponseDto>> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
+    public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
         String restaurantName = Restaurant.parseName(restaurant);
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        return ResponseEntity.ok(getReviewDtos(restaurantReviews, userEmail));
+        return getReviewDtos(restaurantReviews, userEmail);
     }
 
     @PutMapping("/report/{reviewId}")
-    public ResponseEntity judgeDeleteReview(@PathVariable Long reviewId){
+    public void judgeDeleteReview(@PathVariable Long reviewId){
         Integer reportCount = reviewService.updateReportCount(reviewId);
 
         if(reportCount >= REPORT_CRITERION){
             reviewService.deleteById(reviewId);
         }
-
-        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     // 리뷰 게시
     private static final String IMAGE_DIR = "imageStorage";
     @PostMapping(value = "/review")
-    public ResponseEntity<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                                            @RequestPart(value = "image", required = false) MultipartFile image) {
         String tokenId = dto.getWriter();
         if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
@@ -145,20 +142,14 @@ public class ReviewController {
                 .imgUrl(imgUrl)
                 .build();
 
-        Long reviewId = reviewService.registerReview(data);
-
-        return new ResponseEntity<>(reviewId, HttpStatus.CREATED);
+        return reviewService.registerReview(data);
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
         File dir = new File("./tmpImage");
-        if (!dir.exists()) {
-            dir.mkdirs();  // 디렉터리가 없으면 생성
-        }
 
         File file = new File(String.format("%s/%s.jpg", dir.getPath(), UUID.randomUUID()));
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            file.createNewFile();
             fos.write(image.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -184,7 +175,7 @@ public class ReviewController {
 
     @ResponseBody
     @GetMapping("/images/{imgName}")
-    @Cacheable(value="reviewImages", key="#imgName")
+    @Cacheable(value="review:image:", key="#imgName")
     public UrlResource showImage(@PathVariable String imgName) throws Exception {
         File file =new File(IMAGE_DIR + "/" + imgName);
         return new UrlResource("file:" + file.getAbsolutePath());
@@ -192,11 +183,11 @@ public class ReviewController {
 
     @GetMapping("/reviews/{token}")
     @ValidateToken
-    public ResponseEntity<List<ReviewResponseDto>> getReviewsByUser(@PathVariable("token") String tokenId){
+    public List<ReviewResponseDto> getReviewsByUser(@PathVariable("token") String tokenId){
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 
-        return ResponseEntity.ok(getReviewDtos(reviews, userEmail));
+        return getReviewDtos(reviews, userEmail);
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")

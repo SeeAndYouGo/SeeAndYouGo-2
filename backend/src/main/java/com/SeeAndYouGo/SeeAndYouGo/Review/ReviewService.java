@@ -10,8 +10,6 @@ import com.SeeAndYouGo.SeeAndYouGo.Rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.imgscalr.Scalr;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +35,6 @@ public class ReviewService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
-    @Caching( evict = {
-            @CacheEvict(value="getTotalRestaurantRate", key="#data.restaurant"),
-            @CacheEvict(value="getDetailRestaurantRate", key="#data.restaurant")
-    })
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
@@ -170,10 +164,6 @@ public class ReviewService {
     }
 
     @Transactional
-    @Caching( evict = {
-            @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
-    })
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
@@ -195,10 +185,6 @@ public class ReviewService {
      * @return
      */
     @Transactional
-    @Caching( evict = {
-            @CacheEvict(value="getTotalRestaurantRate", allEntries = true),
-            @CacheEvict(value="getDetailRestaurantRate", allEntries = true)
-    })
     public boolean deleteReview(String userEmail, Long reviewId) {
         Review review = reviewRepository.findById(reviewId).get();
         Restaurant restaurant = review.getRestaurant();

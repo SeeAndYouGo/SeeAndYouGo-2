@@ -16,8 +16,7 @@ public class VisitorService {
     private final VisitorCountRepository repository;
     private final RedisTemplate<String, String> redisTemplate;
 
-    // DB에 백업된 가장 최근 방문자수로 복구한다.
-    // 단, 오늘 백업된 건이 없으면 아무 일도 하지 않는다.
+    // 오늘 DB에 임시 저장된 방문자수 데이터가 있다면 redis 캐시에 복구함 
     public void init() {
         Optional<VisitorCount> backupVisitorCount = repository.findTodayTempData();
         if (backupVisitorCount.isEmpty())

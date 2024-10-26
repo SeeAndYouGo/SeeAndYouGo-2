@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 
-import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.TOKEN_ID_KEY_NAME;
+import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.KEY_OF_TOKEN_ID;
 
 
 @Component
@@ -36,7 +36,7 @@ public class VisitorInterceptor implements HandlerInterceptor {
 
         // 유저키 생성
         String user = "unknown";
-        String tokenId = request.getHeader(TOKEN_ID_KEY_NAME);
+        String tokenId = request.getHeader(KEY_OF_TOKEN_ID);
         if (tokenId != null && tokenId.length() != 0)
             user = tokenProvider.decodeToEmail(tokenId);
         String userRedisKey = Const.PREFIX_VISITOR_USER + user;

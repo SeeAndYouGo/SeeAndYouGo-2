@@ -8,7 +8,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.TOKEN_ID_KEY_NAME;
+import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.KEY_OF_TOKEN_ID;
 
 @Aspect
 @Component
@@ -29,7 +29,7 @@ public class TokenValidationAspect {
 
         String tokenId = null;
         for (int i = 0; i < args.length; i++) {
-            if (paramNames[i].equals(TOKEN_ID_KEY_NAME)) {
+            if (paramNames[i].equals(KEY_OF_TOKEN_ID)) {
                 tokenId = (String) args[i];
                 break;
             }

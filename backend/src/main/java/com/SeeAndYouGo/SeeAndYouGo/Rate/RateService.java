@@ -13,7 +13,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,9 +63,6 @@ public class RateService {
         }
     }
 
-
-
-    @Cacheable(value="getTotalRestaurantRate", key="#restaurantName")
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
         List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
@@ -82,7 +78,6 @@ public class RateService {
     /**
      * 현재는 1학만 세부 평점을 제공하므로 parameter인 restaurantName은 필요가 없다.
      */
-    @Cacheable(value="getDetailRestaurantRate", key="#restaurantName")
     public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
 

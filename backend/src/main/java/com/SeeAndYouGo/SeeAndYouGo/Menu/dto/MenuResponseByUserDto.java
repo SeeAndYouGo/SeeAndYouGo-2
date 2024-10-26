@@ -1,7 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,15 +20,24 @@ public class MenuResponseByUserDto {
     private String menuType;
     private List<String> keywordList = new LinkedList<>();
 
-    public MenuResponseByUserDto(Menu menu, List<String> keywords){
-        this.menuId = menu.getId();
-        this.restaurantName = menu.getRestaurant().toString();
-        this.mainDishList = menu.getMainDishToString();
-        this.sideDishList = menu.getSideDishToString();
-        this.price = menu.getPrice();
-        this.dept = menu.getDept().toString();
-        this.date = menu.getDate();
-        this.menuType = menu.getMenuType().toString();
-        this.keywordList = keywords;
+    @Builder
+    private MenuResponseByUserDto(Long menuId,
+                                 String restaurantName,
+                                 List<String> mainDishList,
+                                 List<String> sideDishList,
+                                 int price,
+                                 String dept,
+                                 String date,
+                                 String menuType,
+                                 List<String> keywordList){
+        this.menuId = menuId;
+        this.restaurantName = restaurantName;
+        this.mainDishList = mainDishList;
+        this.sideDishList = sideDishList;
+        this.date = date;
+        this.menuType = menuType;
+        this.keywordList = keywordList;
+        this.price = price;
+        this.dept = dept;
     }
 }

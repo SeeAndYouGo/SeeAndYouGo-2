@@ -1,6 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.Menu.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.Dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Menu;
 import lombok.*;
 

@@ -35,9 +35,5 @@ public class VisitorCount {
 
     private int count;
 
-    public VisitorCount(int count) {
-        this.count = count;
-    }
-
     private boolean isTotal;
 }

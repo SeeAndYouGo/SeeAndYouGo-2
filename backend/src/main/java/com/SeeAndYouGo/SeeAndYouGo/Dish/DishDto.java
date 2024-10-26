@@ -6,8 +6,10 @@ import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.Restaurant.Restaurant;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class DishDto {
     private String name;
     private Dept dept;

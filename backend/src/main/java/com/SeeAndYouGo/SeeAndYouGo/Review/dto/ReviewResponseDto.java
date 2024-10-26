@@ -1,15 +1,14 @@
 package com.SeeAndYouGo.SeeAndYouGo.Review.dto;
 
 import com.SeeAndYouGo.SeeAndYouGo.Menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.Menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class ReviewResponseDto {
     private Long reviewId;
      private String restaurant;

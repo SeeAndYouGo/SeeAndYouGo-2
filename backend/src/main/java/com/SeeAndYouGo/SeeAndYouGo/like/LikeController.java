@@ -14,7 +14,6 @@ public class LikeController {
     private final LikeService likeService;
     @PostMapping("/review/like/{review_id}/{token_id}")
     @ValidateToken
-    @CacheEvict(value="reviewsByRestaurant", allEntries = true)
     public LikeResponseDto postLikeCount(@PathVariable("review_id") Long reviewId,
                                          @PathVariable("token_id") String tokenId){
         // 만약 해당 유저가 공감을 누른 상태였다면, 공감 삭제
