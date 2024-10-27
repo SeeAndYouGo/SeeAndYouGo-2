@@ -1,7 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.user.dto;
 
-import com.SeeAndYouGo.SeeAndYouGo.user.Social;
-import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

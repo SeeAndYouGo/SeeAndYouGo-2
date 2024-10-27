@@ -1,6 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.visitor;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 
-import static com.SeeAndYouGo.SeeAndYouGo.Config.Const.KEY_OF_TOKEN_ID;
+import static com.SeeAndYouGo.SeeAndYouGo.config.Const.KEY_OF_TOKEN_ID;
 
 
 @Component

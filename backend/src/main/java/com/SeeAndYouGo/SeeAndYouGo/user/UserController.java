@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
-import com.SeeAndYouGo.SeeAndYouGo.AOP.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
@@ -21,10 +21,8 @@ public class UserController {
     public NicknameCheckResponseDto checkNicknameRedundancy(@PathVariable String nickname) {
         boolean redundancy = !userService.isNicknameCountZero(nickname);
 
-        NicknameCheckResponseDto nicknameCheckResponseDto = NicknameCheckResponseDto.builder()
+        return NicknameCheckResponseDto.builder()
                                                     .redundancy(redundancy).build();
-
-        return nicknameCheckResponseDto;
     }
 
     @PutMapping("/nickname")

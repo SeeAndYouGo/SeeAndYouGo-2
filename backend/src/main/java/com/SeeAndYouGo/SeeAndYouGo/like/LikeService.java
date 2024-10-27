@@ -1,9 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.like;
 
-import com.SeeAndYouGo.SeeAndYouGo.OAuth.jwt.TokenProvider;
-import com.SeeAndYouGo.SeeAndYouGo.Review.Review;
-import com.SeeAndYouGo.SeeAndYouGo.Review.ReviewRepository;
-import com.SeeAndYouGo.SeeAndYouGo.Review.ReviewService;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import com.SeeAndYouGo.SeeAndYouGo.review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.review.ReviewRepository;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
@@ -33,7 +32,7 @@ public class LikeService {
                     .build();
         }
 
-        boolean isLike = likeRepository.countByReviewAndUser(review, user)>0? true : false;
+        boolean isLike = likeRepository.countByReviewAndUser(review, user) > 0;
 
         if(isLike){
             return deleteLike(review, user);
