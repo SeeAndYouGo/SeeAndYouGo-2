@@ -1,13 +1,13 @@
 ﻿spring:
   profiles:
-    active: local
+    active: prod
   data:
     redis:
       host: redis
       port: 6379
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
