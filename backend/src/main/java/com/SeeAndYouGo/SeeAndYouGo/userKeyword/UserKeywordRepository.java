@@ -1,5 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.keyword;
+package com.SeeAndYouGo.SeeAndYouGo.userKeyword;
 
+import com.SeeAndYouGo.SeeAndYouGo.keyword.Keyword;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

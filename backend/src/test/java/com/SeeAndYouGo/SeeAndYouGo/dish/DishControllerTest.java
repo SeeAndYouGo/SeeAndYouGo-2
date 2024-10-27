@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.TestSetUp;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,35 @@ public class DishControllerTest {
     @Autowired
     private MenuRepository menuRepository;
 
+    private final String menu1Dish1Name = "김치찌개";
+    private final String menu1Dish2Name = "현미밥";
+    private final Integer menu1Price = 4000;
+    private final LocalDate menu1Date = LocalDate.now();
+    private final Dept menu1Dept = Dept.STAFF;
+    private final MenuType menu1MenuType = MenuType.BREAKFAST;
+    private final Restaurant menu1Restaurant = Restaurant.제2학생회관;
+
+    private final String menu2Dish1Name = "햄버거";
+    private final String menu2Dish2Name = "감자튀김";
+    private final Integer menu2Price = 6000;
+    private final LocalDate menu2Date = LocalDate.now();
+    private final Dept menu2Dept = Dept.STUDENT;
+    private final MenuType menu2MenuType = MenuType.DINNER;
+    private final Restaurant menu2Restaurant = Restaurant.상록회관;
+
     @BeforeEach
     public void init(){
         // dish 정보를 미리 세팅한다.
         // 제2학생회관의 정보를 미리 세팅.
-        initSetting();
+        Dish 김치찌개 = TestSetUp.saveDish(dishRepository, menu1Dish1Name, DishType.SIDE);
+        Dish 현미밥 = TestSetUp.saveDish(dishRepository, menu1Dish2Name, DishType.SIDE);
+
+        TestSetUp.saveMenu(menuRepository, menu1Price, menu1Date, menu1Dept, menu1MenuType, menu1Restaurant, 김치찌개, 현미밥);
+
+        Dish 감자튀김 = TestSetUp.saveDish(dishRepository, menu2Dish1Name, DishType.MAIN);
+        Dish 햄버거 = TestSetUp.saveDish(dishRepository, menu2Dish2Name, DishType.SIDE);
+
+        TestSetUp.saveMenu(menuRepository, menu2Price, menu2Date, menu2Dept, menu2MenuType, menu2Restaurant, 감자튀김, 햄버거);
     }
 
     @DisplayName("메인메뉴 업데이트")
@@ -45,82 +70,27 @@ public class DishControllerTest {
         dishController.updateMainDish(mainDishRequestDtos);
 
         // then
-        Assert.assertEquals(dishRepository.findByName("햄버거").getDishType(), DishType.MAIN);
-        Assert.assertEquals(dishRepository.findByName("감자튀김").getDishType(), DishType.SIDE);
-        Assert.assertEquals(dishRepository.findByName("김치찌개").getDishType(), DishType.MAIN);
-        Assert.assertEquals(dishRepository.findByName("현미밥").getDishType(), DishType.SIDE);
-    }
+        Assert.assertEquals(dishRepository.findByName(menu1Dish1Name).getDishType(), DishType.MAIN);
+        Assert.assertEquals(dishRepository.findByName(menu1Dish2Name).getDishType(), DishType.SIDE);
 
-
-
-    private void initSetting() {
-        Dish 김치찌개 = Dish.builder()
-                .name("김치찌개")
-                .dishType(DishType.SIDE)
-                .build();
-
-        Dish 현미밥 = Dish.builder()
-                .name("현미밥")
-                .dishType(DishType.SIDE)
-                .build();
-
-        Menu menu = Menu.builder()
-                .price(4000)
-                .date("2024-10-22")
-                .dept(Dept.STUDENT)
-                .menuType(MenuType.BREAKFAST)
-                .restaurant(Restaurant.제2학생회관)
-                .build();
-
-        Dish 감자튀김 = Dish.builder()
-                .name("감자튀김")
-                .dishType(DishType.MAIN)
-                .build();
-
-        Dish 햄버거 = Dish.builder()
-                .name("햄버거")
-                .dishType(DishType.SIDE)
-                .build();
-
-        Menu menu1 = Menu.builder()
-                .price(6000)
-                .date("2024-10-22")
-                .dept(Dept.STUDENT)
-                .menuType(MenuType.DINNER)
-                .restaurant(Restaurant.상록회관)
-                .build();
-
-        List<Dish> dishes = new ArrayList<>();
-        dishes.add(김치찌개);
-        dishes.add(현미밥);
-
-        List<Dish> dishes1 = new ArrayList<>();
-        dishes1.add(감자튀김);
-        dishes1.add(햄버거);
-
-        menu.setDishList(dishes);
-        menu1.setDishList(dishes1);
-
-        dishRepository.saveAll(dishes);
-        dishRepository.saveAll(dishes1);
-        menuRepository.save(menu);
-        menuRepository.save(menu1);
+        Assert.assertEquals(dishRepository.findByName(menu2Dish1Name).getDishType(), DishType.MAIN);
+        Assert.assertEquals(dishRepository.findByName(menu2Dish2Name).getDishType(), DishType.SIDE);
     }
 
     private List<MainDishRequestDto> getMainDishRequestDtos() {
         List<String> mainDishes1 = new ArrayList<>();
-        mainDishes1.add("김치찌개");
-        List<String> subDishes1 = new ArrayList<>();
-        subDishes1.add("현미밥");
+        mainDishes1.add(menu1Dish1Name);
+        List<String> sideDishes1 = new ArrayList<>();
+        sideDishes1.add(menu1Dish2Name);
 
-        MainDishRequestDto mainDishRequestDto = new MainDishRequestDto("제2학생회관", "STAFF", "2024-10-22", mainDishes1, subDishes1);
+        MainDishRequestDto mainDishRequestDto = new MainDishRequestDto(menu1Restaurant.toString(), menu1Dept.toString(), menu1Date.toString(), mainDishes1, sideDishes1);
 
         List<String> mainDishes2 = new ArrayList<>();
-        mainDishes2.add("햄버거");
+        mainDishes2.add(menu2Dish1Name);
         List<String> subDishes2 = new ArrayList<>();
-        subDishes2.add("감자튀김");
+        subDishes2.add(menu2Dish2Name);
 
-        MainDishRequestDto mainDishRequestDto1 = new MainDishRequestDto("상록회관", "STUDENT", "2024-10-22", mainDishes2, subDishes2);
+        MainDishRequestDto mainDishRequestDto1 = new MainDishRequestDto(menu2Restaurant.toString(), menu2Dept.toString(), menu2Date.toString(), mainDishes2, subDishes2);
 
         List<MainDishRequestDto> mainDishRequestDtos = new ArrayList<>();
         mainDishRequestDtos.add(mainDishRequestDto);
