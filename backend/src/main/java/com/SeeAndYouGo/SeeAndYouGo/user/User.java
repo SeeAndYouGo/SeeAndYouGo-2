@@ -2,7 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.user;
 
 
 import com.SeeAndYouGo.SeeAndYouGo.keyword.Keyword;
-import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,8 +51,11 @@ public class User {
     }
 
     public void addKeyword(Keyword keyword){
-        if (!this.existsKeyword(keyword))
-            this.userKeywords.add(new UserKeyword(this, keyword));
+        if (!this.existsKeyword(keyword)) {
+            UserKeyword userKeyword = new UserKeyword(this, keyword);
+            this.userKeywords.add(userKeyword);
+            keyword.addUserKeyword(userKeyword);
+        }
     }
 
     public void deleteKeyword(Keyword keyword){

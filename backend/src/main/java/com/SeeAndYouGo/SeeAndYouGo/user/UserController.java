@@ -22,7 +22,7 @@ public class UserController {
         boolean redundancy = !userService.isNicknameCountZero(nickname);
 
         return NicknameCheckResponseDto.builder()
-                                                    .redundancy(redundancy).build();
+                                        .redundancy(redundancy).build();
     }
 
     @PutMapping("/nickname")

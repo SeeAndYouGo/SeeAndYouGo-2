@@ -28,13 +28,13 @@ public class KeywordController {
 
     @PostMapping
     public KeywordAddResponseDto addKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUser_id());
+        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
         return keywordService.addKeyword(keywordRequestDto.getKeyword(), email);
     }
 
     @DeleteMapping
     public KeywordResponseDto deleteKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUser_id());
+        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
         return keywordService.deleteKeyword(keywordRequestDto.getKeyword(), email);
     }
 }

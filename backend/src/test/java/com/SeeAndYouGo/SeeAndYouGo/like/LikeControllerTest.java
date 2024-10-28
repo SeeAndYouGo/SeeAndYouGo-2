@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.like;
 
+import com.SeeAndYouGo.SeeAndYouGo.TestSetUp;
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
@@ -15,13 +16,11 @@ import com.SeeAndYouGo.SeeAndYouGo.review.ReviewController;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewRepository;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
-import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -46,9 +44,6 @@ public class LikeControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @MockBean
-    private TokenProvider tokenProvider;
-
     @Autowired
     private DishRepository dishRepository;
 
@@ -58,74 +53,56 @@ public class LikeControllerTest {
     @Autowired
     private ReviewController reviewController;
 
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    private final String writerEmail = "writer@daum.net";
+    private final String writerToken = "writer";
+    private final String writerNickname = "writer";
+    private final Social writerSocial = Social.KAKAO;
+    private final String notWriterEmail = "not-writer@daum.net";
+    private final String notWriterToken = "not-writer";
+    private final String notWriterNickname = "not-writer";
+    private final Social notWriterSocial = Social.KAKAO;
+
+    private final String mainDishName = "김치찌개";
+    private final String sideDishName = "현미밥";
+
+    private final Integer menuPrice = 4000;
+    private final LocalDate menuDate = LocalDate.now();
+    private final Dept menuDept = Dept.STUDENT;
+    private final MenuType menuMenuType = MenuType.BREAKFAST;
+    private final Restaurant menuRestaurant = Restaurant.제2학생회관;
+
+    private final String reviewNickname = "익명";
+    private final LocalDateTime reviewCreateTime = LocalDateTime.now();
+    private final Integer reviewLikeCnt = 0;
+    private final String reviewComment = "존맛탱";
+    private final String reviewImgUrl = null;
+    private final double reviewRate = 3.5;
+    private final Restaurant reviewRestaurant = Restaurant.제2학생회관;
+    private final Integer reviewReportCnt = 0;
+
     @BeforeEach
     public void init() {
         // decodeToEmail 수동 설정.
-        Mockito.doReturn("test1@daum.net")
-                .when(tokenProvider)
-                .decodeToEmail("test1");
+        TestSetUp.stubDecodeToEmail(writerEmail, tokenProvider, writerToken);
+        TestSetUp.stubDecodeToEmail(notWriterEmail, tokenProvider, notWriterToken);
 
-        Mockito.doReturn("test2@daum.net")
-                .when(tokenProvider)
-                .decodeToEmail("test2");
+        // user 저장
+        TestSetUp.saveUser(userRepository, writerEmail, writerNickname, writerSocial);
+        TestSetUp.saveUser(userRepository, notWriterEmail, notWriterNickname, notWriterSocial);
 
-        User user1 = User.builder()
-                .email("test1@daum.net")
-                .nickname("test1")
-                .socialType(Social.KAKAO)
-                .build();
+        // dish 저장
+        Dish 김치찌개 = TestSetUp.saveDish(dishRepository, mainDishName, DishType.MAIN);
+        Dish 현미밥 = TestSetUp.saveDish(dishRepository, sideDishName, DishType.SIDE);
 
-        User user2 = User.builder()
-                .email("test2@daum.net")
-                .nickname("test2")
-                .socialType(Social.KAKAO)
-                .build();
+        // menu 저장
+        Menu menu = TestSetUp.saveMenu(menuRepository, menuPrice, menuDate, menuDept, menuMenuType, menuRestaurant, 김치찌개, 현미밥);
 
-        userRepository.save(user1);
-        userRepository.save(user2);
-
-        Dish 김치찌개 = Dish.builder()
-                .name("김치찌개")
-                .dishType(DishType.MAIN)
-                .build();
-
-        Dish 현미밥 = Dish.builder()
-                .name("현미밥")
-                .dishType(DishType.SIDE)
-                .build();
-
-        Menu menu = Menu.builder()
-                .price(4000)
-                .date(LocalDate.now().toString())
-                .dept(Dept.STUDENT)
-                .menuType(MenuType.BREAKFAST)
-                .restaurant(Restaurant.제2학생회관)
-                .build();
-
-        List<Dish> dishes = new ArrayList<>();
-        dishes.add(김치찌개);
-        dishes.add(현미밥);
-
-        menu.addDish(김치찌개);
-        menu.addDish(현미밥);
-
-        dishRepository.saveAll(dishes);
-        menuRepository.save(menu);
-
-        Review review = Review.builder()
-                                .writerEmail("test1@daum.net")
-                                .writerNickname("익명")
-                                .madeTime(LocalDateTime.now().toString())
-                                .likeCount(0)
-                                .menu(menu)
-                                .comment("존맛탱")
-                                .imgLink(null)
-                                .reviewRate(3.5)
-                                .restaurant(Restaurant.제2학생회관)
-                                .reportCount(0)
-                                .build();
-
-        reviewRepository.save(review);
+        // review 저장
+        TestSetUp.saveReview(reviewRepository, writerEmail, reviewNickname, reviewCreateTime, reviewLikeCnt,
+                menu, reviewComment, reviewImgUrl, reviewRate, reviewRestaurant, reviewReportCnt);
     }
 
     @DisplayName("자신 공감 테스트")
@@ -133,7 +110,7 @@ public class LikeControllerTest {
     void 자신_공감() {
         // when
         Review review = reviewRepository.findAll().get(0); // 리뷰는 1개밖에 없으므로 .get(0) 함.
-        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), "test1");
+        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), writerToken);
 
         // then
         // 자신의 리뷰이므로 공감할 수 없다.
@@ -147,7 +124,7 @@ public class LikeControllerTest {
         // when
         // test2 유저가 좋아요를 누른다.
         Review review = reviewRepository.findAll().get(0); // 리뷰는 1개밖에 없으므로 .get(0) 함.
-        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), "test2");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
+        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), notWriterToken);// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
 
         // then
         // 공감 성공
@@ -156,7 +133,7 @@ public class LikeControllerTest {
 
         // 로그인하여 리뷰 조회 시, 공감 표시
         // test2 유저가 바라보는 리뷰 목록 조회
-        List<ReviewResponseDto> restaurantReviews = reviewController.getRestaurantReviews("제2학생회관", "test2");
+        List<ReviewResponseDto> restaurantReviews = reviewController.getRestaurantReviews(reviewRestaurant.toString(), notWriterToken);
         ReviewResponseDto reviewResponseDto = restaurantReviews.get(0);
 
         Assert.assertEquals(reviewResponseDto.isLike(), true);
@@ -167,11 +144,12 @@ public class LikeControllerTest {
     void 공감_취소() {
         // given
         // test2 유저가 좋아요를 누른다.
-        likeController.postLikeCount(1l, "test2");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
+        Review review = reviewRepository.findAll().get(0); // 리뷰는 1개밖에 없으므로 .get(0) 함.
+        likeController.postLikeCount(review.getId(), notWriterToken);// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
 
         // when
         // test2 유저가 좋아요를 다시 누른다.
-        LikeResponseDto likeResponse = likeController.postLikeCount(1l, "test2");// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
+        LikeResponseDto likeResponse = likeController.postLikeCount(review.getId(), notWriterToken);// 리뷰는 1개밖에 없으므로 ID가 1일 것이다.
 
         // then
         // 공감 취소 성공
@@ -180,7 +158,7 @@ public class LikeControllerTest {
 
         // 로그인하여 리뷰 조회 시, 공감 표시 없음
         // test2 유저가 바라보는 리뷰 목록 조회
-        List<ReviewResponseDto> restaurantReviews = reviewController.getRestaurantReviews("제2학생회관", "test2");
+        List<ReviewResponseDto> restaurantReviews = reviewController.getRestaurantReviews(reviewRestaurant.toString(), notWriterToken);
         ReviewResponseDto reviewResponseDto = restaurantReviews.get(0);
 
         Assert.assertEquals(reviewResponseDto.isLike(), false);

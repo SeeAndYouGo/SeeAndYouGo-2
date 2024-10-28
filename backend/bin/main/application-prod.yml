@@ -6,5 +6,8 @@ spring:
     password: seeandyougo
   jpa:
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+      dialect: org.hibernate.dialect.MySQL8Dialect
+
+URL:
+  CONN_URL: https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo
+  DISH_URL: https://api.cnu.ac.kr/svc/offcam/pub/FoodInfo
