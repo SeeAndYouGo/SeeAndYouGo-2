@@ -2,13 +2,11 @@ version: "3.8"
 
 networks:
   backbone:
-    driver: bridge
-    # external: true
 
 services:
   mysql:
     container_name: mysql
-    image: mysql:latest
+    image: mysql:8.4.0
     restart: always
     environment:
       MYSQL_DATABASE: seeandyougo
@@ -22,7 +20,7 @@ services:
     volumes:
       - ./data:/var/lib/mysql
     networks:
-       - backbone
+      - backbone
   seeandyougo:
     container_name: seeandyougo
     build:
@@ -35,7 +33,7 @@ services:
     networks:
       - backbone
     depends_on:
-       - mysql
+      - mysql
     environment:
       - TZ=Asia/Seoul
   seeandyougo-nginx:
@@ -51,3 +49,11 @@ services:
       - TZ=Asia/Seoul
     depends_on:
       - seeandyougo
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: always
+    networks:
+      - backbone

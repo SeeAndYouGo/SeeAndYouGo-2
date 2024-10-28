@@ -21,10 +21,8 @@ public class UserController {
     public NicknameCheckResponseDto checkNicknameRedundancy(@PathVariable String nickname) {
         boolean redundancy = !userService.isNicknameCountZero(nickname);
 
-        NicknameCheckResponseDto nicknameCheckResponseDto = NicknameCheckResponseDto.builder()
-                                                    .redundancy(redundancy).build();
-
-        return nicknameCheckResponseDto;
+        return NicknameCheckResponseDto.builder()
+                                        .redundancy(redundancy).build();
     }
 
     @PutMapping("/nickname")
@@ -49,9 +47,8 @@ public class UserController {
         String email = tokenProvider.decodeToEmail(tokenId);
         String nickname = userService.getNicknameByEmail(email);
 
-        UserResponseDto userResponseDto = UserResponseDto.builder()
-                                            .nickname(nickname)
-                                            .build();
-        return userResponseDto;
+        return UserResponseDto.builder()
+                .nickname(nickname)
+                .build();
     }
 }

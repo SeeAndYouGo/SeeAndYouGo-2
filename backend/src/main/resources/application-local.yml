@@ -1,12 +1,20 @@
 spring:
- datasource:
-   url: jdbc:h2:tcp://localhost/~/seeandyougo
-   username: sa
-   password:
-   driver-class-name: org.h2.Driver
- jpa:
-   properties:
-     dialect: org.hibernate.dialect.H2Dialect
+# datasource:
+#   url: jdbc:h2:tcp://localhost/~/seeandyougo
+#   username: sa
+#   password:
+#   driver-class-name: org.h2.Driver
+# jpa:
+#   properties:
+#     dialect: org.hibernate.dialect.H2Dialect
+   datasource:
+     driver-class-name: com.mysql.cj.jdbc.Driver
+     url: jdbc:mysql://localhost:3306/seeandyougo_test?useSSL=false&allowPublicKeyRetrieval=true
+     username: root
+     password: fm7bpkk4!
+   jpa:
+     properties:
+       dialect: org.hibernate.dialect.MySQL8Dialect
 
 URL:
   CONN_URL: http://www.seeandyougo.com:80/api/connection/test
