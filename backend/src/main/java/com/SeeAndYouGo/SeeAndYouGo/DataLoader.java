@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
+import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -23,6 +24,7 @@ public class DataLoader implements CommandLineRunner {
     private final ConnectionService connectionService;
     private final RateService rateService;
     private final StatisticsService statisticsService;
+    private final VisitorService visitorService;
     private final HolidayService holidayService;
     private final HolidayRepository holidayRepository;
 
@@ -32,6 +34,7 @@ public class DataLoader implements CommandLineRunner {
         // 초기 세팅 메서드들(테스트 환경이든 운영 환경이든 모두 필요함)
         rateService.setRestaurant1MenuField();
         statisticsService.initSetting();
+        visitorService.init();
 
         if(!rateService.exists()){
             rateService.insertAllRestaurant();
@@ -46,6 +49,5 @@ public class DataLoader implements CommandLineRunner {
             iterService.weeklyIterative();
             connectionService.saveAndCacheConnection();
         }
-
     }
 }

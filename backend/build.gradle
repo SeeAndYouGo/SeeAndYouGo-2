@@ -1,62 +1,63 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '2.7.16'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'java'
+    id 'org.springframework.boot' version '2.7.16'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
 group = 'com.SeeAndYouGo'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '11'
+    sourceCompatibility = '11'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
 
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-	annotationProcessor 'org.projectlombok:lombok'
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'mysql:mysql-connector-java:8.0.27'
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'com.google.code.gson:gson:2.8.8'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
-	implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
-	implementation 'com.amazonaws:aws-java-sdk-s3'
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'mysql:mysql-connector-java:8.0.27'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+    implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	//JUnit4 추가
-	testImplementation("org.junit.vintage:junit-vintage-engine") {
-		exclude group: "org.hamcrest", module: "hamcrest-core"
-	}
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    //JUnit4 추가
+    testImplementation("org.junit.vintage:junit-vintage-engine") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
