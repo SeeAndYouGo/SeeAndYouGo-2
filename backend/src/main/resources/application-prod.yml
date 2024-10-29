@@ -7,6 +7,10 @@ spring:
   jpa:
     properties:
       dialect: org.hibernate.dialect.MySQL8Dialect
+  data:
+    redis:
+      host: redis
+      port: 6379
 
 URL:
   CONN_URL: https://api.cnu.ac.kr/svc/offcam/pub/WifiAllInfo
