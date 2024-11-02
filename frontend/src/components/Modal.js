@@ -22,6 +22,9 @@ const ModalContainer = styled.div`
 	background-color: white;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 	box-sizing: border-box;
+	max-height: 80%;
+	overflow-y: scroll;
+	border-radius: 10px;
 `;
 
 const Modal = ({
@@ -54,7 +57,7 @@ const Modal = ({
 	return ReactDOM.createPortal(
 		<BackgroundDim style={{ display: visible ? "block" : "none" }}>
 			<ModalContainer
-                ref={ref}
+        ref={ref}
 				{...props}
 				style={{ ...props.style, ...containerStyle }}
 			>
