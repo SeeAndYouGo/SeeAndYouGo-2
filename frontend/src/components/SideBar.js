@@ -187,12 +187,6 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>작성한 리뷰</span>
               </MenuName>
             </Link>
-            {/* <Link to="/my-keyword-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
-              <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20}}>collections_bookmark</span>
-                <span>나의 키워드</span>
-              </MenuName>
-            </Link> */}
           </MenuList>
           <div style={{marginBottom: 10}}>
             <span>
@@ -200,12 +194,6 @@ const SideBar = ({isOpen, setIsOpen}) => {
             </span>
           </div>
           <MenuList>
-            {/* <Link to="/review-page/0" onClick={toggleMenu} style={{marginBottom: 10}}>
-              <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>chat</span>
-                <span>리뷰페이지</span>
-              </MenuName>
-            </Link> */}
             <Link to="/statistics" onClick={toggleMenu} style={{marginBottom: 10}}>
               <MenuName>
                 <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>bar_chart</span>
@@ -226,13 +214,11 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <span>의견 보내기</span>
               </MenuName>
             </Link>
-            {/* <Link to="https://forms.gle/bPD39RuBwSRKjpRn6" target="_blank" onClick={toggleMenu} style={{marginBottom: 10}}>
-              <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>celebration</span>
-                <span>이벤트 참여하기 (05.20 ~ 05.31)</span>
-              </MenuName>
-            </Link> */}
           </MenuList>
+          <div style={{}}>
+            <span>today: {24}&nbsp;/&nbsp;</span>
+            <span>total: {230}</span>
+          </div>
         </div>
       </SideBarWrap>
     </>
