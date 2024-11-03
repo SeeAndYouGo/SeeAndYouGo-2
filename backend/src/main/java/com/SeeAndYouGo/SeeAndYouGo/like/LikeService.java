@@ -90,42 +90,35 @@ public class LikeService {
         return review.getWriterEmail();
     }
 
-//    @Scheduled(fixedRate = 60000 * 60) // 1시간마다
-//    public void backupLikeCachingData() {
-//        HashOperations redisHash = redisTemplate.opsForHash();
-//        Set<String> keys = redisTemplate.keys("review:like:*");
-//
-//        Map<User, Review> likes = new HashMap<>();
-//        Map<User, Review> unlikes = new HashMap<>();
-//
-//        if (keys != null) {
-//            for (String key : keys) {
-//                Map<String, Integer> userLikes = redisHash.entries(key); // 각 키의 모든 해시 가져오기
-//
-//                for (Map.Entry<String, String> entry : userLikes.entrySet()) {
-//                    String userEmail = entry.getKey();
-//                    Integer value = entry.getValue();
-//
-//                    User user = userRepository.findByEmail(userEmail);
-//
-//
-//                    if (value.equals(1)) {
-//                        // User와 Review 객체를 생성하고 likes에 추가
-//                        likes.put(user, new Review(key.replace("review:like:", "")));
-//                    } else if (value.equals(0)) {
-//                        // User와 Review 객체를 생성하고 unlikes에 추가
-//                        unlikes.put(user, new Review(key.replace("review:like:", "")));
-//                    }
-//                }
-//            }
-//        }
-//
-//        // 캐시 데이터 List<Like>
-//
-//
-//        HashOperations ops = redisHash;
-//        ops.get
-//
-//        likeRepository.saveAll(backupTargets);
-//    }
+    @Scheduled(fixedRate = 60000 * 60) // 1시간마다
+    public void backupLikeCachingData() {
+        HashOperations redisHash = redisTemplate.opsForHash();
+        Set<String> keys = redisTemplate.keys("review:like:*");
+
+        List<Like> likes = new ArrayList<>();
+        List<Like> unlikes = new ArrayList<>();
+
+        if (keys != null) {
+            for (String key : keys) {
+                String reviewId = key.split(":")[2];
+                Review review = reviewRepository.findById(Long.parseLong(reviewId)).get();
+                if (review == null)  // 리뷰가 유효하지 않으면 (ex: 삭제됨)
+                    continue;
+
+                Map<String, String> userLikes = redisHash.entries(key); // 각 키의 모든 해시 가져오기
+                for (Map.Entry<String, String> entry : userLikes.entrySet()) {
+                    String userEmail = entry.getKey();
+                    String isLike = entry.getValue();
+
+                    User user = userRepository.findByEmail(userEmail);
+                    if (isLike.equals("1")) { // 좋아요 업뎃건
+                        likes.add(new Like(review, user));
+                    } else if (isLike.equals("0")) { // 좋아요 취소 업뎃건
+                        likeRepository.deleteByReviewAndUser(review, user);
+                    }
+                }
+            }
+        }
+        likeRepository.saveAll(likes);
+    }
 }
