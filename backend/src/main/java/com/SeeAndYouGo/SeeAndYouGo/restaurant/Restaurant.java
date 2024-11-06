@@ -1,6 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.ApiMenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.CrawlingMenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.JsonMenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import lombok.Getter;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +15,8 @@ public enum Restaurant {
     제2학생회관(392, Location.of(36.365959, 127.345828), 2, Arrays.asList(Dept.STUDENT, Dept.STAFF)),
     제3학생회관(273, Location.of(36.371479, 127.344841), 3, Arrays.asList(Dept.STUDENT, Dept.STAFF)),
     상록회관(140, Location.of(36.368605, 127.350374), 4, Arrays.asList(Dept.STUDENT)),
-    생활과학대(190, Location.of(36.376309, 127.343158), 5, Arrays.asList(Dept.STUDENT));
+    생활과학대(190, Location.of(36.376309, 127.343158), 5, Arrays.asList(Dept.STUDENT)),
+    학생생활관(320, null, 6, Arrays.asList(Dept.DORM_A, Dept.DORM_C));
 
     private final Integer capacity;
     private final Location location;

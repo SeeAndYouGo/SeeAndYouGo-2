@@ -2,6 +2,11 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.ApiMenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
@@ -11,6 +16,7 @@ import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +28,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,7 +38,15 @@ public class MenuService {
 
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
+    private final MenuDishRepository menuDishRepository;
+
+    // 로컬에서 운영서버로 데이터를 넘겨주기 위함.
+    private final MenuProviderFactory menuProviderFactory;
+
     public static final String DEFAULT_DISH_NAME = "메뉴 정보 없음";
+
+    @Value("${DISH_KEY}")
+    private String DISH_KEY;
 
     /**
      * date에 주어진 restaurant가 제공하는 식단 정보를 반환한다.
@@ -89,58 +104,10 @@ public class MenuService {
         return weekMenuList;
     }
 
-    /**
-     * 그 날의 Menu 엔티티가 없다면 만들어야한다.
-     */
-    public Menu createMenuIfNotExists(Integer price, String date, Dept dept, Restaurant restaurant, MenuType menuType){
-        if(menuRepository.existsByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType)){
-            return menuRepository.findByDateAndDeptAndRestaurantAndMenuType(date, dept, restaurant, menuType);
-        }
-
-        return Menu.builder()
-                .price(price)
-                .date(date)
-                .dept(dept)
-                .menuType(menuType)
-                .restaurant(restaurant)
-                .build();
-    }
-
     @Transactional
-    public List<Menu> createMenuWithDishes(List<DishDto> dishDtos) {
-        if (dishDtos.size() == 0) {
-            return Collections.emptyList();
-        }
-
-        Map<String, Menu> responseMap = new HashMap<>();
-        for (DishDto dishDto : dishDtos) {
-            String key = dishDto.getRestaurant().toString() + dishDto.getDept().toString() + dishDto.getDishType().toString() + dishDto.getDate()+dishDto.getMenuType().toString();
-
-            if (!responseMap.containsKey(key)) {
-                Dept dept = dishDto.getDept();
-                MenuType menuType = dishDto.getMenuType();
-                int price = dishDto.getPrice();
-                String date = dishDto.getDate();
-                Restaurant restaurant = dishDto.getRestaurant();
-                Menu menu = createMenuIfNotExists(price, date, dept, restaurant, menuType);
-                responseMap.put(key, menu);
-            }
-
-            Menu menu = responseMap.get(key);
-            Dish dish = dishRepository.findByName(dishDto.getName());
-
-            menu.addDish(dish);
-        }
-        List<Menu> menus = new ArrayList<>(responseMap.values());
-        menuRepository.saveAll(menus);
-
-        return menus;
-    }
-
-    @Transactional
-    public void checkWeekMenu(LocalDate date) {
-        // nearestMonday부터 금요일까지 2~5학의 메뉴 체크를 한다.
-        for(int i = 0; i < 5; i++, date = date.plusDays(1)){
+    public void checkWeekMenu(LocalDate monday, LocalDate sunday) {
+        // nearestMonday부터 일요일까지 2~5학의 메뉴 체크를 한다.
+        for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
             for (Restaurant restaurant : Restaurant.values()) {
                 if(restaurant.equals(Restaurant.제1학생회관)) continue; // 1학생회관은 고정적인 메뉴를 제공하므로 메뉴 데이터의 손실이 없으므로 패스
 
@@ -165,13 +132,8 @@ public class MenuService {
 
     /**
      * restaurant에 menus가 빠짐없이 들어가있는지 확인하고, 빠져있는 것이 있다면 '메뉴 정보 없음'으로 입력해준다.
-     *
-     * @param restaurant
-     * @param menus
-     * @param date
      */
     private void fillMenu(Restaurant restaurant, List<Menu> menus, String date) {
-//        String restaurantName = restaurant.getName();
 
         for (MenuType menuType : MenuType.values()) {
             if(menuType.equals(MenuType.BREAKFAST)){
@@ -300,65 +262,6 @@ public class MenuService {
         return sb.toString();
     }
 
-    @Transactional
-    public List<Restaurant> createRestaurant1MenuOnJson(LocalDate date) {
-        List<Restaurant> restaurants = new ArrayList<>();
-
-        try {
-            // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/restaurantFormat.json").toAbsolutePath()));
-
-            // Parse the JSON data
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
-
-            // Extract restaurantName
-            String restaurantName = jsonData.get("restaurantName").toString().replace("\"", "");
-            Restaurant restaurant = Restaurant.valueOf(restaurantName);
-
-            List<Menu> menus = new ArrayList<>();
-
-            // Extract menuName
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-            for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
-
-                if (dishRepository.findByName(name) == null) {
-                    dishRepository.save(Dish.builder()
-                            .name(name)
-                            .dishType(DishType.MAIN)
-                            .build());
-                }
-
-                Dish dish = dishRepository.findByName(name);
-                Menu menu = Menu.builder()
-                        .price(price)
-                        .date(date.toString())
-                        .dept(dept)
-                        .menuType(MenuType.LUNCH)
-                        .restaurant(restaurant)
-                        .build();
-
-                menu.setDishList(List.of(dish));
-                menus.add(menu);
-            }
-            menuRepository.saveAll(menus);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return restaurants;
-    }
-
-    @Transactional
-    public void createRestaurant1Menu(LocalDate nearestMonday) {
-        for (LocalDate date = nearestMonday; date.getDayOfWeek() != DayOfWeek.SATURDAY; date = date.plusDays(1)) {
-            createRestaurant1MenuOnJson(date);
-        }
-    }
-
     public List<Menu> findAllMenuByMainDish(Menu menu) {
         List<Dish> mainDish = menu.getMainDish();
         List<Menu> results = new ArrayList<>();
@@ -367,5 +270,64 @@ public class MenuService {
         }
 
         return results;
+    }
+
+    public boolean checkSecretKey(String authKey) {
+        return DISH_KEY.equals(authKey);
+    }
+
+    @Transactional
+    public void saveWeeklyMenuAllRestaurant(LocalDate monday, LocalDate sunday) throws Exception {
+        for (Restaurant restaurant : Restaurant.values()) {
+            saveWeeklyMenu(restaurant, monday, sunday);
+        }
+    }
+
+    private void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+        MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
+        List<Menu> weeklyMenu = menuProvider.getWeeklyMenu(restaurant, monday, sunday);
+
+//        menuRepository.saveAll(weeklyMenu);
+//        List<Dish> dishes = new ArrayList<>();
+//        // getWeeklyMenu를 통해서 받은 Menu와 Dish는 모두 저장해야한다.
+//        for (Menu menu : weeklyMenu) {
+//            List<Dish> dishNotInDb = menu.getDishList()
+//                    .stream()
+//                    .filter(dish ->
+//                            !dishRepository.existsByName(dish.getName()))
+//                    .filter(dish -> dishes.stream().noneMatch(existingDish -> existingDish.getName().equals(dish.getName())))
+//                    .collect(Collectors.toList());
+
+//            List<Dish> notDuplicatedDish = new ArrayList<>(dishNotInDb
+//                    .stream()
+//                    .collect(Collectors.toMap(
+//                            Dish::getName, // key: Dish의 name 속성
+//                            dish -> dish,  // value: Dish 객체 자체
+//                            (existing, replacement) -> existing  // 중복 시 기존 값 유지
+//                    ))
+//                    .values()); // List로 변환
+//
+//
+//        }
+
+//        dishRepository.saveAll(dishes);
+
+//        List<MenuDish> menuDishes = new ArrayList<>();
+//        for (Menu menu : weeklyMenu) {
+//            for (Dish dish : menu.getDishList()) {
+//                MenuDish menuDish = new MenuDish(menu, dish);
+//                menuDishes.add(menuDish);  // MenuDish 객체 리스트에 추가
+//            }
+//        }
+
+        // MenuDish를 한 번에 저장
+//        menuDishRepository.saveAll(menuDishes);
+    }
+
+    // String으로 넘겨주는거는 2, 3, 4, 5학생회관만 진행함.
+    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
+        ApiMenuProvider menuProvider = (ApiMenuProvider) menuProviderFactory.createMenuProvider(Restaurant.제2학생회관);
+
+        return menuProvider.getWeeklyMenuToString(monday,sunday);
     }
 }

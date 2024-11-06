@@ -20,23 +20,4 @@ public class DishController {
         dishService.updateMainDish(mainDishResponseDtos);
         return "Main Menu reflect Success.";
     }
-
-    @GetMapping("/week")
-    public void week() throws Exception {
-        dishService.saveAndCacheWeekDish(1);
-        dishService.saveAndCacheWeekDish(2);
-        dishService.saveAndCacheWeekDish(3);
-    }
-
-    @PostMapping("/dish/test")
-    public String bridgeDish(@RequestParam int page, @RequestParam String AUTH_KEY, HttpServletResponse response) throws Exception {
-        boolean isRightSecretKey = dishService.checkSecretKey(AUTH_KEY);
-
-        if(!isRightSecretKey){
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return "Invalid AUTH_KEY: Unauthorized access";
-        }
-
-        return dishService.fetchDishInfoToString(page);
-    }
 }

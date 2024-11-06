@@ -78,6 +78,10 @@ public class Menu {
         }
     }
 
+    public void addMenuDish(MenuDish menuDish){
+        this.menuDishes.add(menuDish);
+    }
+
     public List<Dish> getDishList() {
         List<Dish> dishes = new ArrayList<>();
         for(MenuDish menuDish : this.menuDishes){

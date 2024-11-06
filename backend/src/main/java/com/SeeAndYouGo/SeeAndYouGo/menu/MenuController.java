@@ -13,14 +13,19 @@ import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
 @RestController
 @RequiredArgsConstructor
@@ -154,5 +159,28 @@ public class MenuController {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
         return menuService.postMenu(restaurant, date);
+    }
+
+    @PostMapping("/menu/local")
+    public String bridgeDish(@RequestParam String AUTH_KEY, HttpServletResponse response) throws Exception {
+        boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
+
+        if(!isRightSecretKey){
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return "Invalid AUTH_KEY: Unauthorized access";
+        }
+
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+
+        return menuService.getWeeklyMenuToString(nearestMonday, sunday);
+    }
+
+    @GetMapping("/week")
+    public void week() throws Exception {
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+
+        menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
     }
 }
