@@ -2,6 +2,26 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import * as config from "../../config";
 
+const Wrapper = styled.div`
+  padding: 0 20px 10px 20px;
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
+
 const MenuItem = styled.div`
   width: 100%;
   padding: 10px 20px;
@@ -13,15 +33,11 @@ const MenuItem = styled.div`
 
 const MenuLabel = styled.p`
   padding: 1px 8px;
-  background: #111;
   border-radius: 5px;
-  color: #fff;
   font-size: 13px;
   font-weight: 400;
-  ${props => props.isPrice && `
-    background: #ddd;
-    color: #111;
-  `}
+  background: #ddd;
+  color: #111;
 `;
 
 const dateConverter = (date) => {
@@ -49,6 +65,12 @@ const MenuTableModal = ({ idx, onClose }) => {
 			return result;
 		};
 		fetchData().then((data) => {
+      const menuTypeOrder = {
+        BREAKFAST: 0,
+        LUNCH: 1,
+        DINNER: 2
+      }
+
       const groupedByDate = data.reduce((acc, item) => {
         const date = item.date;
         if (!acc[date]) {
@@ -57,12 +79,17 @@ const MenuTableModal = ({ idx, onClose }) => {
         acc[date].push(item);
         return acc;
       }, {});
+
+      Object.keys(groupedByDate).forEach(date => {
+        groupedByDate[date].sort((a, b) => menuTypeOrder[a.menuType] - menuTypeOrder[b.menuType]);
+      });
+
       setData(groupedByDate)
 		});
 	}, [idx]);
 
 	return (
-    <div style={{padding: '0 20px 10px 20px'}}>
+    <Wrapper onClick={(e) => e.stopPropagation()}>
       {/* <div 
         style={{float: 'right', cursor: 'pointer', fontWeight: 400, marginRight: '-15px', position: 'absolute'}}
       >
@@ -76,8 +103,7 @@ const MenuTableModal = ({ idx, onClose }) => {
               <MenuItem key={item.menuId}>
                 <div style={{display: 'flex', gap: 8}}>
                   <p>{item.menuType === "LUNCH" ? '중식' : item.menuType === "BREAKFAST" ? '조식' : '석식'}</p>
-                  <MenuLabel>{item.dept === 'STAFF' ? '교직원식당' : '학생식당'}</MenuLabel>
-                  <MenuLabel isPrice={true}>{item.price}</MenuLabel>
+                  <MenuLabel>{item.dept === 'STAFF' ? '교직원' : '학생'}</MenuLabel>
                 </div>
                 <p style={{color: '#999', fontSize: 14, fontWeight: 300, marginTop: 2}}>
                   {item.mainDishList.join(', ')}
@@ -87,7 +113,7 @@ const MenuTableModal = ({ idx, onClose }) => {
           </div>
         </div>
       ))}
-   </div>
+    </Wrapper>
 	);
 };
 

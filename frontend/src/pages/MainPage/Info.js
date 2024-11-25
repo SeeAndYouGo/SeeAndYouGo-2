@@ -90,20 +90,10 @@ const Info = ({ idx = 1 }) => {
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
-					<ModalContent
-						style={idx === 1 ? { marginLeft: 90 } : { marginLeft: 30 }}
-            onClick={() => setVisible({...visible, map: true})}
-					>
-						<FontAwesomeIcon icon={faMapLocationDot} />
-						<p style={{ fontSize: 11 }}>식당위치</p>
-					</ModalContent>
-          <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
-						<ModalLocation restaurant={idx} />
-					</Modal>
-					{idx !== 1 ? (
+        {idx !== 1 ? (
 						<>
 							<ModalContent
-								style={{ marginLeft: 5 }}
+								style={{ marginRight: 5 }}
 								onClick={() => setVisible({...visible, menu: true})}
 							>
 								<FontAwesomeIcon icon={faCalendarDays} />
@@ -114,6 +104,15 @@ const Info = ({ idx = 1 }) => {
 							</Modal>
 						</>
 					) : null}
+					<ModalContent
+            onClick={() => setVisible({...visible, map: true})}
+					>
+						<FontAwesomeIcon icon={faMapLocationDot} />
+						<p style={{ fontSize: 11 }}>식당위치</p>
+					</ModalContent>
+          <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
+						<ModalLocation restaurant={idx} />
+					</Modal>
 				</div>
 			</div>
 		</Container>
