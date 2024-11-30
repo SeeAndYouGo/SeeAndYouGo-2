@@ -67,18 +67,14 @@ public class IterService {
 
     @Scheduled(cron = "40 0/5 7-20 * * *")
     @ConditionalOnProperty(name = "app.test", havingValue = "false")
-    public void continuousIterative(){
-        try {
-            LocalTime now = LocalTime.now();
-            LocalTime startTime = LocalTime.of(7, 30);
-            LocalTime endTime = LocalTime.of(19, 30);
-            if (now.isBefore(startTime) || now.isAfter(endTime)) {
-                return;
-            }
-            connectionService.saveAndCacheConnection();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+    public void continuousIterative() throws Exception {
+        LocalTime now = LocalTime.now();
+        LocalTime startTime = LocalTime.of(7, 30);
+        LocalTime endTime = LocalTime.of(19, 30);
+        if (now.isBefore(startTime) || now.isAfter(endTime)) {
+            return;
         }
+        connectionService.saveRecentConnection();
     }
 
     // 평일 점심 정보는 10시에 올리기

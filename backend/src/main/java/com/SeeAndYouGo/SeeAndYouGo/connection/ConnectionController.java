@@ -19,13 +19,13 @@ public class ConnectionController {
      */
     @GetMapping("/connection/{restaurant}")
     public ConnectionResponseDto congestionRequest(@PathVariable("restaurant") String restaurant) {
-        Connection recentConnection = connectionService.getRecentConnected(restaurant);
+        Connection recentConnection = connectionService.getRecentConnectionToString(restaurant);
         return new ConnectionResponseDto(recentConnection, restaurant);
     }
 
     @GetMapping("/connection/cache")
     public void cache() throws Exception {
-        connectionService.saveAndCacheConnection();
+        connectionService.saveRecentConnection();
     }
 
     @PostMapping("/connection/test")
@@ -37,6 +37,6 @@ public class ConnectionController {
             return "Invalid AUTH_KEY: Unauthorized access";
         }
 
-        return connectionService.fetchConnectionInfoToString();
+        return connectionService.getRecentConnectionToString();
     }
 }

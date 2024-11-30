@@ -38,7 +38,6 @@ public class MenuService {
 
     private final DishRepository dishRepository;
     private final MenuRepository menuRepository;
-    private final MenuDishRepository menuDishRepository;
 
     // 로컬에서 운영서버로 데이터를 넘겨주기 위함.
     private final MenuProviderFactory menuProviderFactory;
