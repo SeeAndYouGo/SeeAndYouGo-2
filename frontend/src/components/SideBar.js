@@ -215,9 +215,9 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
-          <div style={{}}>
-            <span>today: {24}&nbsp;/&nbsp;</span>
-            <span>total: {230}</span>
+          <div style={{position: "absolute", bottom: 20}}>
+            <p>today: {24}</p>
+            <p>total: {230}</p>
           </div>
         </div>
       </SideBarWrap>
