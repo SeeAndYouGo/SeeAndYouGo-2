@@ -88,6 +88,7 @@ public class ReviewController {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+
         return getReviewDtos(reviews, "");
     }
 
