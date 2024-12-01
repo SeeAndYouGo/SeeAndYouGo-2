@@ -6,5 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public final class VisitorCountDto {
-    private final String visitorCount;
+    private final String visitTotal;
+    private final String visitToday;
 }
