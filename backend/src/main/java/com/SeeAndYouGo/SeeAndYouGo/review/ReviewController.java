@@ -177,7 +177,6 @@ public class ReviewController {
 
     @ResponseBody
     @GetMapping("/images/{imgName}")
-    @Cacheable(value="review:image:", key="#imgName")
     public byte[] showImage(@PathVariable String imgName) throws Exception {
         File file = new File(IMAGE_DIR + "/" + imgName);
         return Files.readAllBytes(file.toPath());
