@@ -1,8 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-//import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
-import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeyword;
-import com.SeeAndYouGo.SeeAndYouGo.keyword.UserKeywordRepository;
+import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByAdminDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByUserDto;
@@ -35,7 +35,6 @@ public class MenuController {
     private final TokenProvider tokenProvider;
 
     @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
-    @Cacheable(value="menu:daily:", key="#place")
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                                @PathVariable(value = "user_id", required = false) String tokenId) {
         String date = getTodayDate();
@@ -149,7 +148,7 @@ public class MenuController {
         return menuListArr;
     }
 
-//    @TraceMethodLog
+    @TraceMethodLog
     @GetMapping("/test/{restaurantName}/{date}")
     public MenuPostDto test(@PathVariable String restaurantName, @PathVariable String date){
         String parseRestaurantName = Restaurant.parseName(restaurantName);

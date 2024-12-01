@@ -160,7 +160,7 @@ const WriteImpossible = styled.div`
 	height: 100%;
 	left: 0px;
 	top: 0px;
-	background-color: rgba(20, 20, 20, 0.3);
+	background-color: rgba(20, 20, 20, 0.4);
 	z-index: 6;
 	border-radius: 20px;
 	text-align: center;
@@ -168,15 +168,18 @@ const WriteImpossible = styled.div`
 	flex-direction: column;
 	justify-content: center;
 	font-size: 20px;
-	text-decoration: underline;
 	cursor: default;
 `;
 
 const GoToLogin = styled.span`
 	cursor: pointer;
-	:hover {
-		color: red;
-		opacity: 0.7;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 16px;
+	color: #222;
+	& > * {
+		font-weight: 400;
 	}
 `;
 
@@ -198,6 +201,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [selectedMenu, setSelectedMenu] = useState({});
 	const [image, setImage] = useState();
 	const [imageURL, setImageURL] = useState("");
+	const [prevImage, setPrevImage] = useState(null);
 	const imageRef = useRef(null);
 	const navigator = useNavigate();
 	const dispatch = useDispatch();
@@ -213,14 +217,6 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 	const [CropModal, setCropModal] = useState(false);
 
-	useEffect(() => {
-		console.log('croppedAreaPixels:', croppedAreaPixels);
-	}, [croppedAreaPixels]);
-
-	useEffect(() => {
-		console.log('image:', image);
-	}, [image])
-
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
 		if (e.target.files[0]) {
@@ -231,11 +227,14 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			setImageURL(e.target.result);
 			setCropModal(true);
 		};
+
+		e.target.value = '';
 	};
 
 	const deleteImage = () => {
 		setImage(null);
 		setImageURL("");
+		setPrevImage(null);
 		imageRef.current.value = null;
 	};
 
@@ -274,18 +273,6 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
-		// // // FormData의 key 확인
-		// 	for (let key of formdata.keys()) {
-		// 		console.log(key);
-		// 	}
-
-		// 	// FormData의 value 확인
-		// 	for (let value of formdata.values()) {
-		// 		console.log(value);
-		// 	}
-
-		// 	return;
-
 		axios
 			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
 				headers: {
@@ -306,7 +293,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 
 	return (
 		<>
-			<ImageCropper 
+			<ImageCropper
+				setPrevImage={setPrevImage}
 				setImage={setImage}
 				isOpen={CropModal}
 				setIsOpen={setCropModal}
@@ -321,12 +309,16 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
 				) : !token ? ( // 로그인 안한 경우
 					<WriteImpossible>
+						로그인이 필요합니다 !!
 						<GoToLogin
 							onClick={() => {
 								navigator("/login-page");
 							}}
 						>
-							로그인이 필요합니다 !!
+							<span>
+								로그인 하러가기 
+							</span>
+							<span className="material-symbols-outlined">chevron_right</span>
 						</GoToLogin>
 					</WriteImpossible>
 				) : null}
@@ -382,12 +374,12 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 							</ReviewWriteCamera>
 						</ReviewWriteInputWrapper>
 						<div style={{ width: "100%", float: "left" }}>
-							{imageURL ? (
+							{prevImage ? (
 									<div
 										className="PrevWrapper"
 										style={{ float: "left", position: "relative" }}
 									>
-										<ReviewPreviewImage src={imageURL} />
+										<ReviewPreviewImage src={prevImage} />
 										<ReviewImageDelete onClick={deleteImage}>
 											<span className="material-symbols-outlined">close</span>
 										</ReviewImageDelete>

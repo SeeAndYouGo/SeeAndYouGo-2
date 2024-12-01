@@ -88,6 +88,7 @@ public class ReviewController {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+
         return getReviewDtos(reviews, "");
     }
 
@@ -103,12 +104,14 @@ public class ReviewController {
     }
 
     @PutMapping("/report/{reviewId}")
-    public void judgeDeleteReview(@PathVariable Long reviewId){
+    public String judgeDeleteReview(@PathVariable Long reviewId){
         Integer reportCount = reviewService.updateReportCount(reviewId);
 
         if(reportCount >= REPORT_CRITERION){
             reviewService.deleteById(reviewId);
         }
+
+        return "The Review report was successful.";
     }
 
     // 리뷰 게시

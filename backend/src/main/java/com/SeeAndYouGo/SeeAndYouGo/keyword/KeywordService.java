@@ -4,6 +4,8 @@ import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordAddResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
