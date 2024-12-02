@@ -2,17 +2,11 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.ApiMenuProvider;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
-import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
-import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -282,9 +272,36 @@ public class MenuService {
         }
     }
 
+    @Transactional
     private void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
-        List<Menu> weeklyMenu = menuProvider.getWeeklyMenu(restaurant, monday, sunday);
+        List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant, monday, sunday);
+
+        // 이제 받은 List<MenuVO>를 List<Menu>로 변환하고 저장한다.
+        for (MenuVO menuVO : weeklyMenu) {
+            List<DishVO> dishVOs = menuVO.getDishVOs();
+
+            Menu menu = new Menu(menuVO);
+            for (DishVO dishVO : dishVOs) {
+                Dish dish;
+
+                // 만약 해당 Dish가 있으면 그걸 repository에서 가져오고 없다면 생성한다.
+                if(!dishRepository.existsByName(dishVO.getName())){
+                    dish = Dish.builder()
+                                    .name(dishVO.getName())
+                                    .dishType(dishVO.getDishType())
+                                    .build();
+
+                    dishRepository.save(dish);
+                }else{
+                    dish = dishRepository.findByName(dishVO.getName());
+                }
+
+                menu.addDish(dish);
+            }
+
+            menuRepository.save(menu);
+        }
 
 //        menuRepository.saveAll(weeklyMenu);
 //        List<Dish> dishes = new ArrayList<>();
@@ -324,9 +341,9 @@ public class MenuService {
     }
 
     // String으로 넘겨주는거는 2, 3, 4, 5학생회관만 진행함.
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
-        ApiMenuProvider menuProvider = (ApiMenuProvider) menuProviderFactory.createMenuProvider(Restaurant.제2학생회관);
+    public String getWeeklyMenuToString(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+        MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
 
-        return menuProvider.getWeeklyMenuToString(monday,sunday);
+        return menuProvider.getWeeklyMenuToString(monday, sunday);
     }
 }

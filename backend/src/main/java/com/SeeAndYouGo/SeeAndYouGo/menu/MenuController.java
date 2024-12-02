@@ -134,22 +134,21 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
-    @Cacheable(value="menu:weekly:")
+//    @Cacheable(value="menu:weekly:")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
-        String place;
 
-        for(int i=2; i<=5; i++) {
-            place = "restaurant"+i;
-            oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
+        for (Restaurant restaurant : Restaurant.values()) {
+            oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(restaurant.toString(), date);
 
             for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
                 List<MenuResponseByAdminDto> menuResponsDtos = parseOneDayRestaurantMenuForAdmin(dayRestaurantMenu);
                 menuListArr.addAll(menuResponsDtos);
             }
         }
+
         return menuListArr;
     }
 
@@ -161,8 +160,11 @@ public class MenuController {
         return menuService.postMenu(restaurant, date);
     }
 
-    @PostMapping("/menu/local")
-    public String bridgeDish(@RequestParam String AUTH_KEY, HttpServletResponse response) throws Exception {
+    @PostMapping("/menu/local/{restaurant}")
+    public String bridgeDish(@RequestParam String AUTH_KEY,
+                            @PathVariable String restaurantToString,
+                             HttpServletResponse response) throws Exception {
+
         boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
@@ -173,7 +175,10 @@ public class MenuController {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);
 
-        return menuService.getWeeklyMenuToString(nearestMonday, sunday);
+        String restaurantName = Restaurant.parseName(restaurantToString);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+
+        return menuService.getWeeklyMenuToString(restaurant, nearestMonday, sunday);
     }
 
     @GetMapping("/week")

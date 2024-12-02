@@ -3,10 +3,12 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,11 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JsonMenuProvider implements MenuProvider{
 
-    private final DishRepository dishRepository;
-    private final MenuRepository menuRepository;
-
     @Override
-    public List<Menu> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
             // Read the JSON file
             String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/menuOfRestaurant1.json").toAbsolutePath()));
 
@@ -38,7 +37,7 @@ public class JsonMenuProvider implements MenuProvider{
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
 
-            List<Menu> menus = new ArrayList<>();
+            List<MenuVO> menuVOs = new ArrayList<>();
 
             // Extract menuName
             JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
@@ -47,30 +46,25 @@ public class JsonMenuProvider implements MenuProvider{
                 Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
                 Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
 
-                if (!dishRepository.existsByName(name)) {
-                    dishRepository.save(Dish.builder()
-                            .name(name)
-                            .dishType(DishType.MAIN)
-                            .build());
-                }
-
-                Dish dish = dishRepository.findByName(name);
+                DishVO dishVO = new DishVO(name, DishType.MAIN);
 
                 for(LocalDate date=monday; !date.isAfter(sunday); date = date.plusDays(1)) {
-                    Menu menu = Menu.builder()
-                            .price(price)
-                            .date(date.toString())
-                            .dept(dept)
-                            .menuType(MenuType.LUNCH) // 1학은 고정적으로 LUNCH
-                            .restaurant(restaurant)
-                            .build();
+                    MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
 
-                    menu.setDishList(List.of(dish));
-                    menus.add(menu);
+                    menuVO.addDishVO(dishVO);
+                    menuVOs.add(menuVO);
                 }
             }
-            menuRepository.saveAll(menus);
 
-        return menus;
+        return menuVOs;
+    }
+
+    @Override
+    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
+        throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
+    }
+
+    private MenuVO getMenuVO(Integer price, LocalDate date, Dept dept, MenuType menuType, Restaurant restaurant) {
+        return new MenuVO(price, date.toString(), dept, restaurant, menuType);
     }
 }

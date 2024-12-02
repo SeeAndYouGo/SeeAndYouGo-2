@@ -3,10 +3,12 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +33,13 @@ import java.util.regex.Pattern;
 public class CrawlingMenuProvider implements MenuProvider{
 
     private final static String DORM_URL = "https://dorm.cnu.ac.kr/html/kr/sub03/sub03_0304.html";
-    private final MenuRepository menuRepository;
-    private final DishRepository dishRepository;
 
     @Override
-    public List<Menu> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         Connection connection = Jsoup.connect(DORM_URL);
         Document document = connection.get();
+
+        List<MenuVO> menuVOs = new ArrayList<>();
 
         Elements rows = document.select("#txt > table.default_view.diet_table > tbody > tr");
 
@@ -52,23 +54,14 @@ public class CrawlingMenuProvider implements MenuProvider{
                 for (String deptStr : dishes.keySet()) {
                     Dept dept = Dept.changeStringToDept(deptStr);
 
-                    Menu menu = saveMenu(dept, date, restaurant, MenuType.BREAKFAST);
+                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
 
                     for (String dishToStr : dishes.get(deptStr)) {
-                        if(!dishRepository.existsByName(dishToStr)){
-                            Dish dish = Dish.builder()
-                                    .name(dishToStr)
-                                    .dishType(DishType.SIDE)
-                                    .build();
 
-                            dishRepository.save(dish);
-                        }
+                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                        menuVO.addDishVO(dishVO);
 
-                        Dish dish = dishRepository.findByName(dishToStr);
-
-                        MenuDish menuDish = new MenuDish(menu, dish);
-                        menu.addMenuDish(menuDish);
-                        dish.addMenuDish(menuDish);
+                        menuVOs.add(menuVO);
                     }
                 }
             }
@@ -80,23 +73,14 @@ public class CrawlingMenuProvider implements MenuProvider{
                 for (String deptStr : dishes.keySet()) {
                     Dept dept = Dept.changeStringToDept(deptStr);
 
-                    Menu menu = saveMenu(dept, date, restaurant, MenuType.LUNCH);
+                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
 
                     for (String dishToStr : dishes.get(deptStr)) {
-                        if(!dishRepository.existsByName(dishToStr)){
-                            Dish dish = Dish.builder()
-                                    .name(dishToStr)
-                                    .dishType(DishType.SIDE)
-                                    .build();
 
-                            dishRepository.save(dish);
-                        }
+                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                        menuVO.addDishVO(dishVO);
 
-                        Dish dish = dishRepository.findByName(dishToStr);
-
-                        MenuDish menuDish = new MenuDish(menu, dish);
-                        menu.addMenuDish(menuDish);
-                        dish.addMenuDish(menuDish);
+                        menuVOs.add(menuVO);
                     }
                 }
             }
@@ -108,41 +92,29 @@ public class CrawlingMenuProvider implements MenuProvider{
                 for (String deptStr : dishes.keySet()) {
                     Dept dept = Dept.changeStringToDept(deptStr);
 
-                    Menu menu = saveMenu(dept, date, restaurant, MenuType.DINNER);
+                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
 
                     for (String dishToStr : dishes.get(deptStr)) {
-                        if(!dishRepository.existsByName(dishToStr)){
-                            Dish dish = Dish.builder()
-                                    .name(dishToStr)
-                                    .dishType(DishType.SIDE)
-                                    .build();
 
-                            dishRepository.save(dish);
-                        }
+                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                        menuVO.addDishVO(dishVO);
 
-                        Dish dish = dishRepository.findByName(dishToStr);
-
-                        MenuDish menuDish = new MenuDish(menu, dish);
-                        menu.addMenuDish(menuDish);
-                        dish.addMenuDish(menuDish);
+                        menuVOs.add(menuVO);
                     }
                 }
             }
         }
 
-        return null;
+        return menuVOs;
     }
 
-    private Menu saveMenu(Dept dept, LocalDate date, Restaurant restaurant, MenuType menuType) {
-        Menu menu = Menu.builder()
-                            .price(0)
-                            .date(date.toString())
-                            .dept(dept)
-                            .menuType(menuType)
-                            .restaurant(restaurant)
-                            .build();
+    @Override
+    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
+        throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
+    }
 
-        return menuRepository.save(menu);
+    private MenuVO CreateMenuVO(Dept dept, LocalDate date, Restaurant restaurant, MenuType menuType) {
+        return new MenuVO(0, date.toString(), dept, restaurant, menuType);
     }
 
     private Map<String, List<String>> getDishes(String text) {

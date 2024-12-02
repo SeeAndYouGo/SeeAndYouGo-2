@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
+import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,7 +11,6 @@ import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -32,13 +32,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     @Value("${URL.CONN_URL}")
     private String CONN_URL;
 
-    @Override
-    public List<Connection> getRecentConnection(Restaurant restaurant) throws Exception {
-
-        return saveRecentConnection(restaurant);
-    }
-
-    public String fetchConnectionInfoToString() throws Exception {
+    public String getRecentConnectionToString(Restaurant restaurant) throws Exception {
 
         String apiUrl = CONN_URL + "?AUTH_KEY=" + CONN_KEY;
 
@@ -70,14 +64,14 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
         return json;
     }
 
-    @Transactional
-    public List<Connection> saveRecentConnection(Restaurant restaurant) throws Exception{
-        String wifiInfo = fetchConnectionInfoToString();
+    @Override
+    public List<ConnectionVO> getRecentConnection(Restaurant restaurant) throws Exception{
+        String wifiInfo = getRecentConnectionToString(restaurant);
         if (wifiInfo.isEmpty()) {
             return null;
         }
 
-        List<Connection> result = new ArrayList<>();
+        List<ConnectionVO> result = new ArrayList<>();
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
@@ -94,12 +88,6 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
         }
 
         String time = extractTimeInJson(jsonObject);
-        if(connectionRepository.count() > 0){
-            String recentTime = connectionRepository.findTopByOrderByTimeDesc().getTime();
-            if(recentTime.equals(time)){
-                return connectionRepository.findByRestaurantAndTimeStartsWith(restaurant, time);
-            }
-        }
 
         for (JsonElement jsonElement : finalResult) {
             JsonObject asJsonObject = jsonElement.getAsJsonObject();
@@ -111,17 +99,11 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
                 continue;
             }
 
-            // 만약 여기에 데이터가 없다면, restaurant를 새로 생성. 있다면, restaurant의 connection에 add하자.
             Integer connected = asJsonObject.get("connected").getAsInt();
 
-            Connection connection = Connection.builder()
-                    .connected(connected)
-                    .time(time)
-                    .restaurant(restaurant)
-                    .build();
+            ConnectionVO connectionVO = new ConnectionVO(connected, time, restaurant);
 
-            connectionRepository.save(connection);
-            result.add(connection);
+            result.add(connectionVO);
         }
 
         return result;
@@ -189,9 +171,5 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     private static String resolveTimeFormat(String rawTime){
         return rawTime.substring(0, 4)+"-"+rawTime.substring(4, 6)+"-"+rawTime.substring(6, 8)+
                 " "+rawTime.substring(8, 10)+":"+rawTime.substring(10, 12)+":"+rawTime.substring(12);
-    }
-
-    public String getRecentConnectionToString() throws Exception {
-        return fetchConnectionInfoToString();
     }
 }

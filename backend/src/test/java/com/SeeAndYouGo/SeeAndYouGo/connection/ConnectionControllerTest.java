@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.TestSetUp;
+import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
