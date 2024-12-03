@@ -24,8 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
-    private final ConnectionRepository connectionRepository;
-
     @Value("${CONN_KEY}")
     private String CONN_KEY;
 

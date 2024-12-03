@@ -21,8 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DormitoryConnectionProvider implements ConnectionProvider{
 
-    private final ConnectionRepository connectionRepository;
-
     @Value("${URL.DORM_CONN_URL}")
     private String CONN_URL;
 

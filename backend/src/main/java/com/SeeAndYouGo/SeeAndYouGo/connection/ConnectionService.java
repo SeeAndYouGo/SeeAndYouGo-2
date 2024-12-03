@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderFactory;
-import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.InformationCenterConnectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +47,12 @@ public class ConnectionService {
         return connectionProvider.getRecentConnectionToString(restaurant);
     }
 
+    @Transactional
     public void saveRecentConnection() throws Exception {
         for (Restaurant restaurant : Restaurant.values()) {
             // 부르기 전에 먼저 DB에 있는지 확인한다.
-            if(connectionRepository.count() > 0){
-                String recentTime = connectionRepository.findTopByOrderByTimeDesc().getTime();
+            if(connectionRepository.countByRestaurant(restaurant) > 0){
+                String recentTime = connectionRepository.findTopByRestaurantOrderByTimeDesc(restaurant).getTime();
                 // 이 시간과 현재 시간 차이를 비교해본다.
                 if(haveRecentConnection(recentTime)){
                     // 최신 데이터가 있다면 저장하지 않아도 됨.

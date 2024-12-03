@@ -1,10 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.ApiMenuProvider;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.CrawlingMenuProvider;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.JsonMenuProvider;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import lombok.Getter;
 import java.util.Arrays;
 import java.util.List;

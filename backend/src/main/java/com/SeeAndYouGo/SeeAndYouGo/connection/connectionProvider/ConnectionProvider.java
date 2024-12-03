@@ -1,6 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
-import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 
