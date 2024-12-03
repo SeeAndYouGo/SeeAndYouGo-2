@@ -26,13 +26,13 @@ public class VisitorScheduler {
             String countValue = Objects.requireNonNull(redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR));
             totalCount = Integer.parseInt(countValue);
         } catch (NullPointerException e) {
-            Optional<VisitorCount> backupCount = repository.findTodayTempData();
-            if (backupCount.isPresent()) {
-                totalCount = backupCount.get().getCount();
-            } else {
-                logger.error("[ERROR] empty today's visitor count. passing.");
-                return;
-            }
+//            Optional<VisitorCount> backupCount = repository.findTodayTempData();
+//            if (backupCount.isPresent()) {
+//                totalCount = backupCount.get().getCount();
+//            } else {
+//                logger.error("[ERROR] empty today's visitor count. passing.");
+//                return;
+//            }
         }
         VisitorCount entity = VisitorCount.from(totalCount, true);
         repository.save(entity);
@@ -56,12 +56,12 @@ public class VisitorScheduler {
         String newCount = redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR);
         if (newCount != null) {
             int cnt = Integer.parseInt(newCount);
-            Optional<VisitorCount> todayTempData = repository.findTodayTempData();
-            if (todayTempData.isPresent()) {
-                repository.updateCountForTodayTempData(cnt);
-            } else {
-                repository.save(VisitorCount.from(cnt, false));
-            }
+//            Optional<VisitorCount> todayTempData = repository.findTodayTempData();
+//            if (todayTempData.isPresent()) {
+//                repository.updateCountForTodayTempData(cnt);
+//            } else {
+//                repository.save(VisitorCount.from(cnt, false));
+//            }
         }
     }
 }

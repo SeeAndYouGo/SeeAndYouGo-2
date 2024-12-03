@@ -33,28 +33,23 @@ public class IterService {
 
     @Scheduled(cron="0 0 0 * * SAT")
     @ConditionalOnProperty(name = "app.test", havingValue = "false")
-    public void weeklyIterative(){
+    public void weeklyIterative() throws Exception {
         // 기본적으로 토요일에 호출되는 메섣.
 
         // 토, 일에 호출하면 다음주 메뉴를 불러옴.
         // 월-금에 호출하면 해당 주 메뉴를 불러옴.
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
 
-        try {
             // Restaurant가 Enum으로 변경되었으므로 Restaurant가 아닌 Menu의 유무를 통해서 해당 메뉴를 캐싱했는지 파악한다.
             if(!menuRepository.existsByDate(nearestMonday.toString())) {
-                menuService.createRestaurant1Menu(nearestMonday);
 
-                // 월요일부터 금요일까지의 메뉴를 캐싱한다.
-                dishService.saveAndCacheWeekDish(1);
-                dishService.saveAndCacheWeekDish(2);
-                dishService.saveAndCacheWeekDish(3);
+                // 월요일부터 일요일까지의 메뉴를 캐싱한다.
+                menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
 
-                menuService.checkWeekMenu(nearestMonday);
+                // api로 받아오지 못한 부분에는 '메뉴정보없음'을 표기한다.
+                menuService.checkWeekMenu(nearestMonday, sunday);
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     @Scheduled(cron="0 0 21 * * MON-FRI")
@@ -72,18 +67,14 @@ public class IterService {
 
     @Scheduled(cron = "40 0/5 7-20 * * *")
     @ConditionalOnProperty(name = "app.test", havingValue = "false")
-    public void continuousIterative(){
-        try {
-            LocalTime now = LocalTime.now();
-            LocalTime startTime = LocalTime.of(7, 30);
-            LocalTime endTime = LocalTime.of(19, 30);
-            if (now.isBefore(startTime) || now.isAfter(endTime)) {
-                return;
-            }
-            connectionService.saveAndCacheConnection();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+    public void continuousIterative() throws Exception {
+        LocalTime now = LocalTime.now();
+        LocalTime startTime = LocalTime.of(7, 30);
+        LocalTime endTime = LocalTime.of(19, 30);
+        if (now.isBefore(startTime) || now.isAfter(endTime)) {
+            return;
         }
+        connectionService.saveRecentConnection();
     }
 
     // 평일 점심 정보는 10시에 올리기
@@ -118,6 +109,14 @@ public class IterService {
 
         // 입력된 날짜에서 금요일까지의 날짜를 반환합니다.
         return inputDate.plusDays(daysUntilFriday);
+    }
+
+    public static LocalDate getSundayOfWeek(LocalDate monday) {
+        if(!monday.getDayOfWeek().equals(MONDAY)){
+            throw new IllegalArgumentException("월요일을 입력받아야 합니다.");
+        }
+
+        return monday.plusDays(6);
     }
 
     @Scheduled(cron = "0 0 22 31 12 *")

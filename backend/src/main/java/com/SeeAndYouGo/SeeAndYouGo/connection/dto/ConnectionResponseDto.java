@@ -1,5 +1,6 @@
-package com.SeeAndYouGo.SeeAndYouGo.connection;
+package com.SeeAndYouGo.SeeAndYouGo.connection.dto;
 
+import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
