@@ -4,19 +4,19 @@ import * as config from "../../config";
 
 const Wrapper = styled.div`
   padding: 0 20px 10px 20px;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
   &::-webkit-scrollbar {
-    width: 3px;
+    width: 5px;
   }
-  
   &::-webkit-scrollbar-thumb {
     background: #888;
-    border-radius: 3px;
+    border-radius: 5px;
   }
-  
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }

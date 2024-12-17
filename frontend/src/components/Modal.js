@@ -22,8 +22,10 @@ const ModalContainer = styled.div`
 	background-color: white;
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
 	max-height: 80%;
-	overflow-y: scroll;
+	overflow-y: hidden;
 	border-radius: 10px;
 `;
 
