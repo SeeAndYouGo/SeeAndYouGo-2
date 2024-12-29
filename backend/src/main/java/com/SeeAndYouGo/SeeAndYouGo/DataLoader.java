@@ -47,7 +47,7 @@ public class DataLoader implements CommandLineRunner {
         // 데이터 삽입 메서드(테스트 환경에서는 데이터를 임의로 넣어줄 것이므로 불필요함.
         if(!isTest) {
             iterService.weeklyIterative();
-            connectionService.saveAndCacheConnection();
+            connectionService.saveRecentConnection();
         }
     }
 }

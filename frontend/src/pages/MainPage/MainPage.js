@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
-import TabBar from "./TabBar";
+import SwipeableTab from "./SwipeableTab";
 import * as config from "../../config";
 import Info from "./Info";
 import Progress from "./Progress";
@@ -32,9 +32,9 @@ const MainPage = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(changeDept(1));
+		dispatch(changeDept("STUDENT"));
 		if (restaurantId === 2) {
-			dispatch(changeMenuType("BREAKFAST"));
+			dispatch(changeMenuType(1));
 		}
 	}, [restaurantId, dispatch]);
 
@@ -119,7 +119,7 @@ const MainPage = () => {
 				loading ? <Loading /> : 
 				restaurantId !== 0 && 
 				<>
-					<TabBar
+					<SwipeableTab 
 						restaurantId={restaurantId}
 						setRestaurantId={handleSetRestaurantId}
 						menuData={menuData}

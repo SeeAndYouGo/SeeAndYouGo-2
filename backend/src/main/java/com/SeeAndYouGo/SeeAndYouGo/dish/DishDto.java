@@ -29,10 +29,7 @@ public class DishDto {
         this.menuType = menuType;
     }
 
-    public Dish toDish(){
-        return Dish.builder()
-                .name(this.getName())
-                .dishType(this.getDishType())
-                .build();
+    public DishVO toDishVO(){
+        return new DishVO(name, dishType);
     }
 }

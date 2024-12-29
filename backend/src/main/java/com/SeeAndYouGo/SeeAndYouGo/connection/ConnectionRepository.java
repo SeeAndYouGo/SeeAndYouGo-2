@@ -9,7 +9,7 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     Connection findTopByRestaurantOrderByTimeDesc(Restaurant name);
 
-    Connection findTopByOrderByTimeDesc();
-
     List<Connection> findByRestaurantAndTimeStartsWith(Restaurant restaurant, String date);
+
+    int countByRestaurant(Restaurant restaurant);
 }

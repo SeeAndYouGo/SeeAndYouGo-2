@@ -13,14 +13,19 @@ import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
 @RestController
 @RequiredArgsConstructor
@@ -129,22 +134,21 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
-    @Cacheable(value="menu:weekly:")
+//    @Cacheable(value="menu:weekly:")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
-        String place;
 
-        for(int i=2; i<=5; i++) {
-            place = "restaurant"+i;
-            oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
+        for (Restaurant restaurant : Restaurant.values()) {
+            oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(restaurant.toString(), date);
 
             for (List<Menu> dayRestaurantMenu : oneWeekRestaurantMenu) {
                 List<MenuResponseByAdminDto> menuResponsDtos = parseOneDayRestaurantMenuForAdmin(dayRestaurantMenu);
                 menuListArr.addAll(menuResponsDtos);
             }
         }
+
         return menuListArr;
     }
 
@@ -154,5 +158,34 @@ public class MenuController {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
         return menuService.postMenu(restaurant, date);
+    }
+
+    @PostMapping("/menu/local/{restaurant}")
+    public String bridgeDish(@RequestParam String AUTH_KEY,
+                            @PathVariable String restaurantToString,
+                             HttpServletResponse response) throws Exception {
+
+        boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
+
+        if(!isRightSecretKey){
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return "Invalid AUTH_KEY: Unauthorized access";
+        }
+
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+
+        String restaurantName = Restaurant.parseName(restaurantToString);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+
+        return menuService.getWeeklyMenuToString(restaurant, nearestMonday, sunday);
+    }
+
+    @GetMapping("/week")
+    public void week() throws Exception {
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+
+        menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
     }
 }
