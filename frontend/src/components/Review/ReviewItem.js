@@ -142,10 +142,11 @@ const ReviewItem = ({
     setLikeLoading(true);
     axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
     }).then((res) => {
-      const isLike = res.data.like
+      const isLike = res.data.like;
       const isMine = res.data.mine;
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
         dispatch(showToast({ contents: "review", toastIndex: 9 }));
+        setLikeLoading(false);
         return;
       }
       if (isLike === true) { // true면 공감이 된 상태
