@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = "LUNCH";
+const initialState = 1;
 
 const menuTypeSlice = createSlice({
   name: "menuType",

@@ -16,9 +16,8 @@ public class VisitorController {
     // 테스트용 API
     @GetMapping("/count")
     public VisitorCountDto index() {
-
-        String count = redisTemplate.opsForValue().get(Const.KEY_TOTAL_VISITOR_COUNT);
-
-        return new VisitorCountDto(count);
+        String today = redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR);
+        String total = redisTemplate.opsForValue().get(Const.KEY_TOTAL_VISITOR);
+        return new VisitorCountDto(total, today);
     }
 }

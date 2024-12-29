@@ -1,12 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
 
-const menuTypeList = {
-	BREAKFAST: "조식",
-	LUNCH: "중식",
-	DINNER: "석식",
-};
-
 const MenuItemContainer = styled.div`
 	margin: 10px 0px;
 	padding: 15px;
@@ -27,7 +21,7 @@ const SubMenuContent = styled.p`
 	color: #777;
 `;
 
-const MenuType = styled.div`
+const Dept = styled.div`
 	padding: 3px 15px;
 	font-size: 12px;
 	font-weight: 400;
@@ -54,7 +48,7 @@ const MenuItem = ({ menu }) => {
 			<MainMenuContent>{mainMenu}</MainMenuContent>
 			<SubMenuContent>{subMenu}</SubMenuContent>
 			<div style={{ display: "flex" }}>
-				<MenuType>{menuTypeList[menu.menuType]}</MenuType>
+				<Dept>{menu.dept === "STAFF" ? "교직원" : "학생"}</Dept>
 				<MenuPrice>{menu.price}</MenuPrice>
 			</div>
 		</MenuItemContainer>

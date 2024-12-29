@@ -24,7 +24,7 @@ public class VisitorService {
 
         VisitorCount data = backupVisitorCount.get();
         LocalDateTime createdAt = data.getCreatedAt();
-        redisTemplate.opsForValue().set(Const.KEY_TOTAL_VISITOR_COUNT,
+        redisTemplate.opsForValue().set(Const.KEY_TODAY_VISITOR,
                 String.valueOf(data.getCount()));
         log.info("=== Visitor Count Restore Done! count: {} of {}", data.getCount(), createdAt);
     }

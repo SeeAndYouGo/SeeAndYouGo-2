@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
@@ -49,6 +50,14 @@ public class Menu {
         this.restaurant = restaurant;
     }
 
+    public Menu(MenuVO menuVO) {
+        this.price = menuVO.getPrice();
+        this.date = menuVO.getDate();
+        this.dept = menuVO.getDept();
+        this.menuType = menuVO.getMenuType();
+        this.restaurant = menuVO.getRestaurant();
+    }
+
     public String getMenuName(){
         for (MenuDish menuDish : this.menuDishes) {
             Dish dish = menuDish.getDish();
@@ -76,6 +85,10 @@ public class Menu {
             this.menuDishes.add(menuDish);
             dish.addMenuDish(menuDish);
         }
+    }
+
+    public void addMenuDish(MenuDish menuDish){
+        this.menuDishes.add(menuDish);
     }
 
     public List<Dish> getDishList() {

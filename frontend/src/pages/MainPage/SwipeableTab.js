@@ -13,7 +13,7 @@ import { changeDept } from "../../redux/slice/DeptSlice";
 const Slider = styled.div`
 	background-color: #fff;
 	border-radius: 10px;
-	padding: 10px 20px;
+	padding: 10px 15px;
 	font-size: 18px;
 	font-weight: 600;
 	width: 100%;
@@ -62,18 +62,18 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
     }
   }, [restaurantId])
 
-	const initialSetting = (numValue, typeValue) => {
+	const initialSetting = (numValue, deptValue) => {
 		setRestaurantId(numValue);
 		if (numValue === 1) {
 			dispatch(changeToInitialState());
 			return;
 		} else {
-			dispatch(changeMenuType(typeValue));
-			dispatch(changeDept(1));
+			dispatch(changeMenuType(1));
+			dispatch(changeDept(deptValue));
 		}
 		if (numValue === 2) {
 			const initialMenu = menu[numValue - 1].filter(
-				(item) => item.menuType === typeValue
+				(item) => item.dept === deptValue
 			)[0];
 			dispatch(
 				changeMenuInfo({
@@ -83,7 +83,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			);
 		} else if (numValue === 3) {
 			const initialMenu = menu[numValue - 1].filter(
-				(item) => item.menuType === typeValue && item.dept === "STUDENT"
+				(item) => item.dept === deptValue && item.menuType === "LUNCH"
 			)[0];
 			dispatch(
 				changeMenuInfo({
@@ -93,7 +93,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			);
 		} else {
 			const initialMenu = menu[numValue - 1].filter(
-				(item) => item.dept === "STUDENT"
+				(item) => item.menuType === "LUNCH"
 			)[0];
 			dispatch(
 				changeMenuInfo({
@@ -119,7 +119,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 						onClick={() =>
 							initialSetting(
 								i + 1,
-								i === 0 ? null : i === 1 ? "BREAKFAST" : "LUNCH"
+								i === 0 ? null : "STUDENT"
 							)
 						}
 					>
@@ -136,12 +136,12 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center", fontSize: 18 }}
+					style={{ textAlign: "center", fontSize: 17 }}
 					initialSlide={
             restaurantId < 4 ? 0 : restaurantId - 1
           }
 					speed={1000}
-					slidesPerView={3.5}
+					slidesPerView={3.6}
           onSwiper={setSwiper}
 				>
 					{RestaurantSwiperSlide()}

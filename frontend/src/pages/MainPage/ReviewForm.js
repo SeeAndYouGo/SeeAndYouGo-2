@@ -160,7 +160,7 @@ const WriteImpossible = styled.div`
 	height: 100%;
 	left: 0px;
 	top: 0px;
-	background-color: rgba(20, 20, 20, 0.4);
+	background-color: rgba(20, 20, 20, 0.25);
 	z-index: 6;
 	border-radius: 20px;
 	text-align: center;
@@ -169,6 +169,7 @@ const WriteImpossible = styled.div`
 	justify-content: center;
 	font-size: 20px;
 	cursor: default;
+	backdrop-filter: blur(1.5px);
 `;
 
 const GoToLogin = styled.span`

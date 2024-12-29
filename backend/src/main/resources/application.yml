@@ -3,7 +3,7 @@
     active: prod
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -22,7 +22,5 @@ logging.level:
 app:
   test: false
 
-
-
-
-# 배포 시 java -jar -Dspring.profiles.active=prod testProject-0.0.1-SNAPSHOT.jar
+URL:
+  DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon

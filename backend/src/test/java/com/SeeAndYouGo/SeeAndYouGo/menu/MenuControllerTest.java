@@ -279,11 +279,14 @@ public class MenuControllerTest {
         assertEquals(sideDishKeywordList.get(0), sideDishName);
     }
 
-    @DisplayName("식당별 주간메뉴 조회")
-    @Test
-    void 식당별_주간메뉴_조회() throws Exception {
-
-    }
-
-
+//    @DisplayName("식당별 주간메뉴 조회")
+//    @Test
+//    void 식당별_주간메뉴_조회() throws Exception {
+//        // given
+//        // 주간 메뉴를 등록한다.
+//        // 당일 기준으로 해당 주의 메뉴들을 insert하는 메서드부터 생성해야함.
+//        List<Menu> weeklyMenu = TestSetUp.saveWeeklyMenuAllRestaurant(menuRepository, dishRepository);
+//
+//
+//    }
 }
