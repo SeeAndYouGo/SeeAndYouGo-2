@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import axios from 'axios';
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
+import * as config from "../config";
 
 const Background = styled.div`
   width: 100%;
@@ -100,6 +102,8 @@ const LogoutBtn = styled.span`
 `;
 
 const SideBar = ({isOpen, setIsOpen}) => {
+  const [visitTodayData, setVisitTodayData] = useState(-1);
+  const [visitTotalData, setVisitTotalData] = useState(-1);
   const dispatch = useDispatch();
   const outside = useRef();
   const user = useSelector((state) => state.user.value);
@@ -118,6 +122,22 @@ const SideBar = ({isOpen, setIsOpen}) => {
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
     }
   };
+
+  useEffect(() => {
+    const fetchVisitData = async () => {
+      try {
+        const response = await axios.get(
+          `${config.BASE_URL}/visitors/count`
+        );
+        console.log("방문자 데이터 확인", response.data);
+        setVisitTodayData(response.data.visitToday);
+        setVisitTotalData(response.data.visitTotal);
+      } catch (error) {
+        console.error("Error fetching JSON:", error);
+      }
+    }
+    fetchVisitData();
+  },[]);
 
   return (
     <>
@@ -215,10 +235,14 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
-          <div style={{position: "absolute", bottom: 20}}>
-            <p>today: {24}</p>
-            <p>total: {230}</p>
-          </div>
+          {
+            visitTodayData !== -1 ? (
+              <div style={{position: "absolute", bottom: 20}}>
+                <p>today: {visitTodayData}</p>
+                <p>total: {visitTotalData}</p>
+              </div> 
+              ): null
+          }
         </div>
       </SideBarWrap>
     </>
