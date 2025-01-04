@@ -45,7 +45,7 @@ const MainPage = () => {
 	const fetchRestaurantData = async () => {
 		const results = [];
 		try {
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < 6; i++) {
 				const response = await axios.get(
 					`${config.BASE_URL}/connection/restaurant${i + 1}`
 				);
@@ -60,7 +60,7 @@ const MainPage = () => {
 	const fetchMenuData = async () => {
 		const results = [];
 		try {
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < 6; i++) {
 				const response = await axios.get(
 					`${config.BASE_URL}/daily-menu/restaurant${i + 1}`
 				);
@@ -83,7 +83,7 @@ const MainPage = () => {
 	const fetchTopReviewData = async () => {
 		const results = [];
 		try {
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < 6; i++) {
 				const response = await axios.get(
 					`${config.BASE_URL}/review/restaurant${i + 1}` + (token !== "" ? `/${token}` : "")
 				);
@@ -111,7 +111,8 @@ const MainPage = () => {
 		}
 
 		fetchData();
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [restaurantId]);
 
 	return (
 		<div className="App">

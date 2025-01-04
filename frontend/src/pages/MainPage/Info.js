@@ -76,6 +76,23 @@ const operatingTime = {
       title: '중식',
       time: '11:30-14:00'
     },
+  ],
+  6: [
+    {
+      title: '조식',
+      time: '07:30-09:00',
+      weekendTime: '07:30-09:00(주말/공휴일)',
+    },
+    {
+      title: '중식',
+      time: '11:30-13:30'
+    },
+    {
+      title: '석식',
+      time: '17:00-19:00',
+      weekendTime: '17:00-19:00(주말/공휴일)',
+      vacationTime: '17:30-19:30(방학)',
+    },
   ]
 };
 
@@ -86,7 +103,15 @@ const Info = ({ idx = 1 }) => {
 		<Container>
 			<div>
         <InfoContent>운영시간</InfoContent>
-          {operatingTime[idx]?.map((item, index) => <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>)}
+          {operatingTime[idx]?.map((item, index) => {
+            if (item?.weekendTime) {
+              return <InfoContent key={index}>{item?.title} {' '} {item?.weekendTime}</InfoContent>
+            }
+            if (item?.vacationTime) {
+              return <InfoContent key={index}>{item?.title} {' '} {item?.vacationTime}</InfoContent>
+            }
+            return <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>
+          })}
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
