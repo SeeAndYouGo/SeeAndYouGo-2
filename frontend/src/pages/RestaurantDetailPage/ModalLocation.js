@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 const getRestuarantIndex = (restaurantNum) => {
 	switch (restaurantNum) {
@@ -12,6 +12,8 @@ const getRestuarantIndex = (restaurantNum) => {
 			return "상록회관";
 		case 5:
 			return "생활과학대";
+		case 6:
+			return "기숙사식당";
 		default:
 			return null;
 	}

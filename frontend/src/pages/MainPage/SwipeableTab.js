@@ -49,6 +49,7 @@ const restaurantList = [
 	"3학생회관",
 	"상록회관",
 	"생활과학대",
+	"기숙사식당"
 ];
 
 const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
@@ -82,7 +83,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 				})
 			);
 		} else if (numValue === 3) {
-			const initialMenu = menu[numValue - 1].filter(
+			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.dept === deptValue && item.menuType === "LUNCH"
 			)[0];
 			dispatch(
@@ -92,7 +93,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 				})
 			);
 		} else {
-			const initialMenu = menu[numValue - 1].filter(
+			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.menuType === "LUNCH"
 			)[0];
 			dispatch(
@@ -111,7 +112,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 	const RestaurantSwiperSlide = () => {
 		const result = [];
 
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < restaurantList.length; i++) {
 			result.push(
 				<SwiperSlide key={i} className="sw-item">
 					<TabButton
