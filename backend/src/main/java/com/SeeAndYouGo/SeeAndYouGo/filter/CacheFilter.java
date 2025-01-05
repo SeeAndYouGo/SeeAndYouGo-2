@@ -1,7 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.filter;
 
-import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,106 +27,103 @@ import java.util.regex.Pattern;
 public class CacheFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(CacheFilter.class);
     private final RedisTemplate<String, byte[]> byteRedisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TokenProvider tokenProvider;
-    private final LikeService likeService;
-    private final RedisTemplate redisTemplate;
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        CacheHttpServletRequestWrapper reqWrapper = new CacheHttpServletRequestWrapper(request);
-        CacheHttpServletResponseWrapper resWrapper = new CacheHttpServletResponseWrapper(response);
-        logger.info("CacheFilter activated for URI: " + request.getRequestURI());
 
-        // [1] 요청 데이터
-        String uri = reqWrapper.getRequestURI();
-        String method = reqWrapper.getMethod();
-        String contentType = reqWrapper.getContentType();
-        // Map<String, Object> body = getJsonBody(reqWrapper);
-
-
-        // 멀티파트 담아 리뷰 올릴 때 문제가 되기 때문에 여기가 존재 (왜 문제가 되나?)
-        // 멀티파트 요청인지 확인
-        // 멀티파트 요청은 래핑하지 않고 그대로 필터 체인 진행
+        // 이미지 업로드 요청일 경우 필터체인 진행만 함
+        String contentType = request.getContentType();
         boolean isMultipart = contentType != null && contentType.startsWith("multipart/");
         if (isMultipart) {
             filterChain.doFilter(request, response);
             return;
         }
-        
 
-//        try {
+        RequestWrapper reqWrapper = new RequestWrapper(request);
+
+        // 캐시된 데이터가 있음
+        // [1] 캐시 확인 후 리턴
         Map<String, Object> body = new HashMap<>();
-
-        // [2] 캐시 확인 후 리턴
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
         byte[] cachedData = searchCache(body, uri, method);
         if (cachedData != null && cachedData.length > 0) {
-            responseAtCache(response, cachedData, resWrapper);
+            responseAtCache(response, cachedData);
             return;
         }
 
-        // [3] 필터 체인 진행 - 래퍼된 응답 객체 사용
-        filterChain.doFilter(reqWrapper, resWrapper);
+        // 캐시된 데이터가 없음: 필터 체인 진행 후 응답을 캐싱
+        filterChain.doFilter(reqWrapper, response);
 
-        // [4] 응답
+        ResponseWrapper resWrapper = new ResponseWrapper(response);
         byte[] bodyData = resWrapper.getResponseData();
         cache(uri, method, bodyData);
-
-        // contents type 지정 후 응답하기
         if (uri.contains("image")) {
             response.setContentType("image/png");
         } else {
-            response.setContentType(resWrapper.getContentType() + "; charset=UTF-8");  // ㅠ 이거 지정때문에 애먹었네.. 바이너리를 이렇게 전달하면 문자열로 잘 인코딩 된다.
-//            response.setContentType(resWrapper.getContentType()); // 이렇게 말고..
+            // 주의: 이미지가 아니라면 바이너리에 이렇게 content type 지정해야 문자열로 잘 인코딩 된다.
+            response.setContentType(resWrapper.getContentType() + "; charset=UTF-8");
             response.setCharacterEncoding(resWrapper.getCharacterEncoding());
         }
-        response.setContentLength(bodyData.length);
         ServletOutputStream out = response.getOutputStream();
         out.write(bodyData);
         out.flush();
     }
 
-    // TODO: URI 분기시키기
-    // 캐시값이 변경되어야 하는 경우, 로직이 포함되어야 함
     private void cache(String uri, String method, byte[] data) {
+        String[] uriParts = uri.split("/");
         String key = "";
         String hash = "";
 
         // 이미지 캐싱
         if (uri.startsWith("/api/images/") && method.equals("GET")) {
-            String[] uriParts = uri.split("/");
             String imgName = uriParts[uriParts.length - 1];
             key = "review:image:" + imgName;
+            byteRedisTemplate.opsForValue().set(key, data);
+            return;
         }
 
         // 좋아요 캐싱
         if (uri.startsWith("/api/review/like")) {
-            String[] uriParts = uri.split("/");
             String likerEmail = tokenProvider.decodeToEmail(uriParts[uriParts.length - 1]);
             String reviewId = uriParts[uriParts.length - 2];
             key = "review:like:" + reviewId;
             hash = likerEmail;
         }
 
-        // 공통
-        if (hash.isEmpty())
-            byteRedisTemplate.opsForValue().set(key, data);
-        else
-            byteRedisTemplate.opsForHash().put(key, hash, new String(data));
+        // 메뉴 캐싱
+        if (uri.contains("daily-menu")) {
+            String restaurant = uriParts[3];
+            key = "menu:daily:" + restaurant;
+            hash = uriParts.length > 4 ? tokenProvider.decodeToEmail(uriParts[4]) : "unknown";
+        }
+        if (uri.startsWith("/api/weekly-menu/")) {  // admin 이 사용하는 /api/weekly-menu 는 캐싱 대상 아님
+            key = "menu:weekly";
+            hash = uriParts[3];
+        }
 
-
-        logger.info("캐시에 저장되었습니다: " + key + " -- " + hash + " -- " + new String(data));
+        // (공통) 캐싱처리
+        if (!key.isEmpty()) {
+            if (hash.isEmpty())
+                redisTemplate.opsForValue().set(key, new String(data));
+            else
+                redisTemplate.opsForHash().put(key, hash, new String(data));
+        }
     }
 
-    // TODO: URI 분기시키기
     private byte[] searchCache(Map<String, Object> body, String uri, String method) throws IOException {
-        // 이미지 캐시
+        String[] uriParts = uri.split("/");
+
+        // 이미지 캐시 찾기
         if (uri.startsWith("/api/images/") && method.equals("GET")) { // review image
-            String[] uriParts = uri.split("/");
             String imgName = uriParts[uriParts.length - 1];
             String key = "review:image:" + imgName;
+            // 찾기
             byte[] cachedData = byteRedisTemplate.opsForValue().get(key);
             if (cachedData != null && cachedData.length > 0) {
                 logger.info("캐시에서 데이터 발견: " + key);
@@ -136,19 +131,43 @@ public class CacheFilter extends OncePerRequestFilter {
             }
         }
 
+        // 좋아요 캐시 찾기
         if (uri.startsWith("/api/review/like")) {
-            String[] uriParts = uri.split("/");
-            String likerEmail = tokenProvider.decodeToEmail(uriParts[uriParts.length - 1]);
             String reviewId = uriParts[uriParts.length - 2];
             String key = "review:like:" + reviewId;
-            String hash = likerEmail;
-            byte[] cachedData = (byte[]) redisTemplate.opsForHash().get(key, hash);
-            if (cachedData != null && cachedData.length > 0) {
-                logger.info("캐시에서 데이터 발견: " + key);
+            String hash = tokenProvider.decodeToEmail(uriParts[uriParts.length - 1]);
+
+            String cachedData = (String) redisTemplate.opsForHash().get(key, hash);
+            if (cachedData != null && !cachedData.isEmpty()) {
                 LikeResponseDto dto = objectMapper.readValue(cachedData, LikeResponseDto.class);
                 if (dto.isMine())
-                    return cachedData;
+                    return cachedData.getBytes(StandardCharsets.UTF_8);
                 dto.setLike(!dto.isLike());
+                redisTemplate.opsForHash().put(key, hash, objectMapper.writeValueAsString(dto));
+                return objectMapper.writeValueAsBytes(dto);
+            }
+        }
+
+        // 메뉴 캐시 찾기
+        if (uri.startsWith("/api/daily-menu")) {
+            String restaurant = uriParts[3];
+            String key = "menu:daily:" + restaurant;
+            String hash = uriParts.length > 4 ? tokenProvider.decodeToEmail(uriParts[4]) : "unknown";
+
+            String cachedData = (String) redisTemplate.opsForHash().get(key, hash);
+            if (cachedData != null && !cachedData.isEmpty()) {
+                LikeResponseDto dto = objectMapper.readValue(cachedData, LikeResponseDto.class);
+                return objectMapper.writeValueAsBytes(dto);
+            }
+        }
+
+        if (uri.startsWith("/api/weekly-menu/")) {
+            String key = "menu:weekly";
+            String hash = uriParts[3];
+
+            String cachedData = (String) redisTemplate.opsForHash().get(key, hash);
+            if (cachedData != null && !cachedData.isEmpty()) {
+                MenuResponseDto dto = objectMapper.readValue(cachedData, MenuResponseDto.class);
                 return objectMapper.writeValueAsBytes(dto);
             }
         }
@@ -156,19 +175,7 @@ public class CacheFilter extends OncePerRequestFilter {
         return new byte[0];
     }
 
-    private Map<String, Object> getJsonBody(HttpServletRequest request) throws IOException {
-        if (request.getInputStream().available() == 0) {
-            return new HashMap<>();
-        }
-        return objectMapper.readValue(request.getInputStream(), Map.class);
-    }
-
-    private void responseAtCache(HttpServletResponse response, byte[] cachedData, CacheHttpServletResponseWrapper resWrapper) throws IOException {
-        // 응답 헤더 설정
-        response.setContentType(resWrapper.getContentType());
-        response.setCharacterEncoding(resWrapper.getCharacterEncoding());
-        response.setContentLength(cachedData.length);
-
+    private void responseAtCache(HttpServletResponse response, byte[] cachedData) throws IOException {
         // 바이너리 응답 처리
         ServletOutputStream out = response.getOutputStream();
         out.write(cachedData);
