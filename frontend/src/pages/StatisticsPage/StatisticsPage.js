@@ -48,7 +48,7 @@ const ChartWrapper = styled.div`
 	padding: 20px;
 `;
 
-const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대"];
+const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "기숙사식당"];
 
 const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 	const [swiper, setSwiper] = useState(null);
@@ -57,12 +57,12 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
     if (swiper) {
       swiper.slideTo(currentTab < 3 ? 0 : currentTab);
     }
-  }, [currentTab]);
+  }, [currentTab, swiper]);
 
 	const StatisticsSwiperSlide = () => {
 		const result = [];
 
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < restaurantArray.length; i++) {
 			result.push(
 				<SwiperSlide key={i} className="sw-item">
 					<TabButton
@@ -111,13 +111,10 @@ const StatisticsPage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const url = [
-					createUrl(1),
-					createUrl(2),
-					createUrl(3),
-					createUrl(4),
-					createUrl(5),
-				];
+				const url = [];
+				for (let i = 0; i < restaurantArray.length; i++) {
+					url.push(createUrl(i + 1));
+				}
 				await axios.all(url.map((path) => axios.get(path))).then((res) => {
 					setDatas(res.map((data) => data.data));
 				});
