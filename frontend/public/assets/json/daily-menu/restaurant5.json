@@ -1,15 +1,32 @@
 [
 	{
-		"dishList": [
-			"베이컨로제파스타",
-			"오이피클",
-			"치킨너겟",
-			"모닝빵&딸기잼",
-			"황도샐러드"
-		],
-		"price": 6000,
+		"menuId": 14,
+		"restaurantName": "제2학생회관",
+		"mainDishList": ["닭다리백숙"],
+		"sideDishList": ["깍두기", "실곤약야채무침", "짜요짜요"],
+		"price": 4500,
 		"dept": "STUDENT",
-		"type": "중식",
+		"menuType": "LUNCH",
+		"keywordList": ["닭다리백숙", "볶음밥", "국수", "치킨", "돈까스", "카레"]
+	},
+	{
+		"menuId": 22,
+		"restaurantName": "제2학생회관",
+		"mainDishList": ["고등어무조림"],
+		"sideDishList": ["깍두기", "우렁된장찌개", "비엔나브로콜리볶음", "미역줄기볶음"],
+		"price": 6000,
+		"dept": "STAFF",
+		"menuType": "LUNCH",
+		"keywordList": ["닭다리백숙", "볶음밥", "국수", "치킨", "돈까스", "카레"]
+	},
+	{
+		"menuId": 1,
+		"restaurantName": "제2학생회관",
+		"mainDishList": ["짜장밥", "짜장밥2", "짜장밥3"],
+		"sideDishList": ["단무지", "우동국물"],
+		"price": 1000,
+		"dept": "STUDENT",
+		"menuType": "BREAKFAST",
 		"keywordList": ["닭다리백숙", "볶음밥", "국수", "치킨", "돈까스", "카레"]
 	}
 ]
