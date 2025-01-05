@@ -2,7 +2,7 @@
 	{
 		"menuId": 14,
 		"restaurantName": "제2학생회관",
-		"mainDishList": ["닭다리백숙"],
+		"mainDishList": [],
 		"sideDishList": ["깍두기", "실곤약야채무침", "짜요짜요"],
 		"price": 4500,
 		"dept": "STUDENT",
@@ -22,8 +22,8 @@
 	{
 		"menuId": 1,
 		"restaurantName": "제2학생회관",
-		"mainDishList": ["짜장밥", "짜장밥2", "짜장밥3"],
-		"sideDishList": ["단무지", "우동국물"],
+		"mainDishList": [],
+		"sideDishList": ["짜장밥", "짜장밥2", "짜장밥3", "단무지", "우동국물"],
 		"price": 1000,
 		"dept": "STUDENT",
 		"menuType": "BREAKFAST",

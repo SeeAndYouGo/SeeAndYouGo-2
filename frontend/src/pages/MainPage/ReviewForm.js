@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -305,10 +305,13 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 				croppedAreaPixels={croppedAreaPixels}
 			/>
 			<ReviewWriteContainer>
-				{
+				{ // 우선순위에 따라 표시한다.
+					// 1. 주말인 경우, 리뷰 작성 불가능
+					// 2. 로그인 하지 않은 경우, 리뷰 작성 불가능
+				  // 3. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
 					isWeekend ? ( // 주말인 경우
 					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
-				) : !token ? ( // 로그인 안한 경우
+				) : !token ? ( // 로그인 하지 않은 경우
 					<WriteImpossible>
 						로그인이 필요합니다 !!
 						<GoToLogin
@@ -322,7 +325,14 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 							<span className="material-symbols-outlined">chevron_right</span>
 						</GoToLogin>
 					</WriteImpossible>
-				) : null}
+				) : ( // 메인 메뉴 설정되지 않은 경우
+					(nowMainMenuList?.length === 0) ? (
+						<WriteImpossible>
+							리뷰를 작성할 수 없습니다.
+						</WriteImpossible>
+					) :
+					null
+				)}
 				<div style={{ width: "100%", float: "left" }}>
 					<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 					<ReviewStarRating>
