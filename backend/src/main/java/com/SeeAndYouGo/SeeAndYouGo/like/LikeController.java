@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.like;
 import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

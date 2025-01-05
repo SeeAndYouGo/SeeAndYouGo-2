@@ -149,7 +149,7 @@ public class ReviewController {
     private File createTempFileFromMultipart(MultipartFile image) {
         File dir = new File("./tmpImage");
 
-        File file = new File(String.format("%s/%s.jpg", dir.getPath(), UUID.randomUUID()));
+        File file = new File(String.format("%s/%s.png", dir.getPath(), UUID.randomUUID()));
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(image.getBytes());
         } catch (IOException e) {
@@ -165,7 +165,7 @@ public class ReviewController {
                 Files.createDirectories(Paths.get(IMAGE_DIR));
                 Path targetPath = Paths.get(IMAGE_DIR, imgName);
                 BufferedImage resized = reviewService.resize(image);
-                ImageIO.write(resized, "jpg", new File(targetPath.toUri()));
+                ImageIO.write(resized, "png", new File(targetPath.toUri()));
                 image.delete();
             } catch (Exception e) {
                 log.error("[리뷰업로드] 오류 {}", e.getMessage());
@@ -176,7 +176,6 @@ public class ReviewController {
 
     @ResponseBody
     @GetMapping("/images/{imgName}")
-    @Cacheable(value="review:image:", key="#imgName")
     public byte[] showImage(@PathVariable String imgName) throws Exception {
         File file = new File(IMAGE_DIR + "/" + imgName);
         return Files.readAllBytes(file.toPath());

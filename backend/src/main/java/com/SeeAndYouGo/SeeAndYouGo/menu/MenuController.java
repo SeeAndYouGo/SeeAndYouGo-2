@@ -12,7 +12,6 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -120,7 +119,6 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu/{restaurant}")
-    @Cacheable(value="menu:weekly:", key="#place")
     public List<MenuResponseDto> restaurantMenuWeek(@PathVariable("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
@@ -134,7 +132,6 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
-//    @Cacheable(value="menu:weekly:")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();

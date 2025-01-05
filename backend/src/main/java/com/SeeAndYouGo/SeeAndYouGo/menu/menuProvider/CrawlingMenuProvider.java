@@ -1,15 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 
-import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
-import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Connection;
