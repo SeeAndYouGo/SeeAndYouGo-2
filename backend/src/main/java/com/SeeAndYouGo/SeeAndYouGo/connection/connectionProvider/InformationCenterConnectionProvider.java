@@ -65,12 +65,12 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     @Override
     public List<ConnectionVO> getRecentConnection(Restaurant restaurant) throws Exception{
         String wifiInfo = getRecentConnectionToString(restaurant);
-        if (wifiInfo.isEmpty()) {
-            return null;
-        }
-
         List<ConnectionVO> result = new ArrayList<>();
-
+        
+        if (wifiInfo.isEmpty()) {
+            return result;
+        }
+        
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
         JsonObject jsonWithRestaurantInfo = CacheJsonWithRestaurantInfo(jsonObject);
