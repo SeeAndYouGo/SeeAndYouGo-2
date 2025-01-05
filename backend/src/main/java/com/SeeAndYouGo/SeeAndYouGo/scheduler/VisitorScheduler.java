@@ -1,5 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.visitor;
+package com.SeeAndYouGo.SeeAndYouGo.scheduler;
 
+import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorCount;
+import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorCountRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.*;
+
 @Component
 @RequiredArgsConstructor
 public class VisitorScheduler {
@@ -19,20 +23,20 @@ public class VisitorScheduler {
     private final VisitorCountRepository repository;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void resetVisitorCount() {
+    public void resetTodayVisitorCount() {
         // save total visitor count to DB
-        int totalCount = 0;
+        int totalCount;
         try {
-            String countValue = Objects.requireNonNull(redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR));
+            String countValue = Objects.requireNonNull(redisTemplate.opsForValue().get(PREFIX_VISITOR + KEY_TODAY_VISITOR));
             totalCount = Integer.parseInt(countValue);
         } catch (NullPointerException e) {
-//            Optional<VisitorCount> backupCount = repository.findTodayTempData();
-//            if (backupCount.isPresent()) {
-//                totalCount = backupCount.get().getCount();
-//            } else {
-//                logger.error("[ERROR] empty today's visitor count. passing.");
-//                return;
-//            }
+            Optional<VisitorCount> backupCount = repository.findTodayTempData();
+            if (backupCount.isPresent()) {
+                totalCount = backupCount.get().getCount();
+            } else {
+                logger.error("[ERROR] empty today's visitor count. passing.");
+                return;
+            }
         }
         VisitorCount entity = VisitorCount.from(totalCount, true);
         repository.save(entity);
@@ -41,11 +45,11 @@ public class VisitorScheduler {
         repository.deleteByIsTotalFalse();
 
         // reset redis visitor key
-        redisTemplate.delete(Const.PREFIX_VISITOR_IP);
-        redisTemplate.delete(Const.PREFIX_VISITOR_USER);
+        redisTemplate.delete(PREFIX_VISITOR + PREFIX_VISITOR_IP);
+        redisTemplate.delete(PREFIX_VISITOR + PREFIX_VISITOR_USER);
 
         // reset visitor count
-        redisTemplate.delete(Const.KEY_TODAY_VISITOR);
+        redisTemplate.delete(PREFIX_VISITOR + KEY_TODAY_VISITOR);
 
         logger.info("========== visitor count reset completed! ============>");
     }
@@ -53,15 +57,15 @@ public class VisitorScheduler {
     // Redis 서버 다운을 대비한 DB 백업
     @Scheduled(fixedRate = 60000 * 30) // 30분마다
     public void backupVisitorCount() {
-        String newCount = redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR);
+        String newCount = redisTemplate.opsForValue().get(PREFIX_VISITOR + KEY_TODAY_VISITOR);
         if (newCount != null) {
             int cnt = Integer.parseInt(newCount);
-//            Optional<VisitorCount> todayTempData = repository.findTodayTempData();
-//            if (todayTempData.isPresent()) {
-//                repository.updateCountForTodayTempData(cnt);
-//            } else {
-//                repository.save(VisitorCount.from(cnt, false));
-//            }
+            Optional<VisitorCount> todayTempData = repository.findTodayTempData();
+            if (todayTempData.isPresent()) {
+                repository.updateCountForTodayTempData(cnt);
+            } else {
+                repository.save(VisitorCount.from(cnt, false));
+            }
         }
     }
 }
