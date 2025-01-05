@@ -6,7 +6,8 @@ spring:
     password: seeandyougo
   jpa:
     properties:
-      dialect: org.hibernate.dialect.MySQL8Dialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   data:
     redis:
       host: redis

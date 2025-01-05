@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import MenuItem from "./MenuItem";
-import DeptTabMenu from "./DeptTabMenu";
+import TypeTabMenu from "./TypeTabMenu";
 import { useSelector, useDispatch } from "react-redux";
-import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeMenuInfo } from "../../redux/slice/NowMenuSlice";
-import * as config from "../../config";
+import { changeDept } from "../../redux/slice/DeptSlice";
 import styled from "@emotion/styled";
 
 const todayMenuStyle = {
@@ -25,45 +24,46 @@ const SelectedDiv = styled.div`
 	`}
 `;
 
-const menuTypeValue = ["BREAKFAST", "LUNCH", "DINNER"];
+const deptValue = ["STUDENT", "STAFF"];
 
 const TodayMenu = ({ idx, data = [] }) => {
 	const dispatch = useDispatch();
-	const [staffMenu, setStaffMenu] = useState([]);
-	const [studentMenu, setStudentMenu] = useState([]);
+	const [menu1, setMenu1] = useState([]);
+	const [menu2, setMenu2] = useState([]);
 	const nowDept = useSelector((state) => state.dept).value;
-
 	const nowMenuType = useSelector((state) => state.menuType).value;
+	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
 
-	const handleDivClick = (clickedMenuType, menuList, id) => {
-		dispatch(changeMenuType(clickedMenuType));
+	const handleDivClick = (clickedDept, menuList, id) => {
+		dispatch(changeDept(clickedDept));
 		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
 	};
 
 	useEffect(() => {
 		if (data.length === 0) return;
-		const staffMenuData = data.filter((item) => item.dept === "STAFF");
-		staffMenuData.sort((a, b) => {
+		
+		const menu1Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "BREAKFAST" : "LUNCH"));
+		menu1Data.sort((a, b) => {
 			return (
-				menuTypeValue.indexOf(a.menuType) -
-				menuTypeValue.indexOf(b.menuType)
+				deptValue.indexOf(a.dept) -
+				deptValue.indexOf(b.dept)
 			);
 		});
-		const studentMenuData = data.filter((item) => item.dept !== "STAFF");
-		studentMenuData.sort((a, b) => {
+		const menu2Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "LUNCH" : "DINNER"));
+		menu2Data.sort((a, b) => {
 			return (
-				menuTypeValue.indexOf(a.menuType) -
-				menuTypeValue.indexOf(b.menuType)
+				deptValue.indexOf(a.dept) -
+				deptValue.indexOf(b.dept)
 			);
 		});
 
-		setStaffMenu(staffMenuData);
-		setStudentMenu(studentMenuData);
+		setMenu1(menu1Data);
+		setMenu2(menu2Data);
 
-		if (nowDept === 1 && studentMenuData.length > 0) {
-			dispatch(changeMenuInfo({mainMenuList: studentMenuData[0].mainDishList, menuId: studentMenuData[0].menuId}));
-		} else if (nowDept === 2 && staffMenuData.length > 0) {
-			dispatch(changeMenuInfo({mainMenuList: staffMenuData[0].mainDishList, menuId: staffMenuData[0].menuId}));
+		if (nowMenuType === 1 && menu1Data.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: menu1Data[0].mainDishList, menuId: menu1Data[0].menuId}));
+		} else if (nowMenuType === 2 && menu2Data.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: menu2Data[0].mainDishList, menuId: menu2Data[0].menuId}));
 		}
 	}, [data]);
 
@@ -72,30 +72,30 @@ const TodayMenu = ({ idx, data = [] }) => {
 			<div style={{ display: "flex", marginBottom: "15px" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
 				{idx < 4 && (
-					<DeptTabMenu studentMenu={studentMenu} staffMenu={staffMenu} />
+					<TypeTabMenu menu1={menu1} menu2={menu2} />
 				)}
 			</div>
-			{nowDept === 1
-				? studentMenu.map((item, index) => {
+			{nowMenuType === 1
+				? menu1.map((item, index) => {
 						return (
 							<SelectedDiv
-								$active={nowMenuType === item.menuType}
+								$active={nowDept === item.dept}
 								key={index}
 								onClick={() => {
-									handleDivClick(item.menuType, item.mainDishList, item.menuId);
+									handleDivClick(item.dept, item.mainDishList, item.menuId);
 								}}
 							>
 								<MenuItem menu={item} />
 							</SelectedDiv>
 						);
 					})
-				: staffMenu.map((item, index) => {
+				: menu2.map((item, index) => {
 						return (
 							<SelectedDiv
-								$active={nowMenuType === item.menuType}
+								$active={nowDept === item.dept}
 								key={index}
 								onClick={() => {
-									handleDivClick(item.menuType, item.mainDishList, item.menuId);
+									handleDivClick(item.dept, item.mainDishList, item.menuId);
 								}}
 							>
 								<MenuItem menu={item} />

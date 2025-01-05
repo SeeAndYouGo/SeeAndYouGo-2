@@ -1,56 +1,43 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import BarChart from "./BarChart";
-import LineChart from "./LineChart";
 import * as config from "../../config";
 
-const MobileDisplay = styled.div`
-	display: block;
-	/* @media (min-width: 576px) {
+const Slider = styled.div`
+	background-color: #fff;
+	border-radius: 10px;
+	padding: 10px 20px;
+	font-size: 18px;
+	font-weight: 600;
+	width: 100%;
+	overflow-x: scroll;
+	touch-action: none;
+	box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+	&::-webkit-scrollbar {
 		display: none;
-	} */
+	}
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 `;
 
-const DesktopDisplay = styled.div`
-	display: none;
-	/* @media (min-width: 576px) {
-		display: block;
-	} */
-`;
-
-const TabMenu = styled.ul`
-	color: black;
-	font-size: 12px;
-	display: flex;
-	list-style: none;
-	border: solid 1.5px black;
-	border-radius: 20px;
-	padding: 5px;
-
-	.submenu {
-		text-align: center;
-		padding: 4px 10px;
-		margin: 0 auto;
-		border-radius: 20px;
-		cursor: pointer;
-		/* @media (min-width: 576px) {
-			display: none;
-			padding: 4px 17px;
-		} */
-	}
-	/* .submenu.tablet {
-		display: none;
-		@media (min-width: 576px) {
-			display: block;
-		}
-	} */
-
-	.focused {
-		background-color: black;
-		color: white;
-	}
+const TabButton = styled.div`
+	font-weight: 700;
+	cursor: pointer;
+	color: #c0c0c0;
+	${({ $active }) =>
+		$active &&
+		`
+    color: #111;
+  `}
+	transform: translateX(${(props) => props.slide}px);
+	transition: 0.5s ease;
+	margin: 0;
 `;
 
 const ChartWrapper = styled.div`
@@ -61,14 +48,56 @@ const ChartWrapper = styled.div`
 	padding: 20px;
 `;
 
-const restaurantArray = ["1학", "2학", "3학", "상록회관", "생과대"];
-// const tabletRestaurantArray = [
-// 	"1학생회관",
-// 	"2학생회관",
-// 	"3학생회관",
-// 	"상록회관",
-// 	"생활과학대학",
-// ];
+const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "기숙사식당"];
+
+const TabBar = ({ currentTab = 0, setCurrentTab }) => {
+	const [swiper, setSwiper] = useState(null);
+
+	useEffect(() => {
+    if (swiper) {
+      swiper.slideTo(currentTab < 3 ? 0 : currentTab);
+    }
+  }, [currentTab, swiper]);
+
+	const StatisticsSwiperSlide = () => {
+		const result = [];
+
+		for (let i = 0; i < restaurantArray.length; i++) {
+			result.push(
+				<SwiperSlide key={i} className="sw-item">
+					<TabButton
+						$active={currentTab === i}
+						onClick={() => {
+							setCurrentTab(i)
+						}}
+					>
+						{restaurantArray[i]}
+					</TabButton>
+				</SwiperSlide>
+			);
+		}
+		return result;
+	}
+
+	return (
+		<>
+			<Slider>
+				<Swiper
+					className="sw-tap"
+					style={{ textAlign: "center", fontSize: 18 }}
+					initialSlide={
+            currentTab < 3 ? 0 : currentTab
+          }
+					speed={1000}
+					slidesPerView={3.5}
+          onSwiper={setSwiper}
+				>
+					{StatisticsSwiperSlide()}
+				</Swiper>
+			</Slider>
+		</>
+	)
+};
 
 const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
@@ -82,13 +111,10 @@ const StatisticsPage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const url = [
-					createUrl(1),
-					createUrl(2),
-					createUrl(3),
-					createUrl(4),
-					createUrl(5),
-				];
+				const url = [];
+				for (let i = 0; i < restaurantArray.length; i++) {
+					url.push(createUrl(i + 1));
+				}
 				await axios.all(url.map((path) => axios.get(path))).then((res) => {
 					setDatas(res.map((data) => data.data));
 				});
@@ -99,54 +125,25 @@ const StatisticsPage = () => {
 		fetchData();
 	}, []);
 
-	const TabMenuUl = () => {
-		return (
-			<TabMenu>
-				{restaurantArray.map((el, index) => (
-					<li
-						key={index}
-						className={index === currentTab ? "submenu focused" : "submenu"}
-						onClick={() => setCurrentTab(index)}
-					>
-						{el}
-					</li>
-				))}
-				{/* {tabletRestaurantArray.map((el, index) => (
-					<li
-						key={index}
-						className={
-							index === currentTab ? "submenu focused tablet" : "submenu tablet"
-						}
-						onClick={() => setCurrentTab(index)}
-					>
-						{el}
-					</li>
-				))} */}
-			</TabMenu>
-		);
-	};
-
 	return (
 		<div className="App3">
 			<div style={{ textAlign: "center" }}>
 				<p style={{ fontSize: 20, margin: 10 }}>혼잡도 통계보기</p>
-				<p style={{ margin: 0, fontWeight: 600, fontSize: 15 }}>
+				<p style={{ margin: "0 0 20px 0", fontWeight: 600, fontSize: 15 }}>
 					학생 식당의 시간별 평균 인원 수를 확인하세요.
 				</p>
 			</div>
-			<TabMenuUl />
+			<TabBar 
+				currentTab={currentTab}
+				setCurrentTab={setCurrentTab}
+			/>
 			<ChartWrapper>
 				{datas.length === 0 ? (
 					<Loading />
 				) : (
-					<>
-						<MobileDisplay>
-							<BarChart datas={datas} tab={currentTab} />
-						</MobileDisplay>
-						<DesktopDisplay>
-							<LineChart datas={datas} tab={currentTab} />
-						</DesktopDisplay>
-					</>
+					<div>
+						<BarChart datas={datas} tab={currentTab} />
+					</div>
 				)}
 			</ChartWrapper>
 			<div style={{ marginBottom: 30, fontSize: 15 }}>

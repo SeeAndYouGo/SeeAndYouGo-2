@@ -51,7 +51,7 @@ const Button = styled.button`
   `}
 `;
 
-const ImageCropper = ({ setImage, isOpen, setIsOpen, setImageURL, src, croppedAreaPixels, setCroppedAreaPixels }) => {
+const ImageCropper = ({ setImage, setPrevImage, isOpen, setIsOpen, setImageURL, src, croppedAreaPixels, setCroppedAreaPixels }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
 
@@ -64,6 +64,7 @@ const ImageCropper = ({ setImage, isOpen, setIsOpen, setImageURL, src, croppedAr
       const cropped = await getCroppedImg(src, croppedAreaPixels);
       dataURLtoFile(cropped, 'review.jpg', setImage);
       setImageURL(cropped);
+      setPrevImage(cropped);
       setIsOpen(false);
     } catch (e) {
       console.error(e);

@@ -29,6 +29,7 @@ const TabMenu = styled.ul`
 	}
 `;
 
+// 이 component를 지우고 type 관련 component로 생성한다.
 const DeptTabMenu = ({ studentMenu, staffMenu }) => {
 	const [currentTab, clickTab] = useState(0);
 	const dispatch = useDispatch();

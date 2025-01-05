@@ -1,5 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection;
 
+import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,17 +21,19 @@ public class ConnectionController {
      */
     @GetMapping("/connection/{restaurant}")
     public ConnectionResponseDto congestionRequest(@PathVariable("restaurant") String restaurant) {
-        Connection recentConnection = connectionService.getRecentConnected(restaurant);
+        Connection recentConnection = connectionService.getRecentConnection(restaurant);
         return new ConnectionResponseDto(recentConnection, restaurant);
     }
 
     @GetMapping("/connection/cache")
     public void cache() throws Exception {
-        connectionService.saveAndCacheConnection();
+        connectionService.saveRecentConnection();
     }
 
-    @PostMapping("/connection/test")
-    public String bridgeConnection(@RequestParam String AUTH_KEY, HttpServletResponse response) throws Exception {
+    @PostMapping("/connection/local/{restaurant}")
+    public String bridgeConnection(@RequestParam String AUTH_KEY,
+                                   @PathVariable String restaurantToString,
+                                   HttpServletResponse response) throws Exception {
         boolean isRightSecretKey = connectionService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
@@ -37,6 +41,9 @@ public class ConnectionController {
             return "Invalid AUTH_KEY: Unauthorized access";
         }
 
-        return connectionService.fetchConnectionInfoToString();
+        String restaurantName = Restaurant.parseName(restaurantToString);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
+
+        return connectionService.getRecentConnectionToString(restaurant);
     }
 }

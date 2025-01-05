@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft, faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../components/Modal";
 import ModalLocation from "../RestaurantDetailPage/ModalLocation";
-import ModalMenuTable from "../RestaurantDetailPage/ModalMenuTable";
+import MenuTableModal from "./MenuTableModal";
 
 const Container = styled.div`
 	display: flex;
@@ -76,45 +76,68 @@ const operatingTime = {
       title: '중식',
       time: '11:30-14:00'
     },
+  ],
+  6: [
+    {
+      title: '조식',
+      time: '07:30-09:00',
+      weekendTime: '07:30-09:00(주말/공휴일)',
+    },
+    {
+      title: '중식',
+      time: '11:30-13:30'
+    },
+    {
+      title: '석식',
+      time: '17:00-19:00',
+      weekendTime: '17:00-19:00(주말/공휴일)',
+      vacationTime: '17:30-19:30(방학)',
+    },
   ]
 };
 
 const Info = ({ idx = 1 }) => {
-	const [visible1, setVisible1] = useState(false);
-	// const [visible2, setVisible2] = useState(false);
+  const [visible, setVisible] = useState({ map: false, menu: false });
 
 	return (
 		<Container>
 			<div>
         <InfoContent>운영시간</InfoContent>
-          {operatingTime[idx]?.map((item, index) => <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>)}
+          {operatingTime[idx]?.map((item, index) => {
+            if (item?.weekendTime) {
+              return <InfoContent key={index}>{item?.title} {' '} {item?.weekendTime}</InfoContent>
+            }
+            if (item?.vacationTime) {
+              return <InfoContent key={index}>{item?.title} {' '} {item?.vacationTime}</InfoContent>
+            }
+            return <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>
+          })}
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
-					<ModalContent
-						style={idx === 1 ? { marginLeft: 90 } : { marginLeft: 30 }}
-						onClick={() => setVisible1(true)}
-					>
-						<FontAwesomeIcon icon={faMapLocationDot} />
-						<p style={{ fontSize: 11 }}>식당위치</p>
-					</ModalContent>
-					<Modal visible={visible1} onClose={() => setVisible1(false)}>
-						<ModalLocation restaurant={idx} />
-					</Modal>
-					{/* {idx !== 1 ? (
+        {idx !== 1 ? (
 						<>
 							<ModalContent
-								style={{ marginLeft: 5 }}
-								onClick={() => setVisible2(true)}
+								style={{ marginRight: 5 }}
+								onClick={() => setVisible({...visible, menu: true})}
 							>
 								<FontAwesomeIcon icon={faCalendarDays} />
 								<p style={{ fontSize: 11 }}>식단표</p>
 							</ModalContent>
-							<Modal visible={visible2} onClose={() => setVisible2(false)}>
-								<ModalMenuTable idx={idx} />
+              <Modal visible={visible.menu} onClose={() => setVisible({...visible, menu: false})}>
+								<MenuTableModal idx={idx} onClose={() => setVisible({...visible, menu: false})} />
 							</Modal>
 						</>
-					) : null} */}
+					) : null}
+					<ModalContent
+            onClick={() => setVisible({...visible, map: true})}
+					>
+						<FontAwesomeIcon icon={faMapLocationDot} />
+						<p style={{ fontSize: 11 }}>식당위치</p>
+					</ModalContent>
+          <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
+						<ModalLocation restaurant={idx} />
+					</Modal>
 				</div>
 			</div>
 		</Container>

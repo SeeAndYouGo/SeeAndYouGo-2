@@ -45,11 +45,11 @@ public class VisitorInterceptor implements HandlerInterceptor {
         if (ops.get(userRedisKey) == null) {
             if (user.equals("unknown")) {
                 if (ops.get(ipKey) == null) {
-                    ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
+                    increase(ops);
                     logger.debug("counting visitor: {}, {}", "unknown", ipKey);
                 }
             } else {
-                ops.increment(Const.KEY_TOTAL_VISITOR_COUNT);
+                increase(ops);
                 logger.debug("counting visitor: {}, {}", user, ipKey);
             }
         }
@@ -83,5 +83,10 @@ public class VisitorInterceptor implements HandlerInterceptor {
             ip = request.getRemoteAddr();
 
         return ip;
+    }
+
+    private void increase(ValueOperations<String, String> ops) {
+        ops.increment(Const.KEY_TODAY_VISITOR);
+        ops.increment(Const.KEY_TOTAL_VISITOR);
     }
 }

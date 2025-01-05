@@ -44,7 +44,6 @@ public class ReviewController {
     private final UserService userService;
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
-    private static final List<String> restaurantNames = List.of("제1학생회관", "제2학생회관", "제3학생회관", "상록회관", "생활과학대");
     private final Executor executor;
 
     public ReviewController(ReviewService reviewService, TokenProvider tokenProvider, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
@@ -74,8 +73,8 @@ public class ReviewController {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         String userEmail = tokenProvider.decodeToEmail(tokenId);
-        for (String restaurantName : restaurantNames) {
-            List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
+        for (Restaurant restaurant : Restaurant.values()) {
+            List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant.toString(), date);
             allReviews.addAll(restaurantReviews);
         }
 
@@ -88,6 +87,7 @@ public class ReviewController {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
+
         return getReviewDtos(reviews, "");
     }
 
@@ -96,8 +96,7 @@ public class ReviewController {
     public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
-        String restaurantName = Restaurant.parseName(restaurant);
-        List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurantName, date);
+        List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
         String userEmail = tokenProvider.decodeToEmail(tokenId);
         return getReviewDtos(restaurantReviews, userEmail);
     }
