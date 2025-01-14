@@ -14,10 +14,7 @@ public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long
     @Query("SELECT v FROM VisitorCount v WHERE v.isTotal = false AND DATE(v.createdAt) = CURRENT_DATE")
     Optional<VisitorCount> findTodayTempData();
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE VisitorCount v SET v.count = :newCount WHERE v.isTotal = false AND DATE(v.createdAt) = CURRENT_DATE")
-    void updateCountForTodayTempData(int newCount);
-
     void deleteByIsTotalFalse();
+
+    Optional<VisitorCount> findByIsTotalTrue();
 }

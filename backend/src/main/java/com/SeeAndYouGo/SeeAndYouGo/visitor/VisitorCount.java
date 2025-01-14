@@ -36,4 +36,9 @@ public class VisitorCount {
     private int count;
 
     private boolean isTotal;
+
+    public int updateCount(int cnt) {
+        this.count = cnt;
+        return this.count;
+    }
 }
