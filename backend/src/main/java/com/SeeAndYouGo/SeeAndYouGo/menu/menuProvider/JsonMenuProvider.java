@@ -40,7 +40,7 @@ public class JsonMenuProvider implements MenuProvider{
     @Override
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         // Read the JSON file
-        String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/menuOfRestaurant1.json").toAbsolutePath()));
+        String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
 
         // Parse the JSON data
         JsonParser jsonParser = new JsonParser();
