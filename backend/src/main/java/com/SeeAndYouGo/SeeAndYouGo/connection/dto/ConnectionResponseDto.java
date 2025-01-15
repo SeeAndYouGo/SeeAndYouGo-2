@@ -18,25 +18,10 @@ public class ConnectionResponseDto {
     private Integer connected;
     private String dateTime;
 
-    public ConnectionResponseDto(Connection connection){
-        this.restaurantName = connection.getRestaurant().toString();
-        this.capacity = connection.getRestaurant().getCapacity();
-        this.connected = connection.getConnected();
-        this.dateTime = connection.getTime();
-    }
-
-    public ConnectionResponseDto(Connection connection, String restaurantName){
-        if(connection == null) {
-            this.restaurantName = Restaurant.parseName(restaurantName);
-            Restaurant restaurant = Restaurant.valueOf(this.restaurantName);
-            capacity = restaurant.getCapacity();
-            this.connected = 0;
-            this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            return;
-        }
-        this.restaurantName = connection.getRestaurant().toString();
-        this.capacity = connection.getRestaurant().getCapacity();
-        this.connected = connection.getConnected();
-        this.dateTime = connection.getTime();
+    public ConnectionResponseDto(ConnectionVO connectionVO){
+        this.restaurantName = connectionVO.getRestaurant().name();
+        this.capacity = connectionVO.getRestaurant().getCapacity();
+        this.connected = connectionVO.getConnected();
+        this.dateTime = connectionVO.getTime();
     }
 }

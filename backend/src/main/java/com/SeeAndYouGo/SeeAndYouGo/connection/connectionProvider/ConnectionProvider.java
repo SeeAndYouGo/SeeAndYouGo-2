@@ -6,6 +6,6 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import java.util.List;
 
 public interface ConnectionProvider {
-    List<ConnectionVO> getRecentConnection(Restaurant restaurant) throws Exception;
-    String getRecentConnectionToString(Restaurant restaurant) throws Exception;
+    ConnectionVO getRecentConnection(Restaurant restaurant) throws Exception;
+    void updateConnectionMap(Restaurant restaurant) throws Exception;
 }

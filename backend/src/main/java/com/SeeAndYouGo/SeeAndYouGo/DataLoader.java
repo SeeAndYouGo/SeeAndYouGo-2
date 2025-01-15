@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
@@ -22,6 +24,7 @@ public class DataLoader implements CommandLineRunner {
 
     private final IterService iterService;
     private final ConnectionService connectionService;
+    private final MenuService menuService;
     private final RateService rateService;
     private final StatisticsService statisticsService;
     private final VisitorService visitorService;
@@ -34,6 +37,8 @@ public class DataLoader implements CommandLineRunner {
         // 초기 세팅 메서드들(테스트 환경이든 운영 환경이든 모두 필요함)
         rateService.setRestaurant1MenuField();
         statisticsService.initSetting();
+        menuService.updateAllRestaurantMenuMap();
+        connectionService.updateAllRestaurantMenuMap();
         visitorService.init();
 
         if(!rateService.exists()){
@@ -44,7 +49,7 @@ public class DataLoader implements CommandLineRunner {
             holidayService.saveThisYearHoliday(LocalDate.now());
         }
 
-        // 데이터 삽입 메서드(테스트 환경에서는 데이터를 임의로 넣어줄 것이므로 불필요함.
+        // 데이터 삽입 메서드(테스트 환경에서는 데이터를 임의로 넣어줄 것이므로 불필요함).
         if(!isTest) {
             iterService.weeklyIterative();
             connectionService.saveRecentConnection();

@@ -12,6 +12,4 @@ spring:
       host: localhost
       port: 6379
 
-URL:
-  CONN_URL: http://www.seeandyougo.com:80/api/connection/test
-  DISH_URL: http://www.seeandyougo.com:80/api/dish/test
+
