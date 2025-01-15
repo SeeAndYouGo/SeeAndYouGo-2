@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -25,7 +26,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
     @Value("${URL.DORM_CONN_URL}")
     private String CONN_URL;
 
-    private Map<Restaurant, ConnectionVO> connectionMap;
+    private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
     @Override
     public ConnectionVO getRecentConnection(Restaurant restaurant) {
