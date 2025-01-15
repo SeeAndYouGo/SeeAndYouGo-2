@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
@@ -11,37 +12,92 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class ApiMenuProvider implements MenuProvider{
 
     @Value("${DISH_KEY}")
-    private String DISH_KEY;
+    private String AUTH_KEY;
 
-    @Value("${URL.DISH_URL}")
-    private String DISH_URL;
+    @Value("${DISH.GET.URL}")
+    private String URL;
 
-    // DB에 메뉴가 있다면 그걸 가져오고, 아니면 받아와야함.
-    // 근데 이러면 MenuService랑 다른게 뭐지...
+    @Value("${DISH.GET.END_POINT}")
+    private String END_POINT;
+
+    @Value("${DISH.SAVE.END_POINT}")
+    private String SAVE_URL;
+
+    @Value("${DISH.SAVE.END_POINT}")
+    private String SAVE_END_POINT;
+
+    private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
+
+    // 최신 메뉴는 항상 menuMap에서 가져옴.
     @Override
-    public List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
+        // 여기서 prod는 자기자신의 controller에게
+        // local은 서버의 controller에게 요청을 보내자.
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        URI uri = getUri(restaurant);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<MenuVO[]> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                entity,
+                MenuVO[].class
+        );
+
+        MenuVO[] menuVos = Objects.requireNonNull(response.getBody());
+        return Arrays.stream(menuVos).collect(Collectors.toList());
+    }
+
+    private URI getUri(Restaurant restaurant) {
+        return UriComponentsBuilder.fromUriString(URL)
+                .path(END_POINT)
+                .queryParam("AUTH_KEY", AUTH_KEY)
+                .queryParam("restaurant", restaurant)
+                .encode()
+                .build()
+                .toUri();
+    }
+
+    @Override
+    public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         List<MenuVO> result = new ArrayList<>();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-        String foodInfo = getWeeklyMenuToString(monday, sunday);
-        JsonArray resultArray = getJsonArray(foodInfo);
+        JsonArray resultArray;
+        try{
+            String foodInfo = getWeeklyMenuToString(monday, sunday);
+            resultArray = getJsonArray(foodInfo);
+        }catch (Exception e){
+            // 로컬의 경우 여기서 오류가 날 것이다. 따라서 로컬은 아무것도 진행하지 않는다.
+            // 로컬에서는 get 요청 시 서버에 요청이 날라가므로 저장 절차는 필요치않다.
+            return;
+        }
 
         // 페이지(파라미터)에 있는 dish 정보 리스트
         List<DishDto> dishDtos = new ArrayList<>();
@@ -99,7 +155,7 @@ public class ApiMenuProvider implements MenuProvider{
             result.addAll(createMenuWithDishes(dishDtos));
         }
 
-        return result;
+        menuMap.put(restaurant, result);
     }
 
     private JsonArray getJsonArray(String foodInfo) {
@@ -159,7 +215,7 @@ public class ApiMenuProvider implements MenuProvider{
                 break;
             }
 
-            String apiUrl = DISH_URL + "?page=" + page + "&AUTH_KEY=" + DISH_KEY;
+            String apiUrl = SAVE_URL+SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
 
             // URL 생성
             URL url = new URL(apiUrl);

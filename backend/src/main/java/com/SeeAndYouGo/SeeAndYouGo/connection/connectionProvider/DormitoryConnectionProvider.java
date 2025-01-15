@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -24,10 +25,15 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
     @Value("${URL.DORM_CONN_URL}")
     private String CONN_URL;
 
-    @Override
-    public List<ConnectionVO> getRecentConnection(Restaurant restaurant) {
-        List<ConnectionVO> result = new ArrayList<>();
+    private Map<Restaurant, ConnectionVO> connectionMap;
 
+    @Override
+    public ConnectionVO getRecentConnection(Restaurant restaurant) {
+        return connectionMap.get(restaurant);
+    }
+
+    @Override
+    public void updateConnectionMap(Restaurant restaurant) throws Exception {
         try{
             // 요청할 URL
             String urlString = "https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon";
@@ -67,21 +73,14 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
                 // LocalDateTime을 포맷팅
                 String formattedDateTime = now.format(formatter);
 
-                ConnectionVO connectionVo = new ConnectionVO(connected, formattedDateTime, restaurant);
+                connection.disconnect();
 
-                result.add(connectionVo);
+                ConnectionVO connectionVO = new ConnectionVO(connected, formattedDateTime, restaurant);
+
+                connectionMap.put(restaurant, connectionVO);
             }
-        connection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        return result;
-    }
-
-    @Override
-    public String getRecentConnectionToString(Restaurant restaurant) throws Exception {
-        return null;
     }
 }

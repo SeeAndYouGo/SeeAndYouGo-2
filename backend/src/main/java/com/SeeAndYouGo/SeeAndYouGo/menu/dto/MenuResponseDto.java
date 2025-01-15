@@ -1,6 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu.dto;
 
+import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
+import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.*;
 
 import java.util.LinkedList;

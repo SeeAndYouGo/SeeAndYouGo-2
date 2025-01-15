@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
@@ -19,6 +20,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
 @Service
 @Transactional(readOnly = true)
@@ -275,7 +279,9 @@ public class MenuService {
     @Transactional
     private void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
-        List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant, monday, sunday);
+        menuProvider.updateMenuMap(restaurant, monday, sunday);
+
+        List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant);
 
         // 이제 받은 List<MenuVO>를 List<Menu>로 변환하고 저장한다.
         for (MenuVO menuVO : weeklyMenu) {
@@ -302,48 +308,22 @@ public class MenuService {
 
             menuRepository.save(menu);
         }
-
-//        menuRepository.saveAll(weeklyMenu);
-//        List<Dish> dishes = new ArrayList<>();
-//        // getWeeklyMenu를 통해서 받은 Menu와 Dish는 모두 저장해야한다.
-//        for (Menu menu : weeklyMenu) {
-//            List<Dish> dishNotInDb = menu.getDishList()
-//                    .stream()
-//                    .filter(dish ->
-//                            !dishRepository.existsByName(dish.getName()))
-//                    .filter(dish -> dishes.stream().noneMatch(existingDish -> existingDish.getName().equals(dish.getName())))
-//                    .collect(Collectors.toList());
-
-//            List<Dish> notDuplicatedDish = new ArrayList<>(dishNotInDb
-//                    .stream()
-//                    .collect(Collectors.toMap(
-//                            Dish::getName, // key: Dish의 name 속성
-//                            dish -> dish,  // value: Dish 객체 자체
-//                            (existing, replacement) -> existing  // 중복 시 기존 값 유지
-//                    ))
-//                    .values()); // List로 변환
-//
-//
-//        }
-
-//        dishRepository.saveAll(dishes);
-
-//        List<MenuDish> menuDishes = new ArrayList<>();
-//        for (Menu menu : weeklyMenu) {
-//            for (Dish dish : menu.getDishList()) {
-//                MenuDish menuDish = new MenuDish(menu, dish);
-//                menuDishes.add(menuDish);  // MenuDish 객체 리스트에 추가
-//            }
-//        }
-
-        // MenuDish를 한 번에 저장
-//        menuDishRepository.saveAll(menuDishes);
     }
 
-    // String으로 넘겨주는거는 2, 3, 4, 5학생회관만 진행함.
-    public String getWeeklyMenuToString(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    // 여기서 전달되는 menu와 dish는 모두 이미 DB에 저장된 것들이다
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
 
-        return menuProvider.getWeeklyMenuToString(monday, sunday);
+        return menuProvider.getWeeklyMenu(restaurant);
+    }
+
+    public void updateAllRestaurantMenuMap() throws Exception {
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+
+        for (Restaurant restaurant : Restaurant.values()) {
+            MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
+            menuProvider.updateMenuMap(restaurant, nearestMonday, sunday);
+        }
     }
 }

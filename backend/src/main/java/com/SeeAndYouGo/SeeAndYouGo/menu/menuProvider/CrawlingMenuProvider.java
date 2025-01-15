@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,8 +30,14 @@ public class CrawlingMenuProvider implements MenuProvider{
 
     private final static String DORM_URL = "https://dorm.cnu.ac.kr/html/kr/sub03/sub03_0304.html";
 
+    private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
+
     @Override
-    public List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
+        return menuMap.get(restaurant);
+    }
+
+    public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         Connection connection = Jsoup.connect(DORM_URL);
         Document document = connection.get();
 
@@ -100,10 +107,9 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
         }
 
-        return menuVOs;
+        menuMap.put(restaurant, menuVOs);
     }
 
-    @Override
     public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
         throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
     }

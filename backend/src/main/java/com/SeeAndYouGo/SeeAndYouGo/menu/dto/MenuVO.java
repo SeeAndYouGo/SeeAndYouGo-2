@@ -35,7 +35,6 @@ public class MenuVO {
         this.menuType = menuType;
     }
 
-
     public void addDishVO(DishVO dishVO) {
         this.dishVOs.add(dishVO);
     }

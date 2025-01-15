@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,9 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,22 +34,17 @@ public class ConnectionService {
      * restaurantName에 해당하는 학생식당의 connection 정보를 반환한다.
      * @param restaurantName connectoin 정보가 필요한 학생식당
      */
-    public Connection getRecentConnection(String restaurantName){
+    public ConnectionVO getRecentConnection(String restaurantName) throws Exception {
         // 학생식당의 이름으로 Restaurant 엔티티를 가져온다.
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
 
-        // 해당하는 학생식당의 가장 최신의 Connection 정보를 가져온다.
-        return connectionRepository.findTopByRestaurantOrderByTimeDesc(restaurant);
+        ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
+        return connectionProvider.getRecentConnection(restaurant);
     }
 
     public boolean checkSecretKey(String authKey) {
         return CONN_KEY.equals(authKey);
-    }
-
-    public String getRecentConnectionToString(Restaurant restaurant) throws Exception {
-        ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
-        return connectionProvider.getRecentConnectionToString(restaurant);
     }
 
     @Transactional
@@ -62,18 +62,16 @@ public class ConnectionService {
 
             // 최신 데이터가 없다면 저장한다.
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
-            List<ConnectionVO> recentConnection = connectionProvider.getRecentConnection(restaurant);
+            connectionProvider.updateConnectionMap(restaurant);
+            ConnectionVO recentConnection = connectionProvider.getRecentConnection(restaurant);
 
-            // 받아온 Connection을 저장한다.
-            for (ConnectionVO connectionVO : recentConnection) {
-                Connection connection = Connection.builder()
-                                                    .connected(connectionVO.getConnected())
-                                                    .time(connectionVO.getTime())
-                                                    .restaurant(connectionVO.getRestaurant())
-                                                    .build();
+            Connection connection = Connection.builder()
+                                                .connected(recentConnection.getConnected())
+                                                .time(recentConnection.getTime())
+                                                .restaurant(recentConnection.getRestaurant())
+                                                .build();
 
-                connectionRepository.save(connection);
-            }
+            connectionRepository.save(connection);
         }
     }
 
@@ -89,5 +87,14 @@ public class ConnectionService {
         Duration duration = Duration.between(recentDateTime, now);
 
         return duration.toMinutes() <= 5;
+    }
+
+    public void updateAllRestaurantMenuMap() throws Exception {
+
+        for (Restaurant restaurant : Restaurant.values()) {
+
+            ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
+            connectionProvider.updateConnectionMap(restaurant);
+        }
     }
 }

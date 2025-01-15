@@ -8,6 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MenuProvider {
-    List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception;
-    String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception;
+    List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception;
+    void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception;
 }

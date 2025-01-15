@@ -1,12 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByAdminDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByUserDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -157,25 +154,22 @@ public class MenuController {
         return menuService.postMenu(restaurant, date);
     }
 
-    @PostMapping("/menu/local/{restaurant}")
-    public String bridgeDish(@RequestParam String AUTH_KEY,
-                            @PathVariable String restaurantToString,
-                             HttpServletResponse response) throws Exception {
+    @PostMapping("/menu/local")
+    public List<MenuVO> bridgeDish(@RequestParam String AUTH_KEY,
+                                   @RequestParam(name = "restaurant") String restaurantToString,
+                                   HttpServletResponse response) throws Exception {
 
         boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return "Invalid AUTH_KEY: Unauthorized access";
+            throw new IllegalArgumentException("Invalid AUTH_KEY: Unauthorized access");
         }
-
-        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
-        LocalDate sunday = getSundayOfWeek(nearestMonday);
 
         String restaurantName = Restaurant.parseName(restaurantToString);
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
-        return menuService.getWeeklyMenuToString(restaurant, nearestMonday, sunday);
+        return menuService.getWeeklyMenu(restaurant);
     }
 
     @GetMapping("/week")

@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,29 +11,47 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     @Value("${CONN_KEY}")
-    private String CONN_KEY;
+    private String AUTH_KEY;
 
-    @Value("${URL.CONN_URL}")
-    private String CONN_URL;
+    @Value("${CONN.GET.URL}")
+    private String URL;
 
-    public String getRecentConnectionToString(Restaurant restaurant) throws Exception {
+    @Value("${CONN.GET.END_POINT}")
+    private String END_POINT;
 
-        String apiUrl = CONN_URL + "?AUTH_KEY=" + CONN_KEY;
+    @Value("${CONN.SAVE.END_POINT}")
+    private String SAVE_URL;
+
+    @Value("${CONN.SAVE.END_POINT}")
+    private String SAVE_END_POINT;
+
+    private Map<Restaurant, ConnectionVO> connectionMap;
+
+    public String getRecentConnectionToString() throws Exception {
+
+        String apiUrl = SAVE_URL+SAVE_END_POINT + "?AUTH_KEY=" + AUTH_KEY;
 
         // URL 생성
         URL url = new URL(apiUrl);
@@ -63,48 +82,77 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     }
 
     @Override
-    public List<ConnectionVO> getRecentConnection(Restaurant restaurant) throws Exception{
-        String wifiInfo = getRecentConnectionToString(restaurant);
-        List<ConnectionVO> result = new ArrayList<>();
-        
-        if (wifiInfo.isEmpty()) {
-            return result;
-        }
-        
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
-        JsonObject jsonWithRestaurantInfo = CacheJsonWithRestaurantInfo(jsonObject);
+    public ConnectionVO getRecentConnection(Restaurant restaurant) {
+        // 여기서 prod는 자기자신의 controller에게
+        // local은 서버의 controller에게 요청을 보내자.
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        URI uri = getUri(restaurant);
 
-        if(jsonWithRestaurantInfo.size() == 0) return null;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<ConnectionVO> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                entity,
+                ConnectionVO.class
+        );
 
-        JsonArray finalResult = new JsonArray();
-        for (String location : jsonWithRestaurantInfo.keySet()) {
-            JsonObject locationInfo = new JsonObject();
-            locationInfo.addProperty("name", location);
-            locationInfo.addProperty("connected", jsonWithRestaurantInfo.get(location).getAsInt());
-            finalResult.add(locationInfo);
-        }
+        return Objects.requireNonNull(response.getBody());
+    }
 
-        String time = extractTimeInJson(jsonObject);
+    private URI getUri(Restaurant restaurant) {
+        return UriComponentsBuilder.fromUriString(URL)
+                .path(END_POINT)
+                .queryParam("AUTH_KEY", AUTH_KEY)
+                .queryParam("restaurant", restaurant)
+                .encode()
+                .build()
+                .toUri();
+    }
 
-        for (JsonElement jsonElement : finalResult) {
-            JsonObject asJsonObject = jsonElement.getAsJsonObject();
-            String rawName = asJsonObject.get("name").toString();
-            String restaurantName = Restaurant.parseName(removeQuotes(rawName));
+    @Override
+    public void updateConnectionMap(Restaurant restaurant){
 
-            if(!restaurant.toString().equals(restaurantName)){
-                // 내가 원하는 restaurant가 아니면 패쓰
-                continue;
+        try {
+            String wifiInfo = getRecentConnectionToString();
+
+            if (wifiInfo.isEmpty()) {
+                throw new RuntimeException("API 결과로 받아온 Connection이 없습니다.");
             }
 
-            Integer connected = asJsonObject.get("connected").getAsInt();
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonObject = jsonParser.parse(wifiInfo).getAsJsonObject();
+            JsonObject jsonWithRestaurantInfo = CacheJsonWithRestaurantInfo(jsonObject);
 
-            ConnectionVO connectionVO = new ConnectionVO(connected, time, restaurant);
+            if(jsonWithRestaurantInfo.size() == 0) return;
 
-            result.add(connectionVO);
-        }
+            JsonArray finalResult = new JsonArray();
+            for (String location : jsonWithRestaurantInfo.keySet()) {
+                JsonObject locationInfo = new JsonObject();
+                locationInfo.addProperty("name", location);
+                locationInfo.addProperty("connected", jsonWithRestaurantInfo.get(location).getAsInt());
+                finalResult.add(locationInfo);
+            }
 
-        return result;
+            String time = extractTimeInJson(jsonObject);
+
+            for (JsonElement jsonElement : finalResult) {
+                JsonObject asJsonObject = jsonElement.getAsJsonObject();
+                String rawName = asJsonObject.get("name").toString();
+                String restaurantName = Restaurant.parseName(removeQuotes(rawName));
+
+                if (!restaurant.toString().equals(restaurantName)) {
+                    // 내가 원하는 restaurant가 아니면 패쓰
+                    continue;
+                }
+
+                Integer connected = asJsonObject.get("connected").getAsInt();
+
+                ConnectionVO connectionVO = new ConnectionVO(connected, time, restaurant);
+
+                connectionMap.put(restaurant, connectionVO);
+            }
+        }catch (Exception e){}
     }
 
     private JsonObject CacheJsonWithRestaurantInfo(JsonObject jsonObject) {

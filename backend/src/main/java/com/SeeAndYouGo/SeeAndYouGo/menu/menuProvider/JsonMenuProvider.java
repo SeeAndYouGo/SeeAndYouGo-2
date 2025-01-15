@@ -22,44 +22,52 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class JsonMenuProvider implements MenuProvider{
 
+    private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
+
     @Override
-    public List<MenuVO> getWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
-            // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/menuOfRestaurant1.json").toAbsolutePath()));
-
-            // Parse the JSON data
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
-
-            List<MenuVO> menuVOs = new ArrayList<>();
-
-            // Extract menuName
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-            for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
-
-                DishVO dishVO = new DishVO(name, DishType.MAIN);
-
-                for(LocalDate date=monday; !date.isAfter(sunday); date = date.plusDays(1)) {
-                    MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
-
-                    menuVO.addDishVO(dishVO);
-                    menuVOs.add(menuVO);
-                }
-            }
-
-        return menuVOs;
+    public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
+        return menuMap.get(restaurant);
     }
 
     @Override
+    public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
+        // Read the JSON file
+        String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/Restaurant/menuOfRestaurant1.json").toAbsolutePath()));
+
+        // Parse the JSON data
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+
+        List<MenuVO> menuVOs = new ArrayList<>();
+
+        // Extract menuName
+        JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
+        for (JsonElement menuJson : menuNameArray) {
+            String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
+            Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
+            Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+
+            DishVO dishVO = new DishVO(name, DishType.MAIN);
+
+            for(LocalDate date=monday; !date.isAfter(sunday); date = date.plusDays(1)) {
+                MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
+
+                menuVO.addDishVO(dishVO);
+                menuVOs.add(menuVO);
+            }
+        }
+
+        menuMap.put(restaurant, menuVOs);
+    }
+
     public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
         throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
     }
