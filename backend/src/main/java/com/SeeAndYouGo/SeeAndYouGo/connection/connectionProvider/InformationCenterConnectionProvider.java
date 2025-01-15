@@ -26,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -47,7 +48,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     @Value("${CONN.SAVE.END_POINT}")
     private String SAVE_END_POINT;
 
-    private Map<Restaurant, ConnectionVO> connectionMap;
+    private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
     public String getRecentConnectionToString() throws Exception {
 
