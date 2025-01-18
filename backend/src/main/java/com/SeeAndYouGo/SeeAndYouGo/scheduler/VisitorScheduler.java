@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.*;
@@ -21,6 +22,7 @@ public class VisitorScheduler {
     private final RedisTemplate<String, String> redisTemplate;
     private final VisitorCountRepository repository;
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void resetTodayVisitorCount() {
         // get Redis TODAY COUNT
@@ -28,7 +30,6 @@ public class VisitorScheduler {
 
         // get DB today Count
         int countInDatabase = getTodayVisitorCountInDatabase();
-
 
         if (countInRedis > countInDatabase) {
             logger.info("[VISITOR COUNT] Redis data successfully backed up to DB.");
@@ -38,14 +39,14 @@ public class VisitorScheduler {
         logger.info("[VISITOR COUNT] Today's data has been reset.");
 
         repository.deleteByIsTotalFalse();
-        redisTemplate.delete(PREFIX_VISITOR + KEY_TODAY_VISITOR);
-        redisTemplate.delete(PREFIX_VISITOR + PREFIX_VISITOR_IP);
-        redisTemplate.delete(PREFIX_VISITOR + PREFIX_VISITOR_USER);
+        redisTemplate.delete(KEY_TODAY_VISITOR);
+        redisTemplate.delete(PREFIX_VISITOR_IP);
+        redisTemplate.delete(PREFIX_VISITOR_USER);
     }
 
     private int getTodayVisitorCountInDatabase() {
         int todayVisitorInDatabase = 0;
-        Optional<VisitorCount> backupCount = repository.findTodayTempData();
+        Optional<VisitorCount> backupCount = repository.findRecentTodayBackup();
         if (backupCount.isPresent()) {
             todayVisitorInDatabase = backupCount.get().getCount();
         }
@@ -54,7 +55,7 @@ public class VisitorScheduler {
 
     private int getTodayVistorCountInRedis() {
         int todayVisitorInRedis;
-        String countValue = redisTemplate.opsForValue().get(PREFIX_VISITOR + KEY_TODAY_VISITOR);
+        String countValue = redisTemplate.opsForValue().get(KEY_TODAY_VISITOR);
         if (countValue == null) {
             todayVisitorInRedis = 0;
         } else {
@@ -63,30 +64,36 @@ public class VisitorScheduler {
         return todayVisitorInRedis;
     }
 
+    @Transactional
     @Scheduled(fixedRate = 60000 * 30) // 30분마다
     public void backupVisitorCount() {
-        backupCount(PREFIX_VISITOR + KEY_TODAY_VISITOR, false);
-        backupCount(PREFIX_VISITOR + KEY_TOTAL_VISITOR, true);
+        backupCount(KEY_TODAY_VISITOR, false);
+        backupCount(KEY_TOTAL_VISITOR, true);
     }
 
     private void backupCount(String redisKey, boolean isTotal) {
-        String cachedValue = redisTemplate.opsForValue().get(redisKey);
-        if (cachedValue != null) {
-            int cachedCount = Integer.parseInt(cachedValue);
-            Optional<VisitorCount> backup = isTotal ? repository.findByIsTotalTrue() : repository.findTodayTempData();
+        String tmp = redisTemplate.opsForValue().get(redisKey);
 
-            backup.ifPresentOrElse(backupData -> {
-                if (backupData.getCount() > cachedCount) {
-                    logger.error("[ERROR] DB count is higher. Overwriting Redis.");
-                    redisTemplate.opsForValue().set(redisKey, String.valueOf(backupData.getCount()));
-                } else {
-                    backupData.updateCount(cachedCount);
-                    repository.save(backupData);
-                }
-            }, () -> repository.save(VisitorCount.from(cachedCount, isTotal)));
+        if (tmp != null) {
+            int cachedCount = Integer.parseInt(tmp);
+            Optional<VisitorCount> optional = isTotal ? repository.findRecentTotalBackup() : repository.findRecentTodayBackup();
+
+            if (optional.isEmpty()) {
+                repository.save(VisitorCount.from(cachedCount, isTotal));
+                return;
+            }
+            VisitorCount recentBackup = optional.get();
+
+            if (recentBackup.getCount() > cachedCount) {
+                logger.error("[ERROR] DB count is higher. Overwriting Redis.");
+                redisTemplate.opsForValue().set(redisKey, String.valueOf(recentBackup.getCount()));
+                return;
+            }
+            recentBackup.updateCount(cachedCount);
+            repository.save(recentBackup);
         } else {
             logger.warn("[WARNING] No cached data for key {}.", redisKey);
-            repository.findByIsTotalTrue().ifPresent(backupData ->
+            repository.findRecentTotalBackup().ifPresent(backupData ->
                     redisTemplate.opsForValue().set(redisKey, String.valueOf(backupData.getCount())));
         }
     }
