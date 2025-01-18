@@ -1,12 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 
-import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
-import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
-import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -34,6 +30,11 @@ public class JsonMenuProvider implements MenuProvider{
 
     @Override
     public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
+        return menuMap.get(restaurant);
+    }
+
+    @Override
+    public List<MenuVO> getWeeklyMenuMap(Restaurant restaurant) throws Exception {
         return menuMap.get(restaurant);
     }
 
@@ -66,10 +67,6 @@ public class JsonMenuProvider implements MenuProvider{
         }
 
         menuMap.put(restaurant, menuVOs);
-    }
-
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
-        throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
     }
 
     private MenuVO getMenuVO(Integer price, LocalDate date, Dept dept, MenuType menuType, Restaurant restaurant) {

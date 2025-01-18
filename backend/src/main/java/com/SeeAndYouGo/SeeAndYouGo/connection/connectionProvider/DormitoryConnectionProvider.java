@@ -1,7 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
-import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
-import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +27,11 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
     @Override
     public ConnectionVO getRecentConnection(Restaurant restaurant) {
         return connectionMap.get(restaurant);
+    }
+
+    @Override
+    public ConnectionVO getRecentConnectionMap(Restaurant restaurant) throws Exception {
+        return getRecentConnection(restaurant);
     }
 
     @Override

@@ -37,6 +37,11 @@ public class CrawlingMenuProvider implements MenuProvider{
         return menuMap.get(restaurant);
     }
 
+    @Override
+    public List<MenuVO> getWeeklyMenuMap(Restaurant restaurant) throws Exception {
+        return getWeeklyMenu(restaurant);
+    }
+
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         Connection connection = Jsoup.connect(DORM_URL);
         Document document = connection.get();
