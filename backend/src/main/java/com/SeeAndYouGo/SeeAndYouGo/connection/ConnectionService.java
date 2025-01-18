@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,13 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
 @Service
 @Transactional(readOnly = true)
@@ -96,5 +90,10 @@ public class ConnectionService {
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
             connectionProvider.updateConnectionMap(restaurant);
         }
+    }
+
+    public ConnectionVO getRecentConnectionMap(Restaurant restaurant) throws Exception {
+        ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
+        return connectionProvider.getRecentConnectionMap(restaurant);
     }
 }

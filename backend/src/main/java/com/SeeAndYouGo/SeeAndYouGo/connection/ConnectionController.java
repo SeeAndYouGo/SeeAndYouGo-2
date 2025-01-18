@@ -43,7 +43,8 @@ public class ConnectionController {
         }
 
         String restaurantName = Restaurant.parseName(restaurantToString);
+        Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
-        return connectionService.getRecentConnection(restaurantName);
+        return connectionService.getRecentConnectionMap(restaurant);
     }
 }

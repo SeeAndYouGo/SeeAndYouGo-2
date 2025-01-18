@@ -1,9 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
-import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,7 +25,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -42,7 +39,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     @Value("${CONN.GET.END_POINT}")
     private String END_POINT;
 
-    @Value("${CONN.SAVE.END_POINT}")
+    @Value("${CONN.SAVE.URL}")
     private String SAVE_URL;
 
     @Value("${CONN.SAVE.END_POINT}")
@@ -93,19 +90,24 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<ConnectionVO> response = restTemplate.exchange(
                 uri,
-                HttpMethod.GET,
+                HttpMethod.POST,
                 entity,
                 ConnectionVO.class
         );
 
-        return Objects.requireNonNull(response.getBody());
+        return response.getBody();
+    }
+
+    @Override
+    public ConnectionVO getRecentConnectionMap(Restaurant restaurant) throws Exception {
+        return connectionMap.get(restaurant);
     }
 
     private URI getUri(Restaurant restaurant) {
         return UriComponentsBuilder.fromUriString(URL)
                 .path(END_POINT)
                 .queryParam("AUTH_KEY", AUTH_KEY)
-                .queryParam("restaurant", restaurant)
+                .queryParam("restaurant", restaurant.getNumber())
                 .encode()
                 .build()
                 .toUri();
@@ -113,7 +115,6 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     @Override
     public void updateConnectionMap(Restaurant restaurant){
-
         try {
             String wifiInfo = getRecentConnectionToString();
 
@@ -137,6 +138,14 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
 
             String time = extractTimeInJson(jsonObject);
 
+            // 현재 3, 5학생회관이 connection문제로 날라오지 않는다.
+            // 0으로 만들어서 보내주자.
+            if(restaurant.equals(Restaurant.생활과학대) || restaurant.equals(Restaurant.제3학생회관)){
+                ConnectionVO connectionVO = new ConnectionVO(0, time, restaurant);
+                connectionMap.put(restaurant, connectionVO);
+                return;
+            }
+
             for (JsonElement jsonElement : finalResult) {
                 JsonObject asJsonObject = jsonElement.getAsJsonObject();
                 String rawName = asJsonObject.get("name").toString();
@@ -153,7 +162,9 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
 
                 connectionMap.put(restaurant, connectionVO);
             }
-        }catch (Exception e){}
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     private JsonObject CacheJsonWithRestaurantInfo(JsonObject jsonObject) {

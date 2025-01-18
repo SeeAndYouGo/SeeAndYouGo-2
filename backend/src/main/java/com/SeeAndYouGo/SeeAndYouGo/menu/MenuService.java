@@ -2,7 +2,6 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
@@ -310,13 +309,6 @@ public class MenuService {
         }
     }
 
-    // 여기서 전달되는 menu와 dish는 모두 이미 DB에 저장된 것들이다
-    public List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception {
-        MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
-
-        return menuProvider.getWeeklyMenu(restaurant);
-    }
-
     public void updateAllRestaurantMenuMap() throws Exception {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);
@@ -325,5 +317,12 @@ public class MenuService {
             MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
             menuProvider.updateMenuMap(restaurant, nearestMonday, sunday);
         }
+    }
+
+    // 여기서 전달되는 menu와 dish는 모두 이미 DB에 저장된 것들이다
+    public List<MenuVO> getWeeklyMenuMap(Restaurant restaurant) throws Exception {
+        MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
+
+        return menuProvider.getWeeklyMenuMap(restaurant);
     }
 }

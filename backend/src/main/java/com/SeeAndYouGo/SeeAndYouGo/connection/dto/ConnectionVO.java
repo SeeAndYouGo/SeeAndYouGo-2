@@ -2,8 +2,10 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.dto;
 
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor // Jackson 라이브러리에서 직렬화할 때 사용
 public class ConnectionVO {
 
     private Integer connected;

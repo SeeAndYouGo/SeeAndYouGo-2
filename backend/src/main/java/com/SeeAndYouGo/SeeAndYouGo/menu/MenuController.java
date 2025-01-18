@@ -169,7 +169,7 @@ public class MenuController {
         String restaurantName = Restaurant.parseName(restaurantToString);
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
-        return menuService.getWeeklyMenu(restaurant);
+        return menuService.getWeeklyMenuMap(restaurant);
     }
 
     @GetMapping("/week")

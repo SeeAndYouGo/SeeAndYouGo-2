@@ -3,7 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
@@ -44,7 +43,7 @@ public class ApiMenuProvider implements MenuProvider{
     @Value("${DISH.GET.END_POINT}")
     private String END_POINT;
 
-    @Value("${DISH.SAVE.END_POINT}")
+    @Value("${DISH.SAVE.URL}")
     private String SAVE_URL;
 
     @Value("${DISH.SAVE.END_POINT}")
@@ -64,13 +63,18 @@ public class ApiMenuProvider implements MenuProvider{
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<MenuVO[]> response = restTemplate.exchange(
                 uri,
-                HttpMethod.GET,
+                HttpMethod.POST,
                 entity,
                 MenuVO[].class
         );
 
         MenuVO[] menuVos = Objects.requireNonNull(response.getBody());
         return Arrays.stream(menuVos).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MenuVO> getWeeklyMenuMap(Restaurant restaurant) throws Exception {
+        return menuMap.get(restaurant);
     }
 
     private URI getUri(Restaurant restaurant) {
