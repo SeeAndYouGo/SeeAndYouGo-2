@@ -58,7 +58,10 @@ public class JsonMenuProvider implements MenuProvider{
 
             DishVO dishVO = new DishVO(name, DishType.MAIN);
 
-            for(LocalDate date=monday; !date.isAfter(sunday); date = date.plusDays(1)) {
+            // 1학은 주말에 운영하지 않으므로 메뉴가 들어가면 안된다.
+            LocalDate friday = sunday.minusDays(2);
+
+            for(LocalDate date=monday; !date.isAfter(friday); date = date.plusDays(1)) {
                 MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
 
                 menuVO.addDishVO(dishVO);

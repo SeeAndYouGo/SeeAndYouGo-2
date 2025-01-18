@@ -138,13 +138,13 @@ public class MenuService {
                 }
             }else if(menuType.equals(MenuType.LUNCH)){
                 // 점심에는
-                // 학생식당 : 2, 3, 상록, 생과대
+                // 학생식당 : 1, 2, 3, 상록, 생과대
                 // 교직원식당 : 2, 3학생회관
                 // 만 메뉴를 제공한다.
                 if(restaurant.equals(Restaurant.제2학생회관) || restaurant.equals(Restaurant.제3학생회관)){
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STAFF, MenuType.LUNCH);
-                }else if(restaurant.equals(Restaurant.상록회관) || restaurant.equals(Restaurant.생활과학대)){
+                }else if(restaurant.equals(Restaurant.상록회관) || restaurant.equals(Restaurant.생활과학대) || restaurant.equals(Restaurant.제1학생회관)){
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
                 }
             }else{
