@@ -67,9 +67,9 @@ public class CrawlingMenuProvider implements MenuProvider{
 
                         DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
                         menuVO.addDishVO(dishVO);
-
-                        menuVOs.add(menuVO);
                     }
+
+                    menuVOs.add(menuVO);
                 }
             }
 
@@ -86,9 +86,9 @@ public class CrawlingMenuProvider implements MenuProvider{
 
                         DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
                         menuVO.addDishVO(dishVO);
-
-                        menuVOs.add(menuVO);
                     }
+
+                    menuVOs.add(menuVO);
                 }
             }
 
@@ -105,9 +105,9 @@ public class CrawlingMenuProvider implements MenuProvider{
 
                         DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
                         menuVO.addDishVO(dishVO);
-
-                        menuVOs.add(menuVO);
                     }
+
+                    menuVOs.add(menuVO);
                 }
             }
         }

@@ -55,11 +55,6 @@ public class MenuController {
     public static String getTodayDate() {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        if(currentDate.getDayOfWeek().equals(DayOfWeek.SATURDAY)){
-            currentDate = currentDate.plusDays(2);
-        }else if(currentDate.getDayOfWeek().equals(DayOfWeek.SUNDAY)){
-            currentDate = currentDate.plusDays(1);
-        }
         return currentDate.format(formatter);
     }
 
