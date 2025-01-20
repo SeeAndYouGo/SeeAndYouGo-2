@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.*;
@@ -21,6 +22,7 @@ public class VisitorScheduler {
     private final RedisTemplate<String, String> redisTemplate;
     private final VisitorCountRepository repository;
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void resetTodayVisitorCount() {
         // get Redis TODAY COUNT
@@ -28,7 +30,6 @@ public class VisitorScheduler {
 
         // get DB today Count
         int countInDatabase = getTodayVisitorCountInDatabase();
-
 
         if (countInRedis > countInDatabase) {
             logger.info("[VISITOR COUNT] Redis data successfully backed up to DB.");
@@ -63,6 +64,7 @@ public class VisitorScheduler {
         return todayVisitorInRedis;
     }
 
+    @Transactional
     @Scheduled(fixedRate = 60000 * 30) // 30분마다
     public void backupVisitorCount() {
         backupCount(KEY_TODAY_VISITOR, false);
