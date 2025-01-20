@@ -32,16 +32,16 @@ public class VisitorScheduler {
         int countInDatabase = getTodayVisitorCountInDatabase();
 
         if (countInRedis > countInDatabase) {
-            logger.info("[VISITOR COUNT] Redis data successfully backed up to DB.");
-            VisitorCount entity = VisitorCount.from(countInRedis, false);
+            VisitorCount entity = VisitorCount.from(countInRedis, true);
             repository.save(entity);
         }
-        logger.info("[VISITOR COUNT] Today's data has been reset.");
 
         repository.deleteByIsTotalFalse();
         redisTemplate.delete(KEY_TODAY_VISITOR);
         redisTemplate.delete(PREFIX_VISITOR_IP);
         redisTemplate.delete(PREFIX_VISITOR_USER);
+
+        logger.info("[VISITOR COUNT] Today's data has been reset.");
     }
 
     private int getTodayVisitorCountInDatabase() {
