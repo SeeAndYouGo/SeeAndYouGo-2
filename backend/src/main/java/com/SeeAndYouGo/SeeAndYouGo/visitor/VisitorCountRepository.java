@@ -11,9 +11,10 @@ public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long
 
     void deleteByIsTotalFalse();
 
-    @Query("SELECT v FROM VisitorCount v WHERE v.isTotal = false AND DATE(v.createdAt) = CURRENT_DATE")
-    Optional<VisitorCount> findRecentTodayBackup();
+    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = false AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<VisitorCount> findRecentTodayBackupNative();
 
-    @Query("SELECT v FROM VisitorCount v WHERE v.isTotal = true AND DATE(v.createdAt) = CURRENT_DATE")
-    Optional<VisitorCount> findRecentTotalBackup();
+    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = true AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
+    Optional<VisitorCount> findRecentTotalBackupNative();
+
 }
