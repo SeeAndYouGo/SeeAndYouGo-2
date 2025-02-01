@@ -49,7 +49,7 @@ const restaurantList = [
 	"3학생회관",
 	"상록회관",
 	"생활과학대",
-	"기숙사식당"
+	"학생생활관"
 ];
 
 const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
