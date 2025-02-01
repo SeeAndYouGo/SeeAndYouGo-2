@@ -48,7 +48,7 @@ const ChartWrapper = styled.div`
 	padding: 20px;
 `;
 
-const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "기숙사식당"];
+const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "학생생활관"];
 
 const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 	const [swiper, setSwiper] = useState(null);
