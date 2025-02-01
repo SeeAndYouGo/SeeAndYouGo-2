@@ -34,6 +34,20 @@ const SideBarWrap = styled.div`
   &.open {
     right: 0;
   }
+  overflow-y: scroll;
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 `;
 
 const Title = styled.div`
@@ -101,6 +115,17 @@ const LogoutBtn = styled.span`
   float: right;
 `;
 
+const CountBox = styled.div`
+  position: relative;
+  padding-bottom: 20px;
+  @media (min-height: 450px) {
+    // 450px 이상일때
+    position: absolute;
+    bottom: 20px;
+    padding-bottom: 0px;
+  }
+`;
+
 const SideBar = ({isOpen, setIsOpen}) => {
   const [visitTodayData, setVisitTodayData] = useState(-1);
   const [visitTotalData, setVisitTotalData] = useState(-1);
@@ -112,6 +137,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
 
   const toggleMenu = () => {
     setIsOpen(false);
+    document.body.style.overflow = "auto";
   };
 
   const loginForMemberContents = (e) => {
@@ -237,10 +263,10 @@ const SideBar = ({isOpen, setIsOpen}) => {
           </MenuList>
           {
             visitTodayData !== -1 ? (
-              <div style={{position: "absolute", bottom: 20}}>
+              <CountBox>
                 <p>today: {visitTodayData}</p>
                 <p>total: {visitTotalData}</p>
-              </div> 
+              </CountBox> 
               ): null
           }
         </div>
