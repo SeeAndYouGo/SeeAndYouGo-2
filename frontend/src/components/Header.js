@@ -42,6 +42,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => {
     setIsOpen(true);
+    document.body.style.overflow = "hidden";
   };
   return (
     <>
