@@ -37,7 +37,9 @@ const TabButton = styled.div`
   `}
 	transform: translateX(${(props) => props.slide}px);
 	transition: 0.5s ease;
-	margin: 0;
+	width: fit-content;
+	padding: 0 7px;
+	white-space: nowrap;
 `;
 
 const ChartWrapper = styled.div`
@@ -64,7 +66,7 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 
 		for (let i = 0; i < restaurantArray.length; i++) {
 			result.push(
-				<SwiperSlide key={i} className="sw-item">
+				<SwiperSlide key={i} className="sw-item" style={{ width: "fit-content" }}>
 					<TabButton
 						$active={currentTab === i}
 						onClick={() => {
@@ -84,12 +86,12 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center", fontSize: 18 }}
+					style={{ textAlign: "center" }}
 					initialSlide={
             currentTab < 3 ? 0 : currentTab
           }
 					speed={1000}
-					slidesPerView={3.5}
+					slidesPerView={"auto"}
           onSwiper={setSwiper}
 				>
 					{StatisticsSwiperSlide()}

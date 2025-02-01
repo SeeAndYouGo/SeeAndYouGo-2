@@ -40,7 +40,9 @@ const TabButton = styled.div`
   `}
 	transform: translateX(${(props) => props.slide}px);
 	transition: 0.5s ease;
-	margin: 0;
+	width: fit-content;
+	padding: 0 7px;
+	white-space: nowrap;
 `;
 
 const restaurantList = [
@@ -114,7 +116,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 
 		for (let i = 0; i < restaurantList.length; i++) {
 			result.push(
-				<SwiperSlide key={i} className="sw-item">
+				<SwiperSlide key={i} className="sw-item" style={{ width: "fit-content" }}>
 					<TabButton
 						$active={restaurantId === i + 1}
 						onClick={() =>
@@ -137,12 +139,12 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center", fontSize: 17 }}
+					style={{ textAlign: "center" }}
 					initialSlide={
             restaurantId < 4 ? 0 : restaurantId - 1
           }
 					speed={1000}
-					slidesPerView={3.6}
+					slidesPerView={"auto"}
           onSwiper={setSwiper}
 				>
 					{RestaurantSwiperSlide()}
