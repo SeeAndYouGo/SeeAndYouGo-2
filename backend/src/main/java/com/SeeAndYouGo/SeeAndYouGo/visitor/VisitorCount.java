@@ -39,6 +39,7 @@ public class VisitorCount {
 
     public int updateCount(int cnt) {
         this.count = cnt;
+        this.createdAt = LocalDateTime.now();
         return this.count;
     }
 }

@@ -305,13 +305,22 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 				croppedAreaPixels={croppedAreaPixels}
 			/>
 			<ReviewWriteContainer>
-				{ // 우선순위에 따라 표시한다.
-					// 1. 주말인 경우, 리뷰 작성 불가능
-					// 2. 로그인 하지 않은 경우, 리뷰 작성 불가능
-				  // 3. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
-					isWeekend ? ( // 주말인 경우
-					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
-				) : !token ? ( // 로그인 하지 않은 경우
+				{ // 상황에 맞게 표시한다.
+					// 1. 비로그인 상태 > 작성 불가
+					// 로그인 상태 
+					//   주말인 경우
+					//     학생생활관인 경우 > 
+					//        2. 메인 메뉴 설정되지 않은 경우 > 작성 불가
+					//        3. 메인 메뉴 설정된 경우 > 작성 가능
+					//     4. 학생생활관 외 나머지 > 작성 불가
+					//   주말 아닌 경우
+					//     5. 1학인 경우 > 작성 가능
+					//     1학 아닌 경우 
+					//       6. 메인 메뉴 설정되지 않은 경우 > 작성 불가
+					//       7. 메인 메뉴 설정된 경우 > 작성 가능 
+					
+					!token ?
+					( // 1번 상황
 					<WriteImpossible>
 						로그인이 필요합니다 !!
 						<GoToLogin
@@ -325,14 +334,44 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 							<span className="material-symbols-outlined">chevron_right</span>
 						</GoToLogin>
 					</WriteImpossible>
-				) : ( // 메인 메뉴 설정되지 않은 경우
-					(nowMainMenuList?.length === 0) ? (
-						<WriteImpossible>
-							리뷰를 작성할 수 없습니다.
-						</WriteImpossible>
+				  ) : 
+				  isWeekend ?
+					// 주말인 경우
+					( 
+						(restaurantNum === 6) ?
+						(nowMainMenuList?.length === 0) ?
+							( // 2번 상황
+								<WriteImpossible>
+									리뷰를 작성할 수 없습니다.
+								</WriteImpossible>
+							) :
+							( // 3번 상황
+								null
+							) 
+						:
+						( // 4번 상황
+							<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
+						)
 					) :
-					null
-				)}
+					// 주말이 아닌 경우
+					(
+						(restaurantNum === 1) ?
+						( // 5번 상황
+							null
+						) : 
+						( 
+							(nowMainMenuList?.length === 0) ?
+							( // 6번 상황
+								<WriteImpossible>
+									리뷰를 작성할 수 없습니다.
+								</WriteImpossible>
+							) :
+							( // 7번 상황
+								null
+							)
+						)
+					)
+				}
 				<div style={{ width: "100%", float: "left" }}>
 					<ReviewWriteRatingLabel>별점</ReviewWriteRatingLabel>
 					<ReviewStarRating>

@@ -80,7 +80,7 @@ public class ConnectionService {
         // 두 시간의 차이를 계산
         Duration duration = Duration.between(recentDateTime, now);
 
-        return duration.toMinutes() <= 5;
+        return duration.toMinutes() < 5;
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {
