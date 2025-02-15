@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -112,7 +113,56 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
         }
 
+        fillAbsentMenu(restaurant, menuVOs, monday, sunday);
+
         menuMap.put(restaurant, menuVOs);
+    }
+
+    /**
+     * 학생생활관에서 제공하지 않는 경우에는 메뉴정보없음을 채워준다.
+     *
+     * @param restaurant
+     * @param menuVOs
+     * @param monday
+     * @param sunday
+     */
+    private void fillAbsentMenu(Restaurant restaurant, List<MenuVO> menuVOs, LocalDate monday, LocalDate sunday) {
+        if(!restaurant.equals(Restaurant.학생생활관)) {
+            throw new IllegalArgumentException("현재 크롤링은 학생생활관만 제공됩니다.");
+        }
+
+        // 조식 체크
+        List<MenuVO> breakfast = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.BREAKFAST).collect(Collectors.toList());
+        List<MenuVO> lunch = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.LUNCH).collect(Collectors.toList());
+        List<MenuVO> dinner = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.DINNER).collect(Collectors.toList());
+
+        for(LocalDate date = monday; date.isBefore(sunday); date = date.plusDays(1)) {
+            if(!hasDate(breakfast, date)){
+                addDefaultMenu(menuVOs, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
+            }
+
+            if(!hasDate(lunch, date)){
+                addDefaultMenu(menuVOs, date, Dept.DORM_A, restaurant, MenuType.LUNCH);
+            }
+
+            if(!hasDate(dinner, date)){
+                addDefaultMenu(menuVOs, date, Dept.DORM_A, restaurant, MenuType.DINNER);
+            }
+        }
+    }
+
+    private void addDefaultMenu(List<MenuVO> menus, LocalDate date, Dept dept, Restaurant restaurant, MenuType menuType) {
+        MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
+        DishVO defaultDish = new DishVO("메뉴 정보 없음", DishType.SIDE);
+
+        defaultMenu.addDishVO(defaultDish);
+        menus.add(defaultMenu);
+    }
+
+    private boolean hasDate(List<MenuVO> menus, LocalDate date) {
+        List<MenuVO> collect = menus.stream().filter(menuVO -> menuVO.getDate().equals(date.toString())).collect(Collectors.toList());
+
+        return !collect.isEmpty();
     }
 
     public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
