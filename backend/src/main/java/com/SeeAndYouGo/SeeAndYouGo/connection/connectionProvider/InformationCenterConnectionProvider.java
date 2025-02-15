@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     @Value("${CONN_KEY}")
@@ -163,7 +165,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
                 connectionMap.put(restaurant, connectionVO);
             }
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
