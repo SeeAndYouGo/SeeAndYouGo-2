@@ -39,15 +39,13 @@ import java.util.concurrent.Executor;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final TokenProvider tokenProvider;
     private final UserService userService;
     private final LikeService likeService;
     private static final Integer REPORT_CRITERION = 10;
     private final Executor executor;
 
-    public ReviewController(ReviewService reviewService, TokenProvider tokenProvider, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
+    public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
         this.reviewService = reviewService;
-        this.tokenProvider = tokenProvider;
         this.userService = userService;
         this.likeService = likeService;
         this.executor = executor;
@@ -68,16 +66,16 @@ public class ReviewController {
 
     @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
     @ValidateToken
-    public List<ReviewResponseDto> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
+    public List<ReviewResponseDto> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId,
+                                                 @AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
-        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
         for (Restaurant restaurant : Restaurant.values()) {
             List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant.toString(), date);
             allReviews.addAll(restaurantReviews);
         }
 
-        return getReviewDtos(allReviews, userEmail);
+        return getReviewDtos(allReviews, email);
     }
 
     // 탑 리뷰 조회
@@ -93,11 +91,11 @@ public class ReviewController {
     @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
     @ValidateToken
     public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
-                                                                        @PathVariable(value = "token_id", required = false) String tokenId) {
+                                                        @PathVariable(value = "token_id", required = false) String tokenId,
+                                                        @AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
-        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
-        return getReviewDtos(restaurantReviews, userEmail);
+        return getReviewDtos(restaurantReviews, email);
     }
 
     @PutMapping("/report/{reviewId}")
@@ -180,25 +178,25 @@ public class ReviewController {
 
     @GetMapping("/reviews/{token}")
     @ValidateToken
-    public List<ReviewResponseDto> getReviewsByUser(@PathVariable("token") String tokenId){
-        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
-        List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
+    public List<ReviewResponseDto> getReviewsByUser(@PathVariable("token") String tokenId,
+                                                    @AuthenticationPrincipal String email){
+        List<Review> reviews = reviewService.findReviewsByWriter(email);
 
-        return getReviewDtos(reviews, userEmail);
+        return getReviewDtos(reviews, email);
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
     @ValidateToken
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
-            @PathVariable("token") String tokenId){
+            @PathVariable("token") String tokenId,
+            @AuthenticationPrincipal String email){
 
         ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
                 .success(false)
                 .build();
         try{
-            String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
-            boolean isWriter = reviewService.deleteReview(userEmail, reviewId);
+            boolean isWriter = reviewService.deleteReview(email, reviewId);
             if(isWriter){
                 responseDto = ReviewDeleteResponseDto.builder()
                         .success(true)

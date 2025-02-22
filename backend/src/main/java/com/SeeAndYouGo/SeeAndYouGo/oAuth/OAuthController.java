@@ -13,7 +13,6 @@ public class OAuthController {
 
     @Autowired
     private final OAuthService oauthService;
-    private TokenProvider tokenProvider;
 
     @GetMapping("/api/oauth/kakao")
     public TokenDto kakaoLoginOauth(@RequestParam String code) {                // (1) 인가 코드를 받는다.

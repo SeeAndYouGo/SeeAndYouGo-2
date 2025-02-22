@@ -10,6 +10,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -32,17 +33,15 @@ public class MenuController {
 
     private final UserKeywordRepository userKeywordRepository;
 
-    private final TokenProvider tokenProvider;
-
     @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
-                                                                               @PathVariable(value = "user_id", required = false) String tokenId) {
+                                                               @PathVariable(value = "user_id", required = false) String tokenId,
+                                                               @AuthenticationPrincipal String email) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
 
         List<String> keyStrings = new ArrayList<>();
         if (tokenId != null) {
-            String email = tokenProvider.decodeToEmailByAccess(tokenId);
             User user = userRepository.findByEmail(email);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());

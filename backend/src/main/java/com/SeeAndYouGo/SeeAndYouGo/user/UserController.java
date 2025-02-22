@@ -7,6 +7,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserService userService;
-    private final TokenProvider tokenProvider;
 
     @GetMapping("/nickname/check/{nickname}")
     public NicknameCheckResponseDto checkNicknameRedundancy(@PathVariable String nickname) {
@@ -26,8 +26,8 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
-        String email = tokenProvider.decodeToEmailByAccess(nicknameRequest.getToken());
+    public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest,
+                                                    @AuthenticationPrincipal String email){
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
 
         boolean canUpdate;
@@ -43,8 +43,8 @@ public class UserController {
 
     @GetMapping("/nickname/{token}")
     @ValidateToken
-    public UserResponseDto getNickname(@PathVariable(value = "token") String tokenId){
-        String email = tokenProvider.decodeToEmailByAccess(tokenId);
+    public UserResponseDto getNickname(@PathVariable(value = "token") String tokenId,
+                                       @AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()
