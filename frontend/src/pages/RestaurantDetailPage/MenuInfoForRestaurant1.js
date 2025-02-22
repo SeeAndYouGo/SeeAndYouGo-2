@@ -103,12 +103,12 @@ const MenuInfoForRestaurant1 = () => {
 				const { classification, menuList, operatingTime } = nowList;
 				const listItem = menuList.map((val) => (
 						<InnerList key={val.menuName}>
-							<span style={{ fontSize: 12, marginLeft: 5, fontWeight: 300}}>
+							<span style={{ fontSize: 12, fontWeight: 300}}>
 								<FontAwesomeIcon icon={faStar} style={{color: "#ffd700", marginRight: 2}} />
 								{val.averageRate.toFixed(1)}
 							</span>
-							<span style={{ paddingLeft: "20px", fontSize: 14, fontWeight: 400, color: "#333" }}>{val.menuName}</span>
-							<span style={{ float: "right", paddingRight: "20px", fontWeight: 400 }}>
+							<span style={{ paddingLeft: "15px", fontSize: 14, fontWeight: 400, color: "#333" }}>{val.menuName}</span>
+							<span style={{ float: "right", paddingRight: "12px", fontWeight: 400 }}>
 								{val.price.toLocaleString()}
 							</span>
 						</InnerList>
@@ -123,7 +123,7 @@ const MenuInfoForRestaurant1 = () => {
 							str3={operatingTime}
 							str4={menus === classification ? "△" : "▽"}
 						/>
-						{menus === classification && <ul style={{ padding: 5, margin: "5px 0"}}>{listItem}</ul>}
+						{menus === classification && <ul style={{ padding: 0, margin: "5px 0"}}>{listItem}</ul>}
 					</ListContainer>
 				);
 			})}
