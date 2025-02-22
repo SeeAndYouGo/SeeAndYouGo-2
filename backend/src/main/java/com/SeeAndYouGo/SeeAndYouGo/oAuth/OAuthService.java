@@ -1,24 +1,25 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
-import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.io.*;
-import java.net.*;
-import java.util.Collections;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 @Service
 @RequiredArgsConstructor
@@ -134,15 +135,13 @@ public class OAuthService {
         // 1. 인증된 사용자 정보 얻기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 만료되었으면 401
+        // 2. 리프레시 검증 (1, 2차 검증)
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
-            // 401 에러
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired Refresh Token");
         }
-
-        // 2차 검증
         User user = userRepository.findByEmail(authentication.getName());
         if (!user.getRefreshToken().equals(refreshToken)) {
-            // 401 에러
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token");
         }
 
         // 액세스 재발급
