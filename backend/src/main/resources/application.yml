@@ -1,6 +1,8 @@
 ﻿spring:
   profiles:
     active: prod
+  config:
+    import: classpath:key.yml
   jpa:
     hibernate:
       ddl-auto: none
@@ -20,7 +22,7 @@ logging.level:
   org.hibernate.type: trace
 
 app:
-  test: false
+  test: true
 
 URL:
   DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon

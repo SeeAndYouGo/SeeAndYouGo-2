@@ -42,11 +42,11 @@ public class TestSetUp {
         if(jwtToken == null){
             Mockito.doReturn(email)
                     .when(tokenProvider)
-                    .decodeToEmail(any(String.class));
+                    .decodeToEmailByAccess(any(String.class));
         }else{
             Mockito.doReturn(email)
                     .when(tokenProvider)
-                    .decodeToEmail(jwtToken);
+                    .decodeToEmailByAccess(jwtToken);
         }
     }
 

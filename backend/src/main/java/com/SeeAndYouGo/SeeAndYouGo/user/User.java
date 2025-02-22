@@ -36,6 +36,8 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime lastUpdateTime = LocalDateTime.now();
 
+    private String refreshToken;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserKeyword> userKeywords = new ArrayList<>();
 
@@ -48,6 +50,10 @@ public class User {
 
     public void changeNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public void addKeyword(Keyword keyword){

@@ -30,7 +30,7 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
-    @Value("${CONN_KEY}")
+    @Value("${API.CONN_KEY}")
     private String AUTH_KEY;
 
     @Value("${CONN.GET.URL}")
@@ -163,7 +163,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
                 connectionMap.put(restaurant, connectionVO);
             }
         }catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+//            throw new RuntimeException(e.getMessage());
         }
     }
 

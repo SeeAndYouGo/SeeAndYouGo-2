@@ -21,20 +21,20 @@ public class KeywordController {
     @GetMapping("/{user_id}")
     @ValidateToken
     public KeywordResponseDto getKeywordsByUser(@PathVariable("user_id") String tokenId) {
-        String email = tokenProvider.decodeToEmail(tokenId);
+        String email = tokenProvider.decodeToEmailByAccess(tokenId);
         List<Keyword> keywords = keywordService.getKeywords(email);
         return KeywordResponseDto.toDTO(keywords);
     }
 
     @PostMapping
     public KeywordAddResponseDto addKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
+        String email = tokenProvider.decodeToEmailByAccess(keywordRequestDto.getUserId());
         return keywordService.addKeyword(keywordRequestDto.getKeyword(), email);
     }
 
     @DeleteMapping
     public KeywordResponseDto deleteKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
+        String email = tokenProvider.decodeToEmailByAccess(keywordRequestDto.getUserId());
         return keywordService.deleteKeyword(keywordRequestDto.getKeyword(), email);
     }
 }

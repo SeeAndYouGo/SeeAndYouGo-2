@@ -38,7 +38,7 @@ public class VisitorInterceptor implements HandlerInterceptor {
         String user = "unknown";
         String tokenId = request.getHeader(KEY_OF_TOKEN_ID);
         if (tokenId != null && tokenId.length() != 0)
-            user = tokenProvider.decodeToEmail(tokenId);
+            user = tokenProvider.decodeToEmailByAccess(tokenId);
         String userRedisKey = Const.PREFIX_VISITOR_USER + user;
 
         // 방문자 수 증가시키기

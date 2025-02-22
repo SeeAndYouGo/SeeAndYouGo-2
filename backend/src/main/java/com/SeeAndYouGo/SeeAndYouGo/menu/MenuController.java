@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class MenuController {
 
         List<String> keyStrings = new ArrayList<>();
         if (tokenId != null) {
-            String email = tokenProvider.decodeToEmail(tokenId);
+            String email = tokenProvider.decodeToEmailByAccess(tokenId);
             User user = userRepository.findByEmail(email);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());

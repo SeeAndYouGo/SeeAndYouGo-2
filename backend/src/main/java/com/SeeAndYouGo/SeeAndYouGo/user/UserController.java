@@ -27,7 +27,7 @@ public class UserController {
 
     @PutMapping("/nickname")
     public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
-        String email = tokenProvider.decodeToEmail(nicknameRequest.getToken());
+        String email = tokenProvider.decodeToEmailByAccess(nicknameRequest.getToken());
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
 
         boolean canUpdate;
@@ -44,7 +44,7 @@ public class UserController {
     @GetMapping("/nickname/{token}")
     @ValidateToken
     public UserResponseDto getNickname(@PathVariable(value = "token") String tokenId){
-        String email = tokenProvider.decodeToEmail(tokenId);
+        String email = tokenProvider.decodeToEmailByAccess(tokenId);
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()

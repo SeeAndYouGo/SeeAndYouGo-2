@@ -22,7 +22,7 @@ public class LikeService {
     @Transactional
     public LikeResponseDto postLikeCount(Long reviewId, String tokenId) {
         Review review = reviewRepository.findById(reviewId).get();
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
         User user = userRepository.findByEmail(userEmail);
 
         if(review.getWriterEmail().equals(userEmail)){

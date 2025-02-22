@@ -8,34 +8,31 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.*;
+import java.util.Collections;
 
 @Service
-@ConfigurationProperties(value = "kakao")
-@PropertySource("classpath:key.yml")
+@RequiredArgsConstructor
 public class OAuthService {
 
-    @Value("${REST_API_KEY}")
+    @Value("${kakao.REST_API_KEY}")
     private String KAKAO_REST_API_KEY;
 
-    @Value("${REDIRECT_URI}")
+    @Value("${kakao.REDIRECT_URI}")
     private String KAKAO_REDIRECT_URI;
 
     @Autowired
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
-
-
-    public OAuthService(UserRepository userRepository, TokenProvider tokenProvider) {
-        this.userRepository = userRepository;
-        this.tokenProvider = tokenProvider;
-    }
 
     public String getKakaoAccessToken(String code) {
         String accessToken;
@@ -66,12 +63,12 @@ public class OAuthService {
             while ((line = br.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println("[kakao login token] response body: " + result);
+//            System.out.println("[kakao login token] response body: " + result);
 
             // JSON 파싱 후 access token 확인하기
             JsonElement jsonElement = JsonParser.parseString(result.toString());
             accessToken = jsonElement.getAsJsonObject().get("access_token").getAsString();
-            System.out.println("[kakao login token] access_token: " + accessToken);
+//            System.out.println("[kakao login token] access_token: " + accessToken);
 
             // 끝!
             br.close();
@@ -116,7 +113,7 @@ public class OAuthService {
     }
 
     public TokenDto kakaoLogin(String accessToken) {
-        // (1) accessToken을 통해 카카오의 유저정보를 가져온다.
+        // Get user info from kakao
         UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
         String message = "login";
         String email = userIdentityDto.getEmail();
@@ -126,13 +123,30 @@ public class OAuthService {
             message = "join";
         }
 
-        // (2) jwt 토큰을 생성한다 by Email!
-        String token = tokenProvider.createToken(userIdentityDto.getEmail());
+        // Create jwt token (access & refresh)
+        TokenDto tokenDto = tokenProvider.createToken(email);
+        tokenDto.setMessage(message);
 
-        return TokenDto.builder()
-                .token(token)
-                .message(message)
-                .build();
+        return tokenDto;
+    }
+
+    public TokenDto reIssue(String refreshToken) {
+        // 1. 인증된 사용자 정보 얻기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 만료되었으면 401
+        if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
+            // 401 에러
+        }
+
+        // 2차 검증
+        User user = userRepository.findByEmail(authentication.getName());
+        if (!user.getRefreshToken().equals(refreshToken)) {
+            // 401 에러
+        }
+
+        // 액세스 재발급
+        return tokenProvider.reIssueToken(authentication, refreshToken);
     }
 
     private void signUp(UserIdentityDto dto) {
@@ -143,7 +157,6 @@ public class OAuthService {
                             .socialType(Social.KAKAO)
                             .build());
         } catch (Exception e) {
-            // 유저 가입 실패
             e.printStackTrace();
         }
     }

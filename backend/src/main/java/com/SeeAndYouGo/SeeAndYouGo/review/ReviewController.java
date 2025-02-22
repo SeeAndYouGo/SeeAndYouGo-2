@@ -13,8 +13,6 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,7 +70,7 @@ public class ReviewController {
     public List<ReviewResponseDto> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
         for (Restaurant restaurant : Restaurant.values()) {
             List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant.toString(), date);
             allReviews.addAll(restaurantReviews);
@@ -97,7 +95,7 @@ public class ReviewController {
                                                                         @PathVariable(value = "token_id", required = false) String tokenId) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
         return getReviewDtos(restaurantReviews, userEmail);
     }
 
@@ -120,7 +118,7 @@ public class ReviewController {
                                            @RequestPart(value = "image", required = false) MultipartFile image) {
         String tokenId = dto.getWriter();
         if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
-        String email = tokenProvider.decodeToEmail(tokenId);
+        String email = tokenProvider.decodeToEmailByAccess(tokenId);
         String nickname = userService.findNickname(email);
 
         String imgUrl = "";
@@ -184,7 +182,7 @@ public class ReviewController {
     @GetMapping("/reviews/{token}")
     @ValidateToken
     public List<ReviewResponseDto> getReviewsByUser(@PathVariable("token") String tokenId){
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
+        String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
         List<Review> reviews = reviewService.findReviewsByWriter(userEmail);
 
         return getReviewDtos(reviews, userEmail);
@@ -200,7 +198,7 @@ public class ReviewController {
                 .success(false)
                 .build();
         try{
-            String userEmail = tokenProvider.decodeToEmail(tokenId);
+            String userEmail = tokenProvider.decodeToEmailByAccess(tokenId);
             boolean isWriter = reviewService.deleteReview(userEmail, reviewId);
             if(isWriter){
                 responseDto = ReviewDeleteResponseDto.builder()

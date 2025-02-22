@@ -1,7 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -11,34 +13,57 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String BEARER_PREFIX = "Bearer";
+    public static final String REFRESH_HEADER = "RefreshToken";
+    public static final String BEARER_PREFIX = "Bearer ";
     private final TokenProvider tokenProvider;
 
-    // 토큰 정보를 꺼내오는 메소드
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
-        }
-        return "";
-    }
-
-    // 필터링을 실행하는 메소드
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = resolveToken(request); // 토큰 정보를 꺼내옴
+        String accessToken = request.getHeader(AUTHORIZATION_HEADER);
+        String refreshToken = request.getHeader(REFRESH_HEADER);
 
-        // validateToken으로 토큰이 유효한지 검사
-        if(StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-            // 유효하다면 Authentication을 가져와 SecurityContext에 저장
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Access token
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith(BEARER_PREFIX)) {
+            String jwtToken = accessToken.substring(BEARER_PREFIX.length());
+            if (tokenProvider.validateToken(jwtToken)) {
+                String email = tokenProvider.decodeToEmailByAccess(jwtToken);
+                setAuthenticationFromEmail(email, UserRole.USER);
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                return;
+            }
         }
-        // SecurityContext에서 허가된 URI 외에 모든 request요청은 필터를 거침
+
+        // Refresh Token
+        else if (StringUtils.hasText(refreshToken)) {
+            if (tokenProvider.validateToken(refreshToken)) {
+                String email = tokenProvider.decodeToEmailByAccess(refreshToken);
+                setAuthenticationFromEmail(email, UserRole.USER);
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired refresh token");
+                return;
+            }
+        }
+        
+        // For guest
+        else {
+            setAuthenticationFromEmail("none", UserRole.GUEST);
+        }
+
+        // doFilter
         filterChain.doFilter(request, response);
+    }
+
+    private void setAuthenticationFromEmail(String email, UserRole role) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email,
+                null,
+                Collections.singleton(new SimpleGrantedAuthority(role.toString())));
+        // authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
