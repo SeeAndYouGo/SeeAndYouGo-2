@@ -112,7 +112,8 @@ const MainPage = () => {
 
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [restaurantId]);
+		// tab 변경할 때마다 fetch 되는 부분 수정
+	}, []);
 
 	return (
 		<div className="App">
