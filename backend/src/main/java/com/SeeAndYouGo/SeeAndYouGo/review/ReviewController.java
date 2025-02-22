@@ -14,6 +14,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -115,10 +116,8 @@ public class ReviewController {
     @PostMapping(value = "/review")
     @ResponseStatus(HttpStatus.CREATED)
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
-                                           @RequestPart(value = "image", required = false) MultipartFile image) {
-        String tokenId = dto.getWriter();
-        if (!tokenProvider.validateToken(tokenId)) throw new InvalidTokenException("Invalid Token");
-        String email = tokenProvider.decodeToEmailByAccess(tokenId);
+                           @RequestPart(value = "image", required = false) MultipartFile image,
+                           @AuthenticationPrincipal String email) {
         String nickname = userService.findNickname(email);
 
         String imgUrl = "";
