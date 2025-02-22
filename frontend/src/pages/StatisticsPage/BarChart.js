@@ -10,7 +10,7 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 const BarChart = ({ datas, tab }) => {
-	const filterData = datas[tab].filter((el) => el.time >= "10:00" && el.time <= "15:00");
+	const filterData = datas[tab] === 5 ? datas[tab] : datas[tab].filter((el) => el.time >= "10:00" && el.time <= "15:00");
 	const statisticsLabel = filterData.map((el) => el.time);
 	const statisticsData = filterData.map((el) => el.averageValue);
 
