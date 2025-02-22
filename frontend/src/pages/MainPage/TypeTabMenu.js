@@ -56,6 +56,12 @@ const TypeTabMenu = ({ menu1, menu2 }) => {
 		setCurrentTab(index);
 	};
 
+	const tabMenuList = {
+		2: ['조식', '중식'],
+		3: ['중식', '석식'],
+		6: ['DORM_A', 'DORM_C'],
+	}
+
   useEffect(() => {
     if (nowMenuType === 1) {
       setCurrentTab(0);
@@ -72,13 +78,13 @@ const TypeTabMenu = ({ menu1, menu2 }) => {
           className={currentTab === 0 ? "submenu focused" : "submenu"}
           onClick={() => selectMenuHandler(0)}
         >
-          {nowRestaurantId === 2 ? "조식" : "중식"}
+          {tabMenuList[nowRestaurantId][0]}
         </li>
         <li
           className={currentTab === 1 ? "submenu focused" : "submenu"}
           onClick={() => selectMenuHandler(1)}
         >
-          {nowRestaurantId === 2 ? "중식" : "석식"}
+          {tabMenuList[nowRestaurantId][1]}
         </li>
       </TabMenu>
 		);
