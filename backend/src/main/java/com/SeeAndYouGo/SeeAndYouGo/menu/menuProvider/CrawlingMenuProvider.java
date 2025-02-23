@@ -136,7 +136,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         List<MenuVO> lunch = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.LUNCH).collect(Collectors.toList());
         List<MenuVO> dinner = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.DINNER).collect(Collectors.toList());
 
-        for(LocalDate date = monday; date.isAfter(sunday); date = date.plusDays(1)) {
+        for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)) {
             if(!hasDate(breakfast, date)){
                 addDefaultMenu(menuVOs, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
             }
