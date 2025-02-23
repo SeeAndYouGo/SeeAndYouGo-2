@@ -41,6 +41,10 @@ const Modal = ({
 		onClose && onClose();
 	});
 
+	const handleModalClick = (e) => {
+		e.stopPropagation();
+	};
+	
 	const containerStyle = useMemo(
 		() => ({
 			width,
@@ -50,16 +54,31 @@ const Modal = ({
 	);
 
 	const el = useMemo(() => document.createElement("div"), []);
+
 	useEffect(() => {
 		document.body.appendChild(el);
 		return () => {
 			document.body.removeChild(el);
 		};
-	});
+	}, []);
+
+	useEffect(() => {
+		if (visible) {
+			document.body.style.overflow = "hidden";
+		} else {
+			document.body.style.overflow = "auto";
+		}
+
+		return () => {
+			document.body.style.overflow = "auto";
+		};
+	}, [visible]);
+
 	return ReactDOM.createPortal(
 		<BackgroundDim style={{ display: visible ? "block" : "none" }}>
 			<ModalContainer
-        ref={ref}
+				ref={ref}
+				onClick={handleModalClick}
 				{...props}
 				style={{ ...props.style, ...containerStyle }}
 			>
