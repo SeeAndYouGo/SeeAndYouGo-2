@@ -87,7 +87,7 @@ public class MenuService {
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate startOfWeek = parsedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = parsedDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        List<Menu>[] weekMenuList = new List[7]; // mon to fri
+        List<Menu>[] weekMenuList = new List[7]; // mon to sun
 
         int idx = -1;
         for(LocalDate i = startOfWeek; i.compareTo(endOfWeek) <= 0; i = i.plusDays(1)){
