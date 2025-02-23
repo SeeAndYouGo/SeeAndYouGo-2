@@ -64,12 +64,10 @@ public class OAuthService {
             while ((line = br.readLine()) != null) {
                 result.append(line);
             }
-//            System.out.println("[kakao login token] response body: " + result);
 
             // JSON 파싱 후 access token 확인하기
             JsonElement jsonElement = JsonParser.parseString(result.toString());
             accessToken = jsonElement.getAsJsonObject().get("access_token").getAsString();
-//            System.out.println("[kakao login token] access_token: " + accessToken);
 
             // 끝!
             br.close();

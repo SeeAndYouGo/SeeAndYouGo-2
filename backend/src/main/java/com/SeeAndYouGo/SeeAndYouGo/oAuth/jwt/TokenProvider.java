@@ -97,15 +97,11 @@ public class TokenProvider {
                 .compact();
     }
 
-
     public TokenDto reIssueToken(Authentication authentication, String refreshToken) {
         String accessToken = createAccessToken(authentication);
-        String newRefreshToken = refreshToken;
-        if (isRefreshTokenExpiringSoon(refreshToken)) {
-            newRefreshToken = createRefreshToken(authentication);
-        }
+        String newRefreshToken = createRefreshToken(authentication);
 
-        return new TokenDto(accessToken, newRefreshToken, "");
+        return new TokenDto(accessToken, newRefreshToken, "reissue");
     }
 
     private static Date getExpireTime(long timeMillis) {
@@ -144,39 +140,19 @@ public class TokenProvider {
         }
     }
 
-
     public boolean isRefreshTokenExpired(String refreshToken) {
         try {
             Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey) // 🔹 서명 검증을 위한 secretKey
+                    .setSigningKey(secretKey)
                     .parseClaimsJws(refreshToken)
                     .getBody();
-
-            Date expiration = claims.getExpiration(); // 🔹 만료 시간 가져오기
-            return expiration.before(new Date()); // 🔹 현재 시간과 비교
+            Date expiration = claims.getExpiration();
+            return expiration.before(new Date());
 
         } catch (ExpiredJwtException e) {
             return true; // 🔹 만료됨
         } catch (SignatureException e) {
             throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
-    }
-
-
-    private boolean isRefreshTokenExpiringSoon(String refreshToken) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(refreshToken)
-                .getBody();
-
-        Date expiration = claims.getExpiration();
-        Date now = new Date();
-
-        // 현재 시간 + 3일(밀리초)
-        long threeDaysMillis = 3 * 24 * 60 * 60 * 1000L;
-        Date threeDaysLater = new Date(now.getTime() + threeDaysMillis);
-
-        // 만료 시간이 3일 이내인지 체크
-        return expiration.before(threeDaysLater);
     }
 }
