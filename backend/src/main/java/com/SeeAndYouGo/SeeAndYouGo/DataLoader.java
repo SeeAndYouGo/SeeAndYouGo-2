@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataLoader implements CommandLineRunner {
 
     @Value("${app.test}")
@@ -51,5 +53,7 @@ public class DataLoader implements CommandLineRunner {
 
         iterService.weeklyIterative();
         connectionService.saveRecentConnection();
+
+        log.info("초기세팅 완료");
     }
 }
