@@ -21,9 +21,6 @@ logging.level:
   org.hibernate.SQL: debug
   org.hibernate.type: trace
 
-app:
-  test: true
-
 URL:
   DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
 
