@@ -21,9 +21,6 @@ import java.time.LocalDate;
 @Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    @Value("${app.test}")
-    private boolean isTest;
-
     private final IterService iterService;
     private final ConnectionService connectionService;
     private final MenuService menuService;
