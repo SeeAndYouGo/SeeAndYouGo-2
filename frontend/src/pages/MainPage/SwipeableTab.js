@@ -76,6 +76,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1].filter(
 				(item) => item.dept === deptValue
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
@@ -86,6 +89,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.dept === deptValue && item.menuType === "LUNCH"
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
@@ -96,6 +102,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.menuType === "LUNCH"
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
