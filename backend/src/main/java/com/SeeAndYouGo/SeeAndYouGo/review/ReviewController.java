@@ -1,14 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.review;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
+import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
-
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -63,7 +62,7 @@ public class ReviewController {
     }
 
     @GetMapping("/total-review")
-    public List<ReviewResponseDto> getAllReviews(@AuthenticationPrincipal String email) {
+    public List<ReviewResponseDto> getAllReviews(@Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         for (Restaurant restaurant : Restaurant.values()) {
@@ -86,7 +85,7 @@ public class ReviewController {
 
     @GetMapping("/review/{restaurant}")
     public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
-                                                        @AuthenticationPrincipal String email) {
+                                                        @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
         return getReviewDtos(restaurantReviews, email);
@@ -109,7 +108,7 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
-                           @AuthenticationPrincipal String email) {
+                           @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String nickname = userService.findNickname(email);
 
         String imgUrl = "";
@@ -171,7 +170,7 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews/{token}")
-    public List<ReviewResponseDto> getReviewsByUser(@AuthenticationPrincipal String email){
+    public List<ReviewResponseDto> getReviewsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         List<Review> reviews = reviewService.findReviewsByWriter(email);
 
         return getReviewDtos(reviews, email);
@@ -180,7 +179,7 @@ public class ReviewController {
     @DeleteMapping("/reviews/{reviewId}/{token}")
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
-            @AuthenticationPrincipal String email){
+            @Parameter(hidden = true) @AuthenticationPrincipal String email){
 
         ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
                 .success(false)

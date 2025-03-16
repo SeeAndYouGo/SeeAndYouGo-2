@@ -1,11 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,7 @@ public class UserController {
 
     @PutMapping("/nickname")
     public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest,
-                                                    @AuthenticationPrincipal String email){
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal String email){
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
 
         boolean canUpdate;
@@ -42,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/nickname/{token}")
-    public UserResponseDto getNickname(@AuthenticationPrincipal String email){
+    public UserResponseDto getNickname(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()

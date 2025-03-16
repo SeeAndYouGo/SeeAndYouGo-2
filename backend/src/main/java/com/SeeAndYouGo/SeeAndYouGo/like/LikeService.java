@@ -67,7 +67,7 @@ public class LikeService {
     }
 
     public boolean isLike(Review review, String userEmail) {
-        if(userEmail.equals("")) return false;
+        if(userEmail.equals("") || userEmail.equals("none")) return false;
 
         User user = userRepository.findByEmail(userEmail);
         if(likeRepository.existsByReviewAndUser(review, user)){
