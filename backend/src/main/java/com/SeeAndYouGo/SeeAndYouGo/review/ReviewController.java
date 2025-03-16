@@ -1,9 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.review;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.InvalidTokenException;
 import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
@@ -64,10 +62,8 @@ public class ReviewController {
         return response;
     }
 
-    @GetMapping(value = {"/total-review/{token_id}", "/total-review"})
-    @ValidateToken
-    public List<ReviewResponseDto> getAllReviews(@PathVariable(value = "token_id", required = false) String tokenId,
-                                                 @AuthenticationPrincipal String email) {
+    @GetMapping("/total-review")
+    public List<ReviewResponseDto> getAllReviews(@AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         for (Restaurant restaurant : Restaurant.values()) {
@@ -88,10 +84,8 @@ public class ReviewController {
         return getReviewDtos(reviews, "");
     }
 
-    @GetMapping(value = {"/review/{restaurant}/{token_id}", "/review/{restaurant}"})
-    @ValidateToken
+    @GetMapping("/review/{restaurant}")
     public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
-                                                        @PathVariable(value = "token_id", required = false) String tokenId,
                                                         @AuthenticationPrincipal String email) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
@@ -177,19 +171,15 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews/{token}")
-    @ValidateToken
-    public List<ReviewResponseDto> getReviewsByUser(@PathVariable("token") String tokenId,
-                                                    @AuthenticationPrincipal String email){
+    public List<ReviewResponseDto> getReviewsByUser(@AuthenticationPrincipal String email){
         List<Review> reviews = reviewService.findReviewsByWriter(email);
 
         return getReviewDtos(reviews, email);
     }
 
     @DeleteMapping("/reviews/{reviewId}/{token}")
-    @ValidateToken
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
-            @PathVariable("token") String tokenId,
             @AuthenticationPrincipal String email){
 
         ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()

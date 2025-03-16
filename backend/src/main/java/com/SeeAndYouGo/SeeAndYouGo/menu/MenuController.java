@@ -33,7 +33,7 @@ public class MenuController {
 
     private final UserKeywordRepository userKeywordRepository;
 
-    @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
+    @GetMapping("/daily-menu/{restaurant}")
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                @PathVariable(value = "user_id", required = false) String tokenId,
                                                                @AuthenticationPrincipal String email) {

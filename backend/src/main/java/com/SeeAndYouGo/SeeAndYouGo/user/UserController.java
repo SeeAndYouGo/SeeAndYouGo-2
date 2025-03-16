@@ -42,9 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/nickname/{token}")
-    @ValidateToken
-    public UserResponseDto getNickname(@PathVariable(value = "token") String tokenId,
-                                       @AuthenticationPrincipal String email){
+    public UserResponseDto getNickname(@AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()

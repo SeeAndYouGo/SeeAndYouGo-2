@@ -10,7 +10,6 @@ public class ReviewRequestDto {
     private String dept;
     private String menuName;
     private Double rate;
-    private String writer;
     private String nickName;
     private String comment;
     private boolean anonymous;

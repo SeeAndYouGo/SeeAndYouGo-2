@@ -19,9 +19,7 @@ public class KeywordController {
     private final KeywordService keywordService;
 
     @GetMapping("/{user_id}")
-    @ValidateToken
-    public KeywordResponseDto getKeywordsByUser(@PathVariable("user_id") String tokenId,
-                                                @AuthenticationPrincipal String email) {
+    public KeywordResponseDto getKeywordsByUser(@AuthenticationPrincipal String email) {
         List<Keyword> keywords = keywordService.getKeywords(email);
         return KeywordResponseDto.toDTO(keywords);
     }
