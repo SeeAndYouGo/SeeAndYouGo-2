@@ -96,7 +96,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             // 석식
             String lastColumn = row.select("td.left.last").text();
             if (!lastColumn.isEmpty()) {
-                Map<String, List<String>> dishes = getDishes(secondColumn);
+                Map<String, List<String>> dishes = getDishes(lastColumn);
                 for (String deptStr : dishes.keySet()) {
                     Dept dept = Dept.changeStringToDept(deptStr);
 
