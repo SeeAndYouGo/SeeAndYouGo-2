@@ -1,13 +1,12 @@
 package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
-import com.SeeAndYouGo.SeeAndYouGo.dish.DishService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
+import com.SeeAndYouGo.SeeAndYouGo.scheduler.VisitorScheduler;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
-import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -27,9 +26,9 @@ public class DataLoader implements CommandLineRunner {
     private final MenuService menuService;
     private final RateService rateService;
     private final StatisticsService statisticsService;
-    private final VisitorService visitorService;
     private final HolidayService holidayService;
     private final HolidayRepository holidayRepository;
+    private final VisitorScheduler visitorScheduler;
 
     @Override
     public void run(String... args) throws Exception {
@@ -39,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
         statisticsService.initSetting();
         menuService.updateAllRestaurantMenuMap();
         connectionService.updateAllRestaurantMenuMap();
-        visitorService.init();
+        visitorScheduler.resetTodayVisitorCount();
 
         if(!rateService.exists()){
             rateService.insertAllRestaurant();

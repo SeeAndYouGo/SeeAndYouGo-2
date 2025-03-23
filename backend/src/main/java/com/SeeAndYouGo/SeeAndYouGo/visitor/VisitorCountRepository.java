@@ -4,17 +4,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long> {
 
-    void deleteByIsTotalFalse();
+    void deleteByIsTotalTrueAndIdNot(Long id);
 
-    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = false AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<VisitorCount> findRecentTodayBackup();
+    Optional<VisitorCount> findTopByIsTotalTrueOrderByCountDesc();
 
-    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = true AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<VisitorCount> findRecentTotalBackup();
+    Optional<VisitorCount> findTopByIsTotalFalseOrderByCountDesc();
 
+    Optional<VisitorCount> findByIsTotalTrueAndCreatedAtBefore(LocalDateTime time);
 }
