@@ -38,7 +38,7 @@ public class IterService {
 
         // 토, 일에 호출하면 다음주 메뉴를 불러옴.
         // 월-금에 호출하면 해당 주 메뉴를 불러옴.
-        LocalDate nearestMonday = getNearestMonday(LocalDate.of(2025,3,17));
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);
 
             // Restaurant가 Enum으로 변경되었으므로 Restaurant가 아닌 Menu의 유무를 통해서 해당 메뉴를 캐싱했는지 파악한다.
