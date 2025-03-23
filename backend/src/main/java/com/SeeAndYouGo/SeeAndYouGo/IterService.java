@@ -31,14 +31,14 @@ public class IterService {
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
-    @Scheduled(cron="0 0 0 * * SAT")
+    @Scheduled(cron="0 0 0 * * MON")
     @ConditionalOnProperty(name = "app.test", havingValue = "false")
     public void weeklyIterative() throws Exception {
         // 기본적으로 토요일에 호출되는 메섣.
 
         // 토, 일에 호출하면 다음주 메뉴를 불러옴.
         // 월-금에 호출하면 해당 주 메뉴를 불러옴.
-        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate nearestMonday = getNearestMonday(LocalDate.of(2025,3,17));
         LocalDate sunday = getSundayOfWeek(nearestMonday);
 
             // Restaurant가 Enum으로 변경되었으므로 Restaurant가 아닌 Menu의 유무를 통해서 해당 메뉴를 캐싱했는지 파악한다.
@@ -92,12 +92,12 @@ public class IterService {
     }
 
     public static LocalDate getNearestMonday(LocalDate now) {
-        if(weekday.contains(now.getDayOfWeek())){
+//        if(weekday.contains(now.getDayOfWeek())){
             // 평일이면 해당 주 월요일 반환
             return now.with(MONDAY);
-        }
+//        }
         // 주말이라면 다음 주 월요일 반환
-        return now.with(MONDAY).plusWeeks(1);
+//        return now.with(MONDAY).plusWeeks(1);
     }
 
     public static LocalDate getFridayOfWeek(LocalDate inputDate) {
