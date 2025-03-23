@@ -11,6 +11,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
@@ -56,7 +57,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Element row = rows.get(i);
 
             // 조식
-            String firstColumn = row.select("td:nth-child(2)").text();
+            String firstColumn = row.select("td:nth-child(2)").first().toString();
             if (!firstColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(firstColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -75,7 +76,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 중식
-            String secondColumn = row.select("td:nth-child(3)").text();
+            String secondColumn = row.select("td:nth-child(3)").first().toString();
             if (!secondColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(secondColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -94,7 +95,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 석식
-            String lastColumn = row.select("td.left.last").text();
+            String lastColumn = row.select("td.left.last").first().toString();
             if (!lastColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(secondColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -174,7 +175,11 @@ public class CrawlingMenuProvider implements MenuProvider{
     }
 
     private Map<String, List<String>> getDishes(String text) {
-        String[] lines = text.split(" ");
+        String[] lines = text.replace("<td class=\"left\">", "")
+                .replace("</td>", "")
+                .replace("<br><br>", "<br>")
+                .split("<br>");
+
         Map<String, List<String>> menuMap = new HashMap<>(); // 메뉴 이름과 메뉴 항목 리스트를 매핑
         List<String> currentMenuList = null; // 현재 수집 중인 메뉴 리스트
         String currentMenuTitle = null; // 현재 메뉴 제목 (메인A, 메인C 등)
@@ -207,7 +212,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             // 한글 메뉴 항목만 추가하고 원산지 정보 제거
             if (currentMenuList != null && line.matches("^[가-힣]+.*")) {
                 line = line.replaceAll("\\[.*?\\]", "").trim(); // 원산지 정보 제거
-                currentMenuList.add(line);
+                currentMenuList.add(Entities.unescape(line));
             }
         }
 
