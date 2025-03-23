@@ -40,7 +40,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/nickname/{token}")
+    @GetMapping("/nickname")
     public UserResponseDto getNickname(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 
