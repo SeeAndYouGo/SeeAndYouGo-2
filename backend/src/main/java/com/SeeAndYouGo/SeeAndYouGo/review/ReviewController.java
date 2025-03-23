@@ -103,7 +103,10 @@ public class ReviewController {
     }
 
     // 리뷰 게시
-    private static final String IMAGE_DIR = "imageStorage";
+    private static final String IMAGE_ROOT_DIR = "/Volumes/NO NAME";
+    private static final String IMAGE_DIR = IMAGE_ROOT_DIR + "/imageStorage";
+    private static final String IMAGE_TMP_DIR = IMAGE_ROOT_DIR + "/tmpImage";
+
     @PostMapping(value = "/review")
     @ResponseStatus(HttpStatus.CREATED)
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
@@ -135,7 +138,7 @@ public class ReviewController {
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
-        File dir = new File("./tmpImage");
+        File dir = new File(IMAGE_TMP_DIR);
 
         File file = new File(String.format("%s/%s.png", dir.getPath(), UUID.randomUUID()));
         try (FileOutputStream fos = new FileOutputStream(file)) {
