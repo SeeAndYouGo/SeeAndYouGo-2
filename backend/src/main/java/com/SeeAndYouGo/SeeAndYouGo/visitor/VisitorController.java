@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class VisitorController {
     private final RedisTemplate<String, String> redisTemplate;
 
-    // 테스트용 API
     @GetMapping("/count")
     public VisitorCountDto index() {
         String today = redisTemplate.opsForValue().get(Const.KEY_TODAY_VISITOR);
