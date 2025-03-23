@@ -26,11 +26,12 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors()
+                .and()
                 .httpBasic().disable()
                 .csrf().disable()     // 일단 프론트에서 token을 localstorage에 저장할 것이라 가정 후 csrf disable
                 // 세션 없이 토큰을 주고받기에 세션 설정을 STATELESS
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
                 .and()
                 // except 핸들링
                 .exceptionHandling()
