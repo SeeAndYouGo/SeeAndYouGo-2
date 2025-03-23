@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.*;
 
@@ -58,9 +60,17 @@ public class VisitorScheduler {
         logger.info("[VISITOR] (synchronized) {}: Count {}", redisKey, finalCount);
     }
 
+    @Transactional
     private void cleanupOldTotalRecords() {
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-        repository.findByIsTotalTrueAndCreatedAtBefore(todayStart)
-                .ifPresent(yesterdayRecord -> repository.deleteByIsTotalTrueAndIdNot(yesterdayRecord.getId()));
+        List<VisitorCount> oldRecords = repository.findByIsTotalTrueAndCreatedAtBefore(todayStart);
+
+        if (!oldRecords.isEmpty()) {
+            List<Long> excludeIds = oldRecords.stream()
+                    .map(VisitorCount::getId)
+                    .collect(Collectors.toList());
+
+            repository.deleteByIsTotalTrueAndIdNotIn(excludeIds);
+        }
     }
 }
