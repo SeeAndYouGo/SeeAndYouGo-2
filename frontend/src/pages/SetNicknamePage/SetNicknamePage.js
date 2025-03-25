@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
-import * as config from "../../config";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
+import { get, putWithToken } from "../../api";
 
 const SetNicknameWrapper = styled.div`
   width: 100%;
@@ -143,8 +142,7 @@ const SetNicknamePage = () => {
       dispatch(showToast({ contents: "nickname", toastIndex: 0 }));
       return;
     }
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nicknameValue}`;
-    axios.get(url)
+    get(`/user/nickname/check/${nicknameValue}`)
     .then((res) => {
       if (res.data.redundancy === true) { // 중복인 경우
         dispatch(showToast({ contents: "nickname", toastIndex: 1 }));
@@ -159,15 +157,15 @@ const SetNicknamePage = () => {
   }
 
   const NicknameSet = async () => {
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
     const Token = user.token;
 
+    // TODO: 수정 필요
     const nicknameRequestJson = {
       "token": Token,
       "nickname": nicknameValue
     }
 
-    await axios.put(url, nicknameRequestJson)
+    await putWithToken('/user/nickname', nicknameRequestJson)
     .then((res) => {
       const data = res.data;
       if (data.update === false) {

@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import axios from 'axios';
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
-import * as config from "../config";
+import { useCookies } from 'react-cookie';
+import { get } from '../api';
 
 const Background = styled.div`
   width: 100%;
@@ -109,7 +109,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
   const user = useSelector((state) => state.user.value);
   const nickname = user.nickname;
   const loginState = user.loginState;
-
+  const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
   const toggleMenu = () => {
     setIsOpen(false);
   };
@@ -126,9 +126,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
-        const response = await axios.get(
-          `${config.BASE_URL}/visitors/count`
-        );
+        const response = await get(`/visitors/count`);
         console.log("방문자 데이터 확인", response.data);
         setVisitTodayData(response.data.visitToday);
         setVisitTotalData(response.data.visitTotal);
@@ -164,6 +162,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                     </span>
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
+                      removeCookie('refreshToken', { path: '/' });
                       dispatch(logout());
                       dispatch(showToast({ contents: "login", toastIndex: 4 }));
                       setTimeout(() => {

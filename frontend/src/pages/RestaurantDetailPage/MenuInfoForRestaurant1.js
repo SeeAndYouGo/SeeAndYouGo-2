@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import * as config from "../../config";
+import { get } from "../../api";
 
 const Restaurant1MenuList = [
 	{
@@ -86,8 +85,7 @@ const MenuInfoForRestaurant1 = () => {
 	};
 
 	useEffect(() => {
-    const url = config.DEPLOYMENT_BASE_URL + `/restaurant/1/rate/detail`;
-		axios.get(url)
+		get(`/restaurant/1/rate/detail`)
 		.then((res) => {
 			res.data.map((val, idx) => Restaurant1MenuList[idx].menuList = val.avgRateByMenu);
 			setMenuArray(Restaurant1MenuList);

@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import SwipeableTab from "./SwipeableTab";
-import * as config from "../../config";
 import Info from "./Info";
 import Progress from "./Progress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
@@ -22,7 +20,6 @@ const MainPage = () => {
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
-	const token = useSelector((state) => state.user).value.token;
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -60,11 +57,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				// TODO
-				const response = await axios.get(
-					`/api/daily-menu/restaurant${i + 1}`
-					// `${config.BASE_URL}/daily-menu/restaurant${i + 1}`
-				);
+				const response = await get(`/daily-menu/restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
 					for (let j = 0; j < response.data.length; j++) {

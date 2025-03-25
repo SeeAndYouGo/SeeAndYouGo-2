@@ -2,6 +2,7 @@ import axios from "axios";
 import * as config from "../config";
 import store from "../redux/store";
 import { login, logout } from "../redux/slice/UserSlice";
+import { Cookies } from 'react-cookie';
 
 const baseURL = config.NOW_STATUS === 1 ? config.DEPLOYMENT_BASE_URL : "/api";
 
@@ -31,20 +32,22 @@ const getNewAccessToken = async (refreshToken) => {
 const requestWithToken = async (method, url, data = null, config = {}) => {
 	const state = store.getState();
 	const accessToken = state.user.value.token;
-	// TODO 쿠키에서 refresh token 가져오기
-	const refreshToken = null;
+	
+	const cookies = new Cookies();
+	const refreshToken = cookies.get('refreshToken');
 
 	try {
 		const response = await axiosClient[method](url, data, {
 			...config,
 			headers: {
+				...config.headers,
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
 
 		return response;
 	} catch (error) {
-		if (error.response.status === 401 && refreshToken) {
+		if (error.response?.status === 401 && refreshToken) {
 			try {
 				const newAccessToken = await getNewAccessToken(refreshToken);
 
@@ -62,6 +65,7 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 				const retryResponse = await axiosClient[method](url, data, {
 					...config,
 					headers: {
+						...config.headers,
 						Authorization: `Bearer ${newAccessToken}`,
 					},
 				});
@@ -73,6 +77,7 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 				// TODO 재로그인 필요하다는 내용 토스트 메시지로 띄우기
 				// 로그인 인증이 만료되었습니다. 다시 로그인해주세요.
 				store.dispatch(logout());
+				cookies.remove('refreshToken', { path: '/' });
 				setTimeout(() => {
 					window.location.reload();
 				}, 1000);

@@ -11,7 +11,7 @@ import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "../RestaurantDetailPage/MenuSelector";
 import * as config from "../../config";
 import ImageCropper from "./ImageCropper";
-
+import { postWithToken } from "../../api";
 const ReviewWriteContainer = styled.form`
 	width: 100%;
 	background: #fff;
@@ -274,8 +274,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
-		axios
-			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
+		try {
+			await postWithToken("/review", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -286,10 +286,10 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 					window.location.reload();
 				}, 1000);
 			})
-			.catch(() => { // 리뷰 작성 실패
-				dispatch(showToast({ contents: "review", toastIndex: 1 }));
-				console.log(dto, "리뷰 전달 확인");
-			})
+		} catch (error) {
+			dispatch(showToast({ contents: "review", toastIndex: 1 }));
+			console.log(dto, "리뷰 전달 확인");
+		}
 	};
 
 	return (
@@ -326,7 +326,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 						</GoToLogin>
 					</WriteImpossible>
 				) : ( // 메인 메뉴 설정되지 않은 경우
-					(nowMainMenuList?.length === 0) ? (
+					(restaurantNum !== 1 && nowMainMenuList?.length === 0) ? (
 						<WriteImpossible>
 							리뷰를 작성할 수 없습니다.
 						</WriteImpossible>

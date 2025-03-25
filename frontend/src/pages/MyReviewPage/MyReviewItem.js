@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { showToast } from "../../redux/slice/ToastSlice";
-import * as config from "../../config";
+import { deleteWithToken } from "../../api";
 
 const ReviewItemContainer = styled.div`
 	width: 100%;
@@ -137,18 +137,10 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
-			const url =
-				config.DEPLOYMENT_BASE_URL + `/reviews/${reviewId}/${nowToken}`;
-
-			fetch(url, {
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
-				.then((res) => res.json())
+			deleteWithToken(`/reviews/${reviewId}`)
 				.then((res) => {
-					if (res.success === true) { // 리뷰 삭제 성공
+					console.log(res, '리뷰 삭제 확인');
+					if (res.data.success === true) { // 리뷰 삭제 성공
 						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						const updatedReviewArr = beforeReviewList.filter(
 							(item) => item.reviewId !== reviewId
@@ -218,11 +210,7 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 					<ReviewItemContent>{comment}</ReviewItemContent>
 					{imgLink === "" ? null : (
 						<ReviewImage
-							src={
-								config.NOW_STATUS === 0
-									? `/assets/images/${imgLink}`
-									: `${imgLink}`
-							}
+							src={imgLink}
 							alt="Loading.."
 						/>
 					)}
