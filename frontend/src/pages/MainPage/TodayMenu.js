@@ -39,23 +39,33 @@ const TodayMenu = ({ idx, data = [] }) => {
 		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
 	};
 
+	const MENU_TYPE_MAP = {
+    2: {
+			menu1: "BREAKFAST",
+			menu2: "LUNCH"
+    },
+		3: {
+			menu1: "LUNCH",
+			menu2: "DINNER"
+		},
+		6: {
+			menu1: "DORM_A",
+			menu2: "DORM_C"
+		}
+	};
+
 	useEffect(() => {
 		if (data.length === 0) return;
 		
-		const menu1Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "BREAKFAST" : "LUNCH"));
-		menu1Data.sort((a, b) => {
-			return (
-				deptValue.indexOf(a.dept) -
-				deptValue.indexOf(b.dept)
-			);
-		});
-		const menu2Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "LUNCH" : "DINNER"));
-		menu2Data.sort((a, b) => {
-			return (
-				deptValue.indexOf(a.dept) -
-				deptValue.indexOf(b.dept)
-			);
-		});
+		const menuTypes = MENU_TYPE_MAP[idx];
+		
+		const menu1Data = data
+			.filter(item => item.menuType === menuTypes.menu1)
+			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
+			
+		const menu2Data = data
+			.filter(item => item.menuType === menuTypes.menu2)
+			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
 
 		setMenu1(menu1Data);
 		setMenu2(menu2Data);
@@ -71,7 +81,7 @@ const TodayMenu = ({ idx, data = [] }) => {
 		<div style={{ marginTop: 30}}>
 			<div style={{ display: "flex", marginBottom: "15px" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
-				{idx < 4 && (
+				{idx in MENU_TYPE_MAP && (
 					<TypeTabMenu menu1={menu1} menu2={menu2} />
 				)}
 			</div>
