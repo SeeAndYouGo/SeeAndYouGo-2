@@ -13,7 +13,7 @@ const getRestuarantIndex = (restaurantNum) => {
 		case 5:
 			return "생활과학대";
 		case 6:
-			return "학생생활관";
+			return "기숙사식당";
 		default:
 			return null;
 	}

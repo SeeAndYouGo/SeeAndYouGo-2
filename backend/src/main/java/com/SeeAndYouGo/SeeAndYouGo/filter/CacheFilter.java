@@ -90,7 +90,7 @@ public class CacheFilter extends OncePerRequestFilter {
 
         // 좋아요 캐싱
         if (uri.startsWith("/api/review/like")) {
-            String likerEmail = tokenProvider.decodeToEmail(uriParts[uriParts.length - 1]);
+            String likerEmail = tokenProvider.decodeToEmailByAccess(uriParts[uriParts.length - 1]);
             String reviewId = uriParts[uriParts.length - 2];
             key = "review:like:" + reviewId;
             hash = likerEmail;
@@ -100,7 +100,7 @@ public class CacheFilter extends OncePerRequestFilter {
         if (uri.contains("daily-menu")) {
             String restaurant = uriParts[3];
             key = "menu:daily:" + restaurant;
-            hash = uriParts.length > 4 ? tokenProvider.decodeToEmail(uriParts[4]) : "unknown";
+            hash = uriParts.length > 4 ? tokenProvider.decodeToEmailByAccess(uriParts[4]) : "unknown";
         }
         if (uri.startsWith("/api/weekly-menu/")) {  // admin 이 사용하는 /api/weekly-menu 는 캐싱 대상 아님
             key = "menu:weekly";
@@ -135,7 +135,7 @@ public class CacheFilter extends OncePerRequestFilter {
         if (uri.startsWith("/api/review/like")) {
             String reviewId = uriParts[uriParts.length - 2];
             String key = "review:like:" + reviewId;
-            String hash = tokenProvider.decodeToEmail(uriParts[uriParts.length - 1]);
+            String hash = tokenProvider.decodeToEmailByAccess(uriParts[uriParts.length - 1]);
 
             String cachedData = (String) redisTemplate.opsForHash().get(key, hash);
             if (cachedData != null && !cachedData.isEmpty()) {
@@ -152,7 +152,7 @@ public class CacheFilter extends OncePerRequestFilter {
         if (uri.startsWith("/api/daily-menu")) {
             String restaurant = uriParts[3];
             String key = "menu:daily:" + restaurant;
-            String hash = uriParts.length > 4 ? tokenProvider.decodeToEmail(uriParts[4]) : "unknown";
+            String hash = uriParts.length > 4 ? tokenProvider.decodeToEmailByAccess(uriParts[4]) : "unknown";
 
             String cachedData = (String) redisTemplate.opsForHash().get(key, hash);
             if (cachedData != null && !cachedData.isEmpty()) {

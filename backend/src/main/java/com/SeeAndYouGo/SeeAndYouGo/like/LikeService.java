@@ -20,12 +20,11 @@ public class LikeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public LikeResponseDto postLikeCount(Long reviewId, String tokenId) {
+    public LikeResponseDto postLikeCount(Long reviewId, String email) {
         Review review = reviewRepository.findById(reviewId).get();
-        String userEmail = tokenProvider.decodeToEmail(tokenId);
-        User user = userRepository.findByEmail(userEmail);
+        User user = userRepository.findByEmail(email);
 
-        if(review.getWriterEmail().equals(userEmail)){
+        if(review.getWriterEmail().equals(email)){
             return LikeResponseDto.builder()
                     .mine(true)
                     .like(false)
@@ -68,7 +67,7 @@ public class LikeService {
     }
 
     public boolean isLike(Review review, String userEmail) {
-        if(userEmail.equals("")) return false;
+        if(userEmail.equals("") || userEmail.equals("none")) return false;
 
         User user = userRepository.findByEmail(userEmail);
         if(likeRepository.existsByReviewAndUser(review, user)){

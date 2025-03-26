@@ -32,7 +32,7 @@ import java.util.HashMap;
 @Slf4j
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
-    @Value("${CONN_KEY}")
+    @Value("${API.CONN_KEY}")
     private String AUTH_KEY;
 
     @Value("${CONN.GET.URL}")

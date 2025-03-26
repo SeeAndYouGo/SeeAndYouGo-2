@@ -40,9 +40,7 @@ const TabButton = styled.div`
   `}
 	transform: translateX(${(props) => props.slide}px);
 	transition: 0.5s ease;
-	width: fit-content;
-	padding: 0 7px;
-	white-space: nowrap;
+	margin: 0;
 `;
 
 const restaurantList = [
@@ -51,7 +49,7 @@ const restaurantList = [
 	"3학생회관",
 	"상록회관",
 	"생활과학대",
-	"학생생활관"
+	"기숙사식당"
 ];
 
 const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
@@ -78,6 +76,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1].filter(
 				(item) => item.dept === deptValue
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
@@ -88,6 +89,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.dept === deptValue && item.menuType === "LUNCH"
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
@@ -98,6 +102,9 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.menuType === "LUNCH"
 			)[0];
+			if(initialMenu === undefined) {
+				return;
+			}
 			dispatch(
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
@@ -116,7 +123,7 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 
 		for (let i = 0; i < restaurantList.length; i++) {
 			result.push(
-				<SwiperSlide key={i} className="sw-item" style={{ width: "fit-content" }}>
+				<SwiperSlide key={i} className="sw-item">
 					<TabButton
 						$active={restaurantId === i + 1}
 						onClick={() =>
@@ -139,12 +146,12 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center" }}
+					style={{ textAlign: "center", fontSize: 17 }}
 					initialSlide={
             restaurantId < 4 ? 0 : restaurantId - 1
           }
 					speed={1000}
-					slidesPerView={"auto"}
+					slidesPerView={3.6}
           onSwiper={setSwiper}
 				>
 					{RestaurantSwiperSlide()}

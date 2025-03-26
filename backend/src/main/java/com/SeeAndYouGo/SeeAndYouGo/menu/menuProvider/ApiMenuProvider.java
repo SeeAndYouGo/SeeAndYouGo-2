@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ApiMenuProvider implements MenuProvider{
 
-    @Value("${DISH_KEY}")
+    @Value("${API.DISH_KEY}")
     private String AUTH_KEY;
 
     @Value("${DISH.GET.URL}")

@@ -37,9 +37,7 @@ const TabButton = styled.div`
   `}
 	transform: translateX(${(props) => props.slide}px);
 	transition: 0.5s ease;
-	width: fit-content;
-	padding: 0 7px;
-	white-space: nowrap;
+	margin: 0;
 `;
 
 const ChartWrapper = styled.div`
@@ -50,7 +48,7 @@ const ChartWrapper = styled.div`
 	padding: 20px;
 `;
 
-const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "학생생활관"];
+const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "기숙사식당"];
 
 const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 	const [swiper, setSwiper] = useState(null);
@@ -66,7 +64,7 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 
 		for (let i = 0; i < restaurantArray.length; i++) {
 			result.push(
-				<SwiperSlide key={i} className="sw-item" style={{ width: "fit-content" }}>
+				<SwiperSlide key={i} className="sw-item">
 					<TabButton
 						$active={currentTab === i}
 						onClick={() => {
@@ -86,12 +84,12 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center" }}
+					style={{ textAlign: "center", fontSize: 18 }}
 					initialSlide={
             currentTab < 3 ? 0 : currentTab
           }
 					speed={1000}
-					slidesPerView={"auto"}
+					slidesPerView={3.5}
           onSwiper={setSwiper}
 				>
 					{StatisticsSwiperSlide()}

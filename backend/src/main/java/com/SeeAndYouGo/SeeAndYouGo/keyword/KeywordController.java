@@ -1,12 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.keyword;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordAddResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -16,25 +17,22 @@ import java.util.List;
 public class KeywordController {
 
     private final KeywordService keywordService;
-    private final TokenProvider tokenProvider;
 
     @GetMapping("/{user_id}")
-    @ValidateToken
-    public KeywordResponseDto getKeywordsByUser(@PathVariable("user_id") String tokenId) {
-        String email = tokenProvider.decodeToEmail(tokenId);
+    public KeywordResponseDto getKeywordsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email) {
         List<Keyword> keywords = keywordService.getKeywords(email);
         return KeywordResponseDto.toDTO(keywords);
     }
 
     @PostMapping
-    public KeywordAddResponseDto addKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
+    public KeywordAddResponseDto addKeyword(@RequestBody KeywordRequestDto keywordRequestDto,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         return keywordService.addKeyword(keywordRequestDto.getKeyword(), email);
     }
 
     @DeleteMapping
-    public KeywordResponseDto deleteKeyword(@RequestBody KeywordRequestDto keywordRequestDto) {
-        String email = tokenProvider.decodeToEmail(keywordRequestDto.getUserId());
+    public KeywordResponseDto deleteKeyword(@RequestBody KeywordRequestDto keywordRequestDto,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         return keywordService.deleteKeyword(keywordRequestDto.getKeyword(), email);
     }
 }

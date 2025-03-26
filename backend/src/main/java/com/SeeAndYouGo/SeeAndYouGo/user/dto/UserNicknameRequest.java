@@ -7,6 +7,5 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class UserNicknameRequest {
-    private String token;
     private String nickname;
 }
