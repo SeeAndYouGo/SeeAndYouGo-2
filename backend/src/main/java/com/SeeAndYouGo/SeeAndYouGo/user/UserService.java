@@ -24,7 +24,7 @@ public class UserService {
 
     public String getNicknameByEmail(String email) {
         User user = userRepository.findByEmail(email);
-        return user.getNickname() == null ? "익명" : user.getNickname();
+        return user == null ? "익명" : user.getNickname();
     }
 
     public String findNickname(String email) {
