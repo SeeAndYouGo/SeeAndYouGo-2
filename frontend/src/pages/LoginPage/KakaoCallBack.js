@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
-import * as config from "../../config";
 import { useCookies } from 'react-cookie';
-import { getWithToken } from "../../api";
+import { get, getWithToken } from "../../api";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
@@ -21,26 +19,17 @@ const KakaoCallBack = () => {
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
-			const url = config.DEPLOYMENT_BASE_URL + `/oauth/kakao?code=${authorizationCode}`;
+			const response = await get(`/oauth/kakao?code=${authorizationCode}`);
 
-			const response = await axios({
-				method: "GET",
-				url: url,
-				data: {
-					authorizationCode: authorizationCode,
-				},
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
 			const nowToken = response.data.token;
 			const refreshToken = response.data.refreshToken;
-			return { nowToken, refreshToken };
+			const message = response.data.message;
+			return { nowToken, refreshToken, message };
 		};
 
 		const fetchData = async () => {
 			try {
-				const { nowToken, refreshToken } = await getJWTToken(code);
+				const { nowToken, refreshToken, message } = await getJWTToken(code);
 				
 				// refresh token을 쿠키에 저장
 				setCookie('refreshToken', refreshToken, {
@@ -54,7 +43,7 @@ const KakaoCallBack = () => {
 					login({ token: nowToken, nickname: "", loginState: true, selectedRestaurant: restaurantId })
 				);
 
-				if (nowToken.message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
+				if (message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
 					dispatch(showToast({ contents: "login", toastIndex: 1 }));
 					navigator("/set-nickname");
 				} else { // 이미 등록된 회원인 경우 닉네임 가져오기
