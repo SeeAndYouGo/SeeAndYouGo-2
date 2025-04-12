@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
+import { get, put } from "../../api/index";
 import * as config from "../../config";
 
 const SubmitButton = styled.button`
@@ -44,23 +45,13 @@ const SetMainMenuPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url =
-				config.BASE_URL +
-				"/weekly-menu" +
-				(config.NOW_STATUS === 0 ? ".json" : "");
-
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
+			const response = await get("/weekly-menu");
+			const result = response.data;
+			console.log(result, "가져온 데이터 확인");
 			return result;
 		};
 		fetchData().then((data) => {
 			setMenuList(data);
-			console.log("가져온 데이터 확인", data);
 		});
 	}, []);
 
@@ -90,17 +81,9 @@ const SetMainMenuPage = () => {
 		});
 	};
 
-	const handleSubmit = () => {
-		console.log("전송 데이터 확인", menuList);
-		const url = config.DEPLOYMENT_BASE_URL + "/main-menu";
-		fetch(url, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(menuList),
-		})
-			.then((res) => res.json())
+	const handleSubmit = async () => {
+		const jsonData = JSON.stringify(menuList);
+		await put("/main-menu", jsonData)
 			.then(() => {
 				alert("전송 성공");
 			})
