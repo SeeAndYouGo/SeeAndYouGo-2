@@ -176,7 +176,7 @@ public class ReviewController {
         return getReviewDtos(reviews, email);
     }
 
-    @DeleteMapping("/reviews/{reviewId}/{token}")
+    @DeleteMapping("/reviews/{reviewId}")
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){

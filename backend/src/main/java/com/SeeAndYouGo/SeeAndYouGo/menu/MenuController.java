@@ -40,7 +40,7 @@ public class MenuController {
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
 
         List<String> keyStrings = new ArrayList<>();
-        if (email.equals("none")) {
+        if (!email.equals("none")) {
             User user = userRepository.findByEmail(email);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
