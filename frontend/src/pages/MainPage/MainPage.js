@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import SwipeableTab from "./SwipeableTab";
-import * as config from "../../config";
 import Info from "./Info";
 import Progress from "./Progress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
+import { get, getWithToken } from "../../api/index";
 
 const MainPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
-	const token = useSelector((state) => state.user).value.token;
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -46,9 +44,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await axios.get(
-					`${config.BASE_URL}/connection/restaurant${i + 1}`
-				);
+				const response = await get(`/connection/restaurant${i + 1}`);
 				results.push(response.data);
 			}
 			setRestaurantData(results);
@@ -61,9 +57,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await axios.get(
-					`${config.BASE_URL}/daily-menu/restaurant${i + 1}`
-				);
+				const response = await get(`/daily-menu/restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
 					for (let j = 0; j < response.data.length; j++) {
@@ -84,9 +78,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await axios.get(
-					`${config.BASE_URL}/review/restaurant${i + 1}` + (token !== "" ? `/${token}` : "")
-				);
+				const response = await getWithToken(`/review/restaurant${i + 1}`);
 				results.push(response.data);
 			}
 			setTopReviewData(results);
@@ -112,7 +104,7 @@ const MainPage = () => {
 
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		// tab 변경할 때마다 fetch 되는 부분 수정
+		// restaurantId 변경 시마다 동작하지 않도록 수정
 	}, []);
 
 	return (
@@ -126,7 +118,8 @@ const MainPage = () => {
 						setRestaurantId={handleSetRestaurantId}
 						menuData={menuData}
 					/>
-					<Info idx={restaurantId} />
+					{/* TODO 데이터 받아오는데 문제가 있어보여 주석처리 */}
+					{/* <Info idx={restaurantId} /> */}
 					<Progress
 						ratio={ratio}
 						time={restaurantData[restaurantId - 1]?.dateTime}

@@ -97,7 +97,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             // 석식
             String lastColumn = row.select("td.left.last").first().toString();
             if (!lastColumn.isEmpty()) {
-                Map<String, List<String>> dishes = getDishes(secondColumn);
+                Map<String, List<String>> dishes = getDishes(lastColumn);
                 for (String deptStr : dishes.keySet()) {
                     Dept dept = Dept.changeStringToDept(deptStr);
 
@@ -137,7 +137,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         List<MenuVO> lunch = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.LUNCH).collect(Collectors.toList());
         List<MenuVO> dinner = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.DINNER).collect(Collectors.toList());
 
-        for(LocalDate date = monday; date.isBefore(sunday); date = date.plusDays(1)) {
+        for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)) {
             if(!hasDate(breakfast, date)){
                 addDefaultMenu(menuVOs, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
             }

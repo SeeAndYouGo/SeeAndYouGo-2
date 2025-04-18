@@ -31,7 +31,7 @@ public class IterService {
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
-    @Scheduled(cron="0 0 0 * * SAT")
+    @Scheduled(cron="0 0 0 * * MON")
     @ConditionalOnProperty(name = "app.test", havingValue = "false")
     public void weeklyIterative() throws Exception {
         // 기본적으로 토요일에 호출되는 메섣.
@@ -92,12 +92,12 @@ public class IterService {
     }
 
     public static LocalDate getNearestMonday(LocalDate now) {
-        if(weekday.contains(now.getDayOfWeek())){
+//        if(weekday.contains(now.getDayOfWeek())){
             // 평일이면 해당 주 월요일 반환
             return now.with(MONDAY);
-        }
+//        }
         // 주말이라면 다음 주 월요일 반환
-        return now.with(MONDAY).plusWeeks(1);
+//        return now.with(MONDAY).plusWeeks(1);
     }
 
     public static LocalDate getFridayOfWeek(LocalDate inputDate) {

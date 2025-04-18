@@ -1,12 +1,12 @@
 package com.SeeAndYouGo.SeeAndYouGo.user;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.ValidateToken;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameCheckResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.NicknameUpdateResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserNicknameRequest;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserResponseDto;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserService userService;
-    private final TokenProvider tokenProvider;
 
     @GetMapping("/nickname/check/{nickname}")
     public NicknameCheckResponseDto checkNicknameRedundancy(@PathVariable String nickname) {
@@ -26,8 +25,8 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest){
-        String email = tokenProvider.decodeToEmail(nicknameRequest.getToken());
+    public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest,
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal String email){
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
 
         boolean canUpdate;
@@ -41,10 +40,8 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/nickname/{token}")
-    @ValidateToken
-    public UserResponseDto getNickname(@PathVariable(value = "token") String tokenId){
-        String email = tokenProvider.decodeToEmail(tokenId);
+    @GetMapping("/nickname")
+    public UserResponseDto getNickname(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()

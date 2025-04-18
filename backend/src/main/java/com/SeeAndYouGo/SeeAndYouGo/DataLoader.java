@@ -8,6 +8,7 @@ import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.scheduler.VisitorScheduler;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,10 +17,8 @@ import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataLoader implements CommandLineRunner {
-
-    @Value("${app.test}")
-    private boolean isTest;
 
     private final IterService iterService;
     private final ConnectionService connectionService;
@@ -48,10 +47,9 @@ public class DataLoader implements CommandLineRunner {
             holidayService.saveThisYearHoliday(LocalDate.now());
         }
 
-        // 데이터 삽입 메서드(테스트 환경에서는 데이터를 임의로 넣어줄 것이므로 불필요함).
-        if(!isTest) {
-            iterService.weeklyIterative();
-            connectionService.saveRecentConnection();
-        }
+        iterService.weeklyIterative();
+        connectionService.saveRecentConnection();
+
+        log.info("초기세팅 완료");
     }
 }

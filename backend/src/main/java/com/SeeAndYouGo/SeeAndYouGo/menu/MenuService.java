@@ -37,7 +37,7 @@ public class MenuService {
 
     public static final String DEFAULT_DISH_NAME = "메뉴 정보 없음";
 
-    @Value("${DISH_KEY}")
+    @Value("${API.DISH_KEY}")
     private String DISH_KEY;
 
     /**

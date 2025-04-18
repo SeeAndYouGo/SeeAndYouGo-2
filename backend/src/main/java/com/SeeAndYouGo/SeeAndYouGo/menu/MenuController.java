@@ -2,18 +2,18 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
-import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
-import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
-import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
+import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,17 +33,14 @@ public class MenuController {
 
     private final UserKeywordRepository userKeywordRepository;
 
-    private final TokenProvider tokenProvider;
-
-    @GetMapping(value = {"/daily-menu/{restaurant}/{user_id}", "/daily-menu/{restaurant}"})
+    @GetMapping("/daily-menu/{restaurant}")
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
-                                                                               @PathVariable(value = "user_id", required = false) String tokenId) {
+                                                               @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
 
         List<String> keyStrings = new ArrayList<>();
-        if (tokenId != null) {
-            String email = tokenProvider.decodeToEmail(tokenId);
+        if (!email.equals("none")) {
             User user = userRepository.findByEmail(email);
             List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
             keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());

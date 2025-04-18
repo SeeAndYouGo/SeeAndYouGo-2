@@ -21,7 +21,7 @@ public class ConnectionService {
     private final ConnectionRepository connectionRepository;
     private final ConnectionProviderFactory connectionProviderFactory;
 
-    @Value("${CONN_KEY}")
+    @Value("${API.CONN_KEY}")
     private String CONN_KEY;
 
     /**

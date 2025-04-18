@@ -5,7 +5,7 @@ import "swiper/css";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import BarChart from "./BarChart";
-import * as config from "../../config";
+import { get } from "../../api";
 
 const Slider = styled.div`
 	background-color: #fff;
@@ -37,9 +37,7 @@ const TabButton = styled.div`
   `}
 	transform: translateX(${(props) => props.slide}px);
 	transition: 0.5s ease;
-	width: fit-content;
-	padding: 0 7px;
-	white-space: nowrap;
+	margin: 0;
 `;
 
 const ChartWrapper = styled.div`
@@ -50,7 +48,7 @@ const ChartWrapper = styled.div`
 	padding: 20px;
 `;
 
-const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "학생생활관"];
+const restaurantArray = ["1학생회관", "2학생회관", "3학생회관", "상록회관", "생활과학대", "기숙사식당"];
 
 const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 	const [swiper, setSwiper] = useState(null);
@@ -66,7 +64,7 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 
 		for (let i = 0; i < restaurantArray.length; i++) {
 			result.push(
-				<SwiperSlide key={i} className="sw-item" style={{ width: "fit-content" }}>
+				<SwiperSlide key={i} className="sw-item">
 					<TabButton
 						$active={currentTab === i}
 						onClick={() => {
@@ -86,12 +84,12 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center" }}
+					style={{ textAlign: "center", fontSize: 18 }}
 					initialSlide={
             currentTab < 3 ? 0 : currentTab
           }
 					speed={1000}
-					slidesPerView={"auto"}
+					slidesPerView={3.5}
           onSwiper={setSwiper}
 				>
 					{StatisticsSwiperSlide()}
@@ -105,11 +103,8 @@ const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
 	const [currentTab, setCurrentTab] = useState(0);
 
-	const createUrl = (idx) => config.BASE_URL + "/statistics/restaurant" + idx + (config.NOW_STATUS === 0 ? ".json" : "");
+	const createUrl = (idx) => "/statistics/restaurant" + idx;
 	
-	// 도메인 연결해서 통계 확인하기
-	// const createUrl = (idx) => "https://seeandyougo.com/api"+"/statistics/restaurant" + idx;
-
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -117,7 +112,7 @@ const StatisticsPage = () => {
 				for (let i = 0; i < restaurantArray.length; i++) {
 					url.push(createUrl(i + 1));
 				}
-				await axios.all(url.map((path) => axios.get(path))).then((res) => {
+				await axios.all(url.map((path) => get(path))).then((res) => {
 					setDatas(res.map((data) => data.data));
 				});
 			} catch (error) {
