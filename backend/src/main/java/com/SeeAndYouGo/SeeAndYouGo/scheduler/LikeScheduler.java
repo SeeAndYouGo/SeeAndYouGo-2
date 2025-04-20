@@ -31,7 +31,7 @@ public class LikeScheduler {
     private final ReviewRepository reviewRepository;
 
     @Scheduled(fixedRate = 60000 * 30) // 30분마다 실행
-    public void backupVisitorCount() {
+    public void backupReviewLike() {
         try {
             // Redis에서 review:like:* 패턴의 모든 키를 가져옴
             Set<String> keys = redisTemplate.keys("review:like:*");
@@ -51,6 +51,7 @@ public class LikeScheduler {
                 for (Map.Entry<Object, Object> entry : likeData.entrySet()) {
                     String userEmail = (String) entry.getKey();
                     String value = (String) entry.getValue();
+                    if (value.isEmpty()) continue;
                     LikeResponseDto dto = objectMapper.readValue(value, LikeResponseDto.class);
                     if (!dto.isLike()) continue;
 
