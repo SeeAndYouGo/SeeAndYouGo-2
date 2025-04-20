@@ -166,10 +166,6 @@ public class CrawlingMenuProvider implements MenuProvider{
         return !collect.isEmpty();
     }
 
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
-        throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
-    }
-
     private MenuVO CreateMenuVO(Dept dept, LocalDate date, Restaurant restaurant, MenuType menuType) {
         return new MenuVO(0, date.toString(), dept, restaurant, menuType);
     }
@@ -180,43 +176,59 @@ public class CrawlingMenuProvider implements MenuProvider{
                 .replace("<br><br>", "<br>")
                 .split("<br>");
 
-        Map<String, List<String>> menuMap = new HashMap<>(); // 메뉴 이름과 메뉴 항목 리스트를 매핑
-        List<String> currentMenuList = null; // 현재 수집 중인 메뉴 리스트
-        String currentMenuTitle = null; // 현재 메뉴 제목 (메인A, 메인C 등)
+        Map<String, List<String>> menuMap = new HashMap<>();
+        List<String> currentMenuList = null;
+        String currentMenuTitle = null;
+
+        boolean inBracketBlock = false; // [가 시작되고 ] 닫힐 때까지 무시
 
         for (String line : lines) {
             line = line.trim();
 
-            // 새로운 메뉴 블록이 시작되면 메뉴 리스트 초기화
+            // 블록 무시 시작
+            if (line.contains("[") && !line.contains("]")) {
+                // [는 있으나 ]는 없는 경우: 메뉴에서 원산지 분리
+                int idx = line.indexOf("[");
+                if (idx > 0) {
+                    line = line.substring(0, idx).trim();
+                    currentMenuList.add(Entities.unescape(line));
+                }
+                inBracketBlock = true; // 이후 줄은 무시되도록 유지
+            }
+            // 블록 무시 종료
+            if (inBracketBlock) {
+                if (line.contains("]")) {
+                    inBracketBlock = false;
+                }
+                continue;
+            }
+
             if (line.contains("메인A") || line.contains("메인C")) {
-                // 이전 메뉴 리스트 저장
                 if (currentMenuTitle != null) {
                     menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
                 }
-
-                // 새 메뉴 리스트 초기화
                 currentMenuTitle = line;
                 currentMenuList = new ArrayList<>();
                 continue;
             }
 
-            // 영문 메뉴가 나오면 현재 메뉴 리스트 지우고 종료
             if (line.matches("^[a-zA-Z].*")) {
                 if (currentMenuList != null) {
-                    currentMenuList.clear(); // 현재 메뉴 리스트 초기화
+                    currentMenuList.clear();
                 }
                 currentMenuTitle = null;
                 break;
             }
 
-            // 한글 메뉴 항목만 추가하고 원산지 정보 제거
-            if (currentMenuList != null && line.matches("^[가-힣]+.*")) {
+            if (currentMenuList != null && line.matches(".*[가-힣]+.*")) {
+                line = line.replaceAll("^\\*(.*?)\\*$", "$1"); // 앞뒤 * 제거 (맨 앞, 맨 뒤일 때만)
                 line = line.replaceAll("\\[.*?\\]", "").trim(); // 원산지 정보 제거
+
+                if(line.isEmpty() || line.startsWith("\\")) continue;
                 currentMenuList.add(Entities.unescape(line));
             }
         }
 
-        // 마지막 메뉴 리스트 저장
         if (currentMenuTitle != null && !currentMenuList.isEmpty()) {
             menuMap.put(currentMenuTitle, currentMenuList);
         }
