@@ -136,6 +136,9 @@ public class ReviewController {
 
     private File createTempFileFromMultipart(MultipartFile image) {
         File dir = new File("./tmpImage");
+        if (!dir.exists()) {
+            dir.mkdirs(); // 디렉토리 생성
+        }
 
         File file = new File(String.format("%s/%s.png", dir.getPath(), UUID.randomUUID()));
         try (FileOutputStream fos = new FileOutputStream(file)) {

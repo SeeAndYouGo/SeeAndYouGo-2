@@ -15,6 +15,9 @@ public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long
 
     Optional<VisitorCount> findTopByIsTotalFalseOrderByCountDesc();
 
+    Optional<VisitorCount> findTopByIsTotalFalseAndCreatedAtBetweenOrderByCountDesc(
+            LocalDateTime start, LocalDateTime end);
+
     List<VisitorCount> findByIsTotalTrueAndCreatedAtBefore(LocalDateTime time);
 
     @Modifying
