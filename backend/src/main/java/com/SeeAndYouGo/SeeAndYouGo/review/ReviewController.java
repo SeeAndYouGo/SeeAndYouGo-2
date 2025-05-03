@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.review;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReportCountResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
@@ -38,7 +39,6 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final UserService userService;
     private final LikeService likeService;
-    private static final Integer REPORT_CRITERION = 10;
     private final Executor executor;
 
     public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
@@ -92,14 +92,10 @@ public class ReviewController {
     }
 
     @PutMapping("/report/{reviewId}")
-    public String judgeDeleteReview(@PathVariable Long reviewId){
+    public ReportCountResponseDto judgeDeleteReview(@PathVariable Long reviewId){
         Integer reportCount = reviewService.updateReportCount(reviewId);
 
-        if(reportCount >= REPORT_CRITERION){
-            reviewService.deleteById(reviewId);
-        }
-
-        return "The Review report was successful.";
+        return new ReportCountResponseDto(reportCount);
     }
 
     // 리뷰 게시
@@ -195,5 +191,12 @@ public class ReviewController {
             return responseDto;
         }
         return responseDto;
+    }
+
+    @DeleteMapping("/review/report/{reviewId}")
+    public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
+        boolean result = reviewService.deleteReportedReview(reviewId);
+
+        return new ReviewDeleteResponseDto(result);
     }
 }
