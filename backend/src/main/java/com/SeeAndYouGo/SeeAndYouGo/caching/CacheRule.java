@@ -40,6 +40,12 @@ public class CacheRule {
     private Duration ttl;
 
     /**
+     * 캐시 타입 (바이트, 스트링)
+     */
+    private CacheType cacheType;
+
+
+    /**
      * 이 규칙이 주어진 URL과 메서드에 적용되는지 확인
      */
     public boolean matches(String url, String method) {

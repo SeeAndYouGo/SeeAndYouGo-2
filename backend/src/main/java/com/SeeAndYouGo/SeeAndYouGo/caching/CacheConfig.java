@@ -40,6 +40,7 @@ public class CacheConfig {
         return Arrays.asList(
                 // 이미지 캐싱 규칙
                 CacheRule.builder()
+                        .cacheType(CacheType.BYTES)
                         .urlPattern("/api/images/**")
                         .method("GET")
                         .cacheName("images")
@@ -53,6 +54,7 @@ public class CacheConfig {
 
                 // 메뉴 캐싱 규칙
                 CacheRule.builder()
+                        .cacheType(CacheType.STRING)
                         .urlPattern("/api/daily-menu/{restaurant}")
                         .method("GET")
                         .cacheName("daily-menu")
@@ -62,6 +64,7 @@ public class CacheConfig {
 
                 // 주간 메뉴 캐싱 규칙
                 CacheRule.builder()
+                        .cacheType(CacheType.STRING)
                         .urlPattern("/api/weekly-menu/{restaurant}")
                         .method("GET")
                         .cacheName("weekly-menu")
@@ -71,6 +74,7 @@ public class CacheConfig {
 
                 // 좋아요 캐싱 규칙
                 CacheRule.builder()
+                        .cacheType(CacheType.STRING)
                         .urlPattern("/api/review/{reviewId}/like")
                         .method("*")
                         .cacheName("likes")

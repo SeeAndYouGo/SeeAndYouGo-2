@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -63,12 +64,21 @@ public class CacheFilter extends OncePerRequestFilter {
         // 캐시 키 생성
         String cacheKey = rule.generateKey(context);
 
-        // 캐시에서 데이터 조회
-        Optional<byte[]> cachedData = cacheService.get(rule.getCacheName(), cacheKey);
+        // 캐시에서 데이터 조회 - 캐시 타입에 따라 적절한 메소드 호출
+        Optional<?> cachedData;
+        if (rule.getCacheType() == CacheType.BYTES) {
+            cachedData = cacheService.getBytesCache(rule.getCacheName(), cacheKey);
+        } else {
+            cachedData = cacheService.getStringCache(rule.getCacheName(), cacheKey);
+        }
 
         // 캐시 히트: 캐시된 데이터로 응답
         if (cachedData.isPresent()) {
-            writeCachedResponse(response, cachedData.get(), uri);
+            if (rule.getCacheType() == CacheType.BYTES) {
+                writeCachedResponse(response, (byte[]) cachedData.get(), uri);
+            } else {
+                writeCachedStringResponse(response, (String) cachedData.get(), uri);
+            }
             return;
         }
 
@@ -80,12 +90,22 @@ public class CacheFilter extends OncePerRequestFilter {
 
         // 응답 데이터 캐싱
         byte[] responseData = responseWrapper.getContentAsByteArray();
+        // 응답 데이터 캐싱 부분의 코드 변경
         if (responseData.length > 0 && isSuccessResponse(responseWrapper)) {
-            if (contentType != null && contentType.startsWith("image/")){
-                cacheService.putBytes(rule.getCacheName(), cacheKey, responseData);
+            // 응답 유형에 따라 바이트 또는 문자열로 캐싱
+            if (rule.getCacheType() == CacheType.BYTES) {
+                if (rule.getTtl() != null) {
+                    cacheService.putBytes(rule.getCacheName(), cacheKey, responseData, rule);
+                } else {
+                    cacheService.putBytes(rule.getCacheName(), cacheKey, responseData);
+                }
             } else {
                 String content = new String(responseData, StandardCharsets.UTF_8);
-                cacheService.putString(rule.getCacheName(), cacheKey, content);
+                if (rule.getTtl() != null) {
+                    cacheService.putString(rule.getCacheName(), cacheKey, content, rule);
+                } else {
+                    cacheService.putString(rule.getCacheName(), cacheKey, content);
+                }
             }
         }
 
@@ -158,7 +178,7 @@ public class CacheFilter extends OncePerRequestFilter {
     }
 
     /**
-     * 캐시된 데이터로 응답 작성
+     * 캐시된 바이트 데이터로 응답 작성
      */
     private void writeCachedResponse(HttpServletResponse response, byte[] data, String uri) throws IOException {
         // 이미지 응답인 경우 content type 설정
@@ -172,7 +192,24 @@ public class CacheFilter extends OncePerRequestFilter {
         ServletOutputStream out = response.getOutputStream();
         out.write(data);
         out.flush();
-        logger.debug("응답이 캐시에서 제공되었습니다: {}", uri);
+        logger.debug("응답이 바이트 캐시에서 제공되었습니다: {}", uri);
+    }
+
+    /**
+     * 캐시된 문자열 데이터로 응답 작성
+     */
+    private void writeCachedStringResponse(HttpServletResponse response, String data, String uri) throws IOException {
+        // 응답 유형에 따라 content type 설정
+        if (uri.contains("/images/")) {
+            response.setContentType("image/png");
+        } else {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+        }
+
+        response.getWriter().write(data);
+        response.getWriter().flush();
+        logger.debug("응답이 문자열 캐시에서 제공되었습니다: {}", uri);
     }
 
     /**
