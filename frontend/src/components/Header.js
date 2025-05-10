@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import React, { useState } from "react";
 import SideBar from "./SideBar";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const HeaderContainer = styled.div`
   max-width: 360px;
@@ -40,6 +40,15 @@ const MenuWrapper = styled.div`
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const handleClick = (e) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.location.reload();
+    }
+  }
+
   const toggleMenu = () => {
     setIsOpen(true);
   };
@@ -48,6 +57,7 @@ const Header = () => {
       <HeaderContainer>
         <Link 
           to="/" 
+          onClick={handleClick}
           style={{display: "block", padding: "10px 0", height: "100%"}}
         >
           <img 
@@ -64,9 +74,6 @@ const Header = () => {
           >
             menu
           </span>
-          {/* <span class="material-symbols-outlined event-icon">
-            celebration
-          </span> */}
         </MenuWrapper>
       </HeaderContainer>
       <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />
