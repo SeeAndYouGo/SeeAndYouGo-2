@@ -92,6 +92,8 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 				}
 
 			} catch (error) {
+				error.response.status === 401 && console.error("refresh token 만료로 인한 재발급 요청 실패:", error);
+				// 로그아웃 처리
 				console.error("access token 재발급 요청 실패:", error);
 				store.dispatch(logout());
 				store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
@@ -126,6 +128,18 @@ export const put = async (url, data, config = {}) => {
 		return response;
 	} catch (error) {
 		console.error("PUT 요청 실패:", error);
+		throw error;
+	}
+}
+
+export const erase = async (url, config = {}) => {
+	// delete라는 변수를 사용할 수 없어서 erase로 작성
+	try {
+		const response = axiosClient.delete(url, config);
+
+		return response;
+	} catch (error) {
+		console.error("DELETE 요청 실패:", error);
 		throw error;
 	}
 }
