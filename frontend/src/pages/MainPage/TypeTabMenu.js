@@ -29,7 +29,7 @@ const TabMenu = styled.ul`
 	}
 `;
 
-const TypeTabMenu = ({ menu1, menu2 }) => {
+const TypeTabMenu = ({ menu1 = [], menu2 = [] }) => {
   const [currentTab, setCurrentTab] = useState(0);
   const dispatch = useDispatch();
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
@@ -45,16 +45,22 @@ const TypeTabMenu = ({ menu1, menu2 }) => {
 		}
     dispatch(changeMenuType(index + 1));
 
-		if (index === 0 && menu1.length > 0) {
+		if (index === 0) {
 			// 첫번째 탭 선택 시 menu1의 dishList로 menuList 업데이트
-			dispatch(changeMenuInfo({mainMenuList:menu1[0].mainDishList, menuId: menu1[0].menuId}));
-		} else if (index === 1 && menu2.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: menu1[0]?.mainDishList || [], menuId: menu1[0]?.menuId || 0}));
+		} else if (index === 1) {
 			// 두번째 탭 선택 시 menu2의 dishList로 menuList 업데이트
-			dispatch(changeMenuInfo({mainMenuList:menu2[0].mainDishList, menuId: menu2[0].menuId}));
+			dispatch(changeMenuInfo({mainMenuList: menu2[0]?.mainDishList || [], menuId: menu2[0]?.menuId || 0}));
 		}
 
 		setCurrentTab(index);
 	};
+
+	const tabMenuList = {
+		2: ['조식', '중식'],
+		3: ['중식', '석식'],
+		6: ['DORM_A', 'DORM_C'],
+	}
 
   useEffect(() => {
     if (nowMenuType === 1) {
@@ -72,13 +78,13 @@ const TypeTabMenu = ({ menu1, menu2 }) => {
           className={currentTab === 0 ? "submenu focused" : "submenu"}
           onClick={() => selectMenuHandler(0)}
         >
-          {nowRestaurantId === 2 ? "조식" : "중식"}
+          {tabMenuList[nowRestaurantId][0]}
         </li>
         <li
           className={currentTab === 1 ? "submenu focused" : "submenu"}
           onClick={() => selectMenuHandler(1)}
         >
-          {nowRestaurantId === 2 ? "중식" : "석식"}
+          {tabMenuList[nowRestaurantId][1]}
         </li>
       </TabMenu>
 		);

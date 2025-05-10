@@ -33,30 +33,45 @@ const TodayMenu = ({ idx, data = [] }) => {
 	const nowDept = useSelector((state) => state.dept).value;
 	const nowMenuType = useSelector((state) => state.menuType).value;
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
+	const nowMainMenuList = useSelector((state) => state.nowMenuInfo).value.mainMenuList;
 
-	const handleDivClick = (clickedDept, menuList, id) => {
-		dispatch(changeDept(clickedDept));
-		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
+	const handleDivClick = (clickedDept, menuList, id, menuType) => {
+		if (nowRestaurantId === 6) {
+			dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id, menuType: menuType}));
+		} else {
+			dispatch(changeDept(clickedDept));
+			dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
+		}
+	};
+
+	const MENU_TYPE_MAP = {
+    2: { 
+			menu1: "BREAKFAST",
+			menu2: "LUNCH"
+    },
+		3: {
+			menu1: "LUNCH",
+			menu2: "DINNER"
+		},
+		6: {
+			menu1: "DORM_A",
+			menu2: "DORM_C"
+		}
 	};
 
 	useEffect(() => {
 		if (data.length === 0) return;
-		
-		const menu1Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "BREAKFAST" : "LUNCH"));
-		menu1Data.sort((a, b) => {
-			return (
-				deptValue.indexOf(a.dept) -
-				deptValue.indexOf(b.dept)
-			);
-		});
-		const menu2Data = data.filter((item) => item.menuType === (nowRestaurantId === 2 ? "LUNCH" : "DINNER"));
-		menu2Data.sort((a, b) => {
-			return (
-				deptValue.indexOf(a.dept) -
-				deptValue.indexOf(b.dept)
-			);
-		});
 
+		// 기숙사식당은 menutype 이 아닌 dept
+		const menuTypes = MENU_TYPE_MAP[idx] || {};
+		const menu1Data = data
+			.filter(item => nowRestaurantId === 6 ? item.dept === menuTypes.menu1 : item.menuType === menuTypes.menu1)
+			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
+
+		const menu2Data = data
+			.filter(item => nowRestaurantId === 6 ? item.dept === menuTypes.menu2 : item.menuType === menuTypes.menu2)
+			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
+		
 		setMenu1(menu1Data);
 		setMenu2(menu2Data);
 
@@ -65,13 +80,13 @@ const TodayMenu = ({ idx, data = [] }) => {
 		} else if (nowMenuType === 2 && menu2Data.length > 0) {
 			dispatch(changeMenuInfo({mainMenuList: menu2Data[0].mainDishList, menuId: menu2Data[0].menuId}));
 		}
-	}, [data]);
+	}, [data, idx]);
 
 	return (
 		<div style={{ marginTop: 30}}>
 			<div style={{ display: "flex", marginBottom: "15px" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
-				{idx < 4 && (
+				{idx in MENU_TYPE_MAP && (
 					<TypeTabMenu menu1={menu1} menu2={menu2} />
 				)}
 			</div>
@@ -79,10 +94,10 @@ const TodayMenu = ({ idx, data = [] }) => {
 				? menu1.map((item, index) => {
 						return (
 							<SelectedDiv
-								$active={nowDept === item.dept}
+								$active={(nowRestaurantId === 6 || nowDept === item.dept) && nowMainMenuList.includes(item.mainDishList[0])}
 								key={index}
 								onClick={() => {
-									handleDivClick(item.dept, item.mainDishList, item.menuId);
+									handleDivClick(item.dept, item.mainDishList, item.menuId, item.menuType);
 								}}
 							>
 								<MenuItem menu={item} />
@@ -92,10 +107,10 @@ const TodayMenu = ({ idx, data = [] }) => {
 				: menu2.map((item, index) => {
 						return (
 							<SelectedDiv
-								$active={nowDept === item.dept}
+								$active={(nowRestaurantId === 6 || nowDept === item.dept) && nowMainMenuList.includes(item.mainDishList[0])}
 								key={index}
 								onClick={() => {
-									handleDivClick(item.dept, item.mainDishList, item.menuId);
+									handleDivClick(item.dept, item.mainDishList, item.menuId, item.menuType);
 								}}
 							>
 								<MenuItem menu={item} />
