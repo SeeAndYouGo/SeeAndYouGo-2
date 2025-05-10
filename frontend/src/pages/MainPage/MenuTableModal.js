@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import * as config from "../../config";
+import { get } from "../../api";
 
 const Wrapper = styled.div`
   padding: 0 20px 10px 20px;
@@ -50,19 +50,8 @@ const MenuTableModal = ({ idx, onClose }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url =
-				config.BASE_URL +
-				`/weekly-menu/restaurant${idx}` +
-				(config.NOW_STATUS === 0 ? ".json" : "");
-
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
+      const result = await get(`/weekly-menu/restaurant${idx}`);
+			return result.data;
 		};
 		fetchData().then((data) => {
       const menuTypeOrder = {

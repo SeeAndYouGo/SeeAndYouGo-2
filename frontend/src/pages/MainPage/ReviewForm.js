@@ -3,13 +3,11 @@ import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import axios from "axios";
 import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "../RestaurantDetailPage/MenuSelector";
-import * as config from "../../config";
 import ImageCropper from "./ImageCropper";
 import { postWithToken } from "../../api";
 const ReviewWriteContainer = styled.form`
@@ -306,10 +304,10 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			/>
 			<ReviewWriteContainer>
 				{ // 우선순위에 따라 표시한다.
-					// 1. 주말인 경우, 리뷰 작성 불가능
+					// 1. 학생생활관이 아니며 주말인 경우, 리뷰 작성 불가능
 					// 2. 로그인 하지 않은 경우, 리뷰 작성 불가능
 				  // 3. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
-					isWeekend ? ( // 주말인 경우
+					restaurantNum !== 6 && isWeekend ? ( // 학생생활관이 아니며 주말인 경우
 					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
 				) : !token ? ( // 로그인 하지 않은 경우
 					<WriteImpossible>
