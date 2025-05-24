@@ -39,16 +39,25 @@ const MenuPrice = styled.div`
 	border-radius: 5px;
 `;
 
-const MenuItem = ({ menu }) => {
+
+const MenuItem = ({ menu, restaurantId }) => {
 	const mainMenu = menu.mainDishList?.slice(0).join(", ");
 	const subMenu = menu.sideDishList?.slice(0).join(", ");
+
+	const deptLabel = () => {
+		if (restaurantId === 6) {
+			return menu.dept === "DORM_C" ? "메뉴 C" : menu.dept === "DORM_A" ? "메뉴 A" : menu.dept;
+		} else {
+			return menu.dept === "STAFF" ? "교직원" : "학생";
+		}
+	}
 
 	return (
 		<MenuItemContainer>
 			<MainMenuContent>{mainMenu}</MainMenuContent>
 			<SubMenuContent>{subMenu}</SubMenuContent>
 			<div style={{ display: "flex" }}>
-				<Dept>{menu.dept === "STAFF" ? "교직원" : "학생"}</Dept>
+				<Dept>{deptLabel()}</Dept>
 				<MenuPrice>{menu.price}</MenuPrice>
 			</div>
 		</MenuItemContainer>

@@ -30,18 +30,15 @@ const TodayMenu = ({ idx, data = [] }) => {
 	const dispatch = useDispatch();
 	const [menu1, setMenu1] = useState([]);
 	const [menu2, setMenu2] = useState([]);
+	const [menu3, setMenu3] = useState([]);
 	const nowDept = useSelector((state) => state.dept).value;
 	const nowMenuType = useSelector((state) => state.menuType).value;
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
 	const nowMainMenuList = useSelector((state) => state.nowMenuInfo).value.mainMenuList;
 
-	const handleDivClick = (clickedDept, menuList, id, menuType) => {
-		if (nowRestaurantId === 6) {
-			dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id, menuType: menuType}));
-		} else {
-			dispatch(changeDept(clickedDept));
-			dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
-		}
+	const handleDivClick = (clickedDept, menuList, id) => {
+		dispatch(changeDept(clickedDept));
+		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
 	};
 
 	const MENU_TYPE_MAP = {
@@ -53,70 +50,92 @@ const TodayMenu = ({ idx, data = [] }) => {
 			menu1: "LUNCH",
 			menu2: "DINNER"
 		},
+		4: {
+			menu1: "LUNCH",
+		},
+		5: {
+			menu1: "LUNCH",
+		},
 		6: {
-			menu1: "DORM_A",
-			menu2: "DORM_C"
+			menu1: "BREAKFAST",
+			menu2: "LUNCH",
+			menu3: "DINNER"
 		}
 	};
 
 	useEffect(() => {
 		if (data.length === 0) return;
 
-		// 기숙사식당은 menutype 이 아닌 dept
 		const menuTypes = MENU_TYPE_MAP[idx] || {};
+
+		const customDeptOrder = (a, b) => {
+			if (idx === 6) {
+				if (a.dept === b.dept) return 0;
+				if (a.dept === "DORM_A") return -1;
+				if (b.dept === "DORM_A") return 1;
+				return 0;
+			} else {
+				return deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept);
+			}
+		};
+
 		const menu1Data = data
-			.filter(item => nowRestaurantId === 6 ? item.dept === menuTypes.menu1 : item.menuType === menuTypes.menu1)
-			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
+			.filter(item => item.menuType === menuTypes.menu1)
+			.sort(customDeptOrder);
 
 		const menu2Data = data
-			.filter(item => nowRestaurantId === 6 ? item.dept === menuTypes.menu2 : item.menuType === menuTypes.menu2)
-			.sort((a, b) => deptValue.indexOf(a.dept) - deptValue.indexOf(b.dept));
+			.filter(item => item.menuType === menuTypes.menu2)
+			.sort(customDeptOrder);
+
+		const menu3Data = data
+			.filter(item => item.menuType === menuTypes.menu3)
+			.sort(customDeptOrder);
 		
 		setMenu1(menu1Data);
 		setMenu2(menu2Data);
+		setMenu3(menu3Data);
 
 		if (nowMenuType === 1 && menu1Data.length > 0) {
 			dispatch(changeMenuInfo({mainMenuList: menu1Data[0].mainDishList, menuId: menu1Data[0].menuId}));
 		} else if (nowMenuType === 2 && menu2Data.length > 0) {
 			dispatch(changeMenuInfo({mainMenuList: menu2Data[0].mainDishList, menuId: menu2Data[0].menuId}));
+		} else if (nowMenuType === 3 && menu3Data.length > 0) {
+			dispatch(changeMenuInfo({mainMenuList: menu3Data[0].mainDishList, menuId: menu3Data[0].menuId}));
 		}
-	}, [data, idx]);
+	}, [data, idx, nowMenuType]);
+
+	const getMenuListByType = (type) => {
+		if (type === 1) return menu1;
+		if (type === 2) return menu2;
+		if (type === 3) return menu3;
+		return [];
+	};
+
+	const renderMenuList = () => {
+		const menuList = getMenuListByType(nowMenuType);
+		if (menuList.length === 0) return <div style={{marginTop: 10, color: '#aaa'}}>메뉴가 없습니다.</div>;
+		return menuList.map((item, index) => (
+			<SelectedDiv
+				$active={nowDept === item.dept && nowMainMenuList.includes(item.mainDishList[0])}
+				key={index}
+				onClick={() => {
+					handleDivClick(item.dept, item.mainDishList, item.menuId);
+				}}
+			>
+				<MenuItem menu={item} restaurantId={idx} />
+			</SelectedDiv>
+		));
+	};
 
 	return (
 		<div style={{ marginTop: 30}}>
 			<div style={{ display: "flex", marginBottom: "15px" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
-				{idx in MENU_TYPE_MAP && (
-					<TypeTabMenu menu1={menu1} menu2={menu2} />
+				{(menu1.length > 0 || menu2.length > 0 || menu3.length > 0) && (
+					<TypeTabMenu menu1={menu1} menu2={menu2} menu3={menu3} />
 				)}
 			</div>
-			{nowMenuType === 1
-				? menu1.map((item, index) => {
-						return (
-							<SelectedDiv
-								$active={(nowRestaurantId === 6 || nowDept === item.dept) && nowMainMenuList.includes(item.mainDishList[0])}
-								key={index}
-								onClick={() => {
-									handleDivClick(item.dept, item.mainDishList, item.menuId, item.menuType);
-								}}
-							>
-								<MenuItem menu={item} />
-							</SelectedDiv>
-						);
-					})
-				: menu2.map((item, index) => {
-						return (
-							<SelectedDiv
-								$active={(nowRestaurantId === 6 || nowDept === item.dept) && nowMainMenuList.includes(item.mainDishList[0])}
-								key={index}
-								onClick={() => {
-									handleDivClick(item.dept, item.mainDishList, item.menuId, item.menuType);
-								}}
-							>
-								<MenuItem menu={item} />
-							</SelectedDiv>
-						);
-				  })}
+			{renderMenuList()}
 		</div>
 	);
 };

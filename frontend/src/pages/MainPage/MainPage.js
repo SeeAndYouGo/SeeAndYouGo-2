@@ -30,7 +30,11 @@ const MainPage = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(changeDept("STUDENT"));
+		if (restaurantId === 6) {
+			dispatch(changeDept("DORM_A"));
+		} else {
+			dispatch(changeDept("STUDENT"));
+		}
 		if (restaurantId === 2) {
 			dispatch(changeMenuType(1));
 		}
