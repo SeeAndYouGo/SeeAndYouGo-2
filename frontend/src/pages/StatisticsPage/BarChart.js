@@ -10,7 +10,13 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 const BarChart = ({ datas, tab }) => {
-	const filterData = datas[tab].filter((el) => el.time >= "10:00" && el.time <= "15:00");
+	const filterData = datas[tab].filter((el) => {
+		if (tab === 5) { // 학생생활관 탭은 시간대 필터링을 하지 않음
+			return true;
+		} else {
+			return el.time >= "10:00" && el.time <= "15:00";
+		}
+	})
 	const statisticsLabel = filterData.map((el) => el.time);
 	const statisticsData = filterData.map((el) => el.averageValue);
 
@@ -24,12 +30,12 @@ const BarChart = ({ datas, tab }) => {
 				position: "left",
 				ticks: {
 					autoSkip: true,
-					maxTicksLimit: 11,
+					maxTicksLimit: (tab === 5 ? 25 : 11),
 				},
 				labels: statisticsLabel,
 			},
 		},
-		responsive: true,
+		responsive: false,
 		plugins: {
 			legend: {
 				display: false,
@@ -49,7 +55,7 @@ const BarChart = ({ datas, tab }) => {
 		],
 	};
 
-	return <Bar options={option} data={topAvgData} height={600} />;
+	return <Bar options={option} data={topAvgData} height={600} style={{ position: "relative", height: tab === 5 ? "700px" : "600px", width: "300px"}}/>;
 };
 
 export default BarChart;
