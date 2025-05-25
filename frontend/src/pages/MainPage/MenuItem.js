@@ -57,8 +57,12 @@ const MenuItem = ({ menu, restaurantId }) => {
 			<MainMenuContent>{mainMenu}</MainMenuContent>
 			<SubMenuContent>{subMenu}</SubMenuContent>
 			<div style={{ display: "flex" }}>
-				<Dept>{deptLabel()}</Dept>
-				<MenuPrice>{menu.price}</MenuPrice>
+				{restaurantId !== 6 && (
+					<>
+						<Dept>{deptLabel()}</Dept>
+						<MenuPrice>{menu.price}</MenuPrice>
+					</>
+				)}
 			</div>
 		</MenuItemContainer>
 	);

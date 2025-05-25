@@ -24,6 +24,17 @@ const SelectedDiv = styled.div`
 	`}
 `;
 
+const PriceLabel = styled.div`
+	font-size: 12px;
+	color: #555;
+	background-color: #d9d9d9;
+	border-radius: 5px;
+	margin-top: 10px;
+	padding: 3px 10px;
+	display: inline-flex;
+	flex-grow: 0;
+`;
+
 const deptValue = ["STUDENT", "STAFF"];
 
 const TodayMenu = ({ idx, data = [] }) => {
@@ -129,12 +140,13 @@ const TodayMenu = ({ idx, data = [] }) => {
 
 	return (
 		<div style={{ marginTop: 30}}>
-			<div style={{ display: "flex", marginBottom: "15px" }}>
+			<div style={{ display: "flex" }}>
 				<div style={todayMenuStyle}>오늘의 메뉴</div>
 				{(menu1.length > 0 || menu2.length > 0 || menu3.length > 0) && (
 					<TypeTabMenu menu1={menu1} menu2={menu2} menu3={menu3} />
 				)}
 			</div>
+			{idx === 6 && <PriceLabel>판매식 4,200</PriceLabel>}
 			{renderMenuList()}
 		</div>
 	);
