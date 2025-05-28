@@ -30,7 +30,11 @@ const MainPage = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(changeDept("STUDENT"));
+		if (restaurantId === 6) {
+			dispatch(changeDept("DORM_A"));
+		} else {
+			dispatch(changeDept("STUDENT"));
+		}
 		if (restaurantId === 2) {
 			dispatch(changeMenuType(1));
 		}
@@ -118,8 +122,7 @@ const MainPage = () => {
 						setRestaurantId={handleSetRestaurantId}
 						menuData={menuData}
 					/>
-					{/* TODO 데이터 받아오는데 문제가 있어보여 주석처리 */}
-					{/* <Info idx={restaurantId} /> */}
+					<Info idx={restaurantId} />
 					<Progress
 						ratio={ratio}
 						time={restaurantData[restaurantId - 1]?.dateTime}
