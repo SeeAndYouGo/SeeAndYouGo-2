@@ -136,7 +136,7 @@ const Info = ({ idx = 1 }) => {
 						<p style={{ fontSize: 11 }}>식당위치</p>
 					</ModalContent>
           <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
-						<ModalLocation restaurant={idx} />
+						<ModalLocation restaurant={idx} isOpen={visible.map} />
 					</Modal>
 				</div>
 			</div>

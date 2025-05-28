@@ -1,4 +1,4 @@
-import React from "react";
+import KakaoMap from "../../components/KakaoMap";
 
 const getRestuarantIndex = (restaurantNum) => {
 	switch (restaurantNum) {
@@ -13,23 +13,19 @@ const getRestuarantIndex = (restaurantNum) => {
 		case 5:
 			return "생활과학대";
 		case 6:
-			return "기숙사식당";
+			return "학생생활관";
 		default:
 			return null;
 	}
 };
 
-const ModalLocation = ({ restaurant = 1 }) => {
+const ModalLocation = ({ restaurant=1, isOpen }) => {
 	return (
 		<div style={{ padding: 20 }}>
-			<p style={{ margin: "0 0 5px 0" }}>
+			<p style={{ margin: "0 0 10px 0" }}>
 				{getRestuarantIndex(restaurant)} 위치
 			</p>
-			<img
-				src={`/assets/images/maps/${restaurant}.png`}
-				alt={"Loading..."}
-				style={{ margin: "auto", display: "block", width: "100%" }}
-			/>
+			<KakaoMap restaurantId = {restaurant} modalOpen={isOpen} />
 		</div>
 	);
 };
