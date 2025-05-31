@@ -221,8 +221,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             if (currentMenuList != null && line.matches(".*[가-힣]+.*")) {
-                line = line.replaceAll("^\\*(.*?)\\*$", "$1"); // 앞뒤 * 제거 (맨 앞, 맨 뒤일 때만)
-                line = line.replaceAll("\\[.*?\\]", "").trim(); // 원산지 정보 제거
+                line = cleanMenuName(line);
 
                 if(line.isEmpty() || line.startsWith("\\")) continue;
                 currentMenuList.add(Entities.unescape(line));
@@ -234,6 +233,21 @@ public class CrawlingMenuProvider implements MenuProvider{
         }
 
         return menuMap;
+    }
+
+    private String cleanMenuName(String menuName) {
+        String cleaned = menuName;
+
+        // 앞뒤 * 제거
+        cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
+
+        // 대괄호 정보 제거 (원산지, 특수 알레르기)
+        cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+
+        // 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
+        cleaned = cleaned.replaceAll("\\s+\\d+(,\\d+)*", "");
+
+        return cleaned.trim();
     }
 
     private List<LocalDate> getDate(Document document) {
