@@ -185,6 +185,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 	const [CropModal, setCropModal] = useState(false);
+	
+	const [buttonDisabled, setButtonDisabled] = useState(false);
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -212,6 +214,9 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	};
 
 	const ReviewSubmit = async (e) => {
+		if (buttonDisabled) return;
+		setButtonDisabled(true);
+
 		e.preventDefault();
 		const formdata = new FormData();
 
@@ -257,6 +262,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 		} catch (error) {
 			dispatch(showToast({ contents: "review", toastIndex: 1 }));
 			console.log(dto, "리뷰 전달 확인");
+		} finally {
+			setButtonDisabled(false);
 		}
 	};
 
@@ -361,7 +368,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 						</div>
 					</div>
 					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
-						<ReviewWriteButton className="success" onClick={ReviewSubmit}>
+						<ReviewWriteButton className="success" onClick={ReviewSubmit} disabled={buttonDisabled}>
 							작성
 						</ReviewWriteButton>
 					) : (

@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { get, put } from "../../api/index";
-import * as config from "../../config";
 
 const SubmitButton = styled.button`
 	background: white;
@@ -20,6 +19,7 @@ const SubmitButton = styled.button`
 const SetMainMenuPage = () => {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [password, setPassword] = useState("");
+	const [buttonDisabled, setButtonDisabled] = useState(false);
 	const dispatch = useDispatch();
 
 	const handlePasswordChange = (e) => {
@@ -82,6 +82,9 @@ const SetMainMenuPage = () => {
 	};
 
 	const handleSubmit = async () => {
+		if (buttonDisabled) return;
+		setButtonDisabled(true);
+		
 		const jsonData = JSON.stringify(menuList);
 		await put("/main-menu", jsonData)
 			.then(() => {
@@ -90,6 +93,8 @@ const SetMainMenuPage = () => {
 			.catch((err) => {
 				console.log(err);
 				alert("전송 실패");
+			}).finally(() => {
+				setButtonDisabled(false);
 			});
 	};
 
@@ -158,6 +163,7 @@ const SetMainMenuPage = () => {
 						})}
 						<SubmitButton
 							type="confirm"
+							disabled={buttonDisabled}
 							onClick={() => {
 								if (window.confirm("제출하시겠습니까?")) {
 									handleSubmit();

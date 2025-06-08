@@ -95,6 +95,7 @@ const ReviewItem = ({
   const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
@@ -134,11 +135,15 @@ const ReviewItem = ({
 
   const handleLike = async (targetId) => {
     if (likeLoading) return;
+    setLikeLoading(true);
+
+    if (buttonDisabled) return;
+    setButtonDisabled(true);
+
     if (user.loginState === false) {
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
       return;
     }
-    setLikeLoading(true);
     
     try {
       const res = await postWithToken(`/review/like/${reviewId}`);
@@ -166,6 +171,7 @@ const ReviewItem = ({
         dispatch(showToast({ contents: "error", toastIndex: 0 }));
     } finally {
         setLikeLoading(false);
+        setButtonDisabled(false);
     }
   };
 
@@ -210,7 +216,10 @@ const ReviewItem = ({
         {mainDishList && mainDishList.map((menu, index) => (
           <MenuName key={index}>{menu}</MenuName>
         ))}
-        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? 'liked' : ''}>
+        <ReviewLike onClick={() => handleLike(reviewId)} 
+          style={{pointerEvents: buttonDisabled ? "none" : "auto"}}
+          className={likeState ? 'liked' : ''}
+        >
           <FontAwesomeIcon icon={faHeart} /> {likeCountState}
         </ReviewLike>
       </div>
