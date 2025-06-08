@@ -26,6 +26,14 @@ const ModalLocation = ({ restaurant=1, isOpen }) => {
 				{getRestuarantIndex(restaurant)} 위치
 			</p>
 			<KakaoMap restaurantId = {restaurant} modalOpen={isOpen} />
+			<div style={{ marginLeft: "5px"}}>
+				<p style={{ margin: "10px 0 0 0" }}>
+					지도 좌측 하단 kakao 클릭 시
+				</p>
+				<p>
+					카카오맵에서 위치를 확인할 수 있습니다.
+				</p>
+			</div>
 		</div>
 	);
 };
