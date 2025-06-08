@@ -6,15 +6,12 @@ import { useSelector } from "react-redux";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage/MainPage";
-import RestaurantDetailPage from "./pages/RestaurantDetailPage/RestaurantDetailPage";
 import SetNicknamePage from "./pages/SetNicknamePage/SetNicknamePage";
-import ReviewPage from "./pages/ReviewPage/ReviewPage";
 import SetMainMenuPage from "./pages/AdminPage/SetMainMenuPage";
 import KakaoCallBack from "./pages/LoginPage/KakaoCallBack";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
-import MyKeywordPage from "./pages/MyKeywordPage/MyKeywordPage";
 import StatisticsPage from "./pages/StatisticsPage/StatisticsPage";
 import Toast from "./components/Toast";
 
@@ -53,15 +50,12 @@ const App = () => {
       <PageWrapper>
         <Routes>
           <Route exact path="/" element={<MainPage />} />
-          <Route exact path="/view/:restaurant" element={<RestaurantDetailPage />} />
-          <Route exact path="/review-page/:restaurant" element={<ReviewPage />} />
           <Route exact path="/admin/main-menu" element={<SetMainMenuPage />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/login-page" element={<LoginPage />} />
           <Route exact path="/set-nickname" element={<SetNicknamePage />} />
           <Route exact path="/my-review-page" element={<MyReviewPage />} />
           <Route exact path="/notice-page" element={<NoticePage />} />
-          <Route exact path="/my-keyword-page" element={<MyKeywordPage />} />
           <Route exact path="/statistics" element={<StatisticsPage />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
