@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.visitor;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -14,16 +15,12 @@ import java.time.LocalDateTime;
 public class VisitorCount {
 
     public static VisitorCount from(int count, boolean isTotal) {
-        if (isTotal)
-            return new VisitorCount(count, isTotal, LocalDateTime.now().minusDays(1));
-        else
-            return new VisitorCount(count, isTotal, LocalDateTime.now());
+        return new VisitorCount(count, isTotal);
     }
 
-    private VisitorCount(int count, boolean isTotal, LocalDateTime createdAt) {
+    private VisitorCount(int count, boolean isTotal) {
         this.count = count;
         this.isTotal = isTotal;
-        this.createdAt = createdAt;
     }
 
     @Id
@@ -31,15 +28,15 @@ public class VisitorCount {
     @Column(name = "visitor_count_id")
     private Long id;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     private int count;
 
     private boolean isTotal;
 
-    public int updateCount(int cnt) {
+    public void updateCount(int cnt) {
         this.count = cnt;
         this.createdAt = LocalDateTime.now();
-        return this.count;
     }
 }

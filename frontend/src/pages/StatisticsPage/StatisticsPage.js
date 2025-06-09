@@ -5,7 +5,7 @@ import "swiper/css";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import BarChart from "./BarChart";
-import * as config from "../../config";
+import { get } from "../../api";
 
 const Slider = styled.div`
 	background-color: #fff;
@@ -103,11 +103,8 @@ const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
 	const [currentTab, setCurrentTab] = useState(0);
 
-	const createUrl = (idx) => config.BASE_URL + "/statistics/restaurant" + idx + (config.NOW_STATUS === 0 ? ".json" : "");
+	const createUrl = (idx) => "/statistics/restaurant" + idx;
 	
-	// 도메인 연결해서 통계 확인하기
-	// const createUrl = (idx) => "https://seeandyougo.com/api"+"/statistics/restaurant" + idx;
-
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -115,7 +112,7 @@ const StatisticsPage = () => {
 				for (let i = 0; i < restaurantArray.length; i++) {
 					url.push(createUrl(i + 1));
 				}
-				await axios.all(url.map((path) => axios.get(path))).then((res) => {
+				await axios.all(url.map((path) => get(path))).then((res) => {
 					setDatas(res.map((data) => data.data));
 				});
 			} catch (error) {

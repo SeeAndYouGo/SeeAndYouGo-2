@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../App.css";
 import SwipeableTab from "./SwipeableTab";
-import * as config from "../../config";
 import Info from "./Info";
 import Progress from "./Progress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
@@ -22,7 +20,6 @@ const MainPage = () => {
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
-	const token = useSelector((state) => state.user).value.token;
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
@@ -33,7 +30,11 @@ const MainPage = () => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(changeDept("STUDENT"));
+		if (restaurantId === 6) {
+			dispatch(changeDept("DORM_A"));
+		} else {
+			dispatch(changeDept("STUDENT"));
+		}
 		if (restaurantId === 2) {
 			dispatch(changeMenuType(1));
 		}
@@ -60,11 +61,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				// TODO
-				const response = await axios.get(
-					`/api/daily-menu/restaurant${i + 1}`
-					// `${config.BASE_URL}/daily-menu/restaurant${i + 1}`
-				);
+				const response = await get(`/daily-menu/restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
 					for (let j = 0; j < response.data.length; j++) {
@@ -125,8 +122,7 @@ const MainPage = () => {
 						setRestaurantId={handleSetRestaurantId}
 						menuData={menuData}
 					/>
-					{/* TODO 데이터 받아오는데 문제가 있어보여 주석처리 */}
-					{/* <Info idx={restaurantId} /> */}
+					<Info idx={restaurantId} />
 					<Progress
 						ratio={ratio}
 						time={restaurantData[restaurantId - 1]?.dateTime}

@@ -29,7 +29,7 @@ const TabMenu = styled.ul`
 	}
 `;
 
-const TypeTabMenu = ({ menu1, menu2 }) => {
+const TypeTabMenu = ({ menu1 = [], menu2 = [], menu3 = [] }) => {
   const [currentTab, setCurrentTab] = useState(0);
   const dispatch = useDispatch();
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
@@ -37,52 +37,71 @@ const TypeTabMenu = ({ menu1, menu2 }) => {
 
   const selectMenuHandler = (index) => {
     // 기존 탭과 같은 탭을 클릭했을 때는 아무것도 하지 않음
-		if (currentTab === index) return;
+    if (currentTab === index) return;
 		if (nowRestaurantId === 3 && index === 1) {
 			dispatch(changeDept("STAFF"));
+		} else if (nowRestaurantId === 6) {
+			dispatch(changeDept("DORM_A"));
 		} else {
 			dispatch(changeDept("STUDENT"));
 		}
     dispatch(changeMenuType(index + 1));
 
-		if (index === 0 && menu1.length > 0) {
-			// 첫번째 탭 선택 시 menu1의 dishList로 menuList 업데이트
-			dispatch(changeMenuInfo({mainMenuList:menu1[0].mainDishList, menuId: menu1[0].menuId}));
-		} else if (index === 1 && menu2.length > 0) {
-			// 두번째 탭 선택 시 menu2의 dishList로 menuList 업데이트
-			dispatch(changeMenuInfo({mainMenuList:menu2[0].mainDishList, menuId: menu2[0].menuId}));
+		if (index === 0) {
+			dispatch(changeMenuInfo({mainMenuList: menu1[0]?.mainDishList || [], menuId: menu1[0]?.menuId || 0}));
+		} else if (index === 1) {
+			dispatch(changeMenuInfo({mainMenuList: menu2[0]?.mainDishList || [], menuId: menu2[0]?.menuId || 0}));
+		} else if (index === 2) {
+			dispatch(changeMenuInfo({mainMenuList: menu3[0]?.mainDishList || [], menuId: menu3[0]?.menuId || 0}));
 		}
 
 		setCurrentTab(index);
 	};
+
+	const tabMenuList = {
+		2: ['조식', '중식'],
+		3: ['중식', '석식'],
+		4: ['중식'],
+		5: ['중식'],
+		6: ['조식', '중식', '석식'],
+	}
 
   useEffect(() => {
     if (nowMenuType === 1) {
       setCurrentTab(0);
     } else if (nowMenuType === 2){
       setCurrentTab(1);
+    } else if (nowMenuType === 3) {
+      setCurrentTab(2);
     }
   }, [nowMenuType]);
 
+  // 동적으로 탭 개수 결정
+  const getTabNames = () => {
+    // menu1, menu2, menu3의 데이터 유무에 따라 탭 이름을 동적으로 생성
+    const names = [];
+    if (menu1.length > 0) names.push(tabMenuList[nowRestaurantId]?.[0]);
+    if (menu2.length > 0) names.push(tabMenuList[nowRestaurantId]?.[1]);
+    if (menu3.length > 0) names.push(tabMenuList[nowRestaurantId]?.[2]);
+    return names;
+  };
 
   const TabMenuUl = () => {
-		return (
+    const tabNames = getTabNames();
+    return (
       <TabMenu>
-        <li
-          className={currentTab === 0 ? "submenu focused" : "submenu"}
-          onClick={() => selectMenuHandler(0)}
-        >
-          {nowRestaurantId === 2 ? "조식" : "중식"}
-        </li>
-        <li
-          className={currentTab === 1 ? "submenu focused" : "submenu"}
-          onClick={() => selectMenuHandler(1)}
-        >
-          {nowRestaurantId === 2 ? "중식" : "석식"}
-        </li>
+        {tabNames.map((name, idx) => (
+          <li
+            key={idx}
+            className={currentTab === idx ? "submenu focused" : "submenu"}
+            onClick={() => selectMenuHandler(idx)}
+          >
+            {name}
+          </li>
+        ))}
       </TabMenu>
-		);
-	};
+    );
+  };
 
 	return (
 		<div style={{marginLeft: 'auto'}}>

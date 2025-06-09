@@ -142,11 +142,11 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
 
             // 현재 3, 5학생회관이 connection문제로 날라오지 않는다.
             // 0으로 만들어서 보내주자.
-            if(restaurant.equals(Restaurant.생활과학대) || restaurant.equals(Restaurant.제3학생회관)){
-                ConnectionVO connectionVO = new ConnectionVO(0, time, restaurant);
-                connectionMap.put(restaurant, connectionVO);
-                return;
-            }
+            //if(restaurant.equals(Restaurant.생활과학대) || restaurant.equals(Restaurant.제3학생회관)){
+            //    ConnectionVO connectionVO = new ConnectionVO(0, time, restaurant);
+            //    connectionMap.put(restaurant, connectionVO);
+            //    return;
+            //}
 
             for (JsonElement jsonElement : finalResult) {
                 JsonObject asJsonObject = jsonElement.getAsJsonObject();

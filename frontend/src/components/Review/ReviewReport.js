@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
-import * as config from "../../config";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
+import { putWithToken, erase } from "../../api";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -16,19 +16,35 @@ const ReviewReport = ({ reportTarget }) => {
 	const dispatch = useDispatch();
 
 	const handleSubmit = () => {
-		const url = config.DEPLOYMENT_BASE_URL + `/report/${reportTarget}`;
+		const url = `/report/${reportTarget}`;
 
-		fetch(url, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
-			.then(() => {
-				dispatch(showToast({ contents: "review", toastIndex: 5 }));
+		putWithToken(url)
+			.then((res) => {
+				if (res.data.reportCount >= 10) {
+					erase(`/review/report/${reportTarget}`)
+						.then((res) => {
+							if (res.data.success === true) {
+								dispatch(showToast({ contents: "review", toastIndex: 10 }));
+							} else {
+								throw new Error("Failed to delete review after 10 reports");
+							}
+						})
+						.catch((error) => {
+							dispatch(showToast({ contents: "review", toastIndex: 8 }));
+							console.log(error);
+						});
+					setTimeout(() => {
+						window.location.reload();
+					}, 1000);
+				} else if (res.data.reportCount < 10 && res.data.reportCount > 0) {
+					dispatch(showToast({ contents: "review", toastIndex: 5 }));
+				} else {
+					throw new Error("Invalid report count");
+				}
 			})
-			.catch(() => {
+			.catch((error) => {
 				dispatch(showToast({ contents: "review", toastIndex: 6 }));
+				console.log(error);
 			});
 	};
 

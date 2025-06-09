@@ -11,6 +11,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
@@ -56,7 +57,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Element row = rows.get(i);
 
             // 조식
-            String firstColumn = row.select("td:nth-child(2)").text();
+            String firstColumn = row.select("td:nth-child(2)").first().toString();
             if (!firstColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(firstColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -75,7 +76,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 중식
-            String secondColumn = row.select("td:nth-child(3)").text();
+            String secondColumn = row.select("td:nth-child(3)").first().toString();
             if (!secondColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(secondColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -94,7 +95,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 석식
-            String lastColumn = row.select("td.left.last").text();
+            String lastColumn = row.select("td.left.last").first().toString();
             if (!lastColumn.isEmpty()) {
                 Map<String, List<String>> dishes = getDishes(lastColumn);
                 for (String deptStr : dishes.keySet()) {
@@ -165,58 +166,88 @@ public class CrawlingMenuProvider implements MenuProvider{
         return !collect.isEmpty();
     }
 
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
-        throw new IllegalArgumentException(this.getClass().toString() + "의 getWeeklyMenuToString은 호출이 금지되어 있습니다.");
-    }
-
     private MenuVO CreateMenuVO(Dept dept, LocalDate date, Restaurant restaurant, MenuType menuType) {
         return new MenuVO(0, date.toString(), dept, restaurant, menuType);
     }
 
     private Map<String, List<String>> getDishes(String text) {
-        String[] lines = text.split(" ");
-        Map<String, List<String>> menuMap = new HashMap<>(); // 메뉴 이름과 메뉴 항목 리스트를 매핑
-        List<String> currentMenuList = null; // 현재 수집 중인 메뉴 리스트
-        String currentMenuTitle = null; // 현재 메뉴 제목 (메인A, 메인C 등)
+        String[] lines = text.replace("<td class=\"left\">", "")
+                .replace("</td>", "")
+                .replace("<br><br>", "<br>")
+                .split("<br>");
+
+        Map<String, List<String>> menuMap = new HashMap<>();
+        List<String> currentMenuList = null;
+        String currentMenuTitle = null;
+
+        boolean inBracketBlock = false; // [가 시작되고 ] 닫힐 때까지 무시
 
         for (String line : lines) {
             line = line.trim();
 
-            // 새로운 메뉴 블록이 시작되면 메뉴 리스트 초기화
+            // 블록 무시 시작
+            if (line.contains("[") && !line.contains("]")) {
+                // [는 있으나 ]는 없는 경우: 메뉴에서 원산지 분리
+                int idx = line.indexOf("[");
+                if (idx > 0) {
+                    line = line.substring(0, idx).trim();
+                    currentMenuList.add(Entities.unescape(line));
+                }
+                inBracketBlock = true; // 이후 줄은 무시되도록 유지
+            }
+            // 블록 무시 종료
+            if (inBracketBlock) {
+                if (line.contains("]")) {
+                    inBracketBlock = false;
+                }
+                continue;
+            }
+
             if (line.contains("메인A") || line.contains("메인C")) {
-                // 이전 메뉴 리스트 저장
                 if (currentMenuTitle != null) {
                     menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
                 }
-
-                // 새 메뉴 리스트 초기화
                 currentMenuTitle = line;
                 currentMenuList = new ArrayList<>();
                 continue;
             }
 
-            // 영문 메뉴가 나오면 현재 메뉴 리스트 지우고 종료
             if (line.matches("^[a-zA-Z].*")) {
                 if (currentMenuList != null) {
-                    currentMenuList.clear(); // 현재 메뉴 리스트 초기화
+                    currentMenuList.clear();
                 }
                 currentMenuTitle = null;
                 break;
             }
 
-            // 한글 메뉴 항목만 추가하고 원산지 정보 제거
-            if (currentMenuList != null && line.matches("^[가-힣]+.*")) {
-                line = line.replaceAll("\\[.*?\\]", "").trim(); // 원산지 정보 제거
-                currentMenuList.add(line);
+            if (currentMenuList != null && line.matches(".*[가-힣]+.*")) {
+                line = cleanMenuName(line);
+
+                if(line.isEmpty() || line.startsWith("\\")) continue;
+                currentMenuList.add(Entities.unescape(line));
             }
         }
 
-        // 마지막 메뉴 리스트 저장
         if (currentMenuTitle != null && !currentMenuList.isEmpty()) {
             menuMap.put(currentMenuTitle, currentMenuList);
         }
 
         return menuMap;
+    }
+
+    private String cleanMenuName(String menuName) {
+        String cleaned = menuName;
+
+        // 앞뒤 * 제거
+        cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
+
+        // 대괄호 정보 제거 (원산지, 특수 알레르기)
+        cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+
+        // 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
+        cleaned = cleaned.replaceAll("\\s+\\d+(,\\d+)*", "");
+
+        return cleaned.trim();
     }
 
     private List<LocalDate> getDate(Document document) {

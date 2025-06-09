@@ -1,0 +1,58 @@
+[
+  {
+      "menuId": 143701,
+      "restaurantName": "학생생활관",
+      "mainDishList": [
+          "돈육간장불고기"
+      ],
+      "sideDishList": [
+          "쌀밥",
+          "시금치된장국",
+          "김청포묵무침",
+          "양배추초무침",
+          "포기김치"
+      ],
+      "price": 0,
+      "dept": "DORM_A",
+      "date": "2025-05-10",
+      "menuType": "BREAKFAST",
+      "keywordList": []
+  },
+  {
+      "menuId": 143702,
+      "restaurantName": "학생생활관",
+      "mainDishList": [
+          "뼈없는감자탕"
+      ],
+      "sideDishList": [
+          "쌀밥",
+          "고추장소스후랑크조림",
+          "쥐어채볶음",
+          "궁채절임",
+          "포기김치"
+      ],
+      "price": 0,
+      "dept": "DORM_A",
+      "date": "2025-05-10",
+      "menuType": "LUNCH",
+      "keywordList": []
+  },
+  {
+      "menuId": 143703,
+      "restaurantName": "학생생활관",
+      "mainDishList": [],
+      "sideDishList": [
+          "햄김치볶음밥",
+          "우동국물",
+          "핫도그*케찹",
+          "양상추샐러드&드레싱",
+          "깍두기",
+          "요구르트"
+      ],
+      "price": 0,
+      "dept": "DORM_A",
+      "date": "2025-05-10",
+      "menuType": "DINNER",
+      "keywordList": []
+  }
+]

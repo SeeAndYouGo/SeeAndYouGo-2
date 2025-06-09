@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
-import * as config from "../../config";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
+import { deleteWithToken } from "../../api";
 
 const RemoveButton = styled.span`
 	width: 25px;
@@ -14,22 +14,12 @@ const RemoveButton = styled.span`
 
 const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWholeReviewList }) => {
 	const dispatch = useDispatch();
-	const nowToken = useSelector((state) => state.user.value.token);
 
 	// deleteTarget: 삭제할 리뷰의 id
 	const handleSubmit = () => {
-		const url =
-			config.DEPLOYMENT_BASE_URL + `/reviews/${deleteTarget}/${nowToken}`;
-
-		fetch(url, {
-			method: "DELETE",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
-			.then((res) => res.json())
+		deleteWithToken(`/reviews/${deleteTarget}`)
 			.then((res) => {
-				if (res.success === true) { // 리뷰 삭제 성공
+				if (res.data.success === true) { // 리뷰 삭제 성공
 					dispatch(showToast({ contents: "review", toastIndex: 3 }));
 					const updatedTempReviewList1 = wholeReviewList[0].filter(
 						(item) => item.reviewId !== deleteTarget
@@ -41,6 +31,9 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 					updatedWholeReviewList[0] = updatedTempReviewList1;
 					updatedWholeReviewList[targetRestaurant] = updatedTempReviewList2;
 					setWholeReviewList(updatedWholeReviewList);
+					setTimeout(() => {
+						window.location.reload();
+					}, 1000);
 				} else { // 리뷰 삭제 권한이 없음
 					dispatch(showToast({ contents: "review", toastIndex: 2 }));
 				}

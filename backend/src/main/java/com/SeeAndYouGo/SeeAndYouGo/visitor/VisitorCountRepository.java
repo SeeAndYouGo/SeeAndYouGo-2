@@ -1,20 +1,25 @@
 package com.SeeAndYouGo.SeeAndYouGo.visitor;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long> {
 
-    void deleteByIsTotalFalse();
+    Optional<VisitorCount> findTopByIsTotalTrueOrderByCountDesc();
 
-    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = false AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<VisitorCount> findRecentTodayBackup();
+    Optional<VisitorCount> findTopByIsTotalFalseOrderByCountDesc();
 
-    @Query(value = "SELECT * FROM visitor_count v WHERE v.is_total = true AND DATE(v.created_at) = CURRENT_DATE ORDER BY v.created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<VisitorCount> findRecentTotalBackup();
+    Optional<VisitorCount> findTopByIsTotalFalseAndCreatedAtBetweenOrderByCountDesc(
+            LocalDateTime start, LocalDateTime end);
 
+    List<VisitorCount> findByIsTotalTrueAndCreatedAtBefore(LocalDateTime time);
+
+    @Modifying
+    void deleteByIsTotalTrueAndIdNotIn(List<Long> excludeIds);
 }

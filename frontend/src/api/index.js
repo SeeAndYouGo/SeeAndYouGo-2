@@ -1,7 +1,9 @@
 import axios from "axios";
 import * as config from "../config";
 import store from "../redux/store";
+import { showToast } from '../redux/slice/ToastSlice';
 import { login, logout } from "../redux/slice/UserSlice";
+import { Cookies } from 'react-cookie';
 
 const baseURL = config.NOW_STATUS === 1 ? config.DEPLOYMENT_BASE_URL : "/api";
 
@@ -16,9 +18,9 @@ const axiosClient = axios.create({
 // access token 재발급 요청
 const getNewAccessToken = async (refreshToken) => {
 	try {
-		const response = await axiosClient.post("/refresh", {
+		const response = await axiosClient.get("/oauth/token/reissue", {
 			headers: {
-				refresh: refreshToken,
+				refreshToken: refreshToken,
 			},
 		});
 
@@ -29,50 +31,78 @@ const getNewAccessToken = async (refreshToken) => {
 };
 
 const requestWithToken = async (method, url, data = null, config = {}) => {
-	const state = store.getState();
-	const accessToken = state.user.value.token;
-	// TODO 쿠키에서 refresh token 가져오기
-	const refreshToken = null;
+	const state = store.getState(); // Redux 상태 직접 가져오기
+	const user = state.user?.value;
+	const accessToken = user?.token;
+	const nickname = user?.nickname;
+	const restaurantId = user?.selectedRestaurant;
+
+	const cookies = new Cookies();
+	const refreshToken = cookies.get('refreshToken');
 
 	try {
-		const response = await axiosClient[method](url, data, {
-			...config,
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
+		const headers = {
+			...config.headers,
+			Authorization: `Bearer ${accessToken}`,
+		};
 
-		return response;
+		const axiosConfig = {
+			...config,
+			headers,
+		}
+
+		if (method === "get" || method === "delete") {
+			axiosConfig.params = data;
+			return await axiosClient[method](url, axiosConfig);
+		} else {
+			return await axiosClient[method](url, data, axiosConfig);
+		}
+
 	} catch (error) {
-		if (error.response.status === 401 && refreshToken) {
+		console.error("요청 실패:", error);
+		if (error.response?.status === 401 && refreshToken) {
 			try {
+				console.log("access token 만료로 인한 재발급 요청");
 				const newAccessToken = await getNewAccessToken(refreshToken);
 
 				// 새로운 accessToken 저장
 				store.dispatch(
 					login({
 						token: newAccessToken,
-						nickname: state.user.value.nickname,
+						nickname: nickname,
 						loginState: true,
-						selectedRestaurant: state.user.value.selectedRestaurant,
+						selectedRestaurant: restaurantId,
 					})
 				);
 
-				// 요청 재시도
-				const retryResponse = await axiosClient[method](url, data, {
+				// 새로운 accessToken을 사용하여 원래 요청 재시도
+				const newHeaders = {
+					...config.headers,
+					Authorization: `Bearer ${newAccessToken}`,
+				};
+				const axiosConfig = {
 					...config,
-					headers: {
-						Authorization: `Bearer ${newAccessToken}`,
-					},
-				});
+					headers: newHeaders,
+				};
+				if (method === "get" || method === "delete") {
+					axiosConfig.params = data;
+					return await axiosClient[method](url, axiosConfig);
+				} else {
+					return await axiosClient[method](url, data, axiosConfig);
+				}
 
-				return retryResponse;
 			} catch (error) {
+				if (error.response.status === 401) {
+					console.error("refresh token 만료로 인한 재발급 요청 실패:", error);
+				} else {
+					console.error("refresh token 만료가 아닌 다른 문제 발생", error);
+					alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+				}
+				// 로그아웃 처리
 				console.error("access token 재발급 요청 실패:", error);
-				// refresh token 문제(refresh token 만료 또는 이슈 발생)로 인해 로그아웃
-				// TODO 재로그인 필요하다는 내용 토스트 메시지로 띄우기
-				// 로그인 인증이 만료되었습니다. 다시 로그인해주세요.
 				store.dispatch(logout());
+				store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
+				cookies.remove('refreshToken', { path: '/' });
 				setTimeout(() => {
 					window.location.reload();
 				}, 1000);
@@ -80,6 +110,13 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 			}
 		} else {
 			console.error(`${method} 요청 실패:`, error);
+			alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+			store.dispatch(logout());
+			store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
+			cookies.remove('refreshToken', { path: '/' });
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
 			throw error;
 		}
 	}
@@ -95,6 +132,29 @@ export const get = async (url, config = {}) => {
 		throw error;
 	}
 };
+
+export const put = async (url, data, config = {}) => {
+	try {
+		const response = axiosClient.put(url, data, config);
+
+		return response;
+	} catch (error) {
+		console.error("PUT 요청 실패:", error);
+		throw error;
+	}
+}
+
+export const erase = async (url, config = {}) => {
+	// delete라는 변수를 사용할 수 없어서 erase로 작성
+	try {
+		const response = axiosClient.delete(url, config);
+
+		return response;
+	} catch (error) {
+		console.error("DELETE 요청 실패:", error);
+		throw error;
+	}
+}
 
 export const getWithToken = async (url, config = {}) =>
 	requestWithToken("get", url, null, config);

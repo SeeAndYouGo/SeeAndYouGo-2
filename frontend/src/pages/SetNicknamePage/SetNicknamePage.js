@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
-import * as config from "../../config";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
+import { get, putWithToken } from "../../api";
 
 const SetNicknameWrapper = styled.div`
   width: 100%;
@@ -133,6 +132,8 @@ const SetNicknamePage = () => {
   const [nicknameDateCheck, setNicknameDateCheck] = useState(true); // 닉네임 변경 가능 여부 [true: 변경 가능, false: 변경 불가능
   const dispatch = useDispatch();
 
+  const [buttonDisabled, setButtonDisabled] = useState(false); 
+
   const handleInputChange = (val) => {
     setNicknameCheck(false);
     setNicknameValue(val.target.value);
@@ -143,8 +144,7 @@ const SetNicknamePage = () => {
       dispatch(showToast({ contents: "nickname", toastIndex: 0 }));
       return;
     }
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname/check/${nicknameValue}`;
-    axios.get(url)
+    get(`/user/nickname/check/${nicknameValue}`)
     .then((res) => {
       if (res.data.redundancy === true) { // 중복인 경우
         dispatch(showToast({ contents: "nickname", toastIndex: 1 }));
@@ -159,15 +159,18 @@ const SetNicknamePage = () => {
   }
 
   const NicknameSet = async () => {
-    const url = config.DEPLOYMENT_BASE_URL + `/user/nickname`;
+    if (buttonDisabled) return;
+    setButtonDisabled(true);
+
     const Token = user.token;
 
+    // TODO: 수정 필요
     const nicknameRequestJson = {
       "token": Token,
       "nickname": nicknameValue
     }
 
-    await axios.put(url, nicknameRequestJson)
+    await putWithToken('/user/nickname', nicknameRequestJson)
     .then((res) => {
       const data = res.data;
       if (data.update === false) {
@@ -182,7 +185,10 @@ const SetNicknamePage = () => {
         dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
         navigator("/");
       }
+    }).finally(() => {
+      setButtonDisabled(false);
     });
+
   }
 
 	return (
@@ -209,7 +215,7 @@ const SetNicknamePage = () => {
         <SetButton onClick={() => {navigator("/")}} style={{border: "solid 1px #ddd", color: "#333", background: "#d9d9d9"}}>건너뛰기</SetButton>
         {
           nicknameCheck ? 
-          <SetButton onClick={NicknameSet} className="success">설정완료</SetButton> : 
+          <SetButton onClick={NicknameSet} disabled={buttonDisabled} className="success">설정완료</SetButton> : 
           <SetButton disabled className="error">설정완료</SetButton>
         }
       </SetNicknameWrapper>

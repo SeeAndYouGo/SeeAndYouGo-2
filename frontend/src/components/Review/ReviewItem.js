@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import DropDown from "./DropDown";
-import * as config from "../../config";
+import { postWithToken } from "../../api";
 
 const ReviewItemContainer = styled.div`
   width: 100%;
@@ -96,6 +95,7 @@ const ReviewItem = ({
   const [likeCountState, setLikeCountState] = useState(likeCount);
   const [likeState, setLikeState] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
   const user = useSelector((state) => state.user.value);
   const token_id = user.token;
   const dispatch = useDispatch();
@@ -133,38 +133,46 @@ const ReviewItem = ({
     setWholeReviewList([...wholeReviewList.slice(0, idx - 1), newReviewList, ...wholeReviewList.slice(idx)]);
   }
 
-  const handleLike = (targetId) => {
+  const handleLike = async (targetId) => {
     if (likeLoading) return;
-    if (user.loginState === false) { // 로그인 안되어있을 때
+    setLikeLoading(true);
+
+    if (buttonDisabled) return;
+    setButtonDisabled(true);
+
+    if (user.loginState === false) {
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
       return;
     }
-    setLikeLoading(true);
-    axios.post(config.DEPLOYMENT_BASE_URL + `/review/like/${reviewId}/${token_id}`, {
-    }).then((res) => {
-      const isLike = res.data.like;
-      const isMine = res.data.mine;
+    
+    try {
+      const res = await postWithToken(`/review/like/${reviewId}`);
+      const { like: isLike, mine: isMine } = res.data;
+      
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
-        dispatch(showToast({ contents: "review", toastIndex: 9 }));
-        setLikeLoading(false);
-        return;
+          dispatch(showToast({ contents: "review", toastIndex: 9 }));
+          setLikeLoading(false);
+          return;
       }
-      if (isLike === true) { // true면 공감이 된 상태
-        setLikeState(true);
-        setLikeCountState(likeCountState + 1);
-        dispatch(showToast({ contents: "review", toastIndex: 7 }));
-      } else { // false면 공감 취소된 상태
-        setLikeState(false);
-        setLikeCountState(likeCountState - 1);
-        dispatch(showToast({ contents: "review", toastIndex: 8 }));
+      
+      if (isLike === true) { // 공감 했을 때
+          setLikeState(true);
+          setLikeCountState(likeCountState + 1);
+          dispatch(showToast({ contents: "review", toastIndex: 7 }));
+      } else { // 공감 취소 했을 때
+          setLikeState(false);
+          setLikeCountState(likeCountState - 1);
+          dispatch(showToast({ contents: "review", toastIndex: 8 }));
       }
+      
       updateWholeReviewList(targetId, isLike);
-      setLikeLoading(false);
-    }).catch((error) => {
-      console.error(error);
-      dispatch(showToast({ contents: "error", toastIndex: 0 }));
-      setLikeLoading(false);
-    });
+    } catch (error) {
+        console.error(error);
+        dispatch(showToast({ contents: "error", toastIndex: 0 }));
+    } finally {
+        setLikeLoading(false);
+        setButtonDisabled(false);
+    }
   };
 
   return (
@@ -172,11 +180,7 @@ const ReviewItem = ({
       {
         imgLink === "" ? null : (
           <ReviewImage
-            src={
-              config.NOW_STATUS === 0
-                ? 'https://seeandyougo.com/'+ imgLink
-                : `${imgLink}`
-            }
+            src={imgLink}
             alt="Loading.."
           />
         )
@@ -212,7 +216,10 @@ const ReviewItem = ({
         {mainDishList && mainDishList.map((menu, index) => (
           <MenuName key={index}>{menu}</MenuName>
         ))}
-        <ReviewLike onClick={() => handleLike(reviewId)} className={likeState ? 'liked' : ''}>
+        <ReviewLike onClick={() => handleLike(reviewId)} 
+          style={{pointerEvents: buttonDisabled ? "none" : "auto"}}
+          className={likeState ? 'liked' : ''}
+        >
           <FontAwesomeIcon icon={faHeart} /> {likeCountState}
         </ReviewLike>
       </div>

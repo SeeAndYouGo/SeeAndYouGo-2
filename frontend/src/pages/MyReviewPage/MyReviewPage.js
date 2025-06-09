@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import MyReviewItem from "./MyReviewItem";
-import * as config from "../../config";
+import { getWithToken } from "../../api";
 
 const NotLogin = styled.div`
 	position: absolute;
@@ -43,18 +43,8 @@ const MyReviewPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url =
-				config.NOW_STATUS === 0
-					? config.BASE_URL + "/total-review.json"
-					: config.BASE_URL + `/reviews/${nowToken}`;
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
+			const result = await getWithToken(`/reviews/${nowToken}`);
+			return result.data;
 		};
 		fetchData().then((result) => {
 			setReviewList(result);

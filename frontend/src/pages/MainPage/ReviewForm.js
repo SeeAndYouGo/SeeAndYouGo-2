@@ -1,16 +1,15 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import axios from "axios";
 import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import MenuSelector from "../RestaurantDetailPage/MenuSelector";
-import * as config from "../../config";
 import ImageCropper from "./ImageCropper";
+import { postWithToken } from "../../api";
+import ReviewLimitation from "../../components/ReviewLimitation";
 
 const ReviewWriteContainer = styled.form`
 	width: 100%;
@@ -154,36 +153,6 @@ const ReviewImageDelete = styled.div`
 	}
 `;
 
-const WriteImpossible = styled.div`
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
-	background-color: rgba(20, 20, 20, 0.25);
-	z-index: 6;
-	border-radius: 20px;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	font-size: 20px;
-	cursor: default;
-	backdrop-filter: blur(1.5px);
-`;
-
-const GoToLogin = styled.span`
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 16px;
-	color: #222;
-	& > * {
-		font-weight: 400;
-	}
-`;
-
 const MenuName = styled.p`
   font-size: 12px;
   margin: 5px 0 0 0;
@@ -204,7 +173,6 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [imageURL, setImageURL] = useState("");
 	const [prevImage, setPrevImage] = useState(null);
 	const imageRef = useRef(null);
-	const navigator = useNavigate();
 	const dispatch = useDispatch();
 
 	const token = useSelector((state) => state.user.value.token);
@@ -217,6 +185,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 	const [CropModal, setCropModal] = useState(false);
+	
+	const [buttonDisabled, setButtonDisabled] = useState(false);
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -244,6 +214,9 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	};
 
 	const ReviewSubmit = async (e) => {
+		if (buttonDisabled) return;
+		setButtonDisabled(true);
+
 		e.preventDefault();
 		const formdata = new FormData();
 
@@ -274,8 +247,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
-		axios
-			.post(config.DEPLOYMENT_BASE_URL + "/review", formdata, {
+		try {
+			await postWithToken("/review", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -286,10 +259,12 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 					window.location.reload();
 				}, 1000);
 			})
-			.catch(() => { // 리뷰 작성 실패
-				dispatch(showToast({ contents: "review", toastIndex: 1 }));
-				console.log(dto, "리뷰 전달 확인");
-			})
+		} catch (error) {
+			dispatch(showToast({ contents: "review", toastIndex: 1 }));
+			console.log(dto, "리뷰 전달 확인");
+		} finally {
+			setButtonDisabled(false);
+		}
 	};
 
 	return (
@@ -306,30 +281,16 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			/>
 			<ReviewWriteContainer>
 				{ // 우선순위에 따라 표시한다.
-					// 1. 주말인 경우, 리뷰 작성 불가능
+					// 1. 학생생활관이 아니며 주말인 경우, 리뷰 작성 불가능
 					// 2. 로그인 하지 않은 경우, 리뷰 작성 불가능
 				  // 3. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
-					isWeekend ? ( // 주말인 경우
-					<WriteImpossible>주말에는 작성할 수 없습니다.</WriteImpossible>
+					restaurantNum !== 6 && isWeekend ? ( // 학생생활관이 아니며 주말인 경우
+					<ReviewLimitation num={1} />
 				) : !token ? ( // 로그인 하지 않은 경우
-					<WriteImpossible>
-						로그인이 필요합니다 !!
-						<GoToLogin
-							onClick={() => {
-								navigator("/login-page");
-							}}
-						>
-							<span>
-								로그인 하러가기 
-							</span>
-							<span className="material-symbols-outlined">chevron_right</span>
-						</GoToLogin>
-					</WriteImpossible>
+					<ReviewLimitation num={2} />
 				) : ( // 메인 메뉴 설정되지 않은 경우
-					(nowMainMenuList?.length === 0) ? (
-						<WriteImpossible>
-							리뷰를 작성할 수 없습니다.
-						</WriteImpossible>
+					(restaurantNum !== 1 && nowMainMenuList?.length === 0) ? (
+						<ReviewLimitation num={3} />
 					) :
 					null
 				)}
@@ -407,7 +368,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 						</div>
 					</div>
 					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
-						<ReviewWriteButton className="success" onClick={ReviewSubmit}>
+						<ReviewWriteButton className="success" onClick={ReviewSubmit} disabled={buttonDisabled}>
 							작성
 						</ReviewWriteButton>
 					) : (
