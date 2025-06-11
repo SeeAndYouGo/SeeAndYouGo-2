@@ -106,14 +106,15 @@ const TodayMenu = ({ idx, data = [] }) => {
 		setMenu2(menu2Data);
 		setMenu3(menu3Data);
 
-		if (nowMenuType === 1 && menu1Data.length > 0) {
-			dispatch(changeMenuInfo({mainMenuList: menu1Data[0].mainDishList, menuId: menu1Data[0].menuId}));
-		} else if (nowMenuType === 2 && menu2Data.length > 0) {
-			dispatch(changeMenuInfo({mainMenuList: menu2Data[0].mainDishList, menuId: menu2Data[0].menuId}));
-		} else if (nowMenuType === 3 && menu3Data.length > 0) {
-			dispatch(changeMenuInfo({mainMenuList: menu3Data[0].mainDishList, menuId: menu3Data[0].menuId}));
+		const menuDataList = [menu1Data, menu2Data, menu3Data];
+		const targetMenuData = menuDataList[nowMenuType - 1];
+		
+		if (targetMenuData?.length > 0) {
+			const selectedMenu = targetMenuData.find(item => item.mainDishList.length > 0) || targetMenuData[0];
+			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId}));
+			dispatch(changeDept(selectedMenu.dept));
 		}
-	}, [data, idx, nowMenuType]);
+	}, [menu1, menu2, menu3, data, idx, nowMenuType]);
 
 	const getMenuListByType = (type) => {
 		if (type === 1) return menu1;
