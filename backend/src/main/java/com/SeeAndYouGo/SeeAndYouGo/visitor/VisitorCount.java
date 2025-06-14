@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,8 +15,24 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class VisitorCount {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "visitor_count_id")
+    private Long id;
+
+    @CreationTimestamp
+    private LocalDate createdAt;
+
+    private int count;
+
+    private boolean isTotal;
+
     public static VisitorCount from(int count, boolean isTotal) {
         return new VisitorCount(count, isTotal);
+    }
+
+    public static VisitorCount from(int count, LocalDate createAt, boolean isTotal) {
+        return new VisitorCount(count, createAt, isTotal);
     }
 
     private VisitorCount(int count, boolean isTotal) {
@@ -23,20 +40,13 @@ public class VisitorCount {
         this.isTotal = isTotal;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "visitor_count_id")
-    private Long id;
+    public VisitorCount(int count, LocalDate createdAt, boolean isTotal) {
+        this.count = count;
+        this.createdAt = createdAt;
+        this.isTotal = isTotal;
+    }
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    private int count;
-
-    private boolean isTotal;
-
-    public void updateCount(int cnt) {
-        this.count = cnt;
-        this.createdAt = LocalDateTime.now();
+    public void updateCount(int resultCount) {
+        this.count = resultCount;
     }
 }

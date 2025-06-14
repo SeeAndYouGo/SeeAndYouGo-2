@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import java.time.LocalDate;
 
 import static com.SeeAndYouGo.SeeAndYouGo.config.Const.KEY_OF_TOKEN_ID;
 
@@ -37,7 +39,7 @@ public class VisitorInterceptor implements HandlerInterceptor {
         // 유저키 생성
         String user = "unknown";
         String tokenId = request.getHeader(KEY_OF_TOKEN_ID);
-        if (tokenId != null && tokenId.length() != 0)
+        if (tokenId != null && !tokenId.isEmpty())
             user = tokenProvider.decodeToEmailByAccess(tokenId);
         String userRedisKey = Const.PREFIX_VISITOR_USER + user;
 
@@ -45,11 +47,11 @@ public class VisitorInterceptor implements HandlerInterceptor {
         if (ops.get(userRedisKey) == null) {
             if (user.equals("unknown")) {
                 if (ops.get(ipKey) == null) {
-                    increase(ops);
+                    increase();
                     logger.debug("counting visitor: {}, {}", "unknown", ipKey);
                 }
             } else {
-                increase(ops);
+                increase();
                 logger.debug("counting visitor: {}, {}", user, ipKey);
             }
         }
@@ -67,26 +69,29 @@ public class VisitorInterceptor implements HandlerInterceptor {
     public String getIp(HttpServletRequest request){
         String ip = request.getHeader("X-Forwarded-For");
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip))
             ip = request.getHeader("Proxy-Client-IP");
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip))
             ip = request.getHeader("WL-Proxy-Client-IP");
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip))
             ip = request.getHeader("HTTP_CLIENT_IP");
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip))
             ip = request.getHeader("HTTP_X_FORWARDED_FOR");
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip))
             ip = request.getRemoteAddr();
 
         return ip;
     }
 
-    private void increase(ValueOperations<String, String> ops) {
-        ops.increment(Const.KEY_TODAY_VISITOR);
-        ops.increment(Const.KEY_TOTAL_VISITOR);
+    private void increase() {
+        HashOperations<String, LocalDate, Integer> todayOps = redisTemplate.opsForHash();
+        todayOps.increment(Const.KEY_TODAY_VISITOR, LocalDate.now(), 1);
+
+        ValueOperations<String, String> totalOps = redisTemplate.opsForValue();
+        totalOps.increment(Const.KEY_TOTAL_VISITOR);
     }
 }
