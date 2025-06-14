@@ -92,6 +92,13 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 				}
 
 			} catch (error) {
+				if (error.response.status === 401) {
+					console.error("refresh token 만료로 인한 재발급 요청 실패:", error);
+				} else {
+					console.error("refresh token 만료가 아닌 다른 문제 발생", error);
+					alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+				}
+				// 로그아웃 처리
 				console.error("access token 재발급 요청 실패:", error);
 				store.dispatch(logout());
 				store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
@@ -103,6 +110,13 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 			}
 		} else {
 			console.error(`${method} 요청 실패:`, error);
+			alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+			store.dispatch(logout());
+			store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
+			cookies.remove('refreshToken', { path: '/' });
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
 			throw error;
 		}
 	}
@@ -126,6 +140,18 @@ export const put = async (url, data, config = {}) => {
 		return response;
 	} catch (error) {
 		console.error("PUT 요청 실패:", error);
+		throw error;
+	}
+}
+
+export const erase = async (url, config = {}) => {
+	// delete라는 변수를 사용할 수 없어서 erase로 작성
+	try {
+		const response = axiosClient.delete(url, config);
+
+		return response;
+	} catch (error) {
+		console.error("DELETE 요청 실패:", error);
 		throw error;
 	}
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { deleteWithToken } from "../../api";
 
@@ -14,12 +14,9 @@ const RemoveButton = styled.span`
 
 const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWholeReviewList }) => {
 	const dispatch = useDispatch();
-	// const nowToken = useSelector((state) => state.user.value.token);
 
 	// deleteTarget: 삭제할 리뷰의 id
 	const handleSubmit = () => {
-
-		// deleteWithToken(`/reviews/${deleteTarget}/${nowToken}`)
 		deleteWithToken(`/reviews/${deleteTarget}`)
 			.then((res) => {
 				if (res.data.success === true) { // 리뷰 삭제 성공
@@ -34,6 +31,9 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 					updatedWholeReviewList[0] = updatedTempReviewList1;
 					updatedWholeReviewList[targetRestaurant] = updatedTempReviewList2;
 					setWholeReviewList(updatedWholeReviewList);
+					setTimeout(() => {
+						window.location.reload();
+					}, 1000);
 				} else { // 리뷰 삭제 권한이 없음
 					dispatch(showToast({ contents: "review", toastIndex: 2 }));
 				}

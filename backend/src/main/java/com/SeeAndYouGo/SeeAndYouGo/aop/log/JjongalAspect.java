@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Aspect
-public class 쫑알Aspect {
-    private static final Logger logger = LoggerFactory.getLogger(쫑알Aspect.class);
+public class JjongalAspect {
+    private static final Logger logger = LoggerFactory.getLogger(JjongalAspect.class);
 
     // 쫑알쫑알 api 제공 메서드에 대해서만 로그 남기는 중
     @Around("@annotation(TraceMethodLog)")

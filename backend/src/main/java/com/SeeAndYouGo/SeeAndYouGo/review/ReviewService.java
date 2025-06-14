@@ -189,6 +189,17 @@ public class ReviewService {
         return false;
     }
 
+    @Transactional
+    public boolean deleteReportedReview(Long reviewId) {
+        try{
+            reviewRepository.deleteById(reviewId);
+        }catch (Exception e){
+            return false;
+        }
+
+        return true;
+    }
+
     public BufferedImage resize(File file) throws Exception {
         BufferedImage bi = ImageIO.read(file);
 
