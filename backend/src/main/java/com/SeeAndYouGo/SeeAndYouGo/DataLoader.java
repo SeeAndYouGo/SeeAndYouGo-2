@@ -9,7 +9,6 @@ import com.SeeAndYouGo.SeeAndYouGo.scheduler.VisitorScheduler;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +36,7 @@ public class DataLoader implements CommandLineRunner {
         statisticsService.initSetting();
         menuService.updateAllRestaurantMenuMap();
         connectionService.updateAllRestaurantMenuMap();
-        visitorScheduler.resetTodayVisitorCount();
+        visitorScheduler.syncDBAndRedis();
 
         if(!rateService.exists()){
             rateService.insertAllRestaurant();
