@@ -241,14 +241,25 @@ public class CrawlingMenuProvider implements MenuProvider{
     private String cleanMenuName(String menuName) {
         String cleaned = menuName;
 
-        // 앞뒤 * 제거
-        cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
+	// 시험기간 event와 같은 부분은 메뉴로 표시하지 않기
+	if(cleaned.contains("시험기간")){
+		return "";
+	}
 
-        // 대괄호 정보 제거 (원산지, 특수 알레르기)
-        cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+	// 앞뒤 * 제거
+	cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
 
-        // 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
-        cleaned = cleaned.replaceAll("\\s+\\d+(,\\d+)*", "");
+	// 대괄호 정보 제거 (원산지, 특수 알레르기)
+	cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+
+	// 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
+	cleaned = cleaned.replaceAll("\\d+(,\\d+)*", "");
+
+	// 우유(공통)으로 오면 우유로 변경
+	cleaned = cleaned.replace("(공통)", "");
+
+	// 필요없는 문자 제거
+	cleaned = cleaned.replace(".", "").replace(",", "");
 
         return cleaned.trim();
     }
