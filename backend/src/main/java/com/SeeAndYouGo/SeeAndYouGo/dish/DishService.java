@@ -26,10 +26,10 @@ public class DishService {
                 dish.updateMainDish();
             }
 
-            for (String sideDishName : mainDishRequestDto.getSideDishList()) {
-                Dish sideDish = dishRepository.findByName(sideDishName);
-                sideDish.updateSideDish();
-            }
+            // for (String sideDishName : mainDishRequestDto.getSideDishList()) {
+            //     Dish sideDish = dishRepository.findByName(sideDishName);
+            //     sideDish.updateSideDish();
+            // }
         }
     }
 
