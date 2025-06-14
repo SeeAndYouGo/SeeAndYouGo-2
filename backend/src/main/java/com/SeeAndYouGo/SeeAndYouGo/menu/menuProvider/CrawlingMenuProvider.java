@@ -203,7 +203,8 @@ public class CrawlingMenuProvider implements MenuProvider{
                 continue;
             }
 
-            if (line.contains("메인A") || line.contains("메인C")) {
+            // 다음 메뉴가 나온다면 이전 메뉴를 저장함.
+			if (line.contains("메인A") || line.contains("메인C") || line.contains("MainA") || line.contains("MainC")) {
                 if (currentMenuTitle != null) {
                     menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
                 }
@@ -212,6 +213,7 @@ public class CrawlingMenuProvider implements MenuProvider{
                 continue;
             }
 
+            // 영문이 나오면 메뉴 저장 종료
             if (line.matches("^[a-zA-Z].*")) {
                 if (currentMenuList != null) {
                     currentMenuList.clear();
@@ -220,6 +222,7 @@ public class CrawlingMenuProvider implements MenuProvider{
                 break;
             }
 
+            // 원산지, 알레르기 정보 등의 메뉴 이름을 가공.
             if (currentMenuList != null && line.matches(".*[가-힣]+.*")) {
                 line = cleanMenuName(line);
 
