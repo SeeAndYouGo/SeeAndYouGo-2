@@ -88,8 +88,8 @@ public class VisitorInterceptor implements HandlerInterceptor {
     }
 
     private void increase() {
-        HashOperations<String, LocalDate, Integer> todayOps = redisTemplate.opsForHash();
-        todayOps.increment(Const.KEY_TODAY_VISITOR, LocalDate.now(), 1);
+        HashOperations<String, String, String> todayOps = redisTemplate.opsForHash();
+        todayOps.increment(Const.KEY_TODAY_VISITOR, LocalDate.now().toString(), 1);
 
         ValueOperations<String, String> totalOps = redisTemplate.opsForValue();
         totalOps.increment(Const.KEY_TOTAL_VISITOR);

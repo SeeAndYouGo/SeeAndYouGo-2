@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +24,8 @@ import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TOTAL_VISITOR;
 public class VisitorScheduler {
     private static final Logger logger = LoggerFactory.getLogger(VisitorScheduler.class);
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final HashOperations<String, LocalDate, Integer> todayRedisTemplate = redisTemplate.opsForHash();
-    private final ValueOperations<String, String> totalRedisTemplate = redisTemplate.opsForValue();
+    private final HashOperations<String, String, String> todayRedisTemplate;
+    private final ValueOperations<String, String> totalRedisTemplate;
 
     private final VisitorCountRepository visitorCountRepository;
 
@@ -35,14 +34,20 @@ public class VisitorScheduler {
     public void syncDBAndRedis() {
         logger.info("[VISITOR COUNT] Resetting visitor data...");
 
-        List<LocalDate> keys = new ArrayList<>(todayRedisTemplate.keys(KEY_TODAY_VISITOR));
+        List<String> keys = new ArrayList<>(todayRedisTemplate.keys(KEY_TODAY_VISITOR));
 
         if(keys.size() > 1){
             logger.error("[VISITOR COUNT] Found more than one visitor data. Skipping...");
         }
 
-        LocalDate date = keys.get(0);
         LocalDate today = LocalDate.now();
+
+        if(keys.isEmpty()) {
+            setVisitorCount(today);
+            return;
+        }
+
+        LocalDate date = LocalDate.parse(keys.get(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         // redis에 존재한 날짜의 데이터를 sync한다.
         syncTodayAndTotal(date);
@@ -51,7 +56,7 @@ public class VisitorScheduler {
         if(date.isAfter(today)) return;
 
         // redis에 존재한 날짜의 redis today를 삭제한다.
-        todayRedisTemplate.delete(KEY_TODAY_VISITOR, date);
+        todayRedisTemplate.delete(KEY_TODAY_VISITOR, date.toString());
 
         // redis에 존재한 날짜 이후부터 오늘까지의 값을 0으로 세팅
         LocalDate targetDate = date.plusDays(1);
@@ -72,7 +77,7 @@ public class VisitorScheduler {
     private void setVisitorCount(LocalDate date) {
 
         // 오늘자 redis today를 0으로 세팅
-        todayRedisTemplate.put(KEY_TODAY_VISITOR, date, 0);
+        todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), "0");
 
         // DB에도 오늘자 today를 0으로 세팅
         VisitorCount todayVisitorCount = VisitorCount.from(0, false);
@@ -112,7 +117,7 @@ public class VisitorScheduler {
     }
 
     private void syncToday(LocalDate date) {
-        Integer redisToday = todayRedisTemplate.get(KEY_TODAY_VISITOR, date);
+        String redisToday = todayRedisTemplate.get(KEY_TODAY_VISITOR, date.toString());
         VisitorCount dbTodayVisitorCount = visitorCountRepository.findByIsTotalFalseAndCreatedAt(date);
 
         if (dbTodayVisitorCount == null) {
@@ -120,13 +125,13 @@ public class VisitorScheduler {
         }
 
         if (redisToday == null) {
-            redisToday = 0;
+            redisToday = "0";
         }
 
         int dbToday = dbTodayVisitorCount.getCount();
-        int resultCount = getResultValue(redisToday, dbToday);
+        int resultCount = getResultValue(Integer.parseInt(redisToday), dbToday);
 
-        todayRedisTemplate.put(KEY_TODAY_VISITOR, date, resultCount);
+        todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), String.valueOf(resultCount));
 
         dbTodayVisitorCount.updateCount(resultCount);
         visitorCountRepository.save(dbTodayVisitorCount);
