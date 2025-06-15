@@ -53,7 +53,7 @@ public class VisitorScheduler {
         syncTodayAndTotal(date);
 
         // 만약 redis가 오늘의 today를 갖고 있다면, 종료.
-        if(date.isAfter(today)) return;
+        if(date.equals(today)) return;
 
         // redis에 존재한 날짜의 redis today를 삭제한다.
         todayRedisTemplate.delete(KEY_TODAY_VISITOR, date.toString());
