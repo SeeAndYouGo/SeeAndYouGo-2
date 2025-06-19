@@ -203,7 +203,8 @@ public class CrawlingMenuProvider implements MenuProvider{
                 continue;
             }
 
-            if (line.contains("메인A") || line.contains("메인C")) {
+            // 다음 메뉴가 나온다면 이전 메뉴를 저장함.
+			if (line.contains("메인A") || line.contains("메인C") || line.contains("MainA") || line.contains("MainC")) {
                 if (currentMenuTitle != null) {
                     menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
                 }
@@ -212,6 +213,7 @@ public class CrawlingMenuProvider implements MenuProvider{
                 continue;
             }
 
+            // 영문이 나오면 메뉴 저장 종료
             if (line.matches("^[a-zA-Z].*")) {
                 if (currentMenuList != null) {
                     currentMenuList.clear();
@@ -220,6 +222,7 @@ public class CrawlingMenuProvider implements MenuProvider{
                 break;
             }
 
+            // 원산지, 알레르기 정보 등의 메뉴 이름을 가공.
             if (currentMenuList != null && line.matches(".*[가-힣]+.*")) {
                 line = cleanMenuName(line);
 
@@ -238,14 +241,25 @@ public class CrawlingMenuProvider implements MenuProvider{
     private String cleanMenuName(String menuName) {
         String cleaned = menuName;
 
-        // 앞뒤 * 제거
-        cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
+	// 시험기간 event와 같은 부분은 메뉴로 표시하지 않기
+	if(cleaned.contains("시험기간")){
+		return "";
+	}
 
-        // 대괄호 정보 제거 (원산지, 특수 알레르기)
-        cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+	// 앞뒤 * 제거
+	cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
 
-        // 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
-        cleaned = cleaned.replaceAll("\\s+\\d+(,\\d+)*", "");
+	// 대괄호 정보 제거 (원산지, 특수 알레르기)
+	cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+
+	// 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
+	cleaned = cleaned.replaceAll("\\d+(,\\d+)*", "");
+
+	// 우유(공통)으로 오면 우유로 변경
+	cleaned = cleaned.replace("(공통)", "");
+
+	// 필요없는 문자 제거
+	cleaned = cleaned.replace(".", "").replace(",", "");
 
         return cleaned.trim();
     }
