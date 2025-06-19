@@ -1,10 +1,17 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.WeeklyDishDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
+import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,4 +40,36 @@ public class DishService {
         }
     }
 
+    public List<WeeklyDishDto> getWeeklyDish(LocalDate monday, LocalDate sunday) {
+        Set<Dish> dishes = new HashSet<>();
+
+        for (Restaurant restaurant : Restaurant.values()) {
+            Set<Dish> dishList = getWeeklyDishByRestaurant(restaurant, monday, sunday);
+            dishes.addAll(dishList);
+        }
+
+        return convertWeeklyDishDto(dishes);
+    }
+
+    private List<WeeklyDishDto> convertWeeklyDishDto(Set<Dish> dishes) {
+        return dishes.stream()
+                .map(dish -> new WeeklyDishDto(
+                        dish.getId(),
+                        dish.getName()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private Set<Dish> getWeeklyDishByRestaurant(Restaurant restaurant, LocalDate monday, LocalDate sunday) {
+        List<Menu>[] menus = menuService.getOneWeekRestaurantMenu(restaurant.name(), monday.toString());
+
+        Set<Dish> dishes = new HashSet<>();
+        for (List<Menu> menuByRestaurant : menus) {
+            for (Menu menu : menuByRestaurant) {
+                dishes.addAll(menu.getDishList());
+            }
+        }
+
+        return dishes;
+    }
 }

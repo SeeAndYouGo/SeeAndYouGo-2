@@ -1,9 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.WeeklyDishDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,4 +24,16 @@ public class DishController {
         dishService.updateMainDish(mainDishResponseDtos);
         return "Main Menu reflect Success.";
     }
+
+    @GetMapping
+    public List<WeeklyDishDto> getWeeklyDish(){
+        // 해당 주(week)의 시작 날짜와 끝 날짜 계산
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        return dishService.getWeeklyDish(startOfWeek, endOfWeek);
+    }
+
+
 }

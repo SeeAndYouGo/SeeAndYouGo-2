@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;

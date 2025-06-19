@@ -1,5 +1,7 @@
-package com.SeeAndYouGo.SeeAndYouGo.dish;
+package com.SeeAndYouGo.SeeAndYouGo.dish.dto;
 
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.dish.DishVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
