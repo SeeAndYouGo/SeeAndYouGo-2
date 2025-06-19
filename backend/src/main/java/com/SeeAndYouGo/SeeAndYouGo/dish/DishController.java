@@ -1,10 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
-import com.SeeAndYouGo.SeeAndYouGo.dish.dto.WeeklyDishDto;
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DuplicateDishResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletResponse;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -26,7 +26,7 @@ public class DishController {
     }
 
     @GetMapping("/dish/week")
-    public List<WeeklyDishDto> getWeeklyDish(){
+    public List<DishResponseDto> getWeeklyDish(){
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate today = LocalDate.now();
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -36,8 +36,10 @@ public class DishController {
     }
 
     @GetMapping("/dish/duplicate")
-    public boolean dishDuplicate(@RequestParam String name){
-        return dishService.duplicateDishName(name);
+    public DuplicateDishResponseDto dishDuplicate(@RequestParam String name){
+        boolean result = dishService.duplicateDishName(name);
+
+        return new DuplicateDishResponseDto(result);
     }
 
     @DeleteMapping("/dish/{id}")
