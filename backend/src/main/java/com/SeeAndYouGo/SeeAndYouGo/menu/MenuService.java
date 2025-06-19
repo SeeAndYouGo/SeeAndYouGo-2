@@ -101,7 +101,7 @@ public class MenuService {
         // nearestMonday부터 일요일까지 2~5학의 메뉴 체크를 한다.
         for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
             for (Restaurant restaurant : Restaurant.values()) {
-//                if(restaurant.equals(Restaurant.제1학생회관)) continue; // 1학생회관은 고정적인 메뉴를 제공하므로 메뉴 데이터의 손실이 없으므로 패스
+                if(restaurant.equals(Restaurant.제1학생회관)) continue; // 1학생회관은 고정적인 메뉴를 제공하므로 메뉴 데이터의 손실이 없으므로 패스
 
                 checkMenuByDate(restaurant, date.toString());
             }
@@ -138,13 +138,13 @@ public class MenuService {
                 }
             }else if(menuType.equals(MenuType.LUNCH)){
                 // 점심에는
-                // 학생식당 : 1, 2, 3, 상록, 생과대
+                // 학생식당 : 2, 3, 상록, 생과대
                 // 교직원식당 : 2, 3학생회관
                 // 만 메뉴를 제공한다.
                 if(restaurant.equals(Restaurant.제2학생회관) || restaurant.equals(Restaurant.제3학생회관)){
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STAFF, MenuType.LUNCH);
-                }else if(restaurant.equals(Restaurant.상록회관) || restaurant.equals(Restaurant.생활과학대) || restaurant.equals(Restaurant.제1학생회관)){
+                }else if(restaurant.equals(Restaurant.상록회관) || restaurant.equals(Restaurant.생활과학대)){
                     checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.LUNCH);
                 }
             }else{
