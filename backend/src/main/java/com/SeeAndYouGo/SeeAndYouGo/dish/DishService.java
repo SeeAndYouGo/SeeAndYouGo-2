@@ -1,6 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
-import com.SeeAndYouGo.SeeAndYouGo.dish.dto.WeeklyDishDto;
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -39,7 +39,7 @@ public class DishService {
         }
     }
 
-    public List<WeeklyDishDto> getWeeklyDish(LocalDate monday, LocalDate sunday) {
+    public List<DishResponseDto> getWeeklyDish(LocalDate monday, LocalDate sunday) {
         Set<Dish> dishes = new HashSet<>();
 
         for (Restaurant restaurant : Restaurant.values()) {
@@ -50,9 +50,9 @@ public class DishService {
         return convertWeeklyDishDto(dishes);
     }
 
-    private List<WeeklyDishDto> convertWeeklyDishDto(Set<Dish> dishes) {
+    private List<DishResponseDto> convertWeeklyDishDto(Set<Dish> dishes) {
         return dishes.stream()
-                .map(dish -> new WeeklyDishDto(
+                .map(dish -> new DishResponseDto(
                         dish.getId(),
                         dish.getName()
                 ))

@@ -2,11 +2,10 @@ package com.SeeAndYouGo.SeeAndYouGo.dish.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-public class WeeklyDishDto {
+public class DishResponseDto {
     private Long id;
     private String name;
 }
