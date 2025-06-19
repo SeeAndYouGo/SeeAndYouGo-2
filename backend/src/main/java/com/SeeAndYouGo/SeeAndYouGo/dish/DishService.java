@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.WeeklyDishDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,7 @@ import java.util.stream.Collectors;
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
-
-
-
+    private final MenuDishRepository menuDishRepository;
     @Transactional
     public void updateMainDish(List<MainDishRequestDto> mainDishRequestDtos) {
 
@@ -75,5 +74,16 @@ public class DishService {
 
     public boolean duplicateDishName(String name) {
         return dishRepository.existsByName(name);
+    }
+
+    public boolean deleteDish(Long id) {
+        try{
+            menuDishRepository.deleteByDishId(id);
+            dishRepository.deleteById(id);
+        }catch (Exception e){
+            return false;
+        }
+
+        return true;
     }
 }

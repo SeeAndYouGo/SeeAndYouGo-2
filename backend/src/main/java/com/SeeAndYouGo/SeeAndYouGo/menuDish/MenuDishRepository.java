@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MenuDishRepository extends JpaRepository<MenuDish, Long> {
     List<MenuDish> findByDish(Dish dish);
+
+    void deleteByDishId(Long id);
 }

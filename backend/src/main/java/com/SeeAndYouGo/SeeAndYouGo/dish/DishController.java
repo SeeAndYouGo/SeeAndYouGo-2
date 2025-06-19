@@ -39,4 +39,9 @@ public class DishController {
     public boolean dishDuplicate(@RequestParam String name){
         return dishService.duplicateDishName(name);
     }
+
+    @DeleteMapping("/dish/{id}")
+    public boolean dishDelete(@PathVariable Long id){
+        return dishService.deleteDish(id);
+    }
 }
