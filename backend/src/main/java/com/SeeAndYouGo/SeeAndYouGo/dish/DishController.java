@@ -25,7 +25,7 @@ public class DishController {
         return "Main Menu reflect Success.";
     }
 
-    @GetMapping
+    @GetMapping("/dish/week")
     public List<WeeklyDishDto> getWeeklyDish(){
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate today = LocalDate.now();
@@ -35,5 +35,8 @@ public class DishController {
         return dishService.getWeeklyDish(startOfWeek, endOfWeek);
     }
 
-
+    @GetMapping("/dish/duplicate")
+    public boolean dishDuplicate(@RequestParam String name){
+        return dishService.duplicateDishName(name);
+    }
 }

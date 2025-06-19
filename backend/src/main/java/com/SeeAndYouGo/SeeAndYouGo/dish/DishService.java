@@ -72,4 +72,8 @@ public class DishService {
 
         return dishes;
     }
+
+    public boolean duplicateDishName(String name) {
+        return dishRepository.existsByName(name);
+    }
 }
