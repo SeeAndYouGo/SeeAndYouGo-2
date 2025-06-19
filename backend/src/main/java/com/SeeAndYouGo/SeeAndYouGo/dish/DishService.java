@@ -86,4 +86,17 @@ public class DishService {
 
         return true;
     }
+
+    public boolean updateDishName(long id, String changeName) {
+        if(dishRepository.existsByName(changeName)){
+            return false;
+        }
+
+        Dish dish = dishRepository.getReferenceById(id);
+        dish.updateDishName(changeName);
+
+        dishRepository.save(dish);
+
+        return true;
+    }
 }

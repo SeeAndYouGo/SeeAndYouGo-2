@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DuplicateDishResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -45,5 +46,10 @@ public class DishController {
     @DeleteMapping("/dish/{id}")
     public boolean dishDelete(@PathVariable Long id){
         return dishService.deleteDish(id);
+    }
+
+    @PutMapping("/dish/name")
+    public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto) {
+        return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
     }
 }

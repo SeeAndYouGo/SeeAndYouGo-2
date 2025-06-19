@@ -79,4 +79,8 @@ public class Dish {
         this.menuDishes.add(menuDish);
         menuDish.setDish(this);  // 양방향 관계 설정
     }
+
+    public void updateDishName(String changeName) {
+        this.name = changeName;
+    }
 }
