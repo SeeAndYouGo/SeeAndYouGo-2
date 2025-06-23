@@ -76,6 +76,7 @@ public class DishService {
         return dishRepository.existsByName(name);
     }
 
+    @Transactional
     public boolean deleteDish(Long id) {
         try{
             menuDishRepository.deleteByDishId(id);
@@ -87,6 +88,7 @@ public class DishService {
         return true;
     }
 
+    @Transactional
     public boolean updateDishName(long id, String changeName) {
         if(dishRepository.existsByName(changeName)){
             return false;
