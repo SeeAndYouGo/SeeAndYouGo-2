@@ -85,7 +85,12 @@ public class VisitorScheduler {
 
         // DB의 오늘자 total을 어제자 total과 동일하게 세팅
         VisitorCount yesterday = visitorCountRepository.findByIsTotalTrueAndCreatedAt(date.minusDays(1));
-        VisitorCount today = VisitorCount.from(yesterday.getCount(), true);
+
+        int yesterdayCnt = 0;
+        if(yesterday != null) {
+            yesterdayCnt = yesterday.getCount();
+        }
+        VisitorCount today = VisitorCount.from(yesterdayCnt, true);
         visitorCountRepository.save(today);
     }
 
