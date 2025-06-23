@@ -81,7 +81,7 @@ public class VisitorScheduler {
     }
 
     @Transactional
-    private void cleanupOldTotalRecords() {
+    public void cleanupOldTotalRecords() {
         LocalDateTime todayStart = LocalDate.now().atStartOfDay();
         List<VisitorCount> oldRecords = repository.findByIsTotalTrueAndCreatedAtBefore(todayStart);
 
