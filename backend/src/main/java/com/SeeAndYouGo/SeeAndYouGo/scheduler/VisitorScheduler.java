@@ -80,12 +80,12 @@ public class VisitorScheduler {
         todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), "0");
 
         // DB에도 오늘자 today를 0으로 세팅
-        VisitorCount todayVisitorCount = VisitorCount.from(0, false);
+        VisitorCount todayVisitorCount = VisitorCount.from(0, date, false);
         visitorCountRepository.save(todayVisitorCount);
 
         // DB의 오늘자 total을 어제자 total과 동일하게 세팅
         VisitorCount yesterday = visitorCountRepository.findByIsTotalTrueAndCreatedAt(date.minusDays(1));
-        VisitorCount today = VisitorCount.from(yesterday.getCount(), true);
+        VisitorCount today = VisitorCount.from(yesterday.getCount(), date, true);
         visitorCountRepository.save(today);
     }
 
@@ -112,8 +112,15 @@ public class VisitorScheduler {
 
         totalRedisTemplate.set(KEY_TOTAL_VISITOR, String.valueOf(resultCount));
 
-        dbTotalVisitorCount.updateCount(resultCount);
-        visitorCountRepository.save(dbTotalVisitorCount);
+        // 만약 dbTotalVisitorCount에서 가져온 값이 date와 동일하다면, update를 해주는게 맞음.
+        // 하지만 다르다면 새롭게 만들어야함.
+        if(dbTotalVisitorCount.getCreatedAt().equals(date)){
+            dbTotalVisitorCount.updateCount(resultCount);
+            visitorCountRepository.save(dbTotalVisitorCount);
+        }else{
+            VisitorCount visitorCountByDate = VisitorCount.from(resultCount, date, true);
+            visitorCountRepository.save(visitorCountByDate);
+        }
     }
 
     private void syncToday(LocalDate date) {

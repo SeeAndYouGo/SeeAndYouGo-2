@@ -20,24 +20,14 @@ public class VisitorCount {
     @Column(name = "visitor_count_id")
     private Long id;
 
-    @CreationTimestamp
     private LocalDate createdAt;
 
     private int count;
 
     private boolean isTotal;
 
-    public static VisitorCount from(int count, boolean isTotal) {
-        return new VisitorCount(count, isTotal);
-    }
-
     public static VisitorCount from(int count, LocalDate createAt, boolean isTotal) {
         return new VisitorCount(count, createAt, isTotal);
-    }
-
-    private VisitorCount(int count, boolean isTotal) {
-        this.count = count;
-        this.isTotal = isTotal;
     }
 
     public VisitorCount(int count, LocalDate createdAt, boolean isTotal) {
