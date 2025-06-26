@@ -9,7 +9,7 @@
 
     <!-- ERROR 파일 설정 (롤링 정책 추가) -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>log/error/application-error.log</file>
+        <file>log/error/seeandyougo-error.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -21,7 +21,7 @@
         
         <!-- 롤링 정책 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>log/error/application-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>log/error/seeandyougo-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
@@ -32,7 +32,7 @@
 
     <!-- INFO 파일 설정 (롤링 정책 추가) -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>log/info/application-info.log</file>
+        <file>log/info/seeandyougo-info.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -44,7 +44,7 @@
         
         <!-- 롤링 정책 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>log/info/application-info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>log/info/seeandyougo-info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
