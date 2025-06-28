@@ -17,9 +17,6 @@
     pathmatch:
       matching-strategy: ant_path_matcher
 
-logging.level:
-  org.hibernate.SQL: debug
-  org.hibernate.type: trace
 
 app:
   test: true
