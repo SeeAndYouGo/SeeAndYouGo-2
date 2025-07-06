@@ -36,13 +36,6 @@ public class DishController {
         return dishService.getWeeklyDish(startOfWeek, endOfWeek);
     }
 
-    @GetMapping("/dish/duplicate")
-    public DuplicateDishResponseDto dishDuplicate(@RequestParam String name){
-        boolean result = dishService.duplicateDishName(name);
-
-        return new DuplicateDishResponseDto(result);
-    }
-
     @DeleteMapping("/dish/{id}")
     public boolean dishDelete(@PathVariable Long id){
         return dishService.deleteDish(id);

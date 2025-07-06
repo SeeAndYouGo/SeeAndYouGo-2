@@ -2,15 +2,18 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
+import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,8 +31,14 @@ public class DishService {
             List<String> mainDishNames = mainDishRequestDto.getMainDishList();
 
             for (String mainDishName : mainDishNames) {
-                Dish dish = dishRepository.findByName(mainDishName);
-                dish.updateMainDish();
+                Optional<Dish> dish = dishRepository.findByName(mainDishName);
+
+                if (dish.isPresent()) {
+                    dish.get().updateMainDish();
+                }else{
+                    throw new EntityNotFoundException(mainDishName+"에 해당하는 dish를 찾을 수 없습니다.");
+                }
+
             }
 
             // for (String sideDishName : mainDishRequestDto.getSideDishList()) {
@@ -72,10 +81,6 @@ public class DishService {
         return dishes;
     }
 
-    public boolean duplicateDishName(String name) {
-        return dishRepository.existsByName(name);
-    }
-
     @Transactional
     public boolean deleteDish(Long id) {
         try{
@@ -89,16 +94,44 @@ public class DishService {
     }
 
     @Transactional
-    public boolean updateDishName(long id, String changeName) {
-        if(dishRepository.existsByName(changeName)){
+    public boolean updateDishName(long id, String newName) {
+        // 입력 검증
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("새로운 요리명은 비어있을 수 없습니다.");
+        }
+
+        // 대상 요리 조회 및 존재 확인
+        Dish targetDish = dishRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("ID " + id + "에 해당하는 요리를 찾을 수 없습니다."));
+
+        // 이미 같은 이름이면 변경 불필요
+        if (targetDish.getName().equals(newName.trim())) {
             return false;
         }
 
-        Dish dish = dishRepository.getReferenceById(id);
-        dish.updateDishName(changeName);
-
-        dishRepository.save(dish);
+        // 동일한 이름의 요리가 이미 존재하는 경우
+        Optional<Dish> existingDish = dishRepository.findByName(newName.trim());
+        if (existingDish.isPresent()) {
+            mergeWithExistingDish(targetDish, existingDish.get());
+        } else {
+            // 단순 이름 변경
+            targetDish.updateDishName(newName.trim());
+            dishRepository.save(targetDish);
+        }
 
         return true;
+    }
+
+    /**
+     * 기존 요리와 병합하는 private 메서드
+     */
+    private void mergeWithExistingDish(Dish targetDish, Dish existingDish) {
+        // 메뉴-요리 연결 정보를 기존 요리로 변경
+        List<MenuDish> menuDishes = menuDishRepository.findByDish(targetDish);
+        menuDishes.forEach(menuDish -> menuDish.setDish(existingDish));
+        menuDishRepository.saveAll(menuDishes);
+
+        // 대상 요리 삭제
+        dishRepository.delete(targetDish);
     }
 }
