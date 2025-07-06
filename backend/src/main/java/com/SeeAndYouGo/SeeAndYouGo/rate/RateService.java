@@ -125,7 +125,9 @@ public class RateService {
             List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
             List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
             for (String dishName : dishNames) {
-                Dish dish = dishRepository.findByName(dishName);
+                Dish dish = dishRepository.findByName(dishName)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(dishName+"의 Dish를 찾을 수 없습니다."));
                 double rate = dish.getRateByDish();
 
                 RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()

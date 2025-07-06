@@ -192,7 +192,8 @@ public class MenuService {
      */
     public Dish getDefaultDish() {
         if(dishRepository.existsByName(DEFAULT_DISH_NAME)){
-            return dishRepository.findByName(DEFAULT_DISH_NAME);
+            return dishRepository.findByName(DEFAULT_DISH_NAME)
+                    .orElseThrow(() -> new RuntimeException("메뉴 정보 없음 dish가 없습니다."));
         }
 
         Dish dish = Dish.builder()
@@ -298,7 +299,7 @@ public class MenuService {
 
                     dishRepository.save(dish);
                 }else{
-                    dish = dishRepository.findByName(dishVO.getName());
+                    dish = dishRepository.findByName(dishVO.getName()).get();
                 }
 
                 menu.addDish(dish);
