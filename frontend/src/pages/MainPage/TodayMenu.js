@@ -114,7 +114,9 @@ const TodayMenu = ({ idx, data = [] }) => {
 			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId}));
 			dispatch(changeDept(selectedMenu.dept));
 		}
-	}, [menu1, menu2, menu3, data, idx, nowMenuType]);
+
+	}, [nowDept, data, idx, nowMenuType, nowMainMenuList]);
+
 
 	const getMenuListByType = (type) => {
 		if (type === 1) return menu1;
