@@ -55,10 +55,11 @@ const KakaoMap = ({ restaurantId, modalOpen }) => {
       });
 
       const content =
-				'<div class="overlayWrapper" style="position: relative; top: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); background: white; padding: 8px 12px; transition: all 0.3s ease;">' +
+				'<div class="overlayWrapper" style="position: relative; top: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); background: white; transition: all 0.3s ease;">' +
         `  <a href="https://map.kakao.com/link/map/${nowRestaurantId}" target="_blank" style="text-decoration: none; color: inherit;">` +
         '    <div class="overlayBox" style="display: flex; align-items: center; justify-content: center;">' +
-				`      <span class="overlayTitle" style="font-size: 14px; font-weight: 600; color: #333; padding: 4px 8px; border-radius: 8px; background-color: #f7f7f7;">${RestaurantName[restaurantId - 1]}</span>` +
+				`      <span class="overlayTitle" style="font-size: 14px; font-weight: 600; color: #333; padding: 8px 16px; border-radius: 8px;">${RestaurantName[restaurantId - 1]}</span>` +
+        `      <span class="material-symbols-outlined" style="border-radius: 0px 12px 12px 0px; color: #fff; background-color: #333; padding: 8px 5px">chevron_right</span>` +
         "    </div>" +
 				"  </a>" +
         '  <div style="position: absolute; top: 100%; left: 50%; margin-left: -8px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid white;"></div>' +
