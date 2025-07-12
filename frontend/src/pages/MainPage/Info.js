@@ -3,8 +3,8 @@ import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../components/Modal";
-import ModalLocation from "../RestaurantDetailPage/ModalLocation";
 import MenuTableModal from "./MenuTableModal";
+import KakaoMap from "../../components/KakaoMap";
 
 const Container = styled.div`
 	display: flex;
@@ -144,7 +144,9 @@ const Info = ({ idx = 1 }) => {
 						<p style={{ fontSize: 11 }}>식당위치</p>
 					</ModalContent>
           <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
-						<ModalLocation restaurant={idx} isOpen={visible.map} />
+            <div style={{ padding: 20 }}>
+              <KakaoMap restaurantId = {idx} modalOpen={visible.map} />
+            </div>
 					</Modal>
 				</div>
 			</div>
