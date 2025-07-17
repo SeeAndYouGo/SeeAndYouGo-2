@@ -105,16 +105,21 @@ const TodayMenu = ({ idx, data = [] }) => {
 		setMenu1(menu1Data);
 		setMenu2(menu2Data);
 		setMenu3(menu3Data);
+	}, [data, idx, nowMenuType]);
 
-		const menuDataList = [menu1Data, menu2Data, menu3Data];
+	useEffect(() => {
+		const menuDataList = [menu1, menu2, menu3];
 		const targetMenuData = menuDataList[nowMenuType - 1];
-		
 		if (targetMenuData?.length > 0) {
-			const selectedMenu = targetMenuData.find(item => item.mainDishList.length > 0) || targetMenuData[0];
-			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId}));
-			dispatch(changeDept(selectedMenu.dept));
-		}
-	}, [menu1, menu2, menu3, data, idx, nowMenuType]);
+      const selectedMenu = targetMenuData.find(item => item.mainDishList.length > 0) || targetMenuData[0];
+      if (JSON.stringify(selectedMenu.mainDishList) !== JSON.stringify(nowMainMenuList) || 
+          selectedMenu.dept !== nowDept) {
+        dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId}));
+        dispatch(changeDept(selectedMenu.dept));
+      }
+    }
+	}, [menu1, menu2, menu3]);
+
 
 	const getMenuListByType = (type) => {
 		if (type === 1) return menu1;
