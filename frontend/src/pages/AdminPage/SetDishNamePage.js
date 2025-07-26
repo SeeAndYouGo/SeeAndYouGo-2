@@ -63,7 +63,8 @@ const SetDishNamePage = () => {
       return result;
     };
     fetchData().then((data) => {
-      setDishList(data);
+      // data의 id 값을 내림차순으로 정렬해서 setDishList에 저장
+      setDishList((data || []).sort((a, b) => b.id - a.id));
     }).catch((error) => {
       console.error("에러확인", error);
     });
