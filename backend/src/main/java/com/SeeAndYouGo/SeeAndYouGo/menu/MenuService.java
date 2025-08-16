@@ -272,7 +272,7 @@ public class MenuService {
         return DISH_KEY.equals(authKey);
     }
 
-    // (250802 주석) @Transactional
+    @Transactional(readOnly = false)
     public void saveWeeklyMenuAllRestaurant(LocalDate monday, LocalDate sunday) throws Exception {
         for (Restaurant restaurant : Restaurant.values()) {
             saveWeeklyMenu(restaurant, monday, sunday);
@@ -280,7 +280,7 @@ public class MenuService {
     }
 
     @ClearMainDishCache(restaurantParam = "restaurant")
-    @Transactional
+    @Transactional(readOnly = false)
     public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
         menuProvider.updateMenuMap(restaurant, monday, sunday);
@@ -331,7 +331,6 @@ public class MenuService {
         return menuProvider.getWeeklyMenuMap(restaurant);
     }
 
-    // TODO: 250802 신메뉴 알림
     public List<String> getNewMainDishs(String place, List<Dish> mainDishs) {
         String parseRestaurantName = Restaurant.parseName(place);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);

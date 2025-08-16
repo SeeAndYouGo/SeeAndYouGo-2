@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -160,6 +161,7 @@ public class NewDishCacheService {
     /**
      * 서버 부팅 시 historical 캐시 동기화
      */
+    @Transactional(readOnly = false)
     public void initHistoricalCache() {
         log.info("Starting historical cache initialization");
         
