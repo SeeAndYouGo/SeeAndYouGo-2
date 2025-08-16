@@ -18,6 +18,7 @@ public class MenuResponseByUserDto {
     private String dept;
     private String date;
     private String menuType;
+    private boolean isOpen;
     private List<String> keywordList = new LinkedList<>();
 
     @Builder
@@ -29,6 +30,7 @@ public class MenuResponseByUserDto {
                                  String dept,
                                  String date,
                                  String menuType,
+                                 boolean isOpen,
                                  List<String> keywordList){
         this.menuId = menuId;
         this.restaurantName = restaurantName;
@@ -38,6 +40,7 @@ public class MenuResponseByUserDto {
         this.menuType = menuType;
         this.keywordList = keywordList;
         this.price = price;
+        this.isOpen = isOpen;
         this.dept = dept;
     }
 }
