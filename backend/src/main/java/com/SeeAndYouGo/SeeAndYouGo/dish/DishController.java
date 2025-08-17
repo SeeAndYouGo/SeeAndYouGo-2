@@ -2,7 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DuplicateDishResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuCache.ClearMenuCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +20,7 @@ public class DishController {
     private final DishService dishService;
 
     @PutMapping("/main-menu")
+    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"}, clearAll = true)
     public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponseDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponseDtos);
@@ -42,6 +43,7 @@ public class DishController {
     }
 
     @PutMapping("/dish/name")
+    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"}, clearAll = true)
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto) {
         return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
     }
