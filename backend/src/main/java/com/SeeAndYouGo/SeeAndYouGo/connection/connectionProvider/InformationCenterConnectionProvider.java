@@ -121,7 +121,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
             String wifiInfo = getRecentConnectionToString();
 
             if (wifiInfo.isEmpty()) {
-                throw new RuntimeException("API 결과로 받아온 Connection이 없습니다.");
+                throw new RuntimeException("API 결과로 받아온 Connection이 없으므로, 서버에 재요청합니다.");
             }
 
             JsonParser jsonParser = new JsonParser();
