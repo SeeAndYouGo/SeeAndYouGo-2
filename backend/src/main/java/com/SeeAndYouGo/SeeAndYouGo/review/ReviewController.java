@@ -51,12 +51,10 @@ public class ReviewController {
     private List<ReviewResponseDto> getReviewDtos(List<Review> reviews, String userEmail) {
         // userEmail이 빈 string이라면 로그인하지 않은 사용자!!
         List<ReviewResponseDto> response = new ArrayList<>();
+        boolean isLoggedIn = userEmail != null && !userEmail.isEmpty();
         for(Review review: reviews){
-            if(likeService.isLike(review, userEmail)){
-                response.add(new ReviewResponseDto(review, true));
-            }else{
-                response.add(new ReviewResponseDto(review, false));
-            }
+            boolean userLiked = isLoggedIn && likeService.isLike(review, userEmail);
+            response.add(new ReviewResponseDto(review, userLiked));
         }
         return response;
     }
@@ -69,7 +67,6 @@ public class ReviewController {
             List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant.toString(), date);
             allReviews.addAll(restaurantReviews);
         }
-
         return getReviewDtos(allReviews, email);
     }
 
@@ -79,7 +76,6 @@ public class ReviewController {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
-
         return getReviewDtos(reviews, "");
     }
 
@@ -93,8 +89,9 @@ public class ReviewController {
 
     @PutMapping("/report/{reviewId}")
     public ReportCountResponseDto judgeDeleteReview(@PathVariable Long reviewId){
+        log.info("Request to report review with ID: {}", reviewId);
         Integer reportCount = reviewService.updateReportCount(reviewId);
-
+        log.info("Review ID: {} now has {} reports.", reviewId, reportCount);
         return new ReportCountResponseDto(reportCount);
     }
 
@@ -105,14 +102,16 @@ public class ReviewController {
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        log.info("Request to post a new review for restaurant: {}, menu: {}", dto.getRestaurant(), dto.getMenuName());
         String nickname = userService.findNickname(email);
 
         String imgUrl = "";
-        if (image != null) {
-            String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
+        if (image != null && !image.isEmpty()) {
+            String imgName = UUID.randomUUID() + "_" + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";
             File file = createTempFileFromMultipart(image);
             saveImage(file, imgName);
             imgUrl = "/api/images/" + imgName;
+            log.info("Image attached, URL will be: {}", imgUrl);
         }
 
         ReviewData data = ReviewData.builder()
@@ -127,7 +126,9 @@ public class ReviewController {
                 .imgUrl(imgUrl)
                 .build();
 
-        return reviewService.registerReview(data);
+        Long reviewId = reviewService.registerReview(data);
+        log.info("Successfully posted new review with ID: {}", reviewId);
+        return reviewId;
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
@@ -140,22 +141,24 @@ public class ReviewController {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(image.getBytes());
         } catch (IOException e) {
+            log.error("Failed to create temp file from multipart file.", e);
             throw new RuntimeException(e);
         }
-
         return file;
     }
 
     private void saveImage(File image, String imgName) {
         Runnable runnable = () -> {
             try {
+                log.info("Starting async image save for: {}", imgName);
                 Files.createDirectories(Paths.get(IMAGE_DIR));
                 Path targetPath = Paths.get(IMAGE_DIR, imgName);
                 BufferedImage resized = reviewService.resize(image);
                 ImageIO.write(resized, "png", new File(targetPath.toUri()));
                 image.delete();
+                log.info("Successfully saved and resized image: {}", imgName);
             } catch (Exception e) {
-                log.error("[리뷰업로드] 오류 {}", e.getMessage());
+                log.error("Error during async image saving for '{}'", imgName, e);
             }
         };
         executor.execute(runnable);
@@ -171,7 +174,6 @@ public class ReviewController {
     @GetMapping("/reviews/{token}")
     public List<ReviewResponseDto> getReviewsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         List<Review> reviews = reviewService.findReviewsByWriter(email);
-
         return getReviewDtos(reviews, email);
     }
 
@@ -179,27 +181,28 @@ public class ReviewController {
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){
-
-        ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
-                .success(false)
-                .build();
+        log.info("Request to delete review ID: {} by the writer.", reviewId);
+        ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder().success(false).build();
         try{
             boolean isWriter = reviewService.deleteReview(email, reviewId);
             if(isWriter){
-                responseDto = ReviewDeleteResponseDto.builder()
-                        .success(true)
-                        .build();
+                responseDto = ReviewDeleteResponseDto.builder().success(true).build();
+                log.info("Successfully deleted review ID: {} by the writer.", reviewId);
+            } else {
+                log.warn("Failed to delete review ID: {}. User is not the writer.", reviewId);
             }
-        }catch (ArrayIndexOutOfBoundsException e){
-            return responseDto;
+        } catch (Exception e) {
+            log.error("Error deleting review ID: {}", reviewId, e);
+            throw new RuntimeException("Error deleting review ID: " + reviewId, e);
         }
         return responseDto;
     }
 
     @DeleteMapping("/review/report/{reviewId}")
     public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
+        log.warn("Request to delete a reported review with ID: {}", reviewId);
         boolean result = reviewService.deleteReportedReview(reviewId);
-
+        log.info("Reported review ID: {} deletion result: {}", reviewId, result);
         return new ReviewDeleteResponseDto(result);
     }
 }

@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -31,15 +33,16 @@ public class ReviewService {
     private final ReviewHistoryRepository reviewHistoryRepository;
     private final RateRepository rateRepository;
     private final MenuRepository menuRepository;
-    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
     public Long registerReview(ReviewData data) {
+        log.info("Registering review for restaurant: {}, menu ID: {}", data.getRestaurant(), data.getMenuId());
         LocalDateTime time = LocalDateTime.now();
 
         Restaurant restaurant = Restaurant.valueOf(data.getRestaurant());
-        Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
+        Objects.requireNonNull(restaurant, "Restaurant not found for name: " + data.getRestaurant());
 
         // 연관관계 존재
 //        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
@@ -49,6 +52,7 @@ public class ReviewService {
         rateService.updateRateByRestaurant(restaurant, menu, data.getRate());
         reviewRepository.save(review);
 
+        log.info("Successfully registered review with ID: {}", review.getId());
         return review.getId();
     }
 
@@ -63,7 +67,6 @@ public class ReviewService {
 
         List<Review> studentReviews = new ArrayList<>();
         List<Review> staffReviews = new ArrayList<>();
-
         splitStudentAndStaff(restaurantReviews, studentReviews, staffReviews);
 
         List<Review> result = new ArrayList<>();
@@ -78,10 +81,8 @@ public class ReviewService {
      */
     private void addReviewsByTopReviewRule(List<Review> result, List<Review> reviews) {
         int count = 0;
-
         for (Review review : reviews) {
             if(count >= TOP_REVIEW_NUMBER_OF_CRITERIA) return;
-
             result.add(review);
             count++;
         }
@@ -89,34 +90,18 @@ public class ReviewService {
 
     public void splitStudentAndStaff(List<Review> restaurantReviews, List<Review> studentReviews, List<Review> staffReviews) {
         for (Review review : restaurantReviews) {
-            if(review.getMenu().getDept().equals(Dept.STAFF)){
-                staffReviews.add(review);
-                continue;
-            }
-
-            studentReviews.add(review);
+            if(review.getMenu().getDept().equals(Dept.STAFF)) staffReviews.add(review);
+            else studentReviews.add(review);
         }
     }
 
     private void sortReviewsByDate(List<Review> reviews) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Collections.sort(reviews, new Comparator<Review>() {
-            // 가장 최신꺼가 가장 위로 온다!!
-            @Override
-            public int compare(Review o1, Review o2) {
 
-                LocalDateTime o1Time = LocalDateTime.parse(o1.getMadeTime(), formatter);
-                LocalDateTime o2Time = LocalDateTime.parse(o2.getMadeTime(), formatter);
-
-                if(o1Time.isEqual(o2Time)){
-                    return 0;
-                }else if(o1Time.isBefore(o2Time)){
-                    return 1;
-                }else {
-                    return -1;
-                }
-
-            }
+        // 가장 최신꺼가 가장 위로 온다!!
+        reviews.sort((o1, o2) -> {
+            LocalDateTime o1Time = LocalDateTime.parse(o1.getMadeTime(), formatter);
+            LocalDateTime o2Time = LocalDateTime.parse(o2.getMadeTime(), formatter);
+            return o2Time.compareTo(o1Time);
         });
     }
 
@@ -129,6 +114,9 @@ public class ReviewService {
         }
 
         List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
+        if (menus.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<Menu> param = new ArrayList<>();
         // menus의 각 menu에서 mainDish에 해당하는 Dish를 갖고 있는 다른 menu들도 불러온다.
@@ -136,24 +124,28 @@ public class ReviewService {
             param.addAll(menuService.findAllMenuByMainDish(menu));
         }
         return reviewRepository.findByRestaurantAndMenuIn(restaurant, param);
-//        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
     }
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
-        return review.incrementReportCount();
+        log.warn("Incrementing report count for review ID: {}", reviewId);
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NoSuchElementException("Review not found with ID: " + reviewId));
+        Integer newReportCount = review.incrementReportCount();
+        log.info("Review ID: {} now has {} reports.", reviewId, newReportCount);
+        return newReportCount;
     }
 
     @Transactional
     public void deleteById(Long reviewId) {
+        log.info("Deleting review with ID: {}", reviewId);
         Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
-
         review.getMenu().deleteReview(review);
 
         ReviewHistory reviewHistory = new ReviewHistory(review);
         reviewHistoryRepository.save(reviewHistory);
+        log.info("Review ID: {} moved to history.", reviewId);
     }
 
     public List<Review> findReviewsByWriter(String userEmail) {
@@ -168,10 +160,16 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
-        Restaurant restaurant = review.getRestaurant();
+        log.info("Attempting to delete review ID: {} by user.", reviewId);
+        Optional<Review> reviewOpt = reviewRepository.findById(reviewId);
+        if (reviewOpt.isEmpty()) {
+            log.error("Review with ID: {} not found for deletion.", reviewId);
+            return false;
+        }
+        Review review = reviewOpt.get();
 
         if(review.getWriterEmail().equals(userEmail)){
+            Restaurant restaurant = review.getRestaurant();
             deleteById(reviewId);
 
             Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
@@ -182,22 +180,25 @@ public class ReviewService {
                 Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
                 rateByMenu.exceptRate(review.getReviewRate());
             }
-
+            log.info("User is the writer. Successfully deleted review ID: {}", reviewId);
             return true;
+        } else {
+            log.warn("User is not the writer of review ID: {}. Deletion denied.", reviewId);
+            return false;
         }
-
-        return false;
     }
 
     @Transactional
     public boolean deleteReportedReview(Long reviewId) {
-        try{
+        log.warn("Deleting reported review with ID: {}", reviewId);
+        try {
             reviewRepository.deleteById(reviewId);
-        }catch (Exception e){
-            return false;
+            log.info("Successfully deleted reported review ID: {}", reviewId);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to delete reported review ID: {}", reviewId, e);
+            throw new RuntimeException("Failed to delete reported review ID: " + reviewId, e);
         }
-
-        return true;
     }
 
     public BufferedImage resize(File file) throws Exception {

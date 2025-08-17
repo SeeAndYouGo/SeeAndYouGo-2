@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -37,7 +39,7 @@ public class MenuController {
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String date = getTodayDate();
-        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
+        List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);
 
         List<String> keyStrings = new ArrayList<>();
         if (!email.equals("none")) {
@@ -150,10 +152,11 @@ public class MenuController {
     public List<MenuVO> bridgeDish(@RequestParam String AUTH_KEY,
                                    @RequestParam(name = "restaurant") String restaurantToString,
                                    HttpServletResponse response) throws Exception {
-
+        log.info("Request to bridge dish data for restaurant: {}", restaurantToString);
         boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
+            log.error("Invalid AUTH_KEY provided for restaurant: {}", restaurantToString);
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             throw new IllegalArgumentException("Invalid AUTH_KEY: Unauthorized access");
         }
@@ -166,9 +169,11 @@ public class MenuController {
 
     @GetMapping("/week")
     public void week() throws Exception {
+        log.info("Request to save weekly menu for all restaurants.");
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);
 
         menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
+        log.info("Successfully saved weekly menu for all restaurants from {} to {}", nearestMonday, sunday);
     }
 }

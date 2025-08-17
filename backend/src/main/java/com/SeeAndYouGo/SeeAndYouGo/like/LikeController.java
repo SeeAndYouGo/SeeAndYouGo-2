@@ -3,9 +3,11 @@ package com.SeeAndYouGo.SeeAndYouGo.like;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -15,8 +17,12 @@ public class LikeController {
     @PostMapping("/review/like/{review_id}")
     public LikeResponseDto postLikeCount(@PathVariable("review_id") Long reviewId,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String email){
+
         // 만약 해당 유저가 공감을 누른 상태였다면, 공감 삭제
         // 공감을 누르지 않은 상태였다면 공감 추가이다
-        return likeService.postLikeCount(reviewId, email);
+        log.info("Request to toggle like for review ID: {}", reviewId);
+        LikeResponseDto response = likeService.postLikeCount(reviewId, email);
+        log.info("Like status changed for review ID: {}.", reviewId);
+        return response;
     }
 }

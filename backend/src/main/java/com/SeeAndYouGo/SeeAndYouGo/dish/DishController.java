@@ -2,8 +2,8 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DuplicateDishResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
@@ -15,14 +15,17 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Slf4j
 @CrossOrigin(origins = "http://localhost:3000")
 public class DishController {
     private final DishService dishService;
 
     @PutMapping("/main-menu")
-    public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
-        mainDishResponseDtos.removeAll(Collections.singletonList(null));
-        dishService.updateMainDish(mainDishResponseDtos);
+    public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishRequestDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
+        log.info("Request to update main dishes with {} items.", mainDishRequestDtos.size());
+        mainDishRequestDtos.removeAll(Collections.singletonList(null));
+        dishService.updateMainDish(mainDishRequestDtos);
+        log.info("Successfully updated main dishes.");
         return "Main Menu reflect Success.";
     }
 
@@ -38,11 +41,17 @@ public class DishController {
 
     @DeleteMapping("/dish/{id}")
     public boolean dishDelete(@PathVariable Long id){
-        return dishService.deleteDish(id);
+        log.info("Request to delete dish with ID: {}", id);
+        boolean result = dishService.deleteDish(id);
+        log.info("Dish with ID: {} deletion result: {}", id, result);
+        return result;
     }
 
     @PutMapping("/dish/name")
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto) {
-        return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
+        log.info("Request to update dish name for ID: {}. New name: {}", dishRequestDto.getId(), dishRequestDto.getChangeName());
+        boolean result = dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
+        log.info("Dish name update result for ID: {}: {}", dishRequestDto.getId(), result);
+        return result;
     }
 }
