@@ -136,6 +136,7 @@ public class NewDishCacheService {
 
     /**
      * 신메뉴 기준 시작 날짜 (현재는 올해 1월 1일, 추후 설정으로 변경 가능)
+     * TODO: 신메뉴 기준일자 변경시 사용하지 않을 메서드가 됨
      */
     private LocalDate getNewDishCriteriaStartDate() {
         return LocalDate.now().withDayOfYear(1);
