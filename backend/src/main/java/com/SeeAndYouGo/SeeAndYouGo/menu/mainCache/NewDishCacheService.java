@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.menu.cache;
+package com.SeeAndYouGo.SeeAndYouGo.menu.mainCache;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;

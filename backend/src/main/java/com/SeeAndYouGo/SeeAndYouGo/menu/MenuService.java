@@ -1,8 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
-import com.SeeAndYouGo.SeeAndYouGo.menu.cache.ClearMainDishCache;
-import com.SeeAndYouGo.SeeAndYouGo.menu.cache.NewDishCacheService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuCache.ClearMenuCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
@@ -279,7 +280,8 @@ public class MenuService {
         }
     }
 
-    @ClearMainDishCache(restaurantParam = "restaurant")
+    @ClearMainDishCache
+    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"})
     @Transactional(readOnly = false)
     public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);

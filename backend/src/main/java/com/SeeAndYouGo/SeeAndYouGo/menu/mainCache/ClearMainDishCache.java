@@ -1,4 +1,4 @@
-package com.SeeAndYouGo.SeeAndYouGo.menu.cache;
+package com.SeeAndYouGo.SeeAndYouGo.menu.mainCache;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
