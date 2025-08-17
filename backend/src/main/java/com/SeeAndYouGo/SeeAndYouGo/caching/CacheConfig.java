@@ -1,14 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.caching;
 
-import com.SeeAndYouGo.SeeAndYouGo.caching.CacheContext;
-import com.SeeAndYouGo.SeeAndYouGo.caching.CacheRule;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -19,18 +14,6 @@ public class CacheConfig {
 
     @Autowired
     private TokenProvider tokenProvider;
-
-//    /**
-//     * 바이트 배열 저장용 RedisTemplate
-//     */
-//    @Bean
-//    public RedisTemplate<String, byte[]> byteRedisTemplate(RedisConnectionFactory connectionFactory) {
-//        RedisTemplate<String, byte[]> template = new RedisTemplate<>();
-//        template.setConnectionFactory(connectionFactory);
-//        template.setKeySerializer(new StringRedisSerializer());
-//        template.setHashKeySerializer(new StringRedisSerializer());
-//        return template;
-//    }
 
     /**
      * 캐시 규칙 목록 정의
