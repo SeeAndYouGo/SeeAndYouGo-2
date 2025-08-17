@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import MainPage from "./pages/MainPage/MainPage";
 import SetNicknamePage from "./pages/SetNicknamePage/SetNicknamePage";
 import SetMainMenuPage from "./pages/AdminPage/SetMainMenuPage";
+import SetDishNamePage from "./pages/AdminPage/SetDishNamePage";
 import KakaoCallBack from "./pages/LoginPage/KakaoCallBack";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
@@ -51,6 +52,7 @@ const App = () => {
         <Routes>
           <Route exact path="/" element={<MainPage />} />
           <Route exact path="/admin/main-menu" element={<SetMainMenuPage />} />
+          <Route exact path="/admin/dish-name" element={<SetDishNamePage />} />
           <Route exact path="/oauth" element={<KakaoCallBack />} />
           <Route exact path="/login-page" element={<LoginPage />} />
           <Route exact path="/set-nickname" element={<SetNicknamePage />} />

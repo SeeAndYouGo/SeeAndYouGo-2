@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled from "@emotion/styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../components/Modal";
-import ModalLocation from "../RestaurantDetailPage/ModalLocation";
 import MenuTableModal from "./MenuTableModal";
+import KakaoMap from "../../components/KakaoMap";
 
 const Container = styled.div`
 	display: flex;
@@ -98,6 +98,14 @@ const operatingTime = {
 
 const Info = ({ idx = 1 }) => {
   const [visible, setVisible] = useState({ map: false, menu: false });
+  const menuModalRef = useRef(null);
+
+  const handleMenuClose = () => {
+    if (menuModalRef.current) {
+      menuModalRef.current.resetScroll();
+    }
+    setVisible((prev) => ({ ...prev, menu: false }));
+  };
 
 	return (
 		<Container>
@@ -116,19 +124,19 @@ const Info = ({ idx = 1 }) => {
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>
         {idx !== 1 ? (
-						<>
-							<ModalContent
-								style={{ marginRight: 5 }}
-								onClick={() => setVisible({...visible, menu: true})}
-							>
-								<FontAwesomeIcon icon={faCalendarDays} />
-								<p style={{ fontSize: 11 }}>식단표</p>
-							</ModalContent>
-              <Modal visible={visible.menu} onClose={() => setVisible({...visible, menu: false})}>
-								<MenuTableModal idx={idx} onClose={() => setVisible({...visible, menu: false})} />
-							</Modal>
-						</>
-					) : null}
+					<>
+						<ModalContent
+							style={{ marginRight: 5 }}
+							onClick={() => setVisible({...visible, menu: true})}
+						>
+							<FontAwesomeIcon icon={faCalendarDays} />
+							<p style={{ fontSize: 11 }}>식단표</p>
+						</ModalContent>
+            <Modal visible={visible.menu} onClose={handleMenuClose}>
+							<MenuTableModal ref={menuModalRef} idx={idx} />
+						</Modal>
+					</>
+				) : null}
 					<ModalContent
             onClick={() => setVisible({...visible, map: true})}
 					>
@@ -136,7 +144,9 @@ const Info = ({ idx = 1 }) => {
 						<p style={{ fontSize: 11 }}>식당위치</p>
 					</ModalContent>
           <Modal visible={visible.map} onClose={() => setVisible({...visible, map: false})}>
-						<ModalLocation restaurant={idx} isOpen={visible.map} />
+            <div style={{ padding: 20 }}>
+              <KakaoMap restaurantId = {idx} modalOpen={visible.map} />
+            </div>
 					</Modal>
 				</div>
 			</div>

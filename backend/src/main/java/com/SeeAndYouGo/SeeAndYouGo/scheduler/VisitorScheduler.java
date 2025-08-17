@@ -5,92 +5,148 @@ import com.SeeAndYouGo.SeeAndYouGo.visitor.VisitorCountRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.*;
+import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TODAY_VISITOR;
+import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TOTAL_VISITOR;
 
 @Component
 @RequiredArgsConstructor
 public class VisitorScheduler {
     private static final Logger logger = LoggerFactory.getLogger(VisitorScheduler.class);
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final VisitorCountRepository repository;
+    private final HashOperations<String, String, String> todayRedisTemplate;
+    private final ValueOperations<String, String> totalRedisTemplate;
+
+    private final VisitorCountRepository visitorCountRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
-    public void resetTodayVisitorCount() {
-        logger.info("[VISITOR COUNT] Resetting today's visitor data...");
-        backupVisitorCount();
-        cleanupOldTotalRecords();
+    public void syncDBAndRedis() {
+        logger.info("[VISITOR COUNT] Resetting visitor data...");
 
-        redisTemplate.delete(KEY_TODAY_VISITOR);
-        repository.save(VisitorCount.from(0, false));
+        List<String> keys = new ArrayList<>(todayRedisTemplate.keys(KEY_TODAY_VISITOR));
+
+        if(keys.size() > 1){
+            logger.error("[VISITOR COUNT] Found more than one visitor data. Skipping...");
+        }
+
+        LocalDate today = LocalDate.now();
+
+        if(keys.isEmpty()) {
+            setVisitorCount(today);
+            return;
+        }
+
+        LocalDate date = LocalDate.parse(keys.get(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // redis에 존재한 날짜의 데이터를 sync한다.
+        syncTodayAndTotal(date);
+
+        // 만약 redis가 오늘의 today를 갖고 있다면, 종료.
+        if(date.equals(today)) return;
+
+        // redis에 존재한 날짜의 redis today를 삭제한다.
+        todayRedisTemplate.delete(KEY_TODAY_VISITOR, date.toString());
+
+        // redis에 존재한 날짜 이후부터 오늘까지의 값을 0으로 세팅
+        LocalDate targetDate = date.plusDays(1);
+
+        while (!targetDate.isAfter(today)) {
+            setVisitorCount(targetDate);
+            targetDate = targetDate.plusDays(1);
+        }
     }
 
     @Transactional
     @Scheduled(fixedRate = 60000 * 30)
     public void backupVisitorCount() {
-        syncRedisWithDatabase(KEY_TODAY_VISITOR, false);
-        syncRedisWithDatabase(KEY_TOTAL_VISITOR, true);
+        LocalDate today = LocalDate.now();
+        syncTodayAndTotal(today);
     }
 
-    private void syncRedisWithDatabase(String redisKey, boolean isTotal) {
-        String redisValue = redisTemplate.opsForValue().get(redisKey);
-        int countInRedis = (redisValue != null) ? Integer.parseInt(redisValue) : 0;
+    private void setVisitorCount(LocalDate date) {
 
-        if (isTotal) {
-            // 총 방문자 수는 최대값 유지
-            Optional<VisitorCount> dbRecord = repository.findTopByIsTotalTrueOrderByCountDesc();
-            int countInDatabase = dbRecord.map(VisitorCount::getCount).orElse(0);
+        // 오늘자 redis today를 0으로 세팅
+        todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), "0");
 
-            int finalCount = Math.max(countInRedis, countInDatabase);
-            repository.save(VisitorCount.from(finalCount, true));
-            redisTemplate.opsForValue().set(redisKey, String.valueOf(finalCount));
+        // DB에도 오늘자 today를 0으로 세팅
+        VisitorCount todayVisitorCount = VisitorCount.from(0, date, false);
+        visitorCountRepository.save(todayVisitorCount);
 
-            logger.info("[VISITOR] (synchronized total) {}: Count {}", redisKey, finalCount);
-        } else {
-            // 오늘 방문자 수는 Redis 값을 기준으로 동기화
-            // 또는 오늘 날짜의 DB 레코드만 고려하도록 수정
-            LocalDate today = LocalDate.now();
-            LocalDateTime startOfDay = today.atStartOfDay();
-            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusSeconds(1);
+        // DB의 오늘자 total을 어제자 total과 동일하게 세팅
+        VisitorCount yesterday = visitorCountRepository.findByIsTotalTrueAndCreatedAt(date.minusDays(1));
+        VisitorCount today = VisitorCount.from(yesterday.getCount(), date, true);
+        visitorCountRepository.save(today);
+    }
 
-            Optional<VisitorCount> todayRecord = repository.findTopByIsTotalFalseAndCreatedAtBetweenOrderByCountDesc(
-                    startOfDay, endOfDay);
+    private void syncTodayAndTotal(LocalDate date) {
+        syncToday(date);
+        syncTotal(date);
+    }
 
-            // 오늘 생성된 레코드가 있으면 더 큰 값 사용, 없으면 Redis 값만 사용
-            int countToSave = todayRecord.isPresent()
-                    ? Math.max(countInRedis, todayRecord.get().getCount())
-                    : countInRedis;
+    private void syncTotal(LocalDate date) { // date는 visitor_count 테이블에 데이터가 없을 때만 쓰임.₩
+        String redisTotal = totalRedisTemplate.get(KEY_TOTAL_VISITOR);
+        VisitorCount dbTotalVisitorCount = visitorCountRepository.findTopByIsTotalTrueOrderByCreatedAtDesc();
 
-            repository.save(VisitorCount.from(countToSave, false));
-            redisTemplate.opsForValue().set(redisKey, String.valueOf(countToSave));
+        if(dbTotalVisitorCount == null) {
+            dbTotalVisitorCount = VisitorCount.from(0, date, true);
+        }
 
-            logger.info("[VISITOR] (synchronized today) {}: Count {}", redisKey, countToSave);
+        if(redisTotal == null) {
+            redisTotal = "0";
+        }
+
+        int dbTotal = dbTotalVisitorCount.getCount();
+
+        int resultCount = getResultValue(Integer.parseInt(redisTotal), dbTotal);
+
+        totalRedisTemplate.set(KEY_TOTAL_VISITOR, String.valueOf(resultCount));
+
+        // 만약 dbTotalVisitorCount에서 가져온 값이 date와 동일하다면, update를 해주는게 맞음.
+        // 하지만 다르다면 새롭게 만들어야함.
+        if(dbTotalVisitorCount.getCreatedAt().equals(date)){
+            dbTotalVisitorCount.updateCount(resultCount);
+            visitorCountRepository.save(dbTotalVisitorCount);
+        }else{
+            VisitorCount visitorCountByDate = VisitorCount.from(resultCount, date, true);
+            visitorCountRepository.save(visitorCountByDate);
         }
     }
 
-    @Transactional
-    private void cleanupOldTotalRecords() {
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-        List<VisitorCount> oldRecords = repository.findByIsTotalTrueAndCreatedAtBefore(todayStart);
+    private void syncToday(LocalDate date) {
+        String redisToday = todayRedisTemplate.get(KEY_TODAY_VISITOR, date.toString());
+        VisitorCount dbTodayVisitorCount = visitorCountRepository.findByIsTotalFalseAndCreatedAt(date);
 
-        if (!oldRecords.isEmpty()) {
-            List<Long> excludeIds = oldRecords.stream()
-                    .map(VisitorCount::getId)
-                    .collect(Collectors.toList());
-
-            repository.deleteByIsTotalTrueAndIdNotIn(excludeIds);
+        if (dbTodayVisitorCount == null) {
+            dbTodayVisitorCount = VisitorCount.from(0, date, false);
         }
+
+        if (redisToday == null) {
+            redisToday = "0";
+        }
+
+        int dbToday = dbTodayVisitorCount.getCount();
+        int resultCount = getResultValue(Integer.parseInt(redisToday), dbToday);
+
+        todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), String.valueOf(resultCount));
+
+        dbTodayVisitorCount.updateCount(resultCount);
+        visitorCountRepository.save(dbTodayVisitorCount);
+    }
+
+    private int getResultValue(int redisValue, int dbValue) {
+        // redis >= db면 redis가 다운되지 않고 유의미한 값을 갖고 있으므로 return
+        // 만약 redis < db면 redis가 초기화되었으므로 db값에서 더하고 return
+        return redisValue >= dbValue ? redisValue : (dbValue + redisValue);
     }
 }

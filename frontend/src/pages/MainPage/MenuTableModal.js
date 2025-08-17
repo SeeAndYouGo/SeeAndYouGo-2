@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import styled from "@emotion/styled";
 import { get } from "../../api";
 
@@ -45,8 +45,17 @@ const dateConverter = (date) => {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
-const MenuTableModal = ({ idx, onClose }) => {
+const MenuTableModal = forwardRef(({ idx }, ref) => {
   const [data, setData] = useState({});
+  const wrapperRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    resetScroll: () => {
+      if (wrapperRef.current) {
+        wrapperRef.current.scrollTop = 0;
+      }
+    }
+  }));
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -58,6 +67,12 @@ const MenuTableModal = ({ idx, onClose }) => {
         BREAKFAST: 0,
         LUNCH: 1,
         DINNER: 2
+      }
+
+      if (idx === 2 || idx === 3) {
+        data.splice(data.length - 6, 6);
+      } else if (idx === 4 || idx === 5) {
+        data.splice(data.length - 2, 2);
       }
 
       const groupedByDate = data.reduce((acc, item) => {
@@ -78,7 +93,7 @@ const MenuTableModal = ({ idx, onClose }) => {
 	}, [idx]);
 
 	return (
-    <Wrapper onClick={(e) => e.stopPropagation()}>
+    <Wrapper ref={wrapperRef} onClick={(e) => e.stopPropagation()}>
       {/* <div 
         style={{float: 'right', cursor: 'pointer', fontWeight: 400, marginRight: '-15px', position: 'absolute'}}
       >
@@ -104,6 +119,6 @@ const MenuTableModal = ({ idx, onClose }) => {
       ))}
     </Wrapper>
 	);
-};
+});
 
 export default MenuTableModal;

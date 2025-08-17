@@ -204,7 +204,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 다음 메뉴가 나온다면 이전 메뉴를 저장함.
-			if (line.contains("메인A") || line.contains("메인C") || line.contains("MainA") || line.contains("MainC")) {
+			if (line.contains("메인") || line.contains("Main") || line.contains("MAIN")) {
                 if (currentMenuTitle != null) {
                     menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
                 }
@@ -242,7 +242,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         String cleaned = menuName;
 
 	// 시험기간 event와 같은 부분은 메뉴로 표시하지 않기
-	if(cleaned.contains("시험기간")){
+	if(cleaned.contains("시험기간") || cleaned.equals("**땅콩함유**")){
 		return "";
 	}
 
