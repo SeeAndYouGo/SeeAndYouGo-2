@@ -84,3 +84,5 @@ gradle-app.setting
 
 backend/src/main/resources/application-KEY-LOCAL.yml
 backend/src/main/resources/application-KEY-PROD.yml
+backend/bin
+backend/out
