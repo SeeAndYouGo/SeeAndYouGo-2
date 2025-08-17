@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
+import com.SeeAndYouGo.SeeAndYouGo.menu.cache.ClearMainDishCache;
+import com.SeeAndYouGo.SeeAndYouGo.menu.cache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
@@ -19,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
@@ -34,6 +37,7 @@ public class MenuService {
 
     // 로컬에서 운영서버로 데이터를 넘겨주기 위함.
     private final MenuProviderFactory menuProviderFactory;
+    private final NewDishCacheService newDishCacheService;
 
     public static final String DEFAULT_DISH_NAME = "메뉴 정보 없음";
 
@@ -48,7 +52,7 @@ public class MenuService {
     public List<Menu> getOneDayRestaurantMenu(String restaurantName, String date) {
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
-        List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
+        List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);  // 검색을 여기서 하는게 낫지 않나 싶기두 ~
 
         return sortMainDish(menus);
     }
@@ -268,15 +272,16 @@ public class MenuService {
         return DISH_KEY.equals(authKey);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void saveWeeklyMenuAllRestaurant(LocalDate monday, LocalDate sunday) throws Exception {
         for (Restaurant restaurant : Restaurant.values()) {
             saveWeeklyMenu(restaurant, monday, sunday);
         }
     }
 
-    @Transactional
-    private void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
+    @ClearMainDishCache(restaurantParam = "restaurant")
+    @Transactional(readOnly = false)
+    public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
         menuProvider.updateMenuMap(restaurant, monday, sunday);
 
@@ -324,5 +329,19 @@ public class MenuService {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
 
         return menuProvider.getWeeklyMenuMap(restaurant);
+    }
+
+    public List<String> getNewMainDishs(String place, List<Dish> mainDishs) {
+        String parseRestaurantName = Restaurant.parseName(place);
+        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+        
+        // 캐시에서 과거 메인메뉴들 조회
+        Set<String> historicalMainDishes = newDishCacheService.getHistoricalMainDishes(restaurant);
+        
+        // 오늘 메인 요리 중에서 과거에 없던 것들만 필터링
+        return mainDishs.stream()
+                .map(Dish::getName)
+                .filter(dishName -> !historicalMainDishes.contains(dishName))
+                .collect(Collectors.toList());
     }
 }
