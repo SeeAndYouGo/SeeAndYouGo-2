@@ -101,6 +101,21 @@ const LogoutBtn = styled.span`
   float: right;
 `;
 
+const VisitorBadge = styled.div`
+  float: right;
+  display: inline-flex;
+  position: relative;
+  border-radius: 5px;
+  background-color: #fff;
+  overflow: hidden;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+  font-size: 12px;
+  & > p {
+    margin: 0;
+  }
+`;
+
 const SideBar = ({isOpen, setIsOpen}) => {
   const [visitTodayData, setVisitTodayData] = useState(-1);
   const [visitTotalData, setVisitTotalData] = useState(-1);
@@ -234,14 +249,10 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
-          {
-            visitTodayData !== -1 ? (
-              <div style={{position: "absolute", bottom: 20}}>
-                <p>today: {visitTodayData}</p>
-                <p>total: {visitTotalData}</p>
-              </div> 
-              ): null
-          }
+          <VisitorBadge>
+            <p style={{backgroundColor: "#333", color: "#fff", padding: "2px 10px"}}>방문자수</p>
+            <p style={{fontWeight: 500, padding: "2px 10px", borderRadius: 5}}>{Number(visitTodayData).toLocaleString()} / {Number(visitTotalData).toLocaleString()}</p>
+          </VisitorBadge>
         </div>
       </SideBarWrap>
     </>
