@@ -1,6 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.scheduler;
 
-import com.SeeAndYouGo.SeeAndYouGo.menu.cache.NewDishCacheService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

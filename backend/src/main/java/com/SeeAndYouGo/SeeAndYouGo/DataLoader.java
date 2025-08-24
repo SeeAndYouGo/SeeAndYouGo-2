@@ -2,7 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
-import com.SeeAndYouGo.SeeAndYouGo.menu.cache.NewDishCacheService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
