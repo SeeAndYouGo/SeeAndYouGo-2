@@ -46,9 +46,6 @@ public class IterService {
 
                 // 월요일부터 일요일까지의 메뉴를 캐싱한다.
                 menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
-
-                // api로 받아오지 못한 부분에는 '메뉴정보없음'을 표기한다.
-                menuService.checkWeekMenu(nearestMonday, sunday);
             }
     }
 

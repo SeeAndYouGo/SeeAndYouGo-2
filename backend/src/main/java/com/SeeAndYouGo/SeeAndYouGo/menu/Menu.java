@@ -41,13 +41,16 @@ public class Menu {
     @Enumerated(EnumType.STRING)
     private MenuType menuType;
 
+    private boolean isOpen;
+
     @Builder
-    public Menu(Integer price, String date, Dept dept, MenuType menuType, Restaurant restaurant) {
+    public Menu(Integer price, String date, Dept dept, MenuType menuType, Restaurant restaurant, boolean isOpen) {
         this.price = price;
         this.date = date;
         this.dept = dept;
         this.menuType = menuType;
         this.restaurant = restaurant;
+        this.isOpen = isOpen;
     }
 
     public Menu(MenuVO menuVO) {
@@ -56,6 +59,9 @@ public class Menu {
         this.dept = menuVO.getDept();
         this.menuType = menuVO.getMenuType();
         this.restaurant = menuVO.getRestaurant();
+
+        // MenuVO에서 DishList를 받아오지 않으므로 default를 false로한다.
+        this.isOpen = false;
     }
 
     public String getMenuName(){
@@ -70,9 +76,24 @@ public class Menu {
 
     public void setDishList(List<Dish> dishes) {
         this.menuDishes = new ArrayList<>();
+
+        // Dish가 들어왔을 때는, true를 deafult로 하고 '메뉴정보없음'이나 '운영중단'이 오면 false로 설정한다.
+        boolean isOpen = true;
         for (Dish dish : dishes) {
             this.menuDishes.add(new MenuDish(this, dish));
+
+            if(!checkIsOpen(dish)){
+                isOpen = false;
+            }
         }
+
+        this.isOpen = isOpen;
+    }
+
+    private static boolean checkIsOpen(Dish dish) {
+        String name = dish.getName();
+
+        return !name.equals("메뉴 정보 없음") && !name.contains("운영중단") && !name.contains("운영안함");
     }
 
     /**
@@ -80,15 +101,19 @@ public class Menu {
      */
     public void addDish(Dish dish) {
         List<Dish> dishList = this.getDishList();
+        boolean isOpen = true;
+
         if (!dishList.contains(dish)) {
             MenuDish menuDish = new MenuDish(this, dish);
             this.menuDishes.add(menuDish);
             dish.addMenuDish(menuDish);
-        }
-    }
 
-    public void addMenuDish(MenuDish menuDish){
-        this.menuDishes.add(menuDish);
+            if(!checkIsOpen(dish)){
+                isOpen = false;
+            }
+        }
+
+        this.isOpen = isOpen;
     }
 
     public List<Dish> getDishList() {
@@ -97,10 +122,6 @@ public class Menu {
             dishes.add(menuDish.getDish());
         }
         return dishes;
-    }
-
-    public List<String> getDishListToString() {
-        return getDishList().stream().map(Dish::toString).collect(Collectors.toList());
     }
 
     public Long addReviewAndUpdateRate(Review review) {

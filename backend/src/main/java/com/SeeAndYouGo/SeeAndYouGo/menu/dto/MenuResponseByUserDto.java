@@ -18,6 +18,7 @@ public class MenuResponseByUserDto {
     private String dept;
     private String date;
     private String menuType;
+    private boolean isOpen;
     private List<String> keywordList = new LinkedList<>();
     private List<String> newDishList = new LinkedList<>();
 
@@ -30,6 +31,7 @@ public class MenuResponseByUserDto {
                                  String dept,
                                  String date,
                                  String menuType,
+                                 boolean isOpen,
                                  List<String> keywordList,
                                  List<String> newDishList){
         this.menuId = menuId;
@@ -40,6 +42,7 @@ public class MenuResponseByUserDto {
         this.menuType = menuType;
         this.keywordList = keywordList;
         this.price = price;
+        this.isOpen = isOpen;
         this.dept = dept;
         this.newDishList = newDishList;
     }

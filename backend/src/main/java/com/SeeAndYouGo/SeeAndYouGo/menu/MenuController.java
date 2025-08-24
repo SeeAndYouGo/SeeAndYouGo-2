@@ -100,6 +100,7 @@ public class MenuController {
                     .restaurantName(menu.getRestaurant().toString())
                     .date(menu.getDate())
                     .keywordList(keywords)
+                    .isOpen(menu.isOpen())
                     .newDishList(newMainDishs)
                     .build();
             menuResponseDtos.add(dto);

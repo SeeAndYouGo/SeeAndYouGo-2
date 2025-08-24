@@ -181,6 +181,7 @@ public class MenuService {
                             .price(0) // defaultDish이므로 0원짜리다.
                             .date(date)
                             .dept(dept)
+                            .isOpen(false)
                             .menuType(menuType)
                             .restaurant(restaurant)
                             .build();
@@ -273,16 +274,19 @@ public class MenuService {
         return DISH_KEY.equals(authKey);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void saveWeeklyMenuAllRestaurant(LocalDate monday, LocalDate sunday) throws Exception {
         for (Restaurant restaurant : Restaurant.values()) {
             saveWeeklyMenu(restaurant, monday, sunday);
         }
-    }
 
+        // api로 받아오지 못한 부분에는 '메뉴정보없음'을 표기한다.
+        checkWeekMenu(monday, sunday);
+    }
+  
+    @Transactional
     @ClearMainDishCache
     @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"})
-    @Transactional(readOnly = false)
     public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
         menuProvider.updateMenuMap(restaurant, monday, sunday);
