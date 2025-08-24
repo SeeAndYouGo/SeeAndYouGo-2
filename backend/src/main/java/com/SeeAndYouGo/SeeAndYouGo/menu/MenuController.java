@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
+import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -38,15 +39,20 @@ public class MenuController {
                                                                @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         String date = getTodayDate();
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
+        List<Dish> mainDishs = oneDayRestaurantMenu.stream()
+                .map(x -> x.getMainDish())
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        List<String> newMainDishs = menuService.getNewMainDishs(place, mainDishs);
 
-        List<String> keyStrings = new ArrayList<>();
+        List<String> keywords = new ArrayList<>();
         if (!email.equals("none")) {
             User user = userRepository.findByEmail(email);
-            List<UserKeyword> keywords = userKeywordRepository.findByUser(user);
-            keyStrings = keywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
+            List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
+            keywords = userKeywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
         }
 
-        return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keyStrings);
+        return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keywords, newMainDishs);
     }
 
     public static String getTodayDate() {
@@ -76,8 +82,12 @@ public class MenuController {
     /**
      * 유저의 keywords에 해당되는 menu가 있다면 해당 menu를 추가.
      */
-    private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(List<Menu> oneDayRestaurantMenu, List<String> keywords) {
+    private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(
+            List<Menu> oneDayRestaurantMenu,
+            List<String> keywords,
+            List<String> newMainDishs) {
         List<MenuResponseByUserDto> menuResponseDtos = new ArrayList<>();
+
         for (Menu menu : oneDayRestaurantMenu) {
 
             MenuResponseByUserDto dto = MenuResponseByUserDto.builder()
@@ -91,6 +101,7 @@ public class MenuController {
                     .date(menu.getDate())
                     .keywordList(keywords)
                     .isOpen(menu.isOpen())
+                    .newDishList(newMainDishs)
                     .build();
             menuResponseDtos.add(dto);
         }
