@@ -54,9 +54,22 @@ const KakaoMap = ({ restaurantId, modalOpen }) => {
         map,
       });
 
+      // 모바일 디바이스 감지
+      const isMobile = () => {
+        return /Android|webOS|iPhone|iPad/i.test(navigator.userAgent)
+      };
+
+      const getMapUrl = (id) => {
+        return isMobile() 
+          ? `http://m.map.kakao.com/scheme/place?id=${id}`
+          : `https://map.kakao.com/link/map/${id}`;
+      };
+
+      const mapUrl = getMapUrl(nowRestaurantId);
+
       const content =
 				'<div class="overlayWrapper" style="position: relative; top: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); background: white; transition: all 0.3s ease;">' +
-        `  <a href="https://map.kakao.com/link/map/${nowRestaurantId}" target="_blank" style="text-decoration: none; color: inherit;">` +
+        `  <a href="${mapUrl}" target="_blank" style="text-decoration: none; color: inherit;">` +
         '    <div class="overlayBox" style="display: flex; align-items: center; justify-content: center;">' +
 				`      <span class="overlayTitle" style="font-size: 14px; font-weight: 600; color: #333; padding: 8px 16px; border-radius: 8px;">${RestaurantName[restaurantId - 1]}</span>` +
         `      <span class="material-symbols-outlined" style="border-radius: 0px 12px 12px 0px; color: #fff; background-color: #333; padding: 8px 5px">chevron_right</span>` +
@@ -74,7 +87,9 @@ const KakaoMap = ({ restaurantId, modalOpen }) => {
 
       // 마커에 클릭 이벤트를 추가하여 카카오맵으로 이동
       window.kakao.maps.event.addListener(marker, "click", () => {
-        const url = `https://map.kakao.com/?itemId=${nowRestaurantId}`;
+        const url = isMobile() 
+          ? `http://m.map.kakao.com/scheme/place?id=${nowRestaurantId}`
+          : `https://map.kakao.com/?itemId=${nowRestaurantId}`;
         window.open(url);
       });
 
