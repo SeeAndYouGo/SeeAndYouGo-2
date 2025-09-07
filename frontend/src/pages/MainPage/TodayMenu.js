@@ -46,10 +46,11 @@ const TodayMenu = ({ idx, data = [] }) => {
 	const nowMenuType = useSelector((state) => state.menuType).value;
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
 	const nowMainMenuList = useSelector((state) => state.nowMenuInfo).value.mainMenuList;
+	const nowMenuIsOpen = useSelector((state) => state.nowMenuInfo).value.menuIsOpen;
 
-	const handleDivClick = (clickedDept, menuList, id) => {
+	const handleDivClick = (clickedDept, menuList, id, isOpen) => {
 		dispatch(changeDept(clickedDept));
-		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id}));
+		dispatch(changeMenuInfo({mainMenuList: menuList, menuId: id, menuIsOpen: isOpen}) );
 	};
 
 	const MENU_TYPE_MAP = {
@@ -112,11 +113,13 @@ const TodayMenu = ({ idx, data = [] }) => {
 		const targetMenuData = menuDataList[nowMenuType - 1];
 		if (targetMenuData?.length > 0) {
       const selectedMenu = targetMenuData.find(item => item.mainDishList.length > 0) || targetMenuData[0];
+
       if (JSON.stringify(selectedMenu.mainDishList) !== JSON.stringify(nowMainMenuList) || 
           selectedMenu.dept !== nowDept) {
-        dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId}));
+        dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId, menuIsOpen: selectedMenu.open}));
         dispatch(changeDept(selectedMenu.dept));
       }
+			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuIsOpen: selectedMenu.open}));
     }
 	}, [menu1, menu2, menu3]);
 
@@ -133,10 +136,10 @@ const TodayMenu = ({ idx, data = [] }) => {
 		if (menuList.length === 0) return <div style={{marginTop: 10, color: '#aaa'}}>메뉴가 없습니다.</div>;
 		return menuList.map((item, index) => (
 			<SelectedDiv
-				$active={nowDept === item.dept && nowMainMenuList.includes(item.mainDishList[0])}
+				$active={nowDept === item.dept}
 				key={index}
 				onClick={() => {
-					handleDivClick(item.dept, item.mainDishList, item.menuId);
+					handleDivClick(item.dept, item.mainDishList, item.menuId, item.open);
 				}}
 			>
 				<MenuItem menu={item} restaurantId={idx} />

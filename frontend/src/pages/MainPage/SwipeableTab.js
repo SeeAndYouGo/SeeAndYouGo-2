@@ -72,10 +72,11 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 			dispatch(changeMenuType(1));
 			dispatch(changeDept(deptValue));
 		}
-		if (numValue === 2) {
+		if (numValue === 2) { // 2학
 			const initialMenu = menu[numValue - 1].filter(
 				(item) => item.dept === deptValue
 			)[0];
+
 			if(initialMenu === undefined) {
 				return;
 			}
@@ -83,12 +84,14 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
 					menuId: initialMenu.menuId,
+					menuIsOpen: initialMenu.open
 				})
 			);
-		} else if (numValue === 3) {
+		} else if (numValue === 3) { // 3학
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.dept === deptValue && item.menuType === "LUNCH"
 			)[0];
+
 			if(initialMenu === undefined) {
 				return;
 			}
@@ -96,12 +99,14 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
 					menuId: initialMenu.menuId,
+					menuIsOpen: initialMenu.open
 				})
 			);
-		} else {
+		} else if (numValue === 4 || numValue === 5) { // 4학, 5학
 			const initialMenu = menu[numValue - 1]?.filter(
 				(item) => item.menuType === "LUNCH"
 			)[0];
+
 			if(initialMenu === undefined) {
 				return;
 			}
@@ -109,6 +114,22 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 				changeMenuInfo({
 					mainMenuList: initialMenu.mainDishList,
 					menuId: initialMenu.menuId,
+					menuIsOpen: initialMenu.open
+				})
+			);
+		} else { //학생생활관
+			const initialMenu = menu[numValue - 1]?.filter(
+				(item) => item.menuType === "DORM_A"
+			)[0];
+
+			if(initialMenu === undefined) {
+				return;
+			}
+			dispatch(
+				changeMenuInfo({
+					mainMenuList: initialMenu.mainDishList,
+					menuId: initialMenu.menuId,
+					menuIsOpen: initialMenu.open
 				})
 			);
 		}
