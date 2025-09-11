@@ -1,10 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.caching.CacheEvictionService;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DuplicateDishResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
@@ -19,12 +19,14 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class DishController {
     private final DishService dishService;
+    private final CacheEvictionService cacheEvictionService;
 
     @PutMapping("/main-menu")
-    @CacheEvict(value = "daily-menu", allEntries = true)
     public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponseDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponseDtos);
+        cacheEvictionService.evictAllCache("daily-menu");
+        cacheEvictionService.evictAllCache("weekly-menu");
         return "Main Menu reflect Success.";
     }
 
@@ -40,11 +42,15 @@ public class DishController {
 
     @DeleteMapping("/dish/{id}")
     public boolean dishDelete(@PathVariable Long id){
+        cacheEvictionService.evictAllCache("daily-menu");
+        cacheEvictionService.evictAllCache("weekly-menu");
         return dishService.deleteDish(id);
     }
 
     @PutMapping("/dish/name")
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto) {
+        cacheEvictionService.evictAllCache("daily-menu");
+        cacheEvictionService.evictAllCache("weekly-menu");
         return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
     }
 }
