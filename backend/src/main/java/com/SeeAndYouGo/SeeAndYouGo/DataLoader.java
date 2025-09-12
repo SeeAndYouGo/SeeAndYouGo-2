@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayRepository;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
@@ -27,6 +28,7 @@ public class DataLoader implements CommandLineRunner {
     private final HolidayService holidayService;
     private final HolidayRepository holidayRepository;
     private final VisitorScheduler visitorScheduler;
+    private final NewDishCacheService newDishCacheService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -48,6 +50,9 @@ public class DataLoader implements CommandLineRunner {
 
         iterService.weeklyIterative();
         connectionService.saveRecentConnection();
+        
+        // Historical 캐시 초기화
+        newDishCacheService.initHistoricalCache();
 
         log.info("초기세팅 완료");
     }

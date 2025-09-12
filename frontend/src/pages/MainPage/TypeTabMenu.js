@@ -48,11 +48,11 @@ const TypeTabMenu = ({ menu1 = [], menu2 = [], menu3 = [] }) => {
     dispatch(changeMenuType(index + 1));
 
 		if (index === 0) {
-			dispatch(changeMenuInfo({mainMenuList: menu1[0]?.mainDishList || [], menuId: menu1[0]?.menuId || 0}));
+			dispatch(changeMenuInfo({mainMenuList: menu1[0]?.mainDishList || [], menuId: menu1[0]?.menuId || 0, menuIsOpen: menu1[0].open}));
 		} else if (index === 1) {
-			dispatch(changeMenuInfo({mainMenuList: menu2[0]?.mainDishList || [], menuId: menu2[0]?.menuId || 0}));
+			dispatch(changeMenuInfo({mainMenuList: menu2[0]?.mainDishList || [], menuId: menu2[0]?.menuId || 0, menuIsOpen: menu2[0].open}));
 		} else if (index === 2) {
-			dispatch(changeMenuInfo({mainMenuList: menu3[0]?.mainDishList || [], menuId: menu3[0]?.menuId || 0}));
+			dispatch(changeMenuInfo({mainMenuList: menu3[0]?.mainDishList || [], menuId: menu3[0]?.menuId || 0, menuIsOpen: menu3[0].open}));
 		}
 
 		setCurrentTab(index);

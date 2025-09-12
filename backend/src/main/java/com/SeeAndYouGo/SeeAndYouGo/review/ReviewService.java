@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.rate.RateRepository;
 import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
     private final RateService rateService;
     private final MenuService menuService;
@@ -149,6 +151,21 @@ public class ReviewService {
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
+
+        // Delete associated image file
+        String imgLink = review.getImgLink();
+        if (imgLink != null && !imgLink.isEmpty()) {
+            File imageFile = new File("imageStorage" + File.separator + imgLink);
+            if (imageFile.exists()) {
+                if (imageFile.delete()) {
+                    log.info("Deleted image file: {}", imageFile.getAbsolutePath());
+                } else {
+                    log.error("Failed to delete image file: {}", imageFile.getAbsolutePath());
+                }
+            } else {
+                log.warn("Image file not found: {}", imageFile.getAbsolutePath());
+            }
+        }
 
         review.getMenu().deleteReview(review);
 

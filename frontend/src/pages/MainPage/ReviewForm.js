@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
@@ -178,6 +178,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const token = useSelector((state) => state.user.value.token);
 	const nowMainMenuList = useSelector((state) => state.nowMenuInfo.value).mainMenuList;
 	const nowMenuId = useSelector((state) => state.nowMenuInfo.value).menuId;
+	const nowMenuIsOpen = useSelector((state) => state.nowMenuInfo.value).menuIsOpen;
 
 	const todayDate = moment().toDate(); 
 	const todayDay = moment(new Date(todayDate)).format("dddd"); // 현재 요일
@@ -283,14 +284,17 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 				{ // 우선순위에 따라 표시한다.
 					// 1. 학생생활관이 아니며 주말인 경우, 리뷰 작성 불가능
 					// 2. 로그인 하지 않은 경우, 리뷰 작성 불가능
-				  // 3. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
-					restaurantNum !== 6 && isWeekend ? ( // 학생생활관이 아니며 주말인 경우
+					// 3. 메뉴 정보가 없는 경우, 리뷰 작성 불가능
+				  // 4. 메인 메뉴 설정되지 않은 경우, 리뷰 작성 불가능
+					restaurantNum !== 6 && false ? ( // 학생생활관이 아니며 주말인 경우
 					<ReviewLimitation num={1} />
 				) : !token ? ( // 로그인 하지 않은 경우
 					<ReviewLimitation num={2} />
-				) : ( // 메인 메뉴 설정되지 않은 경우
+				) : nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
+					<ReviewLimitation num={3} />
+				) :	( // 메인 메뉴 설정되지 않은 경우
 					(restaurantNum !== 1 && nowMainMenuList?.length === 0) ? (
-						<ReviewLimitation num={3} />
+						<ReviewLimitation num={4} />
 					) :
 					null
 				)}
