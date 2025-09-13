@@ -1,8 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuCache.ClearMenuCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,7 @@ public class DishController {
     private final DishService dishService;
 
     @PutMapping("/main-menu")
-    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"}, clearAll = true)
+    @EvictAllCache({"daily-menu", "weekly-menu"})
     public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         mainDishResponseDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponseDtos);
@@ -38,12 +38,13 @@ public class DishController {
     }
 
     @DeleteMapping("/dish/{id}")
+    @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishDelete(@PathVariable Long id){
         return dishService.deleteDish(id);
     }
 
     @PutMapping("/dish/name")
-    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"}, clearAll = true)
+    @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto) {
         return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
     }

@@ -9,4 +9,6 @@ public interface CacheService {
     void putString(String cacheName, String key, String data, CacheRule rule);
     Optional<byte[]> getBytesCache(String cacheName, String key);
     Optional<String> getStringCache(String cacheName, String key);
+    void evict(String cacheName, String key);
+    void evictAll(String cacheName);
 }

@@ -91,6 +91,20 @@ public class RedisCacheService implements CacheService {
         }
     }
 
+    @Override
+    public void evict(String cacheName, String key) {
+        String fullKey = generateFullKey(cacheName, key);
+        byteRedisTemplate.delete(fullKey);
+        logger.debug("Evicted cache entry: {}", fullKey);
+    }
+
+    @Override
+    public void evictAll(String cacheName) {
+        String pattern = cacheName + ":*";
+        byteRedisTemplate.delete(byteRedisTemplate.keys(pattern));
+        logger.debug("Evicted all entries for cache: {}", cacheName);
+    }
+
     private String generateFullKey(String cacheName, String key) {
         return cacheName + ":" + key;
     }

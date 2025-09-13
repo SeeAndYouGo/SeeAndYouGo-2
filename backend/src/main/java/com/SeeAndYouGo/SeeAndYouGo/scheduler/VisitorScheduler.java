@@ -149,7 +149,7 @@ public class VisitorScheduler {
         String redisToday = todayRedisTemplate.get(KEY_TODAY_VISITOR, date.toString());
         VisitorCount dbTodayVisitorCount = visitorCountRepository.findByIsTotalFalseAndCreatedAt(date);
 
-        logger.info("[VISITOR COUNT] Redis today count: {}, DB today count: {}", redisToday, dbTodayVisitorCount.getCount());
+        logger.info("[VISITOR COUNT] Redis today count: {}, DB today count: {}", redisToday, dbTodayVisitorCount == null ?  "null" : dbTodayVisitorCount.getCount());
         if (redisToday == null) {
             redisToday = "0";
         }
@@ -168,6 +168,7 @@ public class VisitorScheduler {
             VisitorCount newTodayCount = VisitorCount.from(resultCount, date, false);
             visitorCountRepository.save(newTodayCount);
         }
+
     }
 
     private int getResultValue(int redisValue, int dbValue) {

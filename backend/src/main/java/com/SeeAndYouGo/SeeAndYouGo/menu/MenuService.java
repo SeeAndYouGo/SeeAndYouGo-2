@@ -1,11 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
+import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
-import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
-import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
-import com.SeeAndYouGo.SeeAndYouGo.menu.menuCache.ClearMenuCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Location;
@@ -286,7 +286,7 @@ public class MenuService {
   
     @Transactional
     @ClearMainDishCache
-    @ClearMenuCache(cacheKeys = {"daily-menu", "weekly-menu"})
+    @EvictAllCache({"daily-menu", "weekly-menu"})
     public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
         menuProvider.updateMenuMap(restaurant, monday, sunday);
