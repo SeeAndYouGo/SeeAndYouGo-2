@@ -1,15 +1,13 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/seeandyougo
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/seeandyougo?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
   jpa:
     properties:
-      dialect: org.hibernate.dialect.H2Dialect
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   data:
     redis:
       host: localhost
       port: 6379
-
-

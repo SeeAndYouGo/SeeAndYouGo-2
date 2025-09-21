@@ -1,6 +1,6 @@
 ﻿spring:
   profiles:
-    active: prod
+    active: local
   config:
     import: classpath:key.yml
   jpa:
@@ -16,10 +16,6 @@
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-
-
-app:
-  test: true
 
 URL:
   DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
