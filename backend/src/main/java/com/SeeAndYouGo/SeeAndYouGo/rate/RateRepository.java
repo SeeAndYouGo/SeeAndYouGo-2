@@ -11,4 +11,6 @@ public interface RateRepository extends JpaRepository<Rate, Long> {
     Rate findByRestaurantAndDept(Restaurant restaurant, String dept);
 
     List<Rate> findByDept(String dishName);
+
+    boolean existsByDept(String name);
 }

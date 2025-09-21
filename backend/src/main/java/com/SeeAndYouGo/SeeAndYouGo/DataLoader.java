@@ -53,6 +53,7 @@ public class DataLoader implements CommandLineRunner {
         
         // Historical 캐시 초기화
         newDishCacheService.initHistoricalCache();
+        rateService.saveRate();
 
         log.info("초기세팅 완료");
     }

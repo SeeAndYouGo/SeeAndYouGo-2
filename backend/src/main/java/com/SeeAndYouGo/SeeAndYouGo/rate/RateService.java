@@ -32,6 +32,38 @@ public class RateService {
     private final RateRepository rateRepository;
     private final DishRepository dishRepository;
 
+    @Transactional
+    public void saveRate(){
+        // DB에 저장되어 있지 않은 1학생회관 dish를 저장한다.
+        try {
+            // Read the JSON file
+            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
+
+            // Parse the JSON data
+            JsonParser jsonParser = new JsonParser();
+            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+
+            // Extract menuName
+            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
+            for (JsonElement menuJson : menuNameArray) {
+                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
+                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
+                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+
+                if(!rateRepository.existsByDept(name)){
+                    Rate rate = Rate.builder()
+                                .restaurant(Restaurant.제1학생회관)
+                                .dept(name)
+                                .build();
+
+                    rateRepository.save(rate);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void setRestaurant1MenuField() {
         try {
             // Read the JSON file
