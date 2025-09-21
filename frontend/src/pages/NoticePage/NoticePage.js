@@ -1,47 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
-// json 사용 예시
-// const tempNotice = {
-// 	title: "v.1.2.3 업데이트 안내입니다.",
-// 	date: "2024-01-10",
-// 	version: "v.1.2.3",
-// 	comment: "안녕하세요.",
-// 	new: [
-// 		["new1", "new1 설명"],
-// 		["new2", "new2 설명"],
-// 		["new3", "new3 설명"],
-// 	],
-// 	feature: [
-// 		[
-// 			"리뷰 작성 기능 추가",
-// 			"별점, 닉네임, 코멘트를 입력해 리뷰 작성이 가능합니다.",
-// 		],
-// 		[
-// 			"리뷰 확인 기능 추가",
-// 			"리뷰 페이지를 통해 전체 또는 학생 식당별 당일에 작성된 리뷰가 확인 가능합니다.",
-// 		],
-// 		[
-// 			"개발자 정보 추가",
-// 			"문의사항이나 요청사항이 따로 있으시다면 화면 하단에 있는 메일로 남겨주시면 감사하겠습니다.",
-// 		],
-// 	],
-// 	change: [
-// 		["변경1", "before1", "after1"],
-// 		["변경2", "before2", "after2"],
-// 		["변경3", "before3", "after3"],
-// 	],
-// 	fixed: [
-// 		["오류 수정", "설명"],
-// 		["버그 수정", "설명"],
-// 	],
-// 	deprecated: [
-// 		["사용 중단1", "설명1"],
-// 		["사용 중단2", "설명2"],
-// 		["사용 중단3", "설명3"],
-// 	],
-// };
-
 const NoticeContainer = styled.div`
 	padding: 10px;
 	/* @media (min-width: 576px) {
@@ -153,14 +112,19 @@ const DescriptionType2 = ({ val1, val2, val3 }) => {
 			<p style={{ margin: "2px 5px", fontWeight: 500, fontSize: 15 }}>
 				- {val1}
 			</p>
-			<div style={{ margin: "3px 5px" }}>
-				<FrontSpan>{"[ 기존 ]"}&nbsp;</FrontSpan>
-				<span style={{ fontWeight: 400 }}>{val2}</span>
-			</div>
-			<div style={{ margin: "3px 5px" }}>
-				<FrontSpan>{"[ 현재 ]"}&nbsp;</FrontSpan>
-				<span style={{ fontWeight: 400 }}>{val3}</span>
-			</div>
+			{
+				val2 === undefined ? null : 
+					<div>
+						<div style={{ margin: "3px 5px" }}>
+							<FrontSpan>{"[ 기존 ]"}&nbsp;</FrontSpan>
+							<span style={{ fontWeight: 400 }}>{val2}</span>
+						</div>
+						<div style={{ margin: "3px 5px" }}>
+							<FrontSpan>{"[ 현재 ]"}&nbsp;</FrontSpan>
+							<span style={{ fontWeight: 400 }}>{val3}</span>
+						</div>
+					</div>
+			}
 		</div>
 	);
 };

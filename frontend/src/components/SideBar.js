@@ -173,7 +173,8 @@ const SideBar = ({isOpen, setIsOpen}) => {
                   <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
                   <AccountWrap>
                     <span style={{marginLeft: 10, float: "left", fontSize: 18, lineHeight: "50px"}}>
-                      {nickname === "" ? "익명" : nickname}&nbsp;님
+                      {nickname === "" || nickname === null ? "익명" : nickname}&nbsp;님
+                      {console.log("닉네임 확인", nickname)}
                     </span>
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
