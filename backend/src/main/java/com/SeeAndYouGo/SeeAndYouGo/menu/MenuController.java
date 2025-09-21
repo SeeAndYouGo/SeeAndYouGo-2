@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,11 +34,22 @@ public class MenuController {
     private final UserRepository userRepository;
 
     private final UserKeywordRepository userKeywordRepository;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
 
     @GetMapping("/daily-menu/{restaurant}")
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
                                                                @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        String date = getTodayDate();
+        return restaurantMenuDayByUserTest(place, getTodayDate(), email);
+    }
+
+    @GetMapping("/daily-menu/{restaurant}/{date}")
+    public List<MenuResponseByUserDto> restaurantMenuDayByUserTest(@PathVariable("restaurant") String place,
+                                                                   @PathVariable String date,
+                                                                   @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        if(!checkParams(date)){
+            throw new IllegalArgumentException("날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
+        }
+
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
         List<Dish> mainDishs = oneDayRestaurantMenu.stream()
                 .map(x -> x.getMainDish())
@@ -53,6 +65,16 @@ public class MenuController {
         }
 
         return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keywords, newMainDishs);
+    }
+
+    private boolean checkParams(String date) {
+        try{
+            LocalDate.parse(date, formatter);
+
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 
     public static String getTodayDate() {
