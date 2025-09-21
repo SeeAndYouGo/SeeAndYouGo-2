@@ -2,6 +2,7 @@ version: "3.8"
 
 networks:
   backbone:
+    external: true
 
 services:
   mysql:
