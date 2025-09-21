@@ -2,13 +2,13 @@ package com.SeeAndYouGo.SeeAndYouGo;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionService;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishService;
+import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,7 @@ public class IterService {
     private final HolidayService holidayService;
     private final ConnectionService connectionService;
     private final StatisticsService statisticsService;
+    private final RateService rateService;
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
@@ -45,6 +46,7 @@ public class IterService {
 
                 // 월요일부터 일요일까지의 메뉴를 캐싱한다.
                 menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
+                rateService.saveRate();
             }
     }
 
