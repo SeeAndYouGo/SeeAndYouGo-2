@@ -45,8 +45,9 @@ const TodayMenu = ({ idx, data = [] }) => {
 	const nowDept = useSelector((state) => state.dept).value;
 	const nowMenuType = useSelector((state) => state.menuType).value;
 	const nowRestaurantId = useSelector((state) => state.user).value.selectedRestaurant;
-	const nowMainMenuList = useSelector((state) => state.nowMenuInfo).value.mainMenuList;
+	const nowMainMenuList = useSelector((state) => state.nowMenuInfo.value).mainMenuList;
 	const nowMenuIsOpen = useSelector((state) => state.nowMenuInfo).value.menuIsOpen;
+	const nowMenuId = useSelector((state) => state.nowMenuInfo).value.menuId;
 
 	const handleDivClick = (clickedDept, menuList, id, isOpen) => {
 		dispatch(changeDept(clickedDept));
@@ -114,12 +115,12 @@ const TodayMenu = ({ idx, data = [] }) => {
 		if (targetMenuData?.length > 0) {
       const selectedMenu = targetMenuData.find(item => item.mainDishList.length > 0) || targetMenuData[0];
 
-      if (JSON.stringify(selectedMenu.mainDishList) !== JSON.stringify(nowMainMenuList) || 
-          selectedMenu.dept !== nowDept) {
-        dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId, menuIsOpen: selectedMenu.open}));
-        dispatch(changeDept(selectedMenu.dept));
-      }
-			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuIsOpen: selectedMenu.open}));
+      // if (JSON.stringify(selectedMenu.mainDishList) !== JSON.stringify(nowMainMenuList) || 
+      //     selectedMenu.dept !== nowDept) {
+      //   dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId, menuIsOpen: selectedMenu.open}));
+      //   dispatch(changeDept(selectedMenu.dept));
+      // }
+			dispatch(changeMenuInfo({mainMenuList: selectedMenu.mainDishList, menuId: selectedMenu.menuId, menuIsOpen: selectedMenu.open}));
     }
 	}, [menu1, menu2, menu3]);
 
