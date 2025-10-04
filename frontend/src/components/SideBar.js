@@ -142,7 +142,6 @@ const SideBar = ({isOpen, setIsOpen}) => {
     const fetchVisitData = async () => {
       try {
         const response = await get(`/visitors/count`);
-        console.log("방문자 데이터 확인", response.data);
         setVisitTodayData(response.data.visitToday);
         setVisitTotalData(response.data.visitTotal);
       } catch (error) {
@@ -174,7 +173,6 @@ const SideBar = ({isOpen, setIsOpen}) => {
                   <AccountWrap>
                     <span style={{marginLeft: 10, float: "left", fontSize: 18, lineHeight: "50px"}}>
                       {nickname === "" || nickname === null ? "익명" : nickname}&nbsp;님
-                      {console.log("닉네임 확인", nickname)}
                     </span>
                     <LogoutBtn onClick={() => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;

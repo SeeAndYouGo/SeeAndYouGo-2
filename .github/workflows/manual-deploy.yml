@@ -1,0 +1,263 @@
+name: SeeAndYouGo Manual Deploy
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: '배포 대상 선택'
+        required: true
+        type: choice
+        options:
+          - all
+          - backend
+          - frontend
+
+jobs:
+  build-backend:
+    if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'backend' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "[Backend] 코드 체크아웃"
+        uses: actions/checkout@v3
+
+      - name: "[Backend] QEMU 설정"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "[Backend] Docker Buildx 설정"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "[Backend] GHCR 로그인"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "[Backend] JDK 11 설정"
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: "[Backend] Gradle 실행 권한 부여"
+        run: chmod +x backend/gradlew
+
+      - name: "[Backend] 환경 파일 준비"
+        run: |
+          cd backend/src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > application.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > application-prod.yaml
+          echo "${{ secrets.KEY_YML }}" > key.yml
+        shell: bash
+
+      - name: "[Backend] JSON 파일 준비"
+        env:
+          JSON_CONTENT: ${{ secrets.RES1_JSON }}
+        run: |
+          FILE_PATH="backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json"
+          mkdir -p $(dirname "$FILE_PATH")
+          printf '%s' "$JSON_CONTENT" > "$FILE_PATH"
+
+      - name: "[Backend] Gradle 빌드"
+        run: |
+          cd backend
+          ./gradlew clean bootJar
+
+      - name: "[Backend] Dockerfile 수정 (JSON 파일 복사)"
+        run: |
+          echo "" >> backend/Dockerfile
+          echo "# Runtime에 필요한 JSON 파일을 이미지로 복사" >> backend/Dockerfile
+          echo "RUN mkdir -p /app/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant" >> backend/Dockerfile
+          echo "COPY src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json /app/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json" >> backend/Dockerfile
+
+      - name: "[Backend] Docker 이미지 빌드 및 Push"
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-backend"
+          cd backend
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag $IMAGE_NAME:latest \
+            --tag $IMAGE_NAME:${{ github.sha }} \
+            --push \
+            .
+
+  build-frontend:
+    if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "[Frontend] 코드 체크아웃"
+        uses: actions/checkout@v3
+
+      - name: "[Frontend] QEMU 설정"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "[Frontend] Docker Buildx 설정"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "[Frontend] GHCR 로그인"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "[Frontend] 환경 파일 준비"
+        run: |
+          cd frontend
+          echo "${{ secrets.FRONTEND_ENV }}" > .env
+        shell: bash
+
+      - name: "[Frontend] Nginx 설정 파일 복사"
+        run: cp default.conf frontend/
+
+      - name: "[Frontend] Dockerfile 수정"
+        run: |
+          sed -i.bak 's|COPY frontend/. .|COPY . .|' frontend/Dockerfile
+          sed -i.bak 's|COPY frontend/package.json frontend/yarn.lock ./|COPY package.json yarn.lock ./|' frontend/Dockerfile
+
+      - name: "[Frontend] Docker 이미지 빌드 및 Push"
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-frontend"
+          cd frontend 
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag $IMAGE_NAME:latest \
+            --tag $IMAGE_NAME:${{ github.sha }} \
+            --push \
+            .
+
+  deploy:
+    needs: [build-backend, build-frontend]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: "[배포] 서버에서 배포 실행"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          timeout: 30m
+          script: |
+            set -e
+            
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🚀 SeeAndYouGo 배포 시작"
+            echo "📦 배포 대상: ${{ inputs.deploy_target }}"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            echo "[시스템] GHCR 로그인..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            BACKEND_IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-backend"
+            FRONTEND_IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-frontend"
+
+            # Backend 배포
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
+              echo ""
+              echo "[Backend] Docker 이미지 Pull 중..."
+              docker pull $BACKEND_IMAGE_NAME:latest
+              
+              echo "[Backend] 기존 컨테이너 중지 중..."
+              docker stop seeandyougo > /dev/null 2>&1 || true
+              docker rm seeandyougo > /dev/null 2>&1 || true
+              
+              echo "[Backend] 새 컨테이너 시작 중..."
+              docker run -d \
+                --name seeandyougo \
+                --restart always \
+                --network backbone \
+                -p 8080:8080 \
+                -e TZ=Asia/Seoul \
+                $BACKEND_IMAGE_NAME:latest
+              
+              echo "✅ [Backend] 배포 완료"
+            fi
+            
+            # Frontend 배포
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "frontend" ]; then
+              echo ""
+              echo "[Frontend] Docker 이미지 Pull 중..."
+              docker pull $FRONTEND_IMAGE_NAME:latest
+              
+              echo "[Frontend] 기존 컨테이너 중지 중..."
+              docker stop seeandyougo-nginx > /dev/null 2>&1 || true
+              docker rm seeandyougo-nginx > /dev/null 2>&1 || true
+              
+              echo "[Frontend] 새 컨테이너 시작 중..."
+              docker run -d \
+                --name seeandyougo-nginx \
+                --restart always \
+                --network backbone \
+                -p 80:80 \
+                -p 443:443 \
+                -e TZ=Asia/Seoul \
+                $FRONTEND_IMAGE_NAME:latest
+              
+              echo "✅ [Frontend] 배포 완료"
+            fi
+            
+            echo ""
+            echo "[시스템] 사용하지 않는 Docker 이미지 정리 중..."
+            docker image prune -a -f
+            
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✨ 배포 완료"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: "[검증] 배포 상태 확인"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          timeout: 15m
+          script: |
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "📊 배포 검증"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
+              echo "[Backend] 헬스체크:"
+              sleep 3
+              if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+                echo "✅ Backend 정상 작동 중"
+              else
+                echo "⚠️  헬스체크 엔드포인트 없음 (서버는 실행 중)"
+              fi
+            fi
+            
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "frontend" ]; then
+              echo "[Frontend] 헬스체크:"
+              if curl -f http://localhost/ > /dev/null 2>&1; then
+                echo "✅ Frontend 정상 작동 중"
+              else
+                echo "⚠️  Frontend 응답 없음"
+              fi
+            fi
+            
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✅ 검증 완료"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: "[완료] 배포 결과 알림"
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ 배포 성공"
+            echo "📦 배포 대상: ${{ inputs.deploy_target }}"
+          else
+            echo "❌ 배포 실패"
+            echo "📋 로그를 확인해주세요"
+          fi
