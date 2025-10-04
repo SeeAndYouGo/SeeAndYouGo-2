@@ -67,6 +67,13 @@ jobs:
           cd backend
           ./gradlew clean bootJar
 
+      - name: "[Backend] Dockerfile 수정 (JSON 파일 복사)"
+        run: |
+          echo "" >> backend/Dockerfile
+          echo "# Runtime에 필요한 JSON 파일을 이미지로 복사" >> backend/Dockerfile
+          echo "RUN mkdir -p /app/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant" >> backend/Dockerfile
+          echo "COPY src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json /app/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json" >> backend/Dockerfile
+
       - name: "[Backend] Docker 이미지 빌드 및 Push"
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
