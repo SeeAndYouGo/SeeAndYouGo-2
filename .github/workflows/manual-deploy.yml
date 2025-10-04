@@ -32,6 +32,8 @@ jobs:
       - name: "[Backend] 환경 파일 준비"
         run: |
           cd backend/src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > application.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > application-prod.yaml
           echo "${{ secrets.KEY_YML }}" > key.yml
         shell: bash
 
@@ -53,7 +55,7 @@ jobs:
           docker save seeandyougo-backend:latest | gzip > backend-image.tar.gz
 
       - name: "[Backend] 아티팩트 업로드"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-image
           path: backend-image.tar.gz
@@ -85,7 +87,7 @@ jobs:
           docker save seeandyougo-frontend:latest | gzip > frontend-image.tar.gz
 
       - name: "[Frontend] 아티팩트 업로드"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-image
           path: frontend-image.tar.gz
@@ -98,14 +100,14 @@ jobs:
     steps:
       - name: "[배포] Backend 이미지 다운로드"
         if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'backend' }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-image
         continue-on-error: true
 
       - name: "[배포] Frontend 이미지 다운로드"
         if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: frontend-image
         continue-on-error: true
