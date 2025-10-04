@@ -54,6 +54,12 @@ jobs:
           echo "${{ secrets.KEY_YML }}" > key.yml
         shell: bash
 
+      - name: "[Backend] JSON 파일 준비"
+        run: |
+          FILE_PATH="backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json"
+          mkdir -p $(dirname "$FILE_PATH")
+          echo "${{ secrets.RES1_JSON }}" > "$FILE_PATH"
+
       - name: "[Backend] Gradle 빌드"
         run: |
           cd backend
@@ -213,11 +219,6 @@ jobs:
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
-              echo ""
-              echo "[Backend] 최근 로그:"
-              docker logs --tail 20 seeandyougo 2>&1 | head -20
-              echo ""
-              
               echo "[Backend] 헬스체크:"
               sleep 3
               if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
@@ -228,11 +229,6 @@ jobs:
             fi
             
             if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "frontend" ]; then
-              echo ""
-              echo "[Frontend] 최근 로그:"
-              docker logs --tail 15 seeandyougo-nginx 2>&1 | head -15
-              echo ""
-              
               echo "[Frontend] 헬스체크:"
               if curl -f http://localhost/ > /dev/null 2>&1; then
                 echo "✅ Frontend 정상 작동 중"
