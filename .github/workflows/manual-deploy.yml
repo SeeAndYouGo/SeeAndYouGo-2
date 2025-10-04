@@ -1,5 +1,9 @@
 name: SeeAndYouGo Manual Deploy
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -19,6 +23,13 @@ jobs:
     steps:
       - name: "[Backend] 코드 체크아웃"
         uses: actions/checkout@v3
+
+      - name: "[Backend] GHCR 로그인"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "[Backend] JDK 11 설정"
         uses: actions/setup-java@v3
@@ -42,25 +53,15 @@ jobs:
           cd backend
           ./gradlew clean bootJar
 
-      - name: "[Backend] Docker 이미지 빌드"
+      - name: "[Backend] Docker 이미지 빌드 및 Push"
         run: |
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-backend"
           cd backend
           docker build \
-            -t seeandyougo-backend:${{ github.sha }} \
-            -t seeandyougo-backend:latest \
+            -t $IMAGE_NAME:latest \
+            -t $IMAGE_NAME:${{ github.sha }} \
             .
-
-      # ✅ gzip → tar로 변경
-      - name: "[Backend] Docker 이미지 저장"
-        run: |
-          docker save seeandyougo-backend:latest > backend-image.tar
-
-      - name: "[Backend] 아티팩트 업로드"
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-image
-          path: backend-image.tar
-          retention-days: 1
+          docker push $IMAGE_NAME --all-tags
 
   build-frontend:
     if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
@@ -69,62 +70,35 @@ jobs:
       - name: "[Frontend] 코드 체크아웃"
         uses: actions/checkout@v3
 
+      - name: "[Frontend] GHCR 로그인"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: "[Frontend] 환경 파일 준비"
         run: |
           cd frontend
           echo "${{ secrets.FRONTEND_ENV }}" > .env
         shell: bash
 
-      - name: "[Frontend] Docker 이미지 빌드"
+      - name: "[Frontend] Docker 이미지 빌드 및 Push"
         run: |
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-frontend"
+          # frontend 폴더에 Dockerfile이 있다고 가정합니다.
+          cd frontend 
           docker build \
-            -t seeandyougo-frontend:${{ github.sha }} \
-            -t seeandyougo-frontend:latest \
-            -f Dockerfile \
+            -t $IMAGE_NAME:latest \
+            -t $IMAGE_NAME:${{ github.sha }} \
             .
-
-      # ✅ gzip → tar로 변경
-      - name: "[Frontend] Docker 이미지 저장"
-        run: |
-          docker save seeandyougo-frontend:latest > frontend-image.tar
-
-      - name: "[Frontend] 아티팩트 업로드"
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-image
-          path: frontend-image.tar
-          retention-days: 1
+          docker push $IMAGE_NAME --all-tags
 
   deploy:
     needs: [build-backend, build-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: "[배포] Backend 이미지 다운로드"
-        if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'backend' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-image
-        continue-on-error: true
-
-      - name: "[배포] Frontend 이미지 다운로드"
-        if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-image
-        continue-on-error: true
-
-      - name: "[배포] 서버로 파일 전송"
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: "*.tar"
-          target: "/tmp/seeandyougo-deploy"
-          timeout: 30m
-
       - name: "[배포] 서버에서 배포 실행"
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -135,19 +109,23 @@ jobs:
           timeout: 30m
           script: |
             set -e
-            mkdir -p /tmp/seeandyougo-deploy
-            cd /tmp/seeandyougo-deploy
             
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "🚀 SeeAndYouGo 배포 시작"
             echo "📦 배포 대상: ${{ inputs.deploy_target }}"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            
+
+            echo "[시스템] GHCR 로그인..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            BACKEND_IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-backend"
+            FRONTEND_IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-frontend"
+
             # Backend 배포
-            if [ -f backend-image.tar ]; then
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
               echo ""
-              echo "[Backend] Docker 이미지 로드 중..."
-              docker load < backend-image.tar
+              echo "[Backend] Docker 이미지 Pull 중..."
+              docker pull $BACKEND_IMAGE_NAME:latest
               
               echo "[Backend] 기존 컨테이너 중지 중..."
               docker stop seeandyougo > /dev/null 2>&1 || true
@@ -160,16 +138,16 @@ jobs:
                 --network backbone \
                 -p 8080:8080 \
                 -e TZ=Asia/Seoul \
-                seeandyougo-backend:latest
+                $BACKEND_IMAGE_NAME:latest
               
               echo "✅ [Backend] 배포 완료"
             fi
             
             # Frontend 배포
-            if [ -f frontend-image.tar ]; then
+            if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "frontend" ]; then
               echo ""
-              echo "[Frontend] Docker 이미지 로드 중..."
-              docker load < frontend-image.tar
+              echo "[Frontend] Docker 이미지 Pull 중..."
+              docker pull $FRONTEND_IMAGE_NAME:latest
               
               echo "[Frontend] 기존 컨테이너 중지 중..."
               docker stop seeandyougo-nginx > /dev/null 2>&1 || true
@@ -183,17 +161,14 @@ jobs:
                 -p 80:80 \
                 -p 443:443 \
                 -e TZ=Asia/Seoul \
-                seeandyougo-frontend:latest
+                $FRONTEND_IMAGE_NAME:latest
               
               echo "✅ [Frontend] 배포 완료"
             fi
             
-            # 정리
             echo ""
-            echo "[시스템] 임시 파일 정리 중..."
-            cd /
-            rm -rf /tmp/seeandyougo-deploy
-            docker system prune -f > /dev/null 2>&1
+            echo "[시스템] 사용하지 않는 Docker 이미지 정리 중..."
+            docker image prune -a -f
             
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
