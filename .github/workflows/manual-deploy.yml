@@ -50,15 +50,16 @@ jobs:
             -t seeandyougo-backend:latest \
             .
 
+      # ✅ gzip → tar로 변경
       - name: "[Backend] Docker 이미지 저장"
         run: |
-          docker save seeandyougo-backend:latest | gzip > backend-image.tar.gz
+          docker save seeandyougo-backend:latest > backend-image.tar
 
       - name: "[Backend] 아티팩트 업로드"
         uses: actions/upload-artifact@v4
         with:
           name: backend-image
-          path: backend-image.tar.gz
+          path: backend-image.tar
           retention-days: 1
 
   build-frontend:
@@ -82,15 +83,16 @@ jobs:
             -f Dockerfile \
             .
 
+      # ✅ gzip → tar로 변경
       - name: "[Frontend] Docker 이미지 저장"
         run: |
-          docker save seeandyougo-frontend:latest | gzip > frontend-image.tar.gz
+          docker save seeandyougo-frontend:latest > frontend-image.tar
 
       - name: "[Frontend] 아티팩트 업로드"
         uses: actions/upload-artifact@v4
         with:
           name: frontend-image
-          path: frontend-image.tar.gz
+          path: frontend-image.tar
           retention-days: 1
 
   deploy:
@@ -119,7 +121,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          source: "*.tar.gz"
+          source: "*.tar"
           target: "/tmp/seeandyougo-deploy"
 
       - name: "[배포] 서버에서 배포 실행"
@@ -129,6 +131,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          timeout: 30m    # 타임아웃 연장 (기본 10분 → 30분)
           script: |
             set -e
             cd /tmp/seeandyougo-deploy
@@ -139,10 +142,10 @@ jobs:
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             # Backend 배포
-            if [ -f backend-image.tar.gz ]; then
+            if [ -f backend-image.tar ]; then
               echo ""
               echo "[Backend] Docker 이미지 로드 중..."
-              docker load < backend-image.tar.gz > /dev/null 2>&1
+              docker load < backend-image.tar > /dev/null 2>&1
               
               echo "[Backend] 기존 컨테이너 중지 중..."
               docker stop seeandyougo > /dev/null 2>&1 || true
@@ -161,10 +164,10 @@ jobs:
             fi
             
             # Frontend 배포
-            if [ -f frontend-image.tar.gz ]; then
+            if [ -f frontend-image.tar ]; then
               echo ""
               echo "[Frontend] Docker 이미지 로드 중..."
-              docker load < frontend-image.tar.gz > /dev/null 2>&1
+              docker load < frontend-image.tar > /dev/null 2>&1
               
               echo "[Frontend] 기존 컨테이너 중지 중..."
               docker stop seeandyougo-nginx > /dev/null 2>&1 || true
@@ -201,6 +204,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          timeout: 15m
           script: |
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "📊 배포 검증"
