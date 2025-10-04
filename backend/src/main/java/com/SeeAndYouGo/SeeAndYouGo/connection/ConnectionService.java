@@ -58,7 +58,10 @@ public class ConnectionService {
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
             connectionProvider.updateConnectionMap(restaurant);
             ConnectionVO recentConnection = connectionProvider.getRecentConnection(restaurant);
-
+            if (recentConnection == null) {
+                // 간혹 받아오지 못한 경우인데 API 키 문제인지.. 원인은 확인 필요
+                return;
+            }
             Connection connection = Connection.builder()
                                                 .connected(recentConnection.getConnected())
                                                 .time(recentConnection.getTime())
