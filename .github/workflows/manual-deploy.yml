@@ -17,24 +17,30 @@ jobs:
     if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'backend' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: "[Backend] 코드 체크아웃"
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
+      - name: "[Backend] JDK 11 설정"
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
+      - name: "[Backend] Gradle 실행 권한 부여"
         run: chmod +x backend/gradlew
 
-      - name: Build with Gradle
+      - name: "[Backend] 환경 파일 준비"
+        run: |
+          cd backend/src/main/resources
+          echo "${{ secrets.KEY_YML }}" > key.yml
+        shell: bash
+
+      - name: "[Backend] Gradle 빌드"
         run: |
           cd backend
           ./gradlew clean bootJar
 
-      - name: Build Backend Docker Image
+      - name: "[Backend] Docker 이미지 빌드"
         run: |
           cd backend
           docker build \
@@ -42,11 +48,11 @@ jobs:
             -t seeandyougo-backend:latest \
             .
 
-      - name: Save Backend Docker Image
+      - name: "[Backend] Docker 이미지 저장"
         run: |
           docker save seeandyougo-backend:latest | gzip > backend-image.tar.gz
 
-      - name: Upload Backend Image Artifact
+      - name: "[Backend] 아티팩트 업로드"
         uses: actions/upload-artifact@v3
         with:
           name: backend-image
@@ -57,10 +63,16 @@ jobs:
     if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: "[Frontend] 코드 체크아웃"
         uses: actions/checkout@v3
 
-      - name: Build Frontend Docker Image
+      - name: "[Frontend] 환경 파일 준비"
+        run: |
+          cd frontend
+          echo "${{ secrets.FRONTEND_ENV }}" > .env
+        shell: bash
+
+      - name: "[Frontend] Docker 이미지 빌드"
         run: |
           docker build \
             -t seeandyougo-frontend:${{ github.sha }} \
@@ -68,11 +80,11 @@ jobs:
             -f Dockerfile \
             .
 
-      - name: Save Frontend Docker Image
+      - name: "[Frontend] Docker 이미지 저장"
         run: |
           docker save seeandyougo-frontend:latest | gzip > frontend-image.tar.gz
 
-      - name: Upload Frontend Image Artifact
+      - name: "[Frontend] 아티팩트 업로드"
         uses: actions/upload-artifact@v3
         with:
           name: frontend-image
@@ -84,21 +96,21 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Download Backend Image
+      - name: "[배포] Backend 이미지 다운로드"
         if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'backend' }}
         uses: actions/download-artifact@v3
         with:
           name: backend-image
         continue-on-error: true
 
-      - name: Download Frontend Image
+      - name: "[배포] Frontend 이미지 다운로드"
         if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
         uses: actions/download-artifact@v3
         with:
           name: frontend-image
         continue-on-error: true
 
-      - name: Copy images to server
+      - name: "[배포] 서버로 파일 전송"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -108,7 +120,7 @@ jobs:
           source: "*.tar.gz"
           target: "/tmp/seeandyougo-deploy"
 
-      - name: Deploy to Server
+      - name: "[배포] 서버에서 배포 실행"
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -119,42 +131,44 @@ jobs:
             set -e
             cd /tmp/seeandyougo-deploy
             
-            echo "=========================================="
-            echo "🚀 SeeAndYouGo Deployment Started"
-            echo "Target: ${{ inputs.deploy_target }}"
-            echo "=========================================="
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🚀 SeeAndYouGo 배포 시작"
+            echo "📦 배포 대상: ${{ inputs.deploy_target }}"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             # Backend 배포
             if [ -f backend-image.tar.gz ]; then
-              echo "📦 Loading backend image..."
-              docker load < backend-image.tar.gz
+              echo ""
+              echo "[Backend] Docker 이미지 로드 중..."
+              docker load < backend-image.tar.gz > /dev/null 2>&1
               
-              echo "🔄 Stopping old backend container..."
-              docker stop seeandyougo || true
-              docker rm seeandyougo || true
+              echo "[Backend] 기존 컨테이너 중지 중..."
+              docker stop seeandyougo > /dev/null 2>&1 || true
+              docker rm seeandyougo > /dev/null 2>&1 || true
               
-              echo "🚀 Starting new backend container..."
+              echo "[Backend] 새 컨테이너 시작 중..."
               docker run -d \
                 --name seeandyougo \
                 --restart always \
                 --network backbone \
                 -p 8080:8080 \
                 -e TZ=Asia/Seoul \
-                seeandyougo-backend:latest
+                seeandyougo-backend:latest > /dev/null 2>&1
               
-              echo "✅ Backend deployment completed!"
+              echo "✅ [Backend] 배포 완료"
             fi
             
             # Frontend 배포
             if [ -f frontend-image.tar.gz ]; then
-              echo "📦 Loading frontend image..."
-              docker load < frontend-image.tar.gz
+              echo ""
+              echo "[Frontend] Docker 이미지 로드 중..."
+              docker load < frontend-image.tar.gz > /dev/null 2>&1
               
-              echo "🔄 Stopping old frontend container..."
-              docker stop seeandyougo-nginx || true
-              docker rm seeandyougo-nginx || true
+              echo "[Frontend] 기존 컨테이너 중지 중..."
+              docker stop seeandyougo-nginx > /dev/null 2>&1 || true
+              docker rm seeandyougo-nginx > /dev/null 2>&1 || true
               
-              echo "🚀 Starting new frontend container..."
+              echo "[Frontend] 새 컨테이너 시작 중..."
               docker run -d \
                 --name seeandyougo-nginx \
                 --restart always \
@@ -162,21 +176,23 @@ jobs:
                 -p 80:80 \
                 -p 443:443 \
                 -e TZ=Asia/Seoul \
-                seeandyougo-frontend:latest
+                seeandyougo-frontend:latest > /dev/null 2>&1
               
-              echo "✅ Frontend deployment completed!"
+              echo "✅ [Frontend] 배포 완료"
             fi
             
             # 정리
-            echo "🧹 Cleaning up..."
+            echo ""
+            echo "[시스템] 임시 파일 정리 중..."
             rm -rf /tmp/seeandyougo-deploy
-            docker system prune -f
+            docker system prune -f > /dev/null 2>&1
             
-            echo "=========================================="
-            echo "✨ Deployment Finished Successfully!"
-            echo "=========================================="
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✨ 배포 완료"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-      - name: Verify Deployment
+      - name: "[검증] 배포 상태 확인"
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -184,52 +200,52 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            echo "=========================================="
-            echo "📊 Deployment Verification"
-            echo "=========================================="
-            
-            echo ""
-            echo "🐳 Running Containers:"
-            docker ps --filter "name=seeandyougo" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-            
-            echo ""
-            echo "=========================================="
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "📊 배포 검증"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
               echo ""
-              echo "📋 Backend Logs (last 30 lines):"
-              docker logs --tail 30 seeandyougo
+              echo "[Backend] 최근 로그:"
+              docker logs --tail 20 seeandyougo 2>&1 | head -20
               echo ""
               
-              # 헬스체크 (옵션)
-              echo "🏥 Backend Health Check:"
-              sleep 5
-              curl -f http://localhost:8080/actuator/health || echo "⚠️ Health check endpoint not available"
+              echo "[Backend] 헬스체크:"
+              sleep 3
+              if curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; then
+                echo "✅ Backend 정상 작동 중"
+              else
+                echo "⚠️  헬스체크 엔드포인트 없음 (서버는 실행 중)"
+              fi
             fi
             
             if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "frontend" ]; then
               echo ""
-              echo "📋 Frontend Logs (last 20 lines):"
-              docker logs --tail 20 seeandyougo-nginx
+              echo "[Frontend] 최근 로그:"
+              docker logs --tail 15 seeandyougo-nginx 2>&1 | head -15
               echo ""
               
-              # Nginx 상태 확인
-              echo "🏥 Frontend Health Check:"
-              curl -f http://localhost/ > /dev/null && echo "✅ Frontend is running!" || echo "⚠️ Frontend might have issues"
+              echo "[Frontend] 헬스체크:"
+              if curl -f http://localhost/ > /dev/null 2>&1; then
+                echo "✅ Frontend 정상 작동 중"
+              else
+                echo "⚠️  Frontend 응답 없음"
+              fi
             fi
             
             echo ""
-            echo "=========================================="
-            echo "✅ Verification Complete!"
-            echo "=========================================="
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✅ 검증 완료"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-      - name: Notify Deployment Result
+      - name: "[완료] 배포 결과 알림"
+      - name: "[완료] 배포 결과 알림"
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ 배포 성공!"
-            echo "Target: ${{ inputs.deploy_target }}"
+            echo "✅ 배포 성공"
+            echo "📦 배포 대상: ${{ inputs.deploy_target }}"
           else
-            echo "❌ 배포 실패!"
-            echo "로그를 확인해주세요."
+            echo "❌ 배포 실패"
+            echo "📋 로그를 확인해주세요"
           fi
