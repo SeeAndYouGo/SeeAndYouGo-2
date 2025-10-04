@@ -239,7 +239,6 @@ jobs:
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
       - name: "[완료] 배포 결과 알림"
-      - name: "[완료] 배포 결과 알림"
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
