@@ -55,10 +55,12 @@ jobs:
         shell: bash
 
       - name: "[Backend] JSON 파일 준비"
+        env:
+          JSON_CONTENT: ${{ secrets.RES1_JSON }}
         run: |
           FILE_PATH="backend/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json"
           mkdir -p $(dirname "$FILE_PATH")
-          echo "${{ secrets.RES1_JSON }}" > "$FILE_PATH"
+          printf '%s' "$JSON_CONTENT" > "$FILE_PATH"
 
       - name: "[Backend] Gradle 빌드"
         run: |
