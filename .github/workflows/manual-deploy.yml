@@ -24,6 +24,12 @@ jobs:
       - name: "[Backend] 코드 체크아웃"
         uses: actions/checkout@v3
 
+      - name: "[Backend] QEMU 설정"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "[Backend] Docker Buildx 설정"
+        uses: docker/setup-buildx-action@v3
+
       - name: "[Backend] GHCR 로그인"
         uses: docker/login-action@v3
         with:
@@ -58,11 +64,12 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-backend"
           cd backend
-          docker build \
-            -t $IMAGE_NAME:latest \
-            -t $IMAGE_NAME:${{ github.sha }} \
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag $IMAGE_NAME:latest \
+            --tag $IMAGE_NAME:${{ github.sha }} \
+            --push \
             .
-          docker push $IMAGE_NAME --all-tags
 
   build-frontend:
     if: ${{ inputs.deploy_target == 'all' || inputs.deploy_target == 'frontend' }}
@@ -70,6 +77,12 @@ jobs:
     steps:
       - name: "[Frontend] 코드 체크아웃"
         uses: actions/checkout@v3
+
+      - name: "[Frontend] QEMU 설정"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "[Frontend] Docker Buildx 설정"
+        uses: docker/setup-buildx-action@v3
 
       - name: "[Frontend] GHCR 로그인"
         uses: docker/login-action@v3
@@ -97,11 +110,12 @@ jobs:
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-frontend"
           cd frontend 
-          docker build \
-            -t $IMAGE_NAME:latest \
-            -t $IMAGE_NAME:${{ github.sha }} \
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag $IMAGE_NAME:latest \
+            --tag $IMAGE_NAME:${{ github.sha }} \
+            --push \
             .
-          docker push $IMAGE_NAME --all-tags
 
   deploy:
     needs: [build-backend, build-frontend]
