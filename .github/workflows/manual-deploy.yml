@@ -88,9 +88,9 @@ jobs:
         run: cp default.conf frontend/
 
       - name: "[Frontend] Dockerfile 수정"
-    run: |
-      sed -i.bak 's|COPY frontend/. .|COPY . .|' frontend/Dockerfile
-      sed -i.bak 's|COPY frontend/package.json frontend/yarn.lock ./|COPY package.json yarn.lock ./|' frontend/Dockerfile
+        run: |
+          sed -i.bak 's|COPY frontend/. .|COPY . .|' frontend/Dockerfile
+          sed -i.bak 's|COPY frontend/package.json frontend/yarn.lock ./|COPY package.json yarn.lock ./|' frontend/Dockerfile
 
       - name: "[Frontend] Docker 이미지 빌드 및 Push"
         run: |
