@@ -84,6 +84,9 @@ jobs:
           echo "${{ secrets.FRONTEND_ENV }}" > .env
         shell: bash
 
+      - name: "[Frontend] Nginx 설정 파일 복사"
+        run: cp default.conf frontend/
+
       - name: "[Frontend] Docker 이미지 빌드 및 Push"
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
