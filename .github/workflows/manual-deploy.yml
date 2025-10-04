@@ -55,7 +55,8 @@ jobs:
 
       - name: "[Backend] Docker 이미지 빌드 및 Push"
         run: |
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-backend"
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-backend"
           cd backend
           docker build \
             -t $IMAGE_NAME:latest \
@@ -85,8 +86,8 @@ jobs:
 
       - name: "[Frontend] Docker 이미지 빌드 및 Push"
         run: |
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-frontend"
-          # frontend 폴더에 Dockerfile이 있다고 가정합니다.
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-frontend"
           cd frontend 
           docker build \
             -t $IMAGE_NAME:latest \
@@ -118,8 +119,9 @@ jobs:
             echo "[시스템] GHCR 로그인..."
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            BACKEND_IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-backend"
-            FRONTEND_IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/seeandyougo-frontend"
+            OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            BACKEND_IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-backend"
+            FRONTEND_IMAGE_NAME="ghcr.io/$OWNER/seeandyougo-frontend"
 
             # Backend 배포
             if [ "${{ inputs.deploy_target }}" == "all" ] || [ "${{ inputs.deploy_target }}" == "backend" ]; then
