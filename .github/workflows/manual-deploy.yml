@@ -123,6 +123,8 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           source: "*.tar"
           target: "/tmp/seeandyougo-deploy"
+          timeout: 30m
+          tar_exec: false    # 이중 압축/해제 비활성화
 
       - name: "[배포] 서버에서 배포 실행"
         uses: appleboy/ssh-action@master
@@ -131,7 +133,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          timeout: 30m    # 타임아웃 연장 (기본 10분 → 30분)
+          timeout: 30m
           script: |
             set -e
             cd /tmp/seeandyougo-deploy
