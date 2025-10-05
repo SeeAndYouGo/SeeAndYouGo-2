@@ -28,7 +28,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
 
     @Override
     public ConnectionVO getRecentConnection(Restaurant restaurant) {
-        log.info("res {} getRecentConnection result: {}", restaurant, connectionMap.get(restaurant));
+        log.info("res {} getRecentConnection result: {}", restaurant, connectionMap.get(restaurant).getConnected());
         return connectionMap.get(restaurant);
     }
 
