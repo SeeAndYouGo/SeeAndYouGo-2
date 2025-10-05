@@ -96,6 +96,7 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
                 entity,
                 ConnectionVO.class
         );
+        log.info("res {} getRecentConnection result: {}", restaurant, response.getBody());
 
         return response.getBody();
     }

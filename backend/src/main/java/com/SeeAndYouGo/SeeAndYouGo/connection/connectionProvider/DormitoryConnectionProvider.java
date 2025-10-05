@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DormitoryConnectionProvider implements ConnectionProvider{
 
     @Value("${URL.DORM_CONN_URL}")
@@ -26,6 +28,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
 
     @Override
     public ConnectionVO getRecentConnection(Restaurant restaurant) {
+        log.info("res {} getRecentConnection result: {}", restaurant, connectionMap.get(restaurant));
         return connectionMap.get(restaurant);
     }
 
