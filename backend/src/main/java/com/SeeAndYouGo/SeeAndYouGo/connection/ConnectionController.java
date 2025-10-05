@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
+@Slf4j
 public class ConnectionController {
     private final ConnectionService connectionService;
 
@@ -23,6 +25,10 @@ public class ConnectionController {
     @GetMapping("/connection/{restaurant}")
     public ConnectionResponseDto congestionRequest(@PathVariable("restaurant") String restaurant) throws Exception {
         ConnectionVO recentConnection = connectionService.getRecentConnection(restaurant);
+        if (recentConnection == null) {
+            log.warn("최근 혼잡도 정보를 찾을 수 없습니다. restaurant={}", restaurant);
+            return new ConnectionResponseDto();
+        }
         return new ConnectionResponseDto(recentConnection);
     }
 
