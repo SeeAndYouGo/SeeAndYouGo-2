@@ -68,6 +68,9 @@ public class ApiMenuProvider implements MenuProvider{
                 entity,
                 MenuVO[].class
         );
+        if (response == null || response.getBody() == null) {
+            return Collections.emptyList();
+        }
 
         MenuVO[] menuVos = Objects.requireNonNull(response.getBody());
         return Arrays.stream(menuVos).collect(Collectors.toList());
