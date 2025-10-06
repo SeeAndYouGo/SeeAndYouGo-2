@@ -177,6 +177,7 @@ jobs:
                 --network backbone \
                 -p 8080:8080 \
                 -e TZ=Asia/Seoul \
+                -v /home/shxnzxxn/SeeAndYouGo-2/backend/imageStorage:/app/imageStorage \
                 $BACKEND_IMAGE_NAME:latest
               
               echo "✅ [Backend] 배포 완료"
