@@ -31,6 +31,7 @@ const SideBarWrap = styled.div`
   z-index: 10;
   right: -100%;
   transition: all 0.3s ease-in-out;
+  overflow-y: auto;
   &.open {
     right: 0;
   }
@@ -150,6 +151,19 @@ const SideBar = ({isOpen, setIsOpen}) => {
     }
     fetchVisitData();
   },[]);
+
+  // 사이드바가 열릴 때 body 스크롤 막기
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   return (
     <>
