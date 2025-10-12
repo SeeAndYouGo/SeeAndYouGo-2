@@ -13,6 +13,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class CrawlingMenuProvider implements MenuProvider{
-
+    private static final Logger logger = LoggerFactory.getLogger(CrawlingMenuProvider.class);
     private final static String DORM_URL = "https://dorm.cnu.ac.kr/html/kr/sub03/sub03_0304.html";
 
     private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
@@ -172,6 +174,7 @@ public class CrawlingMenuProvider implements MenuProvider{
 
     private Map<String, List<String>> getDishes(String text) {
         String[] lines = text.replace("<td class=\"left\">", "")
+                .replace("<td class=\"left last\">", "")
                 .replace("</td>", "")
                 .replace("<br><br>", "<br>")
                 .split("<br>");
@@ -204,11 +207,11 @@ public class CrawlingMenuProvider implements MenuProvider{
             }
 
             // 다음 메뉴가 나온다면 이전 메뉴를 저장함.
-			if (line.contains("메인") || line.contains("Main") || line.contains("MAIN")) {
+            if (line.contains("메인") || line.contains("Main") || line.contains("MAIN")) {
                 if (currentMenuTitle != null) {
-                    menuMap.put(currentMenuTitle, new ArrayList<>(currentMenuList));
+                    putMenu(menuMap, currentMenuTitle, currentMenuList);
                 }
-                currentMenuTitle = line;
+                currentMenuTitle = line.replaceAll("\\s*[\\(（][^\\)）]*[\\)）]", "").trim();
                 currentMenuList = new ArrayList<>();
                 continue;
             }
@@ -232,34 +235,47 @@ public class CrawlingMenuProvider implements MenuProvider{
         }
 
         if (currentMenuTitle != null && !currentMenuList.isEmpty()) {
-            menuMap.put(currentMenuTitle, currentMenuList);
+            putMenu(menuMap, currentMenuTitle, currentMenuList);
         }
 
         return menuMap;
     }
 
+    private void putMenu(Map<String, List<String>> menuMap, String title, List<String> menuList) {
+        String newTitle = title;
+        if (newTitle.contains("메인A") && menuMap.containsKey(newTitle)) {
+            newTitle = newTitle.replace("메인A", "메인C");
+        }
+
+        if (menuMap.containsKey(newTitle)) {
+            System.out.println("중복된 메뉴 코너가 발생했습니다: " + newTitle);
+            throw new IllegalStateException("Duplicate menu corner found: " + newTitle);
+        }
+        menuMap.put(newTitle, new ArrayList<>(menuList));
+    }
+
     private String cleanMenuName(String menuName) {
         String cleaned = menuName;
 
-	// 시험기간 event와 같은 부분은 메뉴로 표시하지 않기
-	if(cleaned.contains("시험기간") || cleaned.equals("**땅콩함유**")){
-		return "";
-	}
+        // 시험기간 event와 같은 부분은 메뉴로 표시하지 않기
+        if(cleaned.contains("시험기간") || cleaned.equals("**땅콩함유**")){
+            return "";
+        }
 
-	// 앞뒤 * 제거
-	cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
+        // 앞뒤 * 제거
+        cleaned = cleaned.replaceAll("^\\*(.*?)\\*$", "$1");
 
-	// 대괄호 정보 제거 (원산지, 특수 알레르기)
-	cleaned = cleaned.replaceAll("\\[.*?\\]", "");
+        // 대괄호 정보 제거 (원산지, 특수 알레르기)
+        cleaned = cleaned.replaceAll("\\[.*?\\]", "");
 
-	// 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
-	cleaned = cleaned.replaceAll("\\d+(,\\d+)*", "");
+        // 숫자 알레르기 코드 제거 (5,6,9,10,16 형태)
+        cleaned = cleaned.replaceAll("\\d+(,\\d+)*", "");
 
-	// 우유(공통)으로 오면 우유로 변경
-	cleaned = cleaned.replace("(공통)", "");
+        // 우유(공통)으로 오면 우유로 변경
+        cleaned = cleaned.replace("(공통)", "");
 
-	// 필요없는 문자 제거
-	cleaned = cleaned.replace(".", "").replace(",", "");
+        // 필요없는 문자 제거
+        cleaned = cleaned.replace(".", "").replace(",", "");
 
         return cleaned.trim();
     }
