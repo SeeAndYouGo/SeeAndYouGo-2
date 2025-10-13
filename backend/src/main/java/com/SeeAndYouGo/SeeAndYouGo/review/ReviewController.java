@@ -127,6 +127,8 @@ public class ReviewController {
                 .imgUrl(imgUrl)
                 .build();
 
+        log.info(data.toString());
+
         return reviewService.registerReview(data);
     }
 
