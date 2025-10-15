@@ -7,12 +7,14 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@ToString
 public class MenuVO {
     private Integer price;
     private List<DishVO> dishVOs;

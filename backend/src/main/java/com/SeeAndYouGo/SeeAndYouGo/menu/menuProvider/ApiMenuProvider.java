@@ -11,6 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ApiMenuProvider implements MenuProvider{
 
     @Value("${API.DISH_KEY}")
@@ -68,9 +70,14 @@ public class ApiMenuProvider implements MenuProvider{
                 entity,
                 MenuVO[].class
         );
-        if (response == null || response.getBody() == null) {
+
+
+        if (response.getBody() == null) {
+            log.info("res {} getWeeklyMenu result is null", restaurant);
             return Collections.emptyList();
         }
+
+        log.info("res {} getWeeklyMenu result: {}", restaurant, response.getBody()[0].toString());
 
         MenuVO[] menuVos = Objects.requireNonNull(response.getBody());
         return Arrays.stream(menuVos).collect(Collectors.toList());
