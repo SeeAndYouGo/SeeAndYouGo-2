@@ -3,9 +3,11 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.dto;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor // Jackson 라이브러리에서 직렬화할 때 사용
+@ToString
 public class ConnectionVO {
 
     private Integer connected;
