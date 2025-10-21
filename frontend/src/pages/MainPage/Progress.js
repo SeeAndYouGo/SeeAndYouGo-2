@@ -14,6 +14,7 @@ const Container = styled.div`
 const ProgressContainer = styled.div`
   background-color: #d9d9d9;
   width: 100%;
+  overflow: hidden;
   height: 10px;
   border-radius: 5px;
   margin-top: 6px;
