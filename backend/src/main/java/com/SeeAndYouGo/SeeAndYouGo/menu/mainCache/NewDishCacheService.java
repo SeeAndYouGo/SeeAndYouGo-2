@@ -46,18 +46,21 @@ public class NewDishCacheService {
             return;
         }
         
-        // 기간 동안의 메뉴들 조회
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            List<Menu> dayMenus = menuRepository.findByRestaurantAndDate(restaurant, date.format(DATE_FORMATTER));
-            Set<String> mainDishNames = dayMenus.stream()
-                    .flatMap(menu -> menu.getMainDish().stream())
-                    .map(Dish::getName)
-                    .collect(Collectors.toSet());
-            
-            if (!mainDishNames.isEmpty()) {
-                String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
-                redisTemplate.opsForSet().add(cacheKey, mainDishNames.toArray());
-            }
+        // ✅ 한 번의 쿼리로 기간 내 모든 메뉴 조회
+        List<Menu> periodMenus = menuRepository.findByRestaurantAndDateBetween(
+                restaurant,
+                startDate.format(DATE_FORMATTER),
+                endDate.format(DATE_FORMATTER)
+        );
+
+        Set<String> mainDishNames = periodMenus.stream()
+                .flatMap(menu -> menu.getMainDish().stream())
+                .map(Dish::getName)
+                .collect(Collectors.toSet());
+
+        if (!mainDishNames.isEmpty()) {
+            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
+            redisTemplate.opsForSet().add(cacheKey, mainDishNames.toArray());
         }
         
         // 마지막 동기화 날짜 업데이트
@@ -111,25 +114,26 @@ public class NewDishCacheService {
     private Set<String> buildHistoricalCacheFromDB(Restaurant restaurant) {
         LocalDate startDate = getNewDishCriteriaStartDate();
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        
-        List<Menu> historicalMenus = menuRepository.findByRestaurantAndDateGreaterThanEqual(
-                restaurant, startDate.format(DATE_FORMATTER))
-                .stream()
-                .filter(menu -> LocalDate.parse(menu.getDate(), DATE_FORMATTER).isBefore(LocalDate.now()))
-                .collect(Collectors.toList());
-        
+
+        // ✅ DB 쿼리에서 직접 날짜 범위 필터링
+        List<Menu> historicalMenus = menuRepository.findByRestaurantAndDateBetween(
+                restaurant,
+                startDate.format(DATE_FORMATTER),
+                yesterday.format(DATE_FORMATTER)
+        );
+
         Set<String> mainDishNames = historicalMenus.stream()
                 .flatMap(menu -> menu.getMainDish().stream())
                 .map(Dish::getName)
                 .collect(Collectors.toSet());
-        
+
         // 캐시에 저장
         if (!mainDishNames.isEmpty()) {
             String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
             redisTemplate.opsForSet().add(cacheKey, mainDishNames.toArray());
             setLastSyncDate(restaurant, yesterday.format(DATE_FORMATTER));
         }
-        
+
         log.info("Built historical cache from DB for restaurant: {}", restaurant);
         return mainDishNames;
     }
