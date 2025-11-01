@@ -126,7 +126,8 @@ public class Menu {
 
     public Long addReviewAndUpdateRate(Review review) {
         this.reviewList.add(review);
-        this.rate = (this.rate + review.getReviewRate()) / this.reviewList.size();
+        // 올바른 평균 계산: (기존 평균 × 기존 개수 + 새 평점) / 새 개수
+        this.rate = (this.rate * (this.reviewList.size() - 1) + review.getReviewRate()) / this.reviewList.size();
         return review.getId();
     }
 
