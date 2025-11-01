@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvi
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class ConnectionService {
 
         // 운영시간 체크: 비운영시간이면 -1 반환
         if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 조회 요청 - restaurant: {}, 현재시간: {}", restaurant, LocalTime.now());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String currentTime = LocalDateTime.now().format(formatter);
             return new ConnectionVO(-1, currentTime, restaurant);
@@ -57,6 +60,12 @@ public class ConnectionService {
 
     @Transactional
     public void saveRecentConnection() throws Exception {
+        // 운영시간이 아니면 저장하지 않음
+        if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 저장 요청 무시 - 현재시간: {}", LocalTime.now());
+            return;
+        }
+
         for (Restaurant restaurant : Restaurant.values()) {
             // 부르기 전에 먼저 DB에 있는지 확인한다.
             if(connectionRepository.countByRestaurant(restaurant) > 0){
@@ -101,9 +110,13 @@ public class ConnectionService {
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {
+        // 운영시간이 아니면 업데이트하지 않음
+        if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 캐시 업데이트 요청 무시 - 현재시간: {}", LocalTime.now());
+            return;
+        }
 
         for (Restaurant restaurant : Restaurant.values()) {
-
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
             connectionProvider.updateConnectionMap(restaurant);
         }
