@@ -12,5 +12,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByRestaurantAndMenuIn(Restaurant restaurant, List<Menu> date);
 
+    List<Review> findByRestaurantAndMenuInOrderByMadeTimeDesc(Restaurant restaurant, List<Menu> menus);
+
     List<Review> findByRestaurant(Restaurant restaurant);
+
+    List<Review> findByRestaurantOrderByMadeTimeDesc(Restaurant restaurant);
 }

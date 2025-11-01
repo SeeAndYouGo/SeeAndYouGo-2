@@ -19,8 +19,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,8 +61,7 @@ public class ReviewService {
      */
     public List<Review> findTopReviewsByRestaurantAndDate(String restaurantName, String date) {
         List<Review> restaurantReviews = findRestaurantReviews(restaurantName, date);
-        // 시간순으로 최근꺼가 먼저 오게 정렬하여 3개만 가져오자.
-        sortReviewsByDate(restaurantReviews);
+        // DB에서 이미 시간순으로 정렬되어 옴 (OrderByMadeTimeDesc)
 
         List<Review> studentReviews = new ArrayList<>();
         List<Review> staffReviews = new ArrayList<>();
@@ -100,34 +100,13 @@ public class ReviewService {
         }
     }
 
-    private void sortReviewsByDate(List<Review> reviews) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Collections.sort(reviews, new Comparator<Review>() {
-            // 가장 최신꺼가 가장 위로 온다!!
-            @Override
-            public int compare(Review o1, Review o2) {
-
-                LocalDateTime o1Time = LocalDateTime.parse(o1.getMadeTime(), formatter);
-                LocalDateTime o2Time = LocalDateTime.parse(o2.getMadeTime(), formatter);
-
-                if(o1Time.isEqual(o2Time)){
-                    return 0;
-                }else if(o1Time.isBefore(o2Time)){
-                    return 1;
-                }else {
-                    return -1;
-                }
-
-            }
-        });
-    }
 
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         Restaurant restaurant = Restaurant.valueOf(Restaurant.parseName(restaurantName));
 
         if(restaurant.equals(Restaurant.제1학생회관)){
             // 1학의 경우 아래의 로직대로 하면 너무 오래 걸리므로 그냥 1학 리뷰는 싹다 가져오게 진행한다.
-            return reviewRepository.findByRestaurant(restaurant);
+            return reviewRepository.findByRestaurantOrderByMadeTimeDesc(restaurant);
         }
 
         List<Menu> menus = menuRepository.findByRestaurantAndDate(restaurant, date);
@@ -137,8 +116,7 @@ public class ReviewService {
         for (Menu menu : menus) {
             param.addAll(menuService.findAllMenuByMainDish(menu));
         }
-        return reviewRepository.findByRestaurantAndMenuIn(restaurant, param);
-//        return reviewRepository.findRestaurantReviews(restaurant.getId(), date);
+        return reviewRepository.findByRestaurantAndMenuInOrderByMadeTimeDesc(restaurant, param);
     }
 
     @Transactional
