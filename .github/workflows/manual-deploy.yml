@@ -178,6 +178,7 @@ jobs:
                 -p 8080:8080 \
                 -e TZ=Asia/Seoul \
                 -v /home/shxnzxxn/SeeAndYouGo-2/backend/imageStorage:/app/imageStorage \
+                -v /home/shxnzxxn/seeandyougo-logs/back:/app/log \
                 $BACKEND_IMAGE_NAME:latest
               
               echo "✅ [Backend] 배포 완료"
@@ -201,6 +202,8 @@ jobs:
                 -p 80:80 \
                 -p 443:443 \
                 -e TZ=Asia/Seoul \
+                -v /home/shxnzxxn/seeandyougo-logs/front/access:/var/log/nginx/access \
+                -v /home/shxnzxxn/seeandyougo-logs/front/error:/var/log/nginx/error \
                 $FRONTEND_IMAGE_NAME:latest
               
               echo "✅ [Frontend] 배포 완료"
