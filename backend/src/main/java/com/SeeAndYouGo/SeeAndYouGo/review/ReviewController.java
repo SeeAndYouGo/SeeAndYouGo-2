@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -164,8 +165,28 @@ public class ReviewController {
     @ResponseBody
     @GetMapping("/images/{imgName}")
     public byte[] showImage(@PathVariable String imgName) throws Exception {
-        File file = new File(IMAGE_DIR + "/" + imgName);
-        return Files.readAllBytes(file.toPath());
+        // 파일명 검증
+        if (imgName.contains("..") || imgName.contains("/") || imgName.contains("\\")) {
+            throw new IllegalArgumentException("Invalid image name");
+        }
+
+        // 형식 검증
+        if (!imgName.matches("^[a-f0-9-]+\\.png$")) {
+            throw new IllegalArgumentException("Invalid image format");
+        }
+
+        Path imagePath = Paths.get(IMAGE_DIR, imgName).normalize();
+
+        // 경로 확인
+        if (!imagePath.startsWith(Paths.get(IMAGE_DIR).toAbsolutePath())) {
+            throw new SecurityException("Access denied");
+        }
+
+        if (!Files.exists(imagePath)) {
+            throw new FileNotFoundException("Image not found");
+        }
+
+        return Files.readAllBytes(imagePath);
     }
 
     @GetMapping("/reviews/{token}")
