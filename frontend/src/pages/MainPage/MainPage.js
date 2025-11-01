@@ -6,8 +6,7 @@ import Progress from "./Progress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
@@ -108,7 +107,6 @@ const MainPage = () => {
 
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		// restaurantId 변경 시마다 동작하지 않도록 수정
 	}, []);
 
 	return (
