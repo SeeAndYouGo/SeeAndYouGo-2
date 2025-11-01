@@ -337,17 +337,17 @@ public class MenuService {
         return menuProvider.getWeeklyMenuMap(restaurant);
     }
 
-    public List<String> getNewMainDishs(String place, List<Dish> mainDishs) {
+    public List<Long> getNewMainDishs(String place, List<Dish> mainDishs) {
         String parseRestaurantName = Restaurant.parseName(place);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
-        
-        // 캐시에서 과거 메인메뉴들 조회
-        Set<String> historicalMainDishes = newDishCacheService.getHistoricalMainDishes(restaurant);
-        
-        // 오늘 메인 요리 중에서 과거에 없던 것들만 필터링
+
+        // 캐시에서 과거 메인메뉴들 조회 (ID 기준)
+        Set<Long> historicalMainDishIds = newDishCacheService.getHistoricalMainDishes(restaurant);
+
+        // 오늘 메인 요리 중에서 과거에 없던 것들만 필터링 (ID 기준)
         return mainDishs.stream()
-                .map(Dish::getName)
-                .filter(dishName -> !historicalMainDishes.contains(dishName))
+                .map(Dish::getId)
+                .filter(dishId -> !historicalMainDishIds.contains(dishId))
                 .collect(Collectors.toList());
     }
 }
