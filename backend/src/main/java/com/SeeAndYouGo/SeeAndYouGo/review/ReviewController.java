@@ -170,11 +170,6 @@ public class ReviewController {
             throw new IllegalArgumentException("Invalid image name");
         }
 
-        // 형식 검증
-        if (!imgName.matches("^[a-f0-9-]+\\.png$")) {
-            throw new IllegalArgumentException("Invalid image format");
-        }
-
         Path imagePath = Paths.get(IMAGE_DIR, imgName).normalize();
 
         // 경로 확인
