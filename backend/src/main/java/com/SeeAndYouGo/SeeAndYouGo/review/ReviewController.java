@@ -172,11 +172,6 @@ public class ReviewController {
 
         Path imagePath = Paths.get(IMAGE_DIR, imgName).normalize();
 
-        // 경로 확인
-        if (!imagePath.startsWith(Paths.get(IMAGE_DIR).toAbsolutePath())) {
-            throw new SecurityException("Access denied");
-        }
-
         if (!Files.exists(imagePath)) {
             throw new FileNotFoundException("Image not found");
         }
