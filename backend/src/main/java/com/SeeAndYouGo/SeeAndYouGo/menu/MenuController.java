@@ -32,8 +32,8 @@ import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 public class MenuController {
     private final MenuService menuService;
     private final UserRepository userRepository;
-
     private final UserKeywordRepository userKeywordRepository;
+    private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
 
     @GetMapping("/daily-menu/{restaurant}")
@@ -55,7 +55,7 @@ public class MenuController {
                 .map(x -> x.getMainDish())
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        List<String> newMainDishs = menuService.getNewMainDishs(place, mainDishs);
+        List<Long> newMainDishIds = menuService.getNewMainDishs(place, mainDishs);
 
         List<String> keywords = new ArrayList<>();
         if (!email.equals("none")) {
@@ -64,7 +64,7 @@ public class MenuController {
             keywords = userKeywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
         }
 
-        return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keywords, newMainDishs);
+        return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keywords, newMainDishIds);
     }
 
     private boolean checkParams(String date) {
@@ -107,8 +107,17 @@ public class MenuController {
     private List<MenuResponseByUserDto> parseOneDayRestaurantMenuByUser(
             List<Menu> oneDayRestaurantMenu,
             List<String> keywords,
-            List<String> newMainDishs) {
+            List<Long> newMainDishIds) {
         List<MenuResponseByUserDto> menuResponseDtos = new ArrayList<>();
+
+        // ID 리스트를 이름 리스트로 변환
+        List<String> newMainDishNames = new ArrayList<>();
+        if (newMainDishIds != null && !newMainDishIds.isEmpty()) {
+            List<Dish> newDishes = dishRepository.findByIdIn(newMainDishIds);
+            newMainDishNames = newDishes.stream()
+                    .map(Dish::getName)
+                    .collect(Collectors.toList());
+        }
 
         for (Menu menu : oneDayRestaurantMenu) {
 
@@ -123,7 +132,7 @@ public class MenuController {
                     .date(menu.getDate())
                     .keywordList(keywords)
                     .isOpen(menu.isOpen())
-                    .newDishList(newMainDishs)
+                    .newDishList(newMainDishNames)
                     .build();
             menuResponseDtos.add(dto);
         }

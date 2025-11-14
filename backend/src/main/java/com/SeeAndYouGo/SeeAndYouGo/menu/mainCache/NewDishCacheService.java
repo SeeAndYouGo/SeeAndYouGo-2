@@ -46,18 +46,21 @@ public class NewDishCacheService {
             return;
         }
         
-        // 기간 동안의 메뉴들 조회
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            List<Menu> dayMenus = menuRepository.findByRestaurantAndDate(restaurant, date.format(DATE_FORMATTER));
-            Set<String> mainDishNames = dayMenus.stream()
-                    .flatMap(menu -> menu.getMainDish().stream())
-                    .map(Dish::getName)
-                    .collect(Collectors.toSet());
-            
-            if (!mainDishNames.isEmpty()) {
-                String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
-                redisTemplate.opsForSet().add(cacheKey, mainDishNames.toArray());
-            }
+        // ✅ 한 번의 쿼리로 기간 내 모든 메뉴 조회
+        List<Menu> periodMenus = menuRepository.findByRestaurantAndDateBetween(
+                restaurant,
+                startDate.format(DATE_FORMATTER),
+                endDate.format(DATE_FORMATTER)
+        );
+
+        Set<Long> mainDishIds = periodMenus.stream()
+                .flatMap(menu -> menu.getMainDish().stream())
+                .map(Dish::getId)
+                .collect(Collectors.toSet());
+
+        if (!mainDishIds.isEmpty()) {
+            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
+            redisTemplate.opsForSet().add(cacheKey, mainDishIds.toArray());
         }
         
         // 마지막 동기화 날짜 업데이트
@@ -91,16 +94,22 @@ public class NewDishCacheService {
     /**
      * 레스토랑의 과거 메인메뉴들 조회 (캐시 우선, 없으면 DB에서 구성)
      */
-    public Set<String> getHistoricalMainDishes(Restaurant restaurant) {
+    public Set<Long> getHistoricalMainDishes(Restaurant restaurant) {
         String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
         Set<Object> cachedDishes = redisTemplate.opsForSet().members(cacheKey);
-        
+
         if (cachedDishes != null && !cachedDishes.isEmpty()) {
+            // Redis는 Jackson serializer를 통해 Integer/Long으로 저장
+            // Number로 캐스팅하여 String 변환 오버헤드 제거
             return cachedDishes.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
+                .map(obj -> {
+                     if (obj instanceof Number) return ((Number) obj).longValue();
+                     if (obj instanceof String) return Long.parseLong((String) obj);
+                throw new IllegalStateException("Unexpected redis value type: " + obj.getClass());
+                })
+                .collect(Collectors.toSet());
         }
-        
+
         // 캐시 미스 시 DB에서 구성
         return buildHistoricalCacheFromDB(restaurant);
     }
@@ -108,30 +117,31 @@ public class NewDishCacheService {
     /**
      * DB에서 historical 캐시 구성
      */
-    private Set<String> buildHistoricalCacheFromDB(Restaurant restaurant) {
+    private Set<Long> buildHistoricalCacheFromDB(Restaurant restaurant) {
         LocalDate startDate = getNewDishCriteriaStartDate();
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        
-        List<Menu> historicalMenus = menuRepository.findByRestaurantAndDateGreaterThanEqual(
-                restaurant, startDate.format(DATE_FORMATTER))
-                .stream()
-                .filter(menu -> LocalDate.parse(menu.getDate(), DATE_FORMATTER).isBefore(LocalDate.now()))
-                .collect(Collectors.toList());
-        
-        Set<String> mainDishNames = historicalMenus.stream()
+
+        // ✅ DB 쿼리에서 직접 날짜 범위 필터링
+        List<Menu> historicalMenus = menuRepository.findByRestaurantAndDateBetween(
+                restaurant,
+                startDate.format(DATE_FORMATTER),
+                yesterday.format(DATE_FORMATTER)
+        );
+
+        Set<Long> mainDishIds = historicalMenus.stream()
                 .flatMap(menu -> menu.getMainDish().stream())
-                .map(Dish::getName)
+                .map(Dish::getId)
                 .collect(Collectors.toSet());
-        
+
         // 캐시에 저장
-        if (!mainDishNames.isEmpty()) {
+        if (!mainDishIds.isEmpty()) {
             String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
-            redisTemplate.opsForSet().add(cacheKey, mainDishNames.toArray());
+            redisTemplate.opsForSet().add(cacheKey, mainDishIds.toArray());
             setLastSyncDate(restaurant, yesterday.format(DATE_FORMATTER));
         }
-        
+
         log.info("Built historical cache from DB for restaurant: {}", restaurant);
-        return mainDishNames;
+        return mainDishIds;
     }
 
     /**

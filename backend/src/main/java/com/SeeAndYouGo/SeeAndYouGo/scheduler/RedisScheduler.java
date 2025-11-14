@@ -27,13 +27,15 @@ public class RedisScheduler {
     }
 
     /**
-     * 매일 새벽 1시에 모든 레스토랑의 historical 캐시 갱신
+     * 매일 새벽 0시 5분에 모든 레스토랑의 historical 캐시 갱신
      * 어제 날짜의 메인메뉴들을 캐시에 추가
+     *
+     * Note: resetKey()보다 5분 늦게 실행되어 실행 순서 보장
      */
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 5 0 * * *")
     public void syncHistoricalDishes() {
         log.info("Starting historical dishes sync for all restaurants");
-        
+
         for (Restaurant restaurant : Restaurant.values()) {
             try {
                 newDishCacheService.syncHistoricalDishes(restaurant);
@@ -41,7 +43,7 @@ public class RedisScheduler {
                 log.error("Failed to sync historical dishes for restaurant: {}", restaurant, e);
             }
         }
-        
+
         log.info("Completed historical dishes sync for all restaurants");
     }
 }

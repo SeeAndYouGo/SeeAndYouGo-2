@@ -5,14 +5,17 @@ import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvi
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -24,6 +27,12 @@ public class ConnectionService {
     @Value("${API.CONN_KEY}")
     private String CONN_KEY;
 
+    @Value("${CONN.OPERATING_HOURS.START:06:00}")
+    private String operatingStartTime;
+
+    @Value("${CONN.OPERATING_HOURS.END:19:30}")
+    private String operatingEndTime;
+
     /**
      * restaurantName에 해당하는 학생식당의 connection 정보를 반환한다.
      * @param restaurantName connectoin 정보가 필요한 학생식당
@@ -32,6 +41,14 @@ public class ConnectionService {
         // 학생식당의 이름으로 Restaurant 엔티티를 가져온다.
         String parseRestaurantName = Restaurant.parseName(restaurantName);
         Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
+
+        // 운영시간 체크: 비운영시간이면 -1 반환
+        if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 조회 요청 - restaurant: {}, 현재시간: {}", restaurant, LocalTime.now());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String currentTime = LocalDateTime.now().format(formatter);
+            return new ConnectionVO(-1, currentTime, restaurant);
+        }
 
         ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
         return connectionProvider.getRecentConnection(restaurant);
@@ -43,6 +60,12 @@ public class ConnectionService {
 
     @Transactional
     public void saveRecentConnection() throws Exception {
+        // 운영시간이 아니면 저장하지 않음
+        if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 저장 요청 무시 - 현재시간: {}", LocalTime.now());
+            return;
+        }
+
         for (Restaurant restaurant : Restaurant.values()) {
             // 부르기 전에 먼저 DB에 있는지 확인한다.
             if(connectionRepository.countByRestaurant(restaurant) > 0){
@@ -87,9 +110,13 @@ public class ConnectionService {
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {
+        // 운영시간이 아니면 업데이트하지 않음
+        if (!isOperatingHours()) {
+            log.info("비운영시간 혼잡도 캐시 업데이트 요청 무시 - 현재시간: {}", LocalTime.now());
+            return;
+        }
 
         for (Restaurant restaurant : Restaurant.values()) {
-
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
             connectionProvider.updateConnectionMap(restaurant);
         }
@@ -98,5 +125,20 @@ public class ConnectionService {
     public ConnectionVO getRecentConnectionMap(Restaurant restaurant) throws Exception {
         ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
         return connectionProvider.getRecentConnectionMap(restaurant);
+    }
+
+    /**
+     * 현재 시간이 운영시간인지 체크한다.
+     * 운영시간이 아니면 혼잡도 조회를 하지 않고 -1을 반환한다.
+     * @return true if 운영시간, false if 비운영시간
+     */
+    private boolean isOperatingHours() {
+        LocalTime now = LocalTime.now();
+        LocalTime start = LocalTime.parse(operatingStartTime);
+        LocalTime end = LocalTime.parse(operatingEndTime);
+
+        // start(06:00) <= now < end(19:30) 이면 운영시간
+        // 그 외(19:30 ~ 다음날 06:00)는 비운영시간
+        return !now.isBefore(start) && now.isBefore(end);
     }
 }

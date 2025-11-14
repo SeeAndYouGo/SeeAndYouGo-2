@@ -170,17 +170,7 @@ public class ReviewController {
             throw new IllegalArgumentException("Invalid image name");
         }
 
-        // 형식 검증
-        if (!imgName.matches("^[a-f0-9-]+\\.png$")) {
-            throw new IllegalArgumentException("Invalid image format");
-        }
-
         Path imagePath = Paths.get(IMAGE_DIR, imgName).normalize();
-
-        // 경로 확인
-        if (!imagePath.startsWith(Paths.get(IMAGE_DIR).toAbsolutePath())) {
-            throw new SecurityException("Access denied");
-        }
 
         if (!Files.exists(imagePath)) {
             throw new FileNotFoundException("Image not found");

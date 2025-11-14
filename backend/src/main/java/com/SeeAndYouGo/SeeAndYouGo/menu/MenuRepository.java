@@ -17,4 +17,6 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     boolean existsByRestaurantAndDate(Restaurant restaurant, String date);
 
     List<Menu> findByRestaurantAndDateGreaterThanEqual(Restaurant restaurant, String date);
+
+    List<Menu> findByRestaurantAndDateBetween(Restaurant restaurant, String startDate, String endDate);
 }
