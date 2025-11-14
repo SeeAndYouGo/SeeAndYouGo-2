@@ -102,8 +102,12 @@ public class NewDishCacheService {
             // Redis는 Jackson serializer를 통해 Integer/Long으로 저장
             // Number로 캐스팅하여 String 변환 오버헤드 제거
             return cachedDishes.stream()
-                    .map(obj -> ((Number) obj).longValue())
-                    .collect(Collectors.toSet());
+                .map(obj -> {
+                     if (obj instanceof Number) return ((Number) obj).longValue();
+                     if (obj instanceof String) return Long.parseLong((String) obj);
+                throw new IllegalStateException("Unexpected redis value type: " + obj.getClass());
+                })
+                .collect(Collectors.toSet());
         }
 
         // 캐시 미스 시 DB에서 구성
