@@ -46,6 +46,89 @@ public class CrawlingMenuProvider implements MenuProvider{
         return getWeeklyMenu(restaurant);
     }
 
+    @Override
+    public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
+        Connection connection = Jsoup.connect(DORM_URL);
+        Document document = connection.get();
+
+        List<LocalDate> dates = getDate(document);
+        LocalDate monday = dates.get(0);
+
+        Elements rows = document.select("#txt > table.default_view.diet_table > tbody > tr");
+        int dayIndex = date.getDayOfWeek().getValue() - 1; // Monday is 0, Sunday is 6
+
+        if (dayIndex >= rows.size()) {
+            return; // No data for the given date
+        }
+
+        Element row = rows.get(dayIndex);
+        List<MenuVO> dailyMenu = new ArrayList<>();
+
+        // 조식
+        String firstColumn = row.select("td:nth-child(2)").first().toString();
+        if (!firstColumn.isEmpty()) {
+            Map<String, List<String>> dishes = getDishes(firstColumn);
+            for (String deptStr : dishes.keySet()) {
+                Dept dept = Dept.changeStringToDept(deptStr);
+                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
+                for (String dishToStr : dishes.get(deptStr)) {
+                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                    menuVO.addDishVO(dishVO);
+                }
+                dailyMenu.add(menuVO);
+            }
+        }
+
+        // 중식
+        String secondColumn = row.select("td:nth-child(3)").first().toString();
+        if (!secondColumn.isEmpty()) {
+            Map<String, List<String>> dishes = getDishes(secondColumn);
+            for (String deptStr : dishes.keySet()) {
+                Dept dept = Dept.changeStringToDept(deptStr);
+                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
+                for (String dishToStr : dishes.get(deptStr)) {
+                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                    menuVO.addDishVO(dishVO);
+                }
+                dailyMenu.add(menuVO);
+            }
+        }
+
+        // 석식
+        String lastColumn = row.select("td.left.last").first().toString();
+        if (!lastColumn.isEmpty()) {
+            Map<String, List<String>> dishes = getDishes(lastColumn);
+            for (String deptStr : dishes.keySet()) {
+                Dept dept = Dept.changeStringToDept(deptStr);
+                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
+                for (String dishToStr : dishes.get(deptStr)) {
+                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                    menuVO.addDishVO(dishVO);
+                }
+                dailyMenu.add(menuVO);
+            }
+        }
+
+        // Fill absent menu for the day
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.BREAKFAST)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
+        }
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.LUNCH)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.LUNCH);
+        }
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.DINNER)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.DINNER);
+        }
+
+
+        List<MenuVO> weeklyMenu = menuMap.get(restaurant);
+        if (weeklyMenu != null) {
+            weeklyMenu.removeIf(menuVO -> menuVO.getDate().equals(date.toString()));
+            weeklyMenu.addAll(dailyMenu);
+            menuMap.put(restaurant, weeklyMenu);
+        }
+    }
+
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         Connection connection = Jsoup.connect(DORM_URL);
         Document document = connection.get();
