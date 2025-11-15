@@ -62,10 +62,10 @@ public class IterService {
         }
     }
 
-    @Scheduled(cron = "40 0/5 7-20 * * *")
+    @Scheduled(cron = "40 0/5 6-20 * * *")
     public void continuousIterative() throws Exception {
         LocalTime now = LocalTime.now();
-        LocalTime startTime = LocalTime.of(7, 30);
+        LocalTime startTime = LocalTime.of(6, 0);
         LocalTime endTime = LocalTime.of(19, 30);
         if (now.isBefore(startTime) || now.isAfter(endTime)) {
             return;
