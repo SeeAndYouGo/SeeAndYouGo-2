@@ -51,63 +51,62 @@ public class CrawlingMenuProvider implements MenuProvider{
         Connection connection = Jsoup.connect(DORM_URL);
         Document document = connection.get();
 
-        List<LocalDate> dates = getDate(document);
-        LocalDate monday = dates.get(0);
+        List<LocalDate> datesOnPage = getDate(document);
+        LocalDate mondayOnPage = datesOnPage.get(0);
 
         Elements rows = document.select("#txt > table.default_view.diet_table > tbody > tr");
-        int dayIndex = date.getDayOfWeek().getValue() - 1; // Monday is 0, Sunday is 6
-
-        if (dayIndex >= rows.size()) {
-            return; // No data for the given date
-        }
-
-        Element row = rows.get(dayIndex);
         List<MenuVO> dailyMenu = new ArrayList<>();
 
-        // 조식
-        String firstColumn = row.select("td:nth-child(2)").first().toString();
-        if (!firstColumn.isEmpty()) {
-            Map<String, List<String>> dishes = getDishes(firstColumn);
-            for (String deptStr : dishes.keySet()) {
-                Dept dept = Dept.changeStringToDept(deptStr);
-                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
-                for (String dishToStr : dishes.get(deptStr)) {
-                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                    menuVO.addDishVO(dishVO);
+        LocalDate currentDate = mondayOnPage;
+        for (Element row : rows) {
+            if (currentDate.isEqual(date)) {
+                // Found the row for the target date, process it.
+                // 조식
+                String firstColumn = row.select("td:nth-child(2)").first().toString();
+                if (!firstColumn.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(firstColumn);
+                    for (String deptStr : dishes.keySet()) {
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
+                        for (String dishToStr : dishes.get(deptStr)) {
+                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
+                        }
+                        dailyMenu.add(menuVO);
+                    }
                 }
-                dailyMenu.add(menuVO);
+
+                // 중식
+                String secondColumn = row.select("td:nth-child(3)").first().toString();
+                if (!secondColumn.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(secondColumn);
+                    for (String deptStr : dishes.keySet()) {
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
+                        for (String dishToStr : dishes.get(deptStr)) {
+                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
+                        }
+                        dailyMenu.add(menuVO);
+                    }
+                }
+
+                // 석식
+                String lastColumn = row.select("td.left.last").first().toString();
+                if (!lastColumn.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(lastColumn);
+                    for (String deptStr : dishes.keySet()) {
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
+                        for (String dishToStr : dishes.get(deptStr)) {
+                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
+                        }
+                        dailyMenu.add(menuVO);
+                    }
+                }
+                break; // Date found, no need to check other rows.
             }
+            currentDate = currentDate.plusDays(1);
         }
 
-        // 중식
-        String secondColumn = row.select("td:nth-child(3)").first().toString();
-        if (!secondColumn.isEmpty()) {
-            Map<String, List<String>> dishes = getDishes(secondColumn);
-            for (String deptStr : dishes.keySet()) {
-                Dept dept = Dept.changeStringToDept(deptStr);
-                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
-                for (String dishToStr : dishes.get(deptStr)) {
-                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                    menuVO.addDishVO(dishVO);
-                }
-                dailyMenu.add(menuVO);
-            }
-        }
-
-        // 석식
-        String lastColumn = row.select("td.left.last").first().toString();
-        if (!lastColumn.isEmpty()) {
-            Map<String, List<String>> dishes = getDishes(lastColumn);
-            for (String deptStr : dishes.keySet()) {
-                Dept dept = Dept.changeStringToDept(deptStr);
-                MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
-                for (String dishToStr : dishes.get(deptStr)) {
-                    DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                    menuVO.addDishVO(dishVO);
-                }
-                dailyMenu.add(menuVO);
-            }
-        }
 
         // Fill absent menu for the day
         if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.BREAKFAST)) {
