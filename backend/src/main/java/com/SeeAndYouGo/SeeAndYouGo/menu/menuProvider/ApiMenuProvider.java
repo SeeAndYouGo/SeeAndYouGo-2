@@ -217,6 +217,75 @@ public class ApiMenuProvider implements MenuProvider{
         return new MenuVO(price, date, dept, restaurant, menuType);
     }
 
+    private void fillMissingMenus(Restaurant restaurant, LocalDate date, List<MenuVO> dailyMenu) {
+        switch (restaurant) {
+            case 제2학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.BREAKFAST);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                break;
+            case 제3학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.DINNER);
+                break;
+            case 상록회관:
+            case 생활과학대:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                break;
+        }
+    }
+
+    private void checkAndAddDefault(List<MenuVO> dailyMenu, Restaurant restaurant, LocalDate date, Dept dept, MenuType menuType) {
+        boolean menuExists = dailyMenu.stream()
+                .anyMatch(menu -> menu.getDept() == dept && menu.getMenuType() == menuType);
+
+        if (!menuExists) {
+            MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
+            defaultMenu.addDishVO(new DishVO("메뉴 정보 없음", DishType.SIDE));
+            dailyMenu.add(defaultMenu);
+        }
+    }
+
+    private String getDailyMenuToString(LocalDate date) throws Exception {
+        StringBuilder rawMenu = new StringBuilder();
+        int page = 1;
+        boolean dateFound = false;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String dateString = date.format(formatter);
+
+        while (page <= 3) { // 최대 3페이지까지 확인
+            String apiUrl = SAVE_URL + SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                StringBuilder response = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                if (response.toString().contains(dateString)) {
+                    dateFound = true;
+                    mergeJsonResults(rawMenu, response);
+                }
+            }
+            if (dateFound && !rawMenu.toString().contains(dateString)) {
+                // 해당 페이지에 날짜가 있었지만, 다른 메뉴 정보만 있었을 수 있으므로 다음 페이지도 확인
+            } else if (dateFound) {
+                break; // 해당 날짜 정보를 찾았으면 종료
+            }
+            page++;
+        }
+        return rawMenu.toString();
+    }
+
     public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
