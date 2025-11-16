@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CrawlingMenuProvider implements MenuProvider{
     private static final Logger logger = LoggerFactory.getLogger(CrawlingMenuProvider.class);
-    private final static String DORM_URL = "https://dorm.cnu.ac.kr/html/kr/sub03/sub03_0304.html";
+    private final static String DORM_URL = "https://dorm.cnu.ac.kr/html/kr/sub04/sub04_040301.html";
 
     private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
 
@@ -48,65 +48,52 @@ public class CrawlingMenuProvider implements MenuProvider{
 
     @Override
     public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
-        Connection connection = Jsoup.connect(DORM_URL);
-        Document document = connection.get();
-
-        List<LocalDate> datesOnPage = getDate(document);
-        LocalDate mondayOnPage = datesOnPage.get(0);
-
-        Elements rows = document.select("#txt > table.default_view.diet_table > tbody > tr");
         List<MenuVO> dailyMenu = new ArrayList<>();
 
-        LocalDate currentDate = mondayOnPage;
-        for (Element row : rows) {
-            if (currentDate.isEqual(date)) {
-                // Found the row for the target date, process it.
-                // 조식
-                String firstColumn = row.select("td:nth-child(2)").first().toString();
-                if (!firstColumn.isEmpty()) {
-                    Map<String, List<String>> dishes = getDishes(firstColumn);
-                    for (String deptStr : dishes.keySet()) {
-                        Dept dept = Dept.changeStringToDept(deptStr);
-                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
-                        for (String dishToStr : dishes.get(deptStr)) {
-                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
-                        }
-                        dailyMenu.add(menuVO);
-                    }
+        // 1. 주간 URL 가져오기
+        Connection mainConnection = Jsoup.connect(DORM_URL);
+        Document mainDocument = mainConnection.get();
+        Elements dayLinks = mainDocument.select(".custom-week li a");
+
+        for (Element dayLink : dayLinks) {
+            String dayUrl = DORM_URL + dayLink.attr("href");
+            String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
+            LocalDate targetDate = LocalDate.parse(dateStr);
+
+            // updateDailyMenu는 특정 날짜의 데이터만 업데이트 해야함.
+            if(!targetDate.equals(date)) continue;
+
+            Connection dayConnection = Jsoup.connect(dayUrl);
+            Document dayDocument = dayConnection.get();
+
+            // 2. 아침, 점심, 저녁 메뉴 가져오기
+            Elements mealTds = dayDocument.select(".diet_table td");
+            for (Element mealTd : mealTds) {
+                String mealTypeStr = mealTd.attr("data-cell-header");
+                MenuType menuType;
+                if (mealTypeStr.equals("아침")) {
+                    menuType = MenuType.BREAKFAST;
+                } else if (mealTypeStr.equals("점심")) {
+                    menuType = MenuType.LUNCH;
+                } else {
+                    menuType = MenuType.DINNER;
                 }
 
-                // 중식
-                String secondColumn = row.select("td:nth-child(3)").first().toString();
-                if (!secondColumn.isEmpty()) {
-                    Map<String, List<String>> dishes = getDishes(secondColumn);
+                String menuContent = mealTd.toString();
+                if (!menuContent.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(menuContent);
                     for (String deptStr : dishes.keySet()) {
                         Dept dept = Dept.changeStringToDept(deptStr);
-                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
                         for (String dishToStr : dishes.get(deptStr)) {
-                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
+                            DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                            menuVO.addDishVO(dishVO);
                         }
                         dailyMenu.add(menuVO);
                     }
                 }
-
-                // 석식
-                String lastColumn = row.select("td.left.last").first().toString();
-                if (!lastColumn.isEmpty()) {
-                    Map<String, List<String>> dishes = getDishes(lastColumn);
-                    for (String deptStr : dishes.keySet()) {
-                        Dept dept = Dept.changeStringToDept(deptStr);
-                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
-                        for (String dishToStr : dishes.get(deptStr)) {
-                            menuVO.addDishVO(new DishVO(dishToStr, DishType.SIDE));
-                        }
-                        dailyMenu.add(menuVO);
-                    }
-                }
-                break; // Date found, no need to check other rows.
             }
-            currentDate = currentDate.plusDays(1);
         }
-
 
         // Fill absent menu for the day
         if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.BREAKFAST)) {
@@ -119,7 +106,6 @@ public class CrawlingMenuProvider implements MenuProvider{
             addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.DINNER);
         }
 
-
         List<MenuVO> weeklyMenu = menuMap.get(restaurant);
         if (weeklyMenu != null) {
             weeklyMenu.removeIf(menuVO -> menuVO.getDate().equals(date.toString()));
@@ -129,71 +115,46 @@ public class CrawlingMenuProvider implements MenuProvider{
     }
 
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
-        Connection connection = Jsoup.connect(DORM_URL);
-        Document document = connection.get();
-
         List<MenuVO> menuVOs = new ArrayList<>();
 
-        Elements rows = document.select("#txt > table.default_view.diet_table > tbody > tr");
+        // 1. 주간 URL 가져오기
+        Connection mainConnection = Jsoup.connect(DORM_URL);
+        Document mainDocument = mainConnection.get();
+        Elements dayLinks = mainDocument.select(".custom-week li a");
 
-        LocalDate date = monday;
-        for (int i = 0; i < rows.size(); i++, date = date.plusDays(1)) {
-            Element row = rows.get(i);
+        for (Element dayLink : dayLinks) {
+            String dayUrl = DORM_URL + dayLink.attr("href");
+            String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
+            LocalDate date = LocalDate.parse(dateStr);
 
-            // 조식
-            String firstColumn = row.select("td:nth-child(2)").first().toString();
-            if (!firstColumn.isEmpty()) {
-                Map<String, List<String>> dishes = getDishes(firstColumn);
-                for (String deptStr : dishes.keySet()) {
-                    Dept dept = Dept.changeStringToDept(deptStr);
+            Connection dayConnection = Jsoup.connect(dayUrl);
+            Document dayDocument = dayConnection.get();
 
-                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.BREAKFAST);
-
-                    for (String dishToStr : dishes.get(deptStr)) {
-
-                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                        menuVO.addDishVO(dishVO);
-                    }
-
-                    menuVOs.add(menuVO);
+            // 2. 아침, 점심, 저녁 메뉴 가져오기
+            Elements mealTds = dayDocument.select(".diet_table td");
+            for (Element mealTd : mealTds) {
+                String mealTypeStr = mealTd.attr("data-cell-header");
+                MenuType menuType;
+                if (mealTypeStr.equals("아침")) {
+                    menuType = MenuType.BREAKFAST;
+                } else if (mealTypeStr.equals("점심")) {
+                    menuType = MenuType.LUNCH;
+                } else {
+                    menuType = MenuType.DINNER;
                 }
-            }
 
-            // 중식
-            String secondColumn = row.select("td:nth-child(3)").first().toString();
-            if (!secondColumn.isEmpty()) {
-                Map<String, List<String>> dishes = getDishes(secondColumn);
-                for (String deptStr : dishes.keySet()) {
-                    Dept dept = Dept.changeStringToDept(deptStr);
-
-                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.LUNCH);
-
-                    for (String dishToStr : dishes.get(deptStr)) {
-
-                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                        menuVO.addDishVO(dishVO);
+                String menuContent = mealTd.toString();
+                if (!menuContent.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(menuContent);
+                    for (String deptStr : dishes.keySet()) {
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
+                        for (String dishToStr : dishes.get(deptStr)) {
+                            DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                            menuVO.addDishVO(dishVO);
+                        }
+                        menuVOs.add(menuVO);
                     }
-
-                    menuVOs.add(menuVO);
-                }
-            }
-
-            // 석식
-            String lastColumn = row.select("td.left.last").first().toString();
-            if (!lastColumn.isEmpty()) {
-                Map<String, List<String>> dishes = getDishes(lastColumn);
-                for (String deptStr : dishes.keySet()) {
-                    Dept dept = Dept.changeStringToDept(deptStr);
-
-                    MenuVO menuVO = CreateMenuVO(dept, date, restaurant, MenuType.DINNER);
-
-                    for (String dishToStr : dishes.get(deptStr)) {
-
-                        DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                        menuVO.addDishVO(dishVO);
-                    }
-
-                    menuVOs.add(menuVO);
                 }
             }
         }
@@ -216,7 +177,6 @@ public class CrawlingMenuProvider implements MenuProvider{
             throw new IllegalArgumentException("현재 크롤링은 학생생활관만 제공됩니다.");
         }
 
-        // 조식 체크
         List<MenuVO> breakfast = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.BREAKFAST).collect(Collectors.toList());
         List<MenuVO> lunch = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.LUNCH).collect(Collectors.toList());
         List<MenuVO> dinner = menuVOs.stream().filter(menuVO -> menuVO.getMenuType() == MenuType.DINNER).collect(Collectors.toList());
