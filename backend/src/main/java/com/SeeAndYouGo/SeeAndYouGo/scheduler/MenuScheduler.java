@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.scheduler;
 
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
+import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.ApiMenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.CrawlingMenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.JsonMenuProvider;
@@ -22,6 +23,7 @@ public class MenuScheduler {
 
     @Scheduled(cron = "0 0 1 * * *") // 매일 새벽 1시에 실행
     @EvictAllCache({"daily-menu", "weekly-menu"})
+    @ClearMainDishCache
     public void updateDailyMenu() {
         try {
             LocalDate today = LocalDate.now();
