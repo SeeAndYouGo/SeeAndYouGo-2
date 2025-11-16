@@ -9,6 +9,5 @@ import java.util.List;
 public interface MenuProvider {
     List<MenuVO> getWeeklyMenu(Restaurant restaurant) throws Exception;
     List<MenuVO> getWeeklyMenuMap(Restaurant restaurant) throws Exception;
-    void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception;
     void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception;
 }

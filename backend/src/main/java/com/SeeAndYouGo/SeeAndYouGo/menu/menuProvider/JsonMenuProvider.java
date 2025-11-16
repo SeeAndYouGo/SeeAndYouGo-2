@@ -39,41 +39,6 @@ public class JsonMenuProvider implements MenuProvider{
     }
 
     @Override
-    public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws IOException {
-        // Read the JSON file
-        String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
-
-        // Parse the JSON data
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
-
-        List<MenuVO> dailyMenu = new ArrayList<>();
-
-        // Extract menuName
-        JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-        for (JsonElement menuJson : menuNameArray) {
-            String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-            Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-            Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
-
-            DishVO dishVO = new DishVO(name, DishType.MAIN);
-
-            // Only create menu for the given date
-            MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
-            menuVO.addDishVO(dishVO);
-            dailyMenu.add(menuVO);
-        }
-
-        // Update the menuMap for the specific day
-        List<MenuVO> weeklyMenu = menuMap.get(restaurant);
-        if (weeklyMenu != null) {
-            weeklyMenu.removeIf(menuVO -> menuVO.getDate().equals(date.toString()));
-            weeklyMenu.addAll(dailyMenu);
-            menuMap.put(restaurant, weeklyMenu);
-        }
-    }
-
-    @Override
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         // Read the JSON file
         String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
