@@ -217,6 +217,145 @@ public class ApiMenuProvider implements MenuProvider{
         return new MenuVO(price, date, dept, restaurant, menuType);
     }
 
+    public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
+        List<MenuVO> dailyMenu = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        String foodInfo = getDailyMenuToString(date);
+
+        if (!foodInfo.isEmpty()) {
+            try {
+                JsonArray resultArray = getJsonArray(foodInfo);
+                List<DishDto> dishDtos = new ArrayList<>();
+                for (JsonElement element : resultArray) {
+                    JsonObject menuObject = element.getAsJsonObject();
+                    String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
+                    restaurantName = Restaurant.parseName(restaurantName);
+
+                    if (!restaurantName.equals(restaurant.toString()) && !(restaurantName.equals("제4학생회관") && restaurant.toString().equals("상록회관"))) {
+                        continue;
+                    }
+
+                    String dateStr = menuObject.get("FOOM_YMD").getAsString();
+                    LocalDate objDate = LocalDate.parse(dateStr, formatter);
+
+                    if (objDate.isEqual(date)) {
+                        String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
+                        MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
+                        String menuName = menuObject.get("MENU_KORN_NM").getAsString();
+                        if (menuName.contains("매주 수요일은")) continue;
+                        int price = 0;
+                        String priceStr = menuObject.get("MENU_PRC").getAsString();
+                        if (!priceStr.isEmpty())
+                            price = Integer.parseInt(priceStr);
+
+                        DishDto dishDto = DishDto.builder()
+                                .name(menuName)
+                                .dept(dept)
+                                .date(objDate.toString())
+                                .dishType(DishType.SIDE)
+                                .restaurant(restaurant)
+                                .menuType(menuType)
+                                .price(price)
+                                .build();
+                        dishDtos.add(dishDto);
+                    }
+                }
+
+                if (!dishDtos.isEmpty()) {
+                    dailyMenu.addAll(createMenuWithDishes(dishDtos));
+                }
+            } catch (Exception e) {
+                // Handle potential parsing errors, but still proceed to fill missing menus
+                log.error("Error parsing daily menu foodInfo, proceeding to fill default menus.", e);
+            }
+        }
+
+        // Fill missing menus with default "메뉴 정보 없음"
+        fillMissingMenus(restaurant, date, dailyMenu);
+
+        // menuMap에서 해당 날짜의 메뉴를 찾아 교체
+        List<MenuVO> weeklyMenu = menuMap.get(restaurant);
+        if (weeklyMenu != null) {
+            // 해당 날짜의 기존 메뉴 삭제
+            weeklyMenu.removeIf(menuVO -> menuVO.getDate().equals(date.toString()));
+            // 새로운 일일 메뉴 추가
+            weeklyMenu.addAll(dailyMenu);
+            menuMap.put(restaurant, weeklyMenu);
+        }
+    }
+
+    private void fillMissingMenus(Restaurant restaurant, LocalDate date, List<MenuVO> dailyMenu) {
+        switch (restaurant) {
+            case 제2학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.BREAKFAST);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                break;
+            case 제3학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.DINNER);
+                break;
+            case 상록회관:
+            case 생활과학대:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                break;
+        }
+    }
+
+    private void checkAndAddDefault(List<MenuVO> dailyMenu, Restaurant restaurant, LocalDate date, Dept dept, MenuType menuType) {
+        boolean menuExists = dailyMenu.stream()
+                .anyMatch(menu -> menu.getDept() == dept && menu.getMenuType() == menuType);
+
+        if (!menuExists) {
+            MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
+            defaultMenu.addDishVO(new DishVO("메뉴 정보 없음", DishType.SIDE));
+            dailyMenu.add(defaultMenu);
+        }
+    }
+
+    private String getDailyMenuToString(LocalDate date) throws Exception {
+        StringBuilder rawMenu = new StringBuilder();
+        int page = 1;
+        boolean dateFound = false;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String dateString = date.format(formatter);
+
+        while (page <= 3) { // 최대 3페이지까지 확인
+            String apiUrl = SAVE_URL + SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                StringBuilder response = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                if (response.toString().contains(dateString)) {
+                    dateFound = true;
+                    mergeJsonResults(rawMenu, response);
+                }
+            }
+            if (dateFound && !rawMenu.toString().contains(dateString)) {
+                // 해당 페이지에 날짜가 있었지만, 다른 메뉴 정보만 있었을 수 있으므로 다음 페이지도 확인
+            } else if (dateFound) {
+                break; // 해당 날짜 정보를 찾았으면 종료
+            }
+            page++;
+        }
+        return rawMenu.toString();
+    }
+
     public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;

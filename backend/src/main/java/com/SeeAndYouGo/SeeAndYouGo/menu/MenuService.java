@@ -285,6 +285,34 @@ public class MenuService {
     }
   
     @Transactional
+    public void saveDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
+        MenuProvider menuProvider = menuProviderFactory.createMenuProvider(restaurant);
+        List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenuMap(restaurant);
+
+        if (weeklyMenu == null) return;
+
+        List<MenuVO> dailyMenuVO = weeklyMenu.stream()
+                .filter(menuVO -> menuVO.getDate().equals(date.toString()))
+                .collect(Collectors.toList());
+
+        // Delete old menu for the day
+        menuRepository.deleteByRestaurantAndDate(restaurant, date.toString());
+
+        // Save new menu for the day
+        for (MenuVO menuVO : dailyMenuVO) {
+            Menu menu = new Menu(menuVO);
+            for (DishVO dishVO : menuVO.getDishVOs()) {
+                Dish dish = dishRepository.findByName(dishVO.getName()).orElseGet(() -> {
+                    Dish newDish = Dish.builder().name(dishVO.getName()).dishType(dishVO.getDishType()).build();
+                    return dishRepository.save(newDish);
+                });
+                menu.addDish(dish);
+            }
+            menuRepository.save(menu);
+        }
+    }
+
+    @Transactional
     @ClearMainDishCache
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public void saveWeeklyMenu(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
