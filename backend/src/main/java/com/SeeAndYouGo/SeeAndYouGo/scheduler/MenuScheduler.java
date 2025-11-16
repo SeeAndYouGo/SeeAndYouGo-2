@@ -21,9 +21,9 @@ public class MenuScheduler {
     private final CrawlingMenuProvider crawlingMenuProvider;
     private final MenuService menuService;
 
-    @Scheduled(cron = "0 0 1 * * *") // 매일 새벽 1시에 실행
+    @Scheduled(cron = "0 47 15 * * *") // 매일 새벽 1시에 실행
     @EvictAllCache({"daily-menu", "weekly-menu"})
-    @ClearMainDishCache
+    @ClearMainDishCache(clearAll = true)
     public void updateDailyMenu() {
         try {
             LocalDate today = LocalDate.now();

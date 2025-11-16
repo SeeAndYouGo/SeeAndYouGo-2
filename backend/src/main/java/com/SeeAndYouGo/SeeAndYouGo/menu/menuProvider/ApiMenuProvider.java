@@ -221,60 +221,60 @@ public class ApiMenuProvider implements MenuProvider{
         List<MenuVO> dailyMenu = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-        JsonArray resultArray;
-        try {
-            String foodInfo = getDailyMenuToString(date);
-            if (foodInfo.isEmpty()) {
-                // 해당 날짜의 메뉴 정보가 없으면 아무것도 하지 않음
-                return;
+        String foodInfo = getDailyMenuToString(date);
+
+        if (!foodInfo.isEmpty()) {
+            try {
+                JsonArray resultArray = getJsonArray(foodInfo);
+                List<DishDto> dishDtos = new ArrayList<>();
+                for (JsonElement element : resultArray) {
+                    JsonObject menuObject = element.getAsJsonObject();
+                    String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
+                    restaurantName = Restaurant.parseName(restaurantName);
+
+                    if (!restaurantName.equals(restaurant.toString()) && !(restaurantName.equals("제4학생회관") && restaurant.toString().equals("상록회관"))) {
+                        continue;
+                    }
+
+                    String dateStr = menuObject.get("FOOM_YMD").getAsString();
+                    LocalDate objDate = LocalDate.parse(dateStr, formatter);
+
+                    if (objDate.isEqual(date)) {
+                        String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
+                        MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
+                        String menuName = menuObject.get("MENU_KORN_NM").getAsString();
+                        if (menuName.contains("매주 수요일은")) continue;
+                        int price = 0;
+                        String priceStr = menuObject.get("MENU_PRC").getAsString();
+                        if (!priceStr.isEmpty())
+                            price = Integer.parseInt(priceStr);
+
+                        DishDto dishDto = DishDto.builder()
+                                .name(menuName)
+                                .dept(dept)
+                                .date(objDate.toString())
+                                .dishType(DishType.SIDE)
+                                .restaurant(restaurant)
+                                .menuType(menuType)
+                                .price(price)
+                                .build();
+                        dishDtos.add(dishDto);
+                    }
+                }
+
+                if (!dishDtos.isEmpty()) {
+                    dailyMenu.addAll(createMenuWithDishes(dishDtos));
+                }
+            } catch (Exception e) {
+                // Handle potential parsing errors, but still proceed to fill missing menus
+                log.error("Error parsing daily menu foodInfo, proceeding to fill default menus.", e);
             }
-            resultArray = getJsonArray(foodInfo);
-        } catch (Exception e) {
-            // 예외 처리
-            return;
         }
 
-        List<DishDto> dishDtos = new ArrayList<>();
-        for (JsonElement element : resultArray) {
-            JsonObject menuObject = element.getAsJsonObject();
-            String restaurantName = menuObject.get("CAFE_DIV_NM").getAsString();
-            restaurantName = Restaurant.parseName(restaurantName);
-
-            if (!restaurantName.equals(restaurant.toString()) && !(restaurantName.equals("제4학생회관") && restaurant.toString().equals("상록회관"))) {
-                continue;
-            }
-
-            String dateStr = menuObject.get("FOOM_YMD").getAsString();
-            LocalDate objDate = LocalDate.parse(dateStr, formatter);
-
-            if (objDate.isEqual(date)) {
-                String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
-                Dept dept = Dept.changeStringToDept(deptStr);
-                String menuTypeStr = menuObject.get("FOOM_DIV_NM").getAsString();
-                MenuType menuType = MenuType.changeStringToMenuType(menuTypeStr);
-                String menuName = menuObject.get("MENU_KORN_NM").getAsString();
-                if (menuName.contains("매주 수요일은")) continue;
-                int price = 0;
-                String priceStr = menuObject.get("MENU_PRC").getAsString();
-                if (!priceStr.isEmpty())
-                    price = Integer.parseInt(priceStr);
-
-                DishDto dishDto = DishDto.builder()
-                        .name(menuName)
-                        .dept(dept)
-                        .date(objDate.toString())
-                        .dishType(DishType.SIDE)
-                        .restaurant(restaurant)
-                        .menuType(menuType)
-                        .price(price)
-                        .build();
-                dishDtos.add(dishDto);
-            }
-        }
-
-        if (!dishDtos.isEmpty()) {
-            dailyMenu.addAll(createMenuWithDishes(dishDtos));
-        }
+        // Fill missing menus with default "메뉴 정보 없음"
+        fillMissingMenus(restaurant, date, dailyMenu);
 
         // menuMap에서 해당 날짜의 메뉴를 찾아 교체
         List<MenuVO> weeklyMenu = menuMap.get(restaurant);
@@ -284,6 +284,36 @@ public class ApiMenuProvider implements MenuProvider{
             // 새로운 일일 메뉴 추가
             weeklyMenu.addAll(dailyMenu);
             menuMap.put(restaurant, weeklyMenu);
+        }
+    }
+
+    private void fillMissingMenus(Restaurant restaurant, LocalDate date, List<MenuVO> dailyMenu) {
+        switch (restaurant) {
+            case 제2학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.BREAKFAST);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                break;
+            case 제3학생회관:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STAFF, MenuType.LUNCH);
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.DINNER);
+                break;
+            case 상록회관:
+            case 생활과학대:
+                checkAndAddDefault(dailyMenu, restaurant, date, Dept.STUDENT, MenuType.LUNCH);
+                break;
+        }
+    }
+
+    private void checkAndAddDefault(List<MenuVO> dailyMenu, Restaurant restaurant, LocalDate date, Dept dept, MenuType menuType) {
+        boolean menuExists = dailyMenu.stream()
+                .anyMatch(menu -> menu.getDept() == dept && menu.getMenuType() == menuType);
+
+        if (!menuExists) {
+            MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
+            defaultMenu.addDishVO(new DishVO("메뉴 정보 없음", DishType.SIDE));
+            dailyMenu.add(defaultMenu);
         }
     }
 
