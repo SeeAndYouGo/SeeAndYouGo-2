@@ -132,17 +132,19 @@ const MainPage = () => {
 					) : (
 						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
 					)}
-					{menuData.length > 0 && (
-						<ReviewWriteForm
-							restaurantNum={restaurantId}
-							deptNum={nowDept}
-							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
-						/>
-					)}
+				{menuData.length > 0 && (
+					<ReviewWriteForm
+						restaurantNum={restaurantId}
+						deptNum={nowDept}
+						menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
+						onReviewSubmitted={fetchTopReviewData}
+					/>
+				)}
 					<TopReview
 						idx={restaurantId}
 						wholeReviewList={topReviewData}
 						setWholeReviewList={setTopReviewData}
+						onDeleteSuccess={fetchTopReviewData}
 					/>
 				</>
 			}

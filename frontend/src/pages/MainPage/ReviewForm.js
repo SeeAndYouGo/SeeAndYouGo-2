@@ -94,10 +94,23 @@ const ReviewWriteButton = styled.button`
 	float: left;
 	font-weight: 400;
 	cursor: pointer;
+	position: relative;
+	overflow: hidden;
 	&.success {
 		background: #222;
 		color: white;
 	}
+`;
+
+const ButtonProgressBar = styled.div`
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	background: #28a745;
+	border-radius: 10px;
+	transition: width 0.5s ease-out;
+	width: ${({ $progress }) => $progress}%;
 `;
 
 const ReviewWriteRatingLabel = styled.p`
@@ -164,7 +177,7 @@ const MenuName = styled.p`
 	margin-right: 5px;
 `;
 
-const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
+const ReviewWrite = ({ restaurantNum, deptNum, menuInfo, onReviewSubmitted }) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -188,6 +201,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const [CropModal, setCropModal] = useState(false);
 	
 	const [buttonDisabled, setButtonDisabled] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [loadingProgress, setLoadingProgress] = useState(0);
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -217,6 +232,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	const ReviewSubmit = async (e) => {
 		if (buttonDisabled) return;
 		setButtonDisabled(true);
+		setIsLoading(true);
+		setLoadingProgress(0);
 
 		e.preventDefault();
 		const formdata = new FormData();
@@ -248,23 +265,50 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
+		// 게이지 시작 (30%까지 바로 로딩)
+		setTimeout(() => setLoadingProgress(30), 100);
+
 		try {
 			await postWithToken("/review", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			})
-			.then(() => { // 리뷰 작성 성공
+			.then(async () => { // 리뷰 작성 성공시
+				// 게이지를 70%까지 로딩
+				setLoadingProgress(70);
+				
+				if (onReviewSubmitted) {
+					await onReviewSubmitted();
+				}
+
+				// 게이지를 100%로
+				setLoadingProgress(100);
+				
+				// 100%까지 찬 상태를 잠깐 보여주고 완료
+				await new Promise(resolve => setTimeout(resolve, 300));
+
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
-				setTimeout(() => {
-					window.location.reload();
-				}, 1000);
+				
+				// 폼 초기화
+				setStarVal(0);
+				setAnonymous(false);
+				setComment("");
+				setSelectedMenu({});
+				setImage(null);
+				setImageURL("");
+				setPrevImage(null);
+				if (imageRef.current) {
+					imageRef.current.value = null;
+				}
 			})
 		} catch (error) {
 			dispatch(showToast({ contents: "review", toastIndex: 1 }));
 			console.log(dto, "리뷰 전달 확인");
 		} finally {
 			setButtonDisabled(false);
+			setIsLoading(false);
+			setLoadingProgress(0);
 		}
 	};
 
@@ -373,7 +417,10 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 					</div>
 					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
 						<ReviewWriteButton className="success" onClick={ReviewSubmit} disabled={buttonDisabled}>
-							작성
+							<ButtonProgressBar $progress={loadingProgress} />
+							<span style={{ position: 'relative', zIndex: 1 }}>
+								{isLoading ? '작성 중...' : '작성'}
+							</span>
 						</ReviewWriteButton>
 					) : (
 						<ReviewWriteButton disabled onClick={ReviewSubmit}>
@@ -386,13 +433,18 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	);
 };
 
-const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1 }) => {
+const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1, onReviewSubmitted }) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} menuInfo={menuInfoForRestaurant1}/>
+			<ReviewWrite 
+				restaurantNum={restaurantNum} 
+				deptNum={deptNum} 
+				menuInfo={menuInfoForRestaurant1}
+				onReviewSubmitted={onReviewSubmitted}
+			/>
 		</div>
 	);
 };
