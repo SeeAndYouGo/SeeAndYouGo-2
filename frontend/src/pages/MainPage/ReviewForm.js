@@ -290,6 +290,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo, onReviewSubmitted }) =>
 
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
 				
+				console.log("리뷰 작성 완료");
 				// 폼 초기화
 				setStarVal(0);
 				setAnonymous(false);
@@ -298,6 +299,8 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo, onReviewSubmitted }) =>
 				setImage(null);
 				setImageURL("");
 				setPrevImage(null);
+				setCropModal(false);
+				setCroppedAreaPixels(null);
 				if (imageRef.current) {
 					imageRef.current.value = null;
 				}
@@ -386,6 +389,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo, onReviewSubmitted }) =>
 						<ReviewWriteInputWrapper>
 							<ReviewWriteInput
 								type="text"
+								value={comment}
 								onChange={(val) => setComment(val.target.value)}
 								placeholder="리뷰를 남겨주세요 :)"
 							/>
