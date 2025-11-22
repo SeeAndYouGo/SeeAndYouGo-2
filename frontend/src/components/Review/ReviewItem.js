@@ -78,6 +78,7 @@ const ReviewItem = ({
   idx,
   wholeReviewList,
   setWholeReviewList,
+  onDeleteSuccess,
 }) => {
   const {
     reviewId,
@@ -203,7 +204,8 @@ const ReviewItem = ({
               <div style={{ position:"absolute", right:"0px"}} >
                 <DropDown targetId={reviewId} 
                 targetRestaurant={getRestuarantIndex(restaurant)}
-                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}
+                onDeleteSuccess={onDeleteSuccess} />
               </div>
             ) : null
           }
