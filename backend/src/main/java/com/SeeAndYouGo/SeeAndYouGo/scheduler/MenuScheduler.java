@@ -21,7 +21,7 @@ public class MenuScheduler {
     private final CrawlingMenuProvider crawlingMenuProvider;
     private final MenuService menuService;
 
-    @Scheduled(cron = "0 47 15 * * *") // 매일 새벽 1시에 실행
+    @Scheduled(cron = "0 15 0 * * *") // 매일 00시 15분에 실행
     @EvictAllCache({"daily-menu", "weekly-menu"})
     @ClearMainDishCache(clearAll = true)
     public void updateDailyMenu() {
