@@ -46,6 +46,74 @@ public class CrawlingMenuProvider implements MenuProvider{
         return getWeeklyMenu(restaurant);
     }
 
+    @Override
+    public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
+        List<MenuVO> dailyMenu = new ArrayList<>();
+
+        // 1. 주간 URL 가져오기
+        Connection mainConnection = Jsoup.connect(DORM_URL);
+        Document mainDocument = mainConnection.get();
+        Elements dayLinks = mainDocument.select(".custom-week li a");
+
+        for (Element dayLink : dayLinks) {
+            String dayUrl = DORM_URL + dayLink.attr("href");
+            String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
+            LocalDate targetDate = LocalDate.parse(dateStr);
+
+            // updateDailyMenu는 특정 날짜의 데이터만 업데이트 해야함.
+            if(!targetDate.equals(date)) continue;
+
+            Connection dayConnection = Jsoup.connect(dayUrl);
+            Document dayDocument = dayConnection.get();
+
+            // 2. 아침, 점심, 저녁 메뉴 가져오기
+            Elements mealTds = dayDocument.select(".diet_table td");
+            for (Element mealTd : mealTds) {
+                String mealTypeStr = mealTd.attr("data-cell-header");
+                MenuType menuType;
+                if (mealTypeStr.equals("아침")) {
+                    menuType = MenuType.BREAKFAST;
+                } else if (mealTypeStr.equals("점심")) {
+                    menuType = MenuType.LUNCH;
+                } else {
+                    menuType = MenuType.DINNER;
+                }
+
+                String menuContent = mealTd.toString();
+                if (!menuContent.isEmpty()) {
+                    Map<String, List<String>> dishes = getDishes(menuContent);
+                    for (String deptStr : dishes.keySet()) {
+                        Dept dept = Dept.changeStringToDept(deptStr);
+                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
+                        for (String dishToStr : dishes.get(deptStr)) {
+                            DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                            menuVO.addDishVO(dishVO);
+                        }
+                        dailyMenu.add(menuVO);
+                    }
+                }
+            }
+        }
+
+        // Fill absent menu for the day
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.BREAKFAST)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
+        }
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.LUNCH)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.LUNCH);
+        }
+        if (dailyMenu.stream().noneMatch(menu -> menu.getMenuType() == MenuType.DINNER)) {
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.DINNER);
+        }
+
+        List<MenuVO> weeklyMenu = menuMap.get(restaurant);
+        if (weeklyMenu != null) {
+            weeklyMenu.removeIf(menuVO -> menuVO.getDate().equals(date.toString()));
+            weeklyMenu.addAll(dailyMenu);
+            menuMap.put(restaurant, weeklyMenu);
+        }
+    }
+
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
         List<MenuVO> menuVOs = new ArrayList<>();
 
