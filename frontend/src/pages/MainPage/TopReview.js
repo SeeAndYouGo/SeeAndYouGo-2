@@ -88,6 +88,7 @@ const TopReview = ({
 	idx,
 	wholeReviewList,
 	setWholeReviewList,
+	onDeleteSuccess,
 }) => {
 	const [isChecked, setIsChecked] = useState(false);
 	const [selectedReviewType, setSelectedReviewType] = useState("total");
@@ -197,6 +198,7 @@ const TopReview = ({
 					review={nowData}
 					wholeReviewList={wholeReviewList}
 					setWholeReviewList={setWholeReviewList}
+					onDeleteSuccess={onDeleteSuccess}
 				/>
 			))
 			)}

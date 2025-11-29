@@ -58,7 +58,7 @@ const ReviewItemOption = styled.span`
 	cursor: pointer;
 `;
 
-const DropDown = ({ targetId, targetRestaurant, wholeReviewList, setWholeReviewList }) => {
+const DropDown = ({ targetId, targetRestaurant, wholeReviewList, setWholeReviewList, onDeleteSuccess }) => {
 	const [myPageIsOpen, myPageRef, myPageHandler] = useDetectClose(false);
 
 	return (
@@ -79,7 +79,8 @@ const DropDown = ({ targetId, targetRestaurant, wholeReviewList, setWholeReviewL
 					<li>
 						<ReviewDelete deleteTarget={targetId} 
 						targetRestaurant={targetRestaurant}
-						wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList} />
+						wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}
+						onDeleteSuccess={onDeleteSuccess} />
 					</li>
 				</Ul>
 			</Menu>
