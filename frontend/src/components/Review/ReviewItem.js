@@ -78,6 +78,8 @@ const ReviewItem = ({
   idx,
   wholeReviewList,
   setWholeReviewList,
+  onDeleteSuccess,
+  setIsLoginModalOpen,
 }) => {
   const {
     reviewId,
@@ -141,7 +143,7 @@ const ReviewItem = ({
     setButtonDisabled(true);
 
     if (user.loginState === false) {
-      dispatch(showToast({ contents: "login", toastIndex: 0 }));
+      setIsLoginModalOpen(true);
       return;
     }
     
