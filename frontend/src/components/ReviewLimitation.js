@@ -37,7 +37,7 @@ const limitaionList = [
 	["관리자가 메인메뉴를 등록하지 않아\n 리뷰 작성 기능을 이용할 수 없습니다.", "불편을 드려 죄송합니다."], // 관리자 페이지에서 메인 메뉴 등록하지 않은 경우
 ];
 
-const ReviewLimitation = ({ num }) => {
+const ReviewLimitation = ({ num, setIsLoginModalOpen }) => {
 	return (
 		<WriteImpossible>
 			<p style={{ whiteSpace: "pre-line" }}>{limitaionList[num - 1][0]}</p>
@@ -45,7 +45,7 @@ const ReviewLimitation = ({ num }) => {
 			{num === 2 && (
 				<GoToLogin
 					onClick={() => {
-						window.location.href = "/login-page";
+						setIsLoginModalOpen(true);
 					}}
 				>
 					<span>로그인 하러가기</span>

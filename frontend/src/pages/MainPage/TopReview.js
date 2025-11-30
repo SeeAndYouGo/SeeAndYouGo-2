@@ -88,6 +88,8 @@ const TopReview = ({
 	idx,
 	wholeReviewList,
 	setWholeReviewList,
+	onDeleteSuccess,
+	setIsLoginModalOpen
 }) => {
 	const [isChecked, setIsChecked] = useState(false);
 	const [selectedReviewType, setSelectedReviewType] = useState("total");
@@ -194,6 +196,7 @@ const TopReview = ({
 				<ReviewItem
 					idx={idx}
 					key={index}
+					setIsLoginModalOpen={setIsLoginModalOpen}
 					review={nowData}
 					wholeReviewList={wholeReviewList}
 					setWholeReviewList={setWholeReviewList}

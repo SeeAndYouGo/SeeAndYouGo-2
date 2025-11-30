@@ -14,9 +14,11 @@ import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
 import { get, getWithToken } from "../../api/index";
+import LoginModal from "../../components/LoginModal";
 
 const MainPage = () => {
 	const [loading, setLoading] = useState(true);
+	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
@@ -132,20 +134,28 @@ const MainPage = () => {
 					) : (
 						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
 					)}
-					{menuData.length > 0 && (
-						<ReviewWriteForm
-							restaurantNum={restaurantId}
-							deptNum={nowDept}
-							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
-						/>
-					)}
+				{menuData.length > 0 && (
+					<ReviewWriteForm
+						restaurantNum={restaurantId}
+						deptNum={nowDept}
+						menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
+						onReviewSubmitted={fetchTopReviewData}
+						setIsLoginModalOpen={setIsLoginModalOpen}
+					/>
+				)}
 					<TopReview
 						idx={restaurantId}
 						wholeReviewList={topReviewData}
 						setWholeReviewList={setTopReviewData}
+						onDeleteSuccess={fetchTopReviewData}
+						setIsLoginModalOpen={setIsLoginModalOpen}
 					/>
 				</>
 			}
+			<LoginModal
+				visible={isLoginModalOpen}
+				onClose={() => setIsLoginModalOpen(false)}
+			/>
 		</div>
 	);
 };

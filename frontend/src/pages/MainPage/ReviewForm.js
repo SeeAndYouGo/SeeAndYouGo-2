@@ -164,7 +164,13 @@ const MenuName = styled.p`
 	margin-right: 5px;
 `;
 
-const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
+const ReviewWrite = ({
+	restaurantNum,
+	deptNum,
+	menuInfo,
+	onReviewSubmitted,
+	setIsLoginModalOpen,
+}) => {
 	const [starVal, setStarVal] = useState(0);
 	const [anonymous, setAnonymous] = useState(false);
 	const [comment, setComment] = useState("");
@@ -256,9 +262,20 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 			})
 			.then(() => { // 리뷰 작성 성공
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
-				setTimeout(() => {
-					window.location.reload();
-				}, 1000);
+				
+				// 폼 초기화
+				setStarVal(0);
+				setAnonymous(false);
+				setComment("");
+				setSelectedMenu({});
+				setImage(null);
+				setImageURL("");
+				setPrevImage(null);
+				setCropModal(false);
+				setCroppedAreaPixels(null);
+				if (imageRef.current) {
+					imageRef.current.value = null;
+				}
 			})
 		} catch (error) {
 			dispatch(showToast({ contents: "review", toastIndex: 1 }));
@@ -289,7 +306,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 					restaurantNum !== 6 && isWeekend ? ( // 학생생활관이 아니며 주말인 경우
 					<ReviewLimitation num={1} />
 				) : !token ? ( // 로그인 하지 않은 경우
-					<ReviewLimitation num={2} />
+					<ReviewLimitation num={2} setIsLoginModalOpen={setIsLoginModalOpen} />
 				) : restaurantNum !== 1 && nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
 					<ReviewLimitation num={3} />
 				) :	( // 메인 메뉴 설정되지 않은 경우
@@ -386,13 +403,25 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo }) => {
 	);
 };
 
-const ReviewWriteForm = ({ restaurantNum, deptNum, menuInfoForRestaurant1 }) => {
+const ReviewWriteForm = ({
+	restaurantNum,
+	deptNum,
+	menuInfoForRestaurant1,
+	onReviewSubmitted,
+	setIsLoginModalOpen,
+}) => {
 	return (
 		<div style={{ width: "100%", float: "left", marginTop: 20 }}>
 			<p style={{ fontSize: 22, margin: 0, textAlign: "left", fontWeight: 700 }}>
 				메뉴 리뷰 남기기
 			</p>
-			<ReviewWrite restaurantNum={restaurantNum} deptNum={deptNum} menuInfo={menuInfoForRestaurant1}/>
+			<ReviewWrite 
+				restaurantNum={restaurantNum} 
+				deptNum={deptNum} 
+				menuInfo={menuInfoForRestaurant1}
+				onReviewSubmitted={onReviewSubmitted}
+				setIsLoginModalOpen={setIsLoginModalOpen}
+			/>
 		</div>
 	);
 };
