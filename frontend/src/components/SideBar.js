@@ -216,25 +216,29 @@ const SideBar = ({isOpen, setIsOpen}) => {
             )
           }
 
-          <div style={{marginBottom: 10}}>
-            <span>
-              •&nbsp;MEMBER
-            </span>
-          </div>
-          <MenuList>
-            <Link to="/set-nickname" onClick={loginForMemberContents} style={{marginBottom: 10}}>
-              <MenuName>
-              <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>manage_accounts</span>
-                <span>닉네임 수정</span>
-              </MenuName>
-            </Link>
-            <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
-              <MenuName>
-                <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
-                <span>작성한 리뷰</span>
-              </MenuName>
-            </Link>
-          </MenuList>
+          {loginState && (
+            <>
+              <div style={{marginBottom: 10}}>
+                <span>
+                  •&nbsp;MEMBER
+                </span>
+              </div>
+              <MenuList>
+                <Link to="/set-nickname" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+                  <MenuName>
+                  <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>manage_accounts</span>
+                    <span>닉네임 수정</span>
+                  </MenuName>
+                </Link>
+                <Link to="/my-review-page" onClick={loginForMemberContents} style={{marginBottom: 10}}>
+                  <MenuName>
+                    <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rate_review</span>
+                    <span>작성한 리뷰</span>
+                  </MenuName>
+                </Link>
+              </MenuList>
+            </>
+          )}
           <div style={{marginBottom: 10}}>
             <span>
               •&nbsp;SERVICE
