@@ -5,6 +5,7 @@ import { faMapLocationDot, faCalendarDays } from "@fortawesome/free-solid-svg-ic
 import Modal from "../../components/Modal";
 import MenuTableModal from "./MenuTableModal";
 import KakaoMap from "../../components/KakaoMap";
+import { Tooltip } from 'react-tooltip';
 
 const Container = styled.div`
 	display: flex;
@@ -18,9 +19,7 @@ const InfoContent = styled.p`
   font-size: 13px;
   color: #777;
   font-weight: 400;
-  &:first-of-type {
-    margin-bottom: 4px;
-  }
+	margin-bottom: 4px;
 `;
 
 const ModalContent = styled.div`
@@ -39,61 +38,65 @@ const ModalContent = styled.div`
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
 `;
 
+const TooltipContent = styled.p`
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+  white-space: pre;
+`;
+
 const operatingTime = {
-  1: [
-    {
-      time: '11:00-19:00'
-    }
-  ],
-  2: [
-    {
-      title: '조식',
-      time: '08:00-09:00'
-    },
-    {
-      title: '중식',
-      time: '11:30-14:00'
-    }
-  ],
-  3: [
-    {
-      title: '중식',
-      time: '11:30-14:00'
-    },
-    {
-      title: '석식',
-      time: '17:30-19:00'
-    },
-  ],
-  4: [
-    {
-      title: '중식',
-      time: '11:30-14:00'
-    },
-  ],
-  5: [
-    {
-      title: '중식',
-      time: '11:30-14:00'
-    },
-  ],
-  6: [
-    {
-      title: '조식',
-      time: '07:30-09:00',
-      weekendTime: '07:30-09:00(주말/공휴일)',
-    },
-    {
-      title: '중식',
-      time: '11:30-13:30'
-    },
-    {
-      title: '석식',
-      time: '17:00-19:00',
-      weekendTime: '17:00-19:00(주말/공휴일)',
-      vacationTime: '17:30-19:30(방학)',
-    },
-  ]
+	1: [
+		{
+			time: "11:00-19:00",
+		},
+	],
+	2: [
+		{
+			title: "조식",
+			time: "08:00-09:00",
+		},
+		{
+			title: "중식",
+			time: "11:30-14:00",
+		},
+	],
+	3: [
+		{
+			title: "중식",
+			time: "11:30-14:00",
+		},
+		{
+			title: "석식",
+			time: "17:30-19:00",
+		},
+	],
+	4: [
+		{
+			title: "중식",
+			time: "11:30-14:00",
+		},
+	],
+	5: [
+		{
+			title: "중식",
+			time: "11:30-14:00",
+		},
+	],
+	6: [
+		{
+			title: "조식",
+			time: "07:30-09:00",
+		},
+		{
+			title: "중식",
+			time: "11:30-13:30",
+		},
+		{
+			title: "석식",
+			time: "17:00-19:00",
+		},
+	],
 };
 
 const Info = ({ idx = 1 }) => {
@@ -110,16 +113,46 @@ const Info = ({ idx = 1 }) => {
 	return (
 		<Container>
 			<div>
-        <InfoContent>운영시간</InfoContent>
-          {operatingTime[idx]?.map((item, index) => {
-            if (item?.weekendTime) {
-              return <InfoContent key={index}>{item?.title} {' '} {item?.weekendTime}</InfoContent>
-            }
-            if (item?.vacationTime) {
-              return <InfoContent key={index}>{item?.title} {' '} {item?.vacationTime}</InfoContent>
-            }
-            return <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>
-          })}
+        <div>
+          <InfoContent style={{display: "inline-flex"}}>운영시간</InfoContent>
+          {
+            idx === 6 ? 
+            <>
+              <span 
+                data-tooltip-id='info-tooltip' 
+                data-tooltip-offset={0} 
+                className="material-symbols-outlined"
+                style={{ cursor: 'pointer', verticalAlign: "middle", fontSize: "15px", marginLeft: "4px"}}
+              >
+                info
+              </span>
+              <Tooltip
+                id='info-tooltip'
+                place='right-start'
+                effect='solid'
+                className='tooltipContent'
+                style={{
+                  padding: '10px',
+                  marginLeft: '5px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fff',
+                  boxShadow: '-1px -1px 5px rgba(0, 0, 0, 0.15), 1px 1px 5px rgba(0, 0, 0, 0.15)',
+                }}
+              >
+                <TooltipContent>
+                  # 아침{'\n'}
+                  - 토/일요일 및 공휴일 07:30~09:00{'\n'}
+                  # 저녁{'\n'}
+                  - 방학기간은 17:30~19:30{'\n'}
+                  - 토/일요일 및 공휴일 17:30~19:00{'\n'}
+                </TooltipContent>
+              </Tooltip>
+            </> : null
+          }
+        </div>
+        {operatingTime[idx]?.map((item, index) => {
+          return <InfoContent key={index}>{item?.title} {' '} {item?.time}</InfoContent>
+        })}
 			</div>
 			<div>
 				<div style={{display: 'flex', marginLeft: 'auto'}}>

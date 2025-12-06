@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
@@ -337,7 +337,7 @@ const ReviewWrite = ({ restaurantNum, deptNum, menuInfo, onReviewSubmitted }) =>
 					<ReviewLimitation num={1} />
 				) : !token ? ( // 로그인 하지 않은 경우
 					<ReviewLimitation num={2} />
-				) : restaurantNum !== 1 && nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
+				) : nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
 					<ReviewLimitation num={3} />
 				) :	( // 메인 메뉴 설정되지 않은 경우
 					(restaurantNum !== 1 && nowMainMenuList?.length === 0) ? (

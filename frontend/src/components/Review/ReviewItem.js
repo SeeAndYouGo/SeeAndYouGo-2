@@ -135,14 +135,15 @@ const ReviewItem = ({
   }
 
   const handleLike = async (targetId) => {
-    if (likeLoading) return;
+    if (likeLoading || buttonDisabled) return;
+    
     setLikeLoading(true);
-
-    if (buttonDisabled) return;
     setButtonDisabled(true);
 
     if (user.loginState === false) {
       dispatch(showToast({ contents: "login", toastIndex: 0 }));
+      setLikeLoading(false);
+      setButtonDisabled(false);
       return;
     }
     
