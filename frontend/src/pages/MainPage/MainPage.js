@@ -22,10 +22,12 @@ const MainPage = () => {
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
-	const ratio =
-		(restaurantData[restaurantId - 1]?.connected /
-			restaurantData[restaurantId - 1]?.capacity) *
-		100;
+	const ratio = // 백엔드에서 받아온 혼잡도 데이터가 -1 인 경우 -1로 전달
+		restaurantData[restaurantId - 1]?.connected === -1
+			? -1
+			: (restaurantData[restaurantId - 1]?.connected /
+					restaurantData[restaurantId - 1]?.capacity) *
+			  100;
 	const dispatch = useDispatch();
 
 	useEffect(() => {

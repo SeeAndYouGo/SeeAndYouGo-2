@@ -103,6 +103,8 @@ const MenuInfoForRestaurant1 = () => {
 			if (res.data.length === 0) {
 				dispatch(changeMenuInfo({mainMenuList: [], menuId: 0, menuIsOpen: false}));
 				console.log("1학 메뉴 정보가 없습니다...")
+			} else { // 1학 데이터를 백엔드로부터 받은 경우
+				dispatch(changeMenuInfo({mainMenuList: [], menuId: 0, menuIsOpen: true}));
 			}
 		}).catch((err) => {
 			console.log(err);
