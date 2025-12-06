@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
@@ -94,10 +94,23 @@ const ReviewWriteButton = styled.button`
 	float: left;
 	font-weight: 400;
 	cursor: pointer;
+	position: relative;
+	overflow: hidden;
 	&.success {
 		background: #222;
 		color: white;
 	}
+`;
+
+const ButtonProgressBar = styled.div`
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	background: #28a745;
+	border-radius: 10px;
+	transition: width 0.5s ease-out;
+	width: ${({ $progress }) => $progress}%;
 `;
 
 const ReviewWriteRatingLabel = styled.p`
@@ -194,6 +207,8 @@ const ReviewWrite = ({
 	const [CropModal, setCropModal] = useState(false);
 	
 	const [buttonDisabled, setButtonDisabled] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [loadingProgress, setLoadingProgress] = useState(0);
 
 	const onChangeImage = (e) => {
 		const reader = new FileReader();
@@ -223,6 +238,8 @@ const ReviewWrite = ({
 	const ReviewSubmit = async (e) => {
 		if (buttonDisabled) return;
 		setButtonDisabled(true);
+		setIsLoading(true);
+		setLoadingProgress(0);
 
 		e.preventDefault();
 		const formdata = new FormData();
@@ -254,13 +271,29 @@ const ReviewWrite = ({
 			"dto", new Blob([JSON.stringify(dto)], { type: 'application/json' })
 		);
 
+		// 게이지 시작 (30%까지 바로 로딩)
+		setTimeout(() => setLoadingProgress(30), 100);
+
 		try {
 			await postWithToken("/review", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			})
-			.then(() => { // 리뷰 작성 성공
+			.then(async () => { // 리뷰 작성 성공시
+				// 게이지를 70%까지 로딩
+				setLoadingProgress(70);
+				
+				if (onReviewSubmitted) {
+					await onReviewSubmitted();
+				}
+
+				// 게이지를 100%로
+				setLoadingProgress(100);
+				
+				// 100%까지 찬 상태를 잠깐 보여주고 완료
+				await new Promise(resolve => setTimeout(resolve, 300));
+
 				dispatch(showToast({ contents: "review", toastIndex: 0 }));
 				
 				// 폼 초기화
@@ -282,6 +315,8 @@ const ReviewWrite = ({
 			console.log(dto, "리뷰 전달 확인");
 		} finally {
 			setButtonDisabled(false);
+			setIsLoading(false);
+			setLoadingProgress(0);
 		}
 	};
 
@@ -307,7 +342,7 @@ const ReviewWrite = ({
 					<ReviewLimitation num={1} />
 				) : !token ? ( // 로그인 하지 않은 경우
 					<ReviewLimitation num={2} setIsLoginModalOpen={setIsLoginModalOpen} />
-				) : restaurantNum !== 1 && nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
+				) : nowMenuIsOpen === false ? ( // 메뉴 정보가 없는 경우
 					<ReviewLimitation num={3} />
 				) :	( // 메인 메뉴 설정되지 않은 경우
 					(restaurantNum !== 1 && nowMainMenuList?.length === 0) ? (
@@ -359,6 +394,7 @@ const ReviewWrite = ({
 						<ReviewWriteInputWrapper>
 							<ReviewWriteInput
 								type="text"
+								value={comment}
 								onChange={(val) => setComment(val.target.value)}
 								placeholder="리뷰를 남겨주세요 :)"
 							/>
@@ -390,7 +426,10 @@ const ReviewWrite = ({
 					</div>
 					{(starVal !== 0 && (restaurantNum === 1 ? selectedMenu.value : true))  ? (
 						<ReviewWriteButton className="success" onClick={ReviewSubmit} disabled={buttonDisabled}>
-							작성
+							<ButtonProgressBar $progress={loadingProgress} />
+							<span style={{ position: 'relative', zIndex: 1 }}>
+								{isLoading ? '작성 중...' : '작성'}
+							</span>
 						</ReviewWriteButton>
 					) : (
 						<ReviewWriteButton disabled onClick={ReviewSubmit}>

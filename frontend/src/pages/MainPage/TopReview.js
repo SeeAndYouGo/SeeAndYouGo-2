@@ -200,6 +200,7 @@ const TopReview = ({
 					review={nowData}
 					wholeReviewList={wholeReviewList}
 					setWholeReviewList={setWholeReviewList}
+					onDeleteSuccess={onDeleteSuccess}
 				/>
 			))
 			)}
