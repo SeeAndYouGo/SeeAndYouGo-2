@@ -78,6 +78,8 @@ const ReviewItem = ({
   idx,
   wholeReviewList,
   setWholeReviewList,
+  onDeleteSuccess,
+  setIsLoginModalOpen,
 }) => {
   const {
     reviewId,
@@ -134,14 +136,15 @@ const ReviewItem = ({
   }
 
   const handleLike = async (targetId) => {
-    if (likeLoading) return;
+    if (likeLoading || buttonDisabled) return;
+    
     setLikeLoading(true);
-
-    if (buttonDisabled) return;
     setButtonDisabled(true);
 
     if (user.loginState === false) {
-      dispatch(showToast({ contents: "login", toastIndex: 0 }));
+      setIsLoginModalOpen(true);
+      setLikeLoading(false);
+      setButtonDisabled(false);
       return;
     }
     
@@ -203,7 +206,8 @@ const ReviewItem = ({
               <div style={{ position:"absolute", right:"0px"}} >
                 <DropDown targetId={reviewId} 
                 targetRestaurant={getRestuarantIndex(restaurant)}
-                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}/>
+                wholeReviewList={wholeReviewList} setWholeReviewList={setWholeReviewList}
+                onDeleteSuccess={onDeleteSuccess} />
               </div>
             ) : null
           }

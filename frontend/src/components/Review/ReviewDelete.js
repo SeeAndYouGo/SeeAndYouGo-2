@@ -12,7 +12,7 @@ const RemoveButton = styled.span`
 	font-size: 15px;
 `;
 
-const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWholeReviewList }) => {
+const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWholeReviewList, onDeleteSuccess }) => {
 	const dispatch = useDispatch();
 
 	// deleteTarget: 삭제할 리뷰의 id
@@ -21,19 +21,13 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 			.then((res) => {
 				if (res.data.success === true) { // 리뷰 삭제 성공
 					dispatch(showToast({ contents: "review", toastIndex: 3 }));
-					const updatedTempReviewList1 = wholeReviewList[0].filter(
-						(item) => item.reviewId !== deleteTarget
-					);
-					const updatedTempReviewList2 = wholeReviewList[targetRestaurant].filter(
-						(item) => item.reviewId !== deleteTarget
-					);
-					const updatedWholeReviewList = [...wholeReviewList];
-					updatedWholeReviewList[0] = updatedTempReviewList1;
-					updatedWholeReviewList[targetRestaurant] = updatedTempReviewList2;
-					setWholeReviewList(updatedWholeReviewList);
-					setTimeout(() => {
-						window.location.reload();
-					}, 1000);
+					if (onDeleteSuccess) {
+						onDeleteSuccess();
+					} else {
+						setTimeout(() => {
+							window.location.reload();
+						}, 1000);
+					}
 				} else { // 리뷰 삭제 권한이 없음
 					dispatch(showToast({ contents: "review", toastIndex: 2 }));
 				}

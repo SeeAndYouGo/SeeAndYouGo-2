@@ -4,10 +4,7 @@ import "swiper/css";
 import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
-import {
-	changeMenuInfo,
-	changeToInitialState,
-} from "../../redux/slice/NowMenuSlice";
+import { changeMenuInfo } from "../../redux/slice/NowMenuSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 
 const Slider = styled.div`
@@ -66,7 +63,6 @@ const SwipeableTab = ({ restaurantId = 1, setRestaurantId, menuData }) => {
 	const initialSetting = (numValue, deptValue) => {
 		setRestaurantId(numValue);
 		if (numValue === 1) {
-			dispatch(changeToInitialState());
 			return;
 		} else {
 			dispatch(changeMenuType(1));

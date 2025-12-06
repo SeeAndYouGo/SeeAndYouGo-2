@@ -6,27 +6,30 @@ import Progress from "./Progress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
 import { get, getWithToken } from "../../api/index";
+import LoginModal from "../../components/LoginModal";
 
 const MainPage = () => {
 	const [loading, setLoading] = useState(true);
+	const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 	const [restaurantData, setRestaurantData] = useState([]);
 	const [menuData, setMenuData] = useState([]);
 	const [topReviewData, setTopReviewData] = useState([]);
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 	const nowDept = useSelector((state) => state.dept).value;
-	const ratio =
-		(restaurantData[restaurantId - 1]?.connected /
-			restaurantData[restaurantId - 1]?.capacity) *
-		100;
+	const ratio = // 백엔드에서 받아온 혼잡도 데이터가 -1 인 경우 -1로 전달
+		restaurantData[restaurantId - 1]?.connected === -1
+			? -1
+			: (restaurantData[restaurantId - 1]?.connected /
+					restaurantData[restaurantId - 1]?.capacity) *
+			  100;
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -108,7 +111,6 @@ const MainPage = () => {
 
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		// restaurantId 변경 시마다 동작하지 않도록 수정
 	}, []);
 
 	return (
@@ -132,20 +134,28 @@ const MainPage = () => {
 					) : (
 						<TodayMenu idx={restaurantId} data={menuData[restaurantId - 1]} />
 					)}
-					{menuData.length > 0 && (
-						<ReviewWriteForm
-							restaurantNum={restaurantId}
-							deptNum={nowDept}
-							menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
-						/>
-					)}
+				{menuData.length > 0 && (
+					<ReviewWriteForm
+						restaurantNum={restaurantId}
+						deptNum={nowDept}
+						menuInfoForRestaurant1={restaurantId === 1 ? menuData[0] : null}
+						onReviewSubmitted={fetchTopReviewData}
+						setIsLoginModalOpen={setIsLoginModalOpen}
+					/>
+				)}
 					<TopReview
 						idx={restaurantId}
 						wholeReviewList={topReviewData}
 						setWholeReviewList={setTopReviewData}
+						onDeleteSuccess={fetchTopReviewData}
+						setIsLoginModalOpen={setIsLoginModalOpen}
 					/>
 				</>
 			}
+			<LoginModal
+				visible={isLoginModalOpen}
+				onClose={() => setIsLoginModalOpen(false)}
+			/>
 		</div>
 	);
 };
