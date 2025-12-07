@@ -15,6 +15,7 @@ import MyReviewPage from "./pages/MyReviewPage/MyReviewPage";
 import NoticePage from "./pages/NoticePage/NoticePage";
 import StatisticsPage from "./pages/StatisticsPage/StatisticsPage";
 import Toast from "./components/Toast";
+import GoogleCallBack from "./pages/LoginPage/GoogleCallBack";
 
 const HeaderWrapper = styled.div`
 	z-index: 10;
@@ -53,7 +54,8 @@ const App = () => {
           <Route exact path="/" element={<MainPage />} />
           <Route exact path="/admin/main-menu" element={<SetMainMenuPage />} />
           <Route exact path="/admin/dish-name" element={<SetDishNamePage />} />
-          <Route exact path="/oauth" element={<KakaoCallBack />} />
+          <Route exact path="/oauth/kakao" element={<KakaoCallBack />} />
+          <Route exact path="/oauth/google" element={<GoogleCallBack />} />
           <Route exact path="/login-page" element={<LoginPage />} />
           <Route exact path="/set-nickname" element={<SetNicknamePage />} />
           <Route exact path="/my-review-page" element={<MyReviewPage />} />
