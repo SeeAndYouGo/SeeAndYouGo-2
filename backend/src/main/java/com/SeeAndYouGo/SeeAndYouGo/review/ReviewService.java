@@ -104,8 +104,8 @@ public class ReviewService {
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         Restaurant restaurant = Restaurant.valueOf(Restaurant.parseName(restaurantName));
 
-        if(restaurant.equals(Restaurant.제1학생회관)){
-            // 1학의 경우 아래의 로직대로 하면 너무 오래 걸리므로 그냥 1학 리뷰는 싹다 가져오게 진행한다.
+        if(restaurant.hasFixedMenu()){
+            // 고정 메뉴 식당의 경우 날짜 필터링이 불필요하므로 모든 리뷰를 가져온다.
             return reviewRepository.findByRestaurantOrderByMadeTimeDesc(restaurant);
         }
 
@@ -172,8 +172,8 @@ public class ReviewService {
             Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
             rateByRestaurant.exceptRate(review.getReviewRate());
 
-            // 1학의 경우 실제 dept를 가지고 있는 데이터도 갱신하지만, 각 메뉴에 대한 정보를 갖고 있는 데이터에도 반영해야한다.
-            if(restaurant.equals(Restaurant.제1학생회관)){
+            // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴에 대한 Rate 데이터에도 반영해야 한다.
+            if(restaurant.hasPerMenuRating()){
                 Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
                 rateByMenu.exceptRate(review.getReviewRate());
             }

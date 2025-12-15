@@ -51,10 +51,7 @@ public class DishService {
     public List<DishResponseDto> getWeeklyDish(LocalDate monday, LocalDate sunday) {
         Set<Dish> dishes = new HashSet<>();
 
-        for (Restaurant restaurant : Restaurant.values()) {
-            // 1학생회관은 제외하고 전송
-            if(restaurant.equals(Restaurant.제1학생회관)) {continue;}
-
+        for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
             Set<Dish> dishList = getWeeklyDishByRestaurant(restaurant, monday, sunday);
             dishes.addAll(dishList);
         }

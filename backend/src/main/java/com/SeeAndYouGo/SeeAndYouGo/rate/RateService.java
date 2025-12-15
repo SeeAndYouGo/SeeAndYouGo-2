@@ -113,9 +113,9 @@ public class RateService {
     public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
-        if(!restaurant.equals(Restaurant.제1학생회관)){
-            // 1학생활관이 아니라면 아직 기능을 제공 안함.
-            throw new IllegalArgumentException("1학을 제외하고는 지원하지 않는 메서드입니다.");
+        if(!restaurant.hasPerMenuRating()){
+            // 메뉴별 개별 평점을 관리하는 식당이 아니라면 세부 평점 기능을 제공하지 않음.
+            throw new IllegalArgumentException("메뉴별 개별 평점을 관리하는 식당만 지원하는 메서드입니다.");
         }
 
         // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기
@@ -191,9 +191,8 @@ public class RateService {
         Dept dept = menu.getDept();
         Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept.toString());
 
-        // 1학일 경우, 실제 dept에도 평점을 반영해야하고, 각 메뉴별 데이터에도 평점을 반영해줘야한다.
-        // 따라서 개인 메뉴로 한번 더 찾아와서 업데이트해야한다.
-        if(menu.getRestaurant().equals(Restaurant.제1학생회관)){
+        // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴별 데이터에도 평점을 반영해줘야 한다.
+        if(menu.getRestaurant().hasPerMenuRating()){
             Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName());
             rateByMenu.reflectRate(rate);
         }
@@ -216,9 +215,8 @@ public class RateService {
                                                     .map(Dept::toString)
                                                     .collect(Collectors.toList());
 
-            if(restaurant.equals(Restaurant.제1학생회관)){
-                // 만약 1학생회관이라면 일반 메뉴들도 rate 테이블에 넣어야함.
-                // 따라서 아래의 메서드에서 1학의 메뉴들을 추가적으로 넣어줘야함.
+            if(restaurant.hasPerMenuRating()){
+                // 메뉴별 개별 평점을 관리하는 식당이라면 일반 메뉴들도 rate 테이블에 넣어야 함.
                 possibleDept.addAll(restaurant1MenuByPrice.keySet());
             }
 

@@ -105,9 +105,7 @@ public class MenuService {
     public void checkWeekMenu(LocalDate monday, LocalDate sunday) {
         // nearestMonday부터 일요일까지 2~5학의 메뉴 체크를 한다.
         for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
-            for (Restaurant restaurant : Restaurant.values()) {
-                if(restaurant.equals(Restaurant.제1학생회관)) continue; // 1학생회관은 고정적인 메뉴를 제공하므로 메뉴 데이터의 손실이 없으므로 패스
-
+            for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
                 checkMenuByDate(restaurant, date.toString());
             }
         }
