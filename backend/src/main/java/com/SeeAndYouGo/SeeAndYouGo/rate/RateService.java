@@ -189,15 +189,15 @@ public class RateService {
     @Transactional
     public void updateRateByRestaurant(Restaurant restaurant, Menu menu, Double rate) {
         Dept dept = menu.getDept();
-        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept.toString());
 
         // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴별 데이터에도 평점을 반영해줘야 한다.
         if(menu.getRestaurant().hasPerMenuRating()){
-            Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName());
-            rateByMenu.reflectRate(rate);
+            rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName())
+                    .ifPresent(rateByMenu -> rateByMenu.reflectRate(rate));
         }
 
-        rateByRestaurant.reflectRate(rate);
+        rateRepository.findByRestaurantAndDept(restaurant, dept.toString())
+                .ifPresent(rateByRestaurant -> rateByRestaurant.reflectRate(rate));
     }
 
     public boolean exists() {

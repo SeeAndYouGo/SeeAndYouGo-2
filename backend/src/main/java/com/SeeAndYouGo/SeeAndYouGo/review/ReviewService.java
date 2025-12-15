@@ -121,7 +121,8 @@ public class ReviewService {
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + reviewId));
         return review.incrementReportCount();
     }
 
@@ -163,19 +164,20 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + reviewId));
         Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
-            rateByRestaurant.exceptRate(review.getReviewRate());
+            rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString())
+                    .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
 
             // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴에 대한 Rate 데이터에도 반영해야 한다.
             if(restaurant.hasPerMenuRating()){
-                Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
-                rateByMenu.exceptRate(review.getReviewRate());
+                rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName())
+                        .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
             }
 
             return true;

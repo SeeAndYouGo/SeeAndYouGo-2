@@ -55,11 +55,11 @@ public class LikeScheduler {
                     LikeResponseDto dto = objectMapper.readValue(value, LikeResponseDto.class);
                     if (!dto.isLike()) continue;
 
-                    User user = userRepository.findByEmail(userEmail);
-                    Review review = reviewRepository.findById(Long.parseLong(reviewId)).get();
+                    Optional<User> userOptional = userRepository.findByEmail(userEmail);
+                    Optional<Review> reviewOptional = reviewRepository.findById(Long.parseLong(reviewId));
 
-                    if (user != null) {
-                        Like like = new Like(review, user);
+                    if (userOptional.isPresent() && reviewOptional.isPresent()) {
+                        Like like = new Like(reviewOptional.get(), userOptional.get());
                         likeRepository.save(like);
                     } else {
                         logger.warn("User 또는 Review를 찾을 수 없습니다. UserEmail: {}, ReviewId: {}", userEmail, reviewId);

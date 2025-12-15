@@ -49,9 +49,8 @@ public class StatisticsService {
             List<Connection> connectionByRestaurant = connectionRepository.findByRestaurantAndTimeStartsWith(restaurant, date.toString());
             for (Connection connection : connectionByRestaurant) {
                 LocalTime time = getValidTime(connection);
-                Statistics statistics = statisticsRepository.findByRestaurantAndTime(restaurant, time);
-
-                statistics.updateAverageConnection(connection, date);
+                statisticsRepository.findByRestaurantAndTime(restaurant, time)
+                        .ifPresent(statistics -> statistics.updateAverageConnection(connection, date));
             }
         }
     }

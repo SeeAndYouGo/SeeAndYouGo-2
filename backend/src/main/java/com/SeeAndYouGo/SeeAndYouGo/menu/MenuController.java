@@ -59,9 +59,10 @@ public class MenuController {
 
         List<String> keywords = new ArrayList<>();
         if (!email.equals("none")) {
-            User user = userRepository.findByEmail(email);
-            List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
-            keywords = userKeywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList());
+            userRepository.findByEmail(email).ifPresent(user -> {
+                List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
+                keywords.addAll(userKeywords.stream().map(x -> x.getKeyword().getName()).collect(Collectors.toList()));
+            });
         }
 
         return parseOneDayRestaurantMenuByUser(oneDayRestaurantMenu, keywords, newMainDishIds);
