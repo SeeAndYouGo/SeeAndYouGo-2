@@ -76,12 +76,7 @@ public class IterService {
     // 평일 점심 정보는 10시에 올리기
     @Scheduled(cron = "0 0 10 * * MON-FRI")
     public void postMenuInfo(){
-        Restaurant[] restaurantNames = Restaurant.values();
-
-        for (Restaurant restaurant : restaurantNames) {
-            if(restaurant.equals(Restaurant.제1학생회관))
-                continue;
-
+        for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
             menuService.postMenu(restaurant, LocalDate.now().toString());
         }
     }
