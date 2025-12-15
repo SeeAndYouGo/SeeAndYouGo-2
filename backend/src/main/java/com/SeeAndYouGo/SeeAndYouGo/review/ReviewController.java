@@ -106,7 +106,7 @@ public class ReviewController {
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        String nickname = userService.findNickname(email);
+        String nickname = userService.getNicknameByEmail(email);
 
         String imgUrl = "";
         if (image != null) {

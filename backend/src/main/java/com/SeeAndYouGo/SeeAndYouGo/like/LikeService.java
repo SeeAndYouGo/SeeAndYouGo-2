@@ -21,8 +21,10 @@ public class LikeService {
 
     @Transactional
     public LikeResponseDto postLikeCount(Long reviewId, String email) {
-        Review review = reviewRepository.findById(reviewId).get();
-        User user = userRepository.findByEmail(email);
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + reviewId));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
 
         if(review.getWriterEmail().equals(email)){
             return LikeResponseDto.builder()
@@ -69,11 +71,8 @@ public class LikeService {
     public boolean isLike(Review review, String userEmail) {
         if(userEmail.equals("") || userEmail.equals("none")) return false;
 
-        User user = userRepository.findByEmail(userEmail);
-        if(likeRepository.existsByReviewAndUser(review, user)){
-            return true;
-        }
-
-        return false;
+        return userRepository.findByEmail(userEmail)
+                .map(user -> likeRepository.existsByReviewAndUser(review, user))
+                .orElse(false);
     }
 }

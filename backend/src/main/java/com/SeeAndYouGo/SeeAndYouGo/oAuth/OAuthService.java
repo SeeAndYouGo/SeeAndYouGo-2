@@ -137,7 +137,8 @@ public class OAuthService {
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired Refresh Token");
         }
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         if (!user.getRefreshToken().equals(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token");
         }

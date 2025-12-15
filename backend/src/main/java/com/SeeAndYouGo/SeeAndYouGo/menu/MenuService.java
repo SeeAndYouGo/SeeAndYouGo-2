@@ -328,16 +328,14 @@ public class MenuService {
                 Dish dish;
 
                 // 만약 해당 Dish가 있으면 그걸 repository에서 가져오고 없다면 생성한다.
-                if(!dishRepository.existsByName(dishVO.getName())){
-                    dish = Dish.builder()
+                dish = dishRepository.findByName(dishVO.getName())
+                        .orElseGet(() -> {
+                            Dish newDish = Dish.builder()
                                     .name(dishVO.getName())
                                     .dishType(dishVO.getDishType())
                                     .build();
-
-                    dishRepository.save(dish);
-                }else{
-                    dish = dishRepository.findByName(dishVO.getName()).get();
-                }
+                            return dishRepository.save(newDish);
+                        });
 
                 menu.addDish(dish);
             }

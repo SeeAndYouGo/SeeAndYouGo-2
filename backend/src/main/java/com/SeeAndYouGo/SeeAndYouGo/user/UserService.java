@@ -18,29 +18,26 @@ public class UserService {
 
     @Transactional
     public void updateNickname(String email, String nickname) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         user.changeNickname(nickname);
     }
 
     public String getNicknameByEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        return user == null ? "익명" : user.getNickname();
-    }
-
-    public String findNickname(String email) {
-        User user = userRepository.findByEmail(email);
-        return user.getNickname() == null ? "익명" : user.getNickname();
+        return userRepository.findByEmail(email)
+                .map(user -> user.getNickname() != null ? user.getNickname() : "익명")
+                .orElse("익명");
     }
 
     public boolean canUpdateNickname(String email) {
-        User user = userRepository.findByEmail(email);
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         return user.canUpdateNickname(LocalDateTime.now());
     }
 
     public String getLastUpdateTimeForNickname(String email) {
-        User user = userRepository.findByEmail(email);
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         return user.getLastUpdateTime().toLocalDate().toString();
     }
 }

@@ -26,23 +26,23 @@ public class KeywordService {
         // 만약 token_id가 넘어오지 않는다면, email은 decoreToEmail()에 의해서 빈 String으로 온다.
         if(email.equals("")) return Collections.emptyList();
 
-        User user = userRepository.findByEmail(email);
-        return user.getKeywords();
+        return userRepository.findByEmail(email)
+                .map(User::getKeywords)
+                .orElse(Collections.emptyList());
     }
 
     @Transactional
     public KeywordAddResponseDto addKeyword(String keywordName, String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
 
         // 유저는 최대 10개의 키워드밖에 등록하지 못한다.
         if (userKeywords.size() >= 10) {
             return KeywordAddResponseDto.toDTO(user.getKeywords(), true);
         }
-        if (!keywordRepository.existsByName(keywordName)) {
-            keywordRepository.save(new Keyword(keywordName));
-        }
-        Keyword keyword = keywordRepository.findByName(keywordName);
+        Keyword keyword = keywordRepository.findByName(keywordName)
+                .orElseGet(() -> keywordRepository.save(new Keyword(keywordName)));
 
         user.addKeyword(keyword);
         userRepository.save(user);
@@ -52,12 +52,11 @@ public class KeywordService {
 
     @Transactional
     public KeywordResponseDto deleteKeyword(String keywordName, String email) throws KeywordNotFoundException {
-        Keyword keyword = keywordRepository.findByName(keywordName);
-        if (keyword == null) {
-            throw new KeywordNotFoundException("키워드 삭제 실패");
-        }
+        Keyword keyword = keywordRepository.findByName(keywordName)
+                .orElseThrow(() -> new KeywordNotFoundException("키워드 삭제 실패"));
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         user.deleteKeyword(keyword);
 
         return KeywordResponseDto.toDTO(user.getKeywords());
