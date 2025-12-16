@@ -7,10 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserReader userReader;
 
     public boolean isNicknameCountZero(String nickname) {
         return userRepository.countByNickname(nickname) == 0;
@@ -18,26 +19,23 @@ public class UserService {
 
     @Transactional
     public void updateNickname(String email, String nickname) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        User user = userReader.getByEmail(email);
         user.changeNickname(nickname);
     }
 
     public String getNicknameByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userReader.findByEmail(email)
                 .map(user -> user.getNickname() != null ? user.getNickname() : "익명")
                 .orElse("익명");
     }
 
     public boolean canUpdateNickname(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        User user = userReader.getByEmail(email);
         return user.canUpdateNickname(LocalDateTime.now());
     }
 
     public String getLastUpdateTimeForNickname(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+        User user = userReader.getByEmail(email);
         return user.getLastUpdateTime().toLocalDate().toString();
     }
 }

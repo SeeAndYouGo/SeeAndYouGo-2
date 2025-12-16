@@ -34,6 +34,7 @@ public class ReviewService {
     private final ReviewHistoryRepository reviewHistoryRepository;
     private final RateRepository rateRepository;
     private final MenuRepository menuRepository;
+    private final ReviewReader reviewReader;
     private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -121,8 +122,7 @@ public class ReviewService {
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + reviewId));
+        Review review = reviewReader.getById(reviewId);
         return review.incrementReportCount();
     }
 
@@ -164,8 +164,7 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found: " + reviewId));
+        Review review = reviewReader.getById(reviewId);
         Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){
