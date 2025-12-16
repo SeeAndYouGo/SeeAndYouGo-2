@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Component
 @RequiredArgsConstructor
@@ -199,7 +200,7 @@ public class CrawlingMenuProvider implements MenuProvider{
 
     private void addDefaultMenu(List<MenuVO> menus, LocalDate date, Dept dept, Restaurant restaurant, MenuType menuType) {
         MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
-        DishVO defaultDish = new DishVO("메뉴 정보 없음", DishType.SIDE);
+        DishVO defaultDish = new DishVO(DEFAULT_DISH_NAME, DishType.SIDE);
 
         defaultMenu.addDishVO(defaultDish);
         menus.add(defaultMenu);

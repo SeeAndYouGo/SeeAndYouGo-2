@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,8 +40,6 @@ public class MenuService {
     // 로컬에서 운영서버로 데이터를 넘겨주기 위함.
     private final MenuProviderFactory menuProviderFactory;
     private final NewDishCacheService newDishCacheService;
-
-    public static final String DEFAULT_DISH_NAME = "메뉴 정보 없음";
 
     @Value("${API.DISH_KEY}")
     private String DISH_KEY;
@@ -244,7 +243,7 @@ public class MenuService {
             Menu menu = menus.get(i);
 
             // 만약 메뉴정보가 없다면 올리지 않는 방향으로!
-            if(menu.getDishList().get(0).getName().equals("메뉴 정보 없음"))
+            if(menu.getDishList().get(0).getName().equals(DEFAULT_DISH_NAME))
                 continue;
 
             sb.append(menu.getDept().getKoreanDept()+"식당 : ");
