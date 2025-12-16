@@ -231,7 +231,7 @@ public class MenuService {
                 .content(message)
                 .build();
 
-        logger.info("[API_JJONGAL] 데이터: " + dto.toString());
+        logger.info("[API_JJONGAL] 데이터: {}", dto);
 
         return dto;
     }
