@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -93,7 +94,9 @@ public class Menu {
     private static boolean checkIsOpen(Dish dish) {
         String name = dish.getName();
 
-        return !name.equals("메뉴 정보 없음") && !name.contains("운영중단") && !name.contains("운영안함");
+        return !name.equals(MenuConstants.DEFAULT_DISH_NAME)
+                && !name.contains(MenuConstants.OPERATION_SUSPENDED)
+                && !name.contains(MenuConstants.NOT_OPERATING);
     }
 
     /**

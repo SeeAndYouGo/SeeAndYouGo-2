@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_COMPACT;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Component
 @RequiredArgsConstructor
@@ -269,7 +270,7 @@ public class ApiMenuProvider implements MenuProvider{
             }
         }
 
-        // Fill missing menus with default "메뉴 정보 없음"
+        // Fill missing menus with default dish
         fillMissingMenus(restaurant, date, dailyMenu);
 
         // menuMap에서 해당 날짜의 메뉴를 찾아 교체
@@ -308,7 +309,7 @@ public class ApiMenuProvider implements MenuProvider{
 
         if (!menuExists) {
             MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
-            defaultMenu.addDishVO(new DishVO("메뉴 정보 없음", DishType.SIDE));
+            defaultMenu.addDishVO(new DishVO(DEFAULT_DISH_NAME, DishType.SIDE));
             dailyMenu.add(defaultMenu);
         }
     }
