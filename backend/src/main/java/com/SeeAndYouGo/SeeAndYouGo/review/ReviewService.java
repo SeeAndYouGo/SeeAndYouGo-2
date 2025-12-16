@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.IMAGE_STORAGE_DIR;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -133,7 +135,7 @@ public class ReviewService {
         // Delete associated image file
         String imgLink = review.getImgLink();
         if (imgLink != null && !imgLink.isEmpty()) {
-            File imageFile = new File("imageStorage" + File.separator + imgLink);
+            File imageFile = new File(IMAGE_STORAGE_DIR + File.separator + imgLink);
             if (imageFile.exists()) {
                 if (imageFile.delete()) {
                     log.info("Deleted image file: {}", imageFile.getAbsolutePath());
