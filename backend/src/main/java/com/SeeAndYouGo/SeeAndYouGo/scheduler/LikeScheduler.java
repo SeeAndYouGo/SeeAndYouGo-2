@@ -34,7 +34,7 @@ public class LikeScheduler {
     private final UserReader userReader;
     private final ReviewReader reviewReader;
 
-    @Scheduled(fixedRate = 60000 * 30) // 30분마다 실행
+    @Scheduled(fixedRateString = "${scheduler.like.backup-rate}")
     public void backupReviewLike() {
         try {
             // Redis에서 review:like:* 패턴의 모든 키를 가져옴

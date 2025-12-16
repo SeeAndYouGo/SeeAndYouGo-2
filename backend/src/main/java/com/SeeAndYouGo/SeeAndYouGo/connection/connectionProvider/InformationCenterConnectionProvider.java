@@ -33,28 +33,28 @@ import java.util.HashMap;
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     @Value("${API.CONN_KEY}")
-    private String AUTH_KEY;
+    private String authKey;
 
-    @Value("${CONN.GET.URL}")
-    private String URL;
+    @Value("${external-api.connection.get.url}")
+    private String connectionGetUrl;
 
-    @Value("${CONN.GET.END_POINT}")
-    private String END_POINT;
+    @Value("${external-api.connection.get.endpoint}")
+    private String connectionGetEndpoint;
 
-    @Value("${CONN.SAVE.URL}")
-    private String SAVE_URL;
+    @Value("${external-api.connection.save.url}")
+    private String connectionSaveUrl;
 
-    @Value("${CONN.SAVE.END_POINT}")
-    private String SAVE_END_POINT;
+    @Value("${external-api.connection.save.endpoint}")
+    private String connectionSaveEndpoint;
 
     private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
     public String getRecentConnectionToString() throws Exception {
 
-        String apiUrl = SAVE_URL+SAVE_END_POINT + "?AUTH_KEY=" + AUTH_KEY;
+        String apiUrl = connectionSaveUrl + connectionSaveEndpoint + "?AUTH_KEY=" + authKey;
 
         // URL 생성
-        URL url = new URL(apiUrl);
+        java.net.URL url = new java.net.URL(apiUrl);
         // HttpURLConnection 설정
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
@@ -107,9 +107,9 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     }
 
     private URI getUri(Restaurant restaurant) {
-        return UriComponentsBuilder.fromUriString(URL)
-                .path(END_POINT)
-                .queryParam("AUTH_KEY", AUTH_KEY)
+        return UriComponentsBuilder.fromUriString(connectionGetUrl)
+                .path(connectionGetEndpoint)
+                .queryParam("AUTH_KEY", authKey)
                 .queryParam("restaurant", restaurant.getNumber())
                 .encode()
                 .build()

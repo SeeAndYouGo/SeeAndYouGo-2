@@ -32,7 +32,7 @@ public class VisitorScheduler {
     private final VisitorCountRepository visitorCountRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${scheduler.visitor.daily-sync}")
     public void syncDBAndRedis() {
         logger.info("[VISITOR COUNT] Syncing DB and Redis data...");
 
@@ -74,7 +74,7 @@ public class VisitorScheduler {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 60000 * 30)
+    @Scheduled(fixedRateString = "${scheduler.visitor.backup-rate}")
     public void backupVisitorCount() {
         LocalDate today = LocalDate.now();
         syncTodayAndTotal(today);

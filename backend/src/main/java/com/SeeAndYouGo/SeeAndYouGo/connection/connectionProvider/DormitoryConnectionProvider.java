@@ -21,8 +21,8 @@ import java.util.Map;
 @Slf4j
 public class DormitoryConnectionProvider implements ConnectionProvider{
 
-    @Value("${URL.DORM_CONN_URL}")
-    private String CONN_URL;
+    @Value("${external-api.dormitory.connection-url}")
+    private String dormitoryConnectionUrl;
 
     private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
@@ -41,8 +41,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
     public void updateConnectionMap(Restaurant restaurant) throws Exception {
         try{
             // 요청할 URL
-            String urlString = "https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon";
-            URL url = new URL(urlString);
+            URL url = new URL(dormitoryConnectionUrl);
 
             // HttpURLConnection 설정
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

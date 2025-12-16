@@ -38,19 +38,19 @@ import java.util.stream.Collectors;
 public class ApiMenuProvider implements MenuProvider{
 
     @Value("${API.DISH_KEY}")
-    private String AUTH_KEY;
+    private String authKey;
 
-    @Value("${DISH.GET.URL}")
-    private String URL;
+    @Value("${external-api.menu.get.url}")
+    private String menuGetUrl;
 
-    @Value("${DISH.GET.END_POINT}")
-    private String END_POINT;
+    @Value("${external-api.menu.get.endpoint}")
+    private String menuGetEndpoint;
 
-    @Value("${DISH.SAVE.URL}")
-    private String SAVE_URL;
+    @Value("${external-api.menu.save.url}")
+    private String menuSaveUrl;
 
-    @Value("${DISH.SAVE.END_POINT}")
-    private String SAVE_END_POINT;
+    @Value("${external-api.menu.save.endpoint}")
+    private String menuSaveEndpoint;
 
     private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
 
@@ -89,9 +89,9 @@ public class ApiMenuProvider implements MenuProvider{
     }
 
     private URI getUri(Restaurant restaurant) {
-        return UriComponentsBuilder.fromUriString(URL)
-                .path(END_POINT)
-                .queryParam("AUTH_KEY", AUTH_KEY)
+        return UriComponentsBuilder.fromUriString(menuGetUrl)
+                .path(menuGetEndpoint)
+                .queryParam("AUTH_KEY", authKey)
                 .queryParam("restaurant", restaurant)
                 .encode()
                 .build()
@@ -325,7 +325,7 @@ public class ApiMenuProvider implements MenuProvider{
         String dateString = date.format(formatter);
 
         while (page <= 3) { // 최대 3페이지까지 확인
-            String apiUrl = SAVE_URL + SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
+            String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
             URL url = new URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -369,10 +369,10 @@ public class ApiMenuProvider implements MenuProvider{
                 break;
             }
 
-            String apiUrl = SAVE_URL+SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
+            String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
 
             // URL 생성
-            URL url = new URL(apiUrl);
+            java.net.URL url = new java.net.URL(apiUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
 

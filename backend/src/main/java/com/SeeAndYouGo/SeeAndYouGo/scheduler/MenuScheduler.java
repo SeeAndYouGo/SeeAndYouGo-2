@@ -17,7 +17,7 @@ public class MenuScheduler {
     private final MenuProviderFactory menuProviderFactory;
     private final MenuService menuService;
 
-    @Scheduled(cron = "0 15 0 * * *") // 매일 00시 15분에 실행
+    @Scheduled(cron = "${scheduler.menu.daily-update}")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     @ClearMainDishCache(clearAll = true)
     public void updateDailyMenu() {
