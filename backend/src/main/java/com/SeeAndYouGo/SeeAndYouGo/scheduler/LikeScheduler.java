@@ -4,8 +4,10 @@ import com.SeeAndYouGo.SeeAndYouGo.like.Like;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeRepository;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.review.ReviewReader;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewRepository;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class LikeScheduler {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final UserReader userReader;
+    private final ReviewReader reviewReader;
 
     @Scheduled(fixedRate = 60000 * 30) // 30분마다 실행
     public void backupReviewLike() {
@@ -55,8 +59,8 @@ public class LikeScheduler {
                     LikeResponseDto dto = objectMapper.readValue(value, LikeResponseDto.class);
                     if (!dto.isLike()) continue;
 
-                    Optional<User> userOptional = userRepository.findByEmail(userEmail);
-                    Optional<Review> reviewOptional = reviewRepository.findById(Long.parseLong(reviewId));
+                    Optional<User> userOptional = userReader.findByEmail(userEmail);
+                    Optional<Review> reviewOptional = reviewReader.findById(Long.parseLong(reviewId));
 
                     if (userOptional.isPresent() && reviewOptional.isPresent()) {
                         Like like = new Like(reviewOptional.get(), userOptional.get());
