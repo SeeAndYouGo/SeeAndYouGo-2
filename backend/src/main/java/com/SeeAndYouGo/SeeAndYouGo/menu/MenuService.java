@@ -297,17 +297,7 @@ public class MenuService {
         menuRepository.deleteByRestaurantAndDate(restaurant, date.toString());
 
         // Save new menu for the day
-        for (MenuVO menuVO : dailyMenuVO) {
-            Menu menu = new Menu(menuVO);
-            for (DishVO dishVO : menuVO.getDishVOs()) {
-                Dish dish = dishRepository.findByName(dishVO.getName()).orElseGet(() -> {
-                    Dish newDish = Dish.builder().name(dishVO.getName()).dishType(dishVO.getDishType()).build();
-                    return dishRepository.save(newDish);
-                });
-                menu.addDish(dish);
-            }
-            menuRepository.save(menu);
-        }
+        saveMenusWithDishes(dailyMenuVO);
     }
 
     @Transactional
@@ -318,30 +308,36 @@ public class MenuService {
         menuProvider.updateMenuMap(restaurant, monday, sunday);
 
         List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant);
+        saveMenusWithDishes(weeklyMenu);
+    }
 
-        // 이제 받은 List<MenuVO>를 List<Menu>로 변환하고 저장한다.
-        for (MenuVO menuVO : weeklyMenu) {
-            List<DishVO> dishVOs = menuVO.getDishVOs();
-
+    /**
+     * MenuVO 리스트를 Menu 엔티티로 변환하고 저장한다.
+     * 각 MenuVO의 DishVO를 Dish 엔티티로 변환하며, 없으면 새로 생성한다.
+     */
+    private void saveMenusWithDishes(List<MenuVO> menuVOs) {
+        for (MenuVO menuVO : menuVOs) {
             Menu menu = new Menu(menuVO);
-            for (DishVO dishVO : dishVOs) {
-                Dish dish;
-
-                // 만약 해당 Dish가 있으면 그걸 repository에서 가져오고 없다면 생성한다.
-                dish = dishRepository.findByName(dishVO.getName())
-                        .orElseGet(() -> {
-                            Dish newDish = Dish.builder()
-                                    .name(dishVO.getName())
-                                    .dishType(dishVO.getDishType())
-                                    .build();
-                            return dishRepository.save(newDish);
-                        });
-
+            for (DishVO dishVO : menuVO.getDishVOs()) {
+                Dish dish = findOrCreateDish(dishVO);
                 menu.addDish(dish);
             }
-
             menuRepository.save(menu);
         }
+    }
+
+    /**
+     * DishVO에 해당하는 Dish를 찾거나, 없으면 새로 생성한다.
+     */
+    private Dish findOrCreateDish(DishVO dishVO) {
+        return dishRepository.findByName(dishVO.getName())
+                .orElseGet(() -> {
+                    Dish newDish = Dish.builder()
+                            .name(dishVO.getName())
+                            .dishType(dishVO.getDishType())
+                            .build();
+                    return dishRepository.save(newDish);
+                });
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {
