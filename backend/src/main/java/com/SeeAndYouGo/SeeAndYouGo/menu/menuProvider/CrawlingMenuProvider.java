@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 
 @Component
 @RequiredArgsConstructor
@@ -333,7 +334,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         List<LocalDate> dates = new ArrayList<>();
         while (matcher.find()) {
             String dateString = matcher.group();
-            LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate date = LocalDate.parse(dateString, DATE);
 
             dates.add(date);
         }

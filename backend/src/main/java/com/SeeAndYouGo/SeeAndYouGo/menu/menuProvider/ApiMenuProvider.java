@@ -28,9 +28,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_COMPACT;
 
 @Component
 @RequiredArgsConstructor
@@ -102,7 +103,6 @@ public class ApiMenuProvider implements MenuProvider{
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         List<MenuVO> result = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         JsonArray resultArray;
         try{
@@ -146,7 +146,7 @@ public class ApiMenuProvider implements MenuProvider{
                 price = Integer.parseInt(priceStr);
 
             String dateStr = menuObject.get("FOOM_YMD").getAsString();
-            LocalDate objDate = LocalDate.parse(dateStr, formatter);
+            LocalDate objDate = LocalDate.parse(dateStr, DATE_COMPACT);
 
             // DishDto 구성하기
             if (objDate.isAfter(monday) && objDate.isBefore(sunday) || objDate.isEqual(monday) || objDate.isEqual(sunday)) {
@@ -219,7 +219,6 @@ public class ApiMenuProvider implements MenuProvider{
 
     public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
         List<MenuVO> dailyMenu = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         String foodInfo = getDailyMenuToString(date);
 
@@ -237,7 +236,7 @@ public class ApiMenuProvider implements MenuProvider{
                     }
 
                     String dateStr = menuObject.get("FOOM_YMD").getAsString();
-                    LocalDate objDate = LocalDate.parse(dateStr, formatter);
+                    LocalDate objDate = LocalDate.parse(dateStr, DATE_COMPACT);
 
                     if (objDate.isEqual(date)) {
                         String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
@@ -321,8 +320,7 @@ public class ApiMenuProvider implements MenuProvider{
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
         boolean dateFound = false;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String dateString = date.format(formatter);
+        String dateString = date.format(DATE_COMPACT);
 
         while (page <= 3) { // 최대 3페이지까지 확인
             String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
@@ -424,10 +422,9 @@ public class ApiMenuProvider implements MenuProvider{
     }
 
     private void checkDate(String line, boolean[] dayOfWeek, LocalDate monday, LocalDate sunday) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
-            String dateToString = date.format(formatter);
+            String dateToString = date.format(DATE_COMPACT);
             if(line.contains(dateToString)){
                 // date에 해당하는 날짜가 line에 포함되면 dayOfWeek의 해당 인덱스 true로 바꿔주기
                 int i = date.getDayOfWeek().getValue() - 1;

@@ -12,9 +12,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATETIME;
 
 @Component
 @RequiredArgsConstructor
@@ -70,12 +71,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
 
                 // 현재 시간 가져오기
                 LocalDateTime now = LocalDateTime.now();
-
-                // 포맷터 정의
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-                // LocalDateTime을 포맷팅
-                String formattedDateTime = now.format(formatter);
+                String formattedDateTime = now.format(DATETIME);
 
                 connection.disconnect();
 

@@ -19,13 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 
 @Service
 @Transactional(readOnly = true)
@@ -87,7 +87,7 @@ public class MenuService {
      */
     public List<Menu>[] getOneWeekRestaurantMenu(String restaurantName, String date) {
         // 날짜 문자열을 파싱
-        LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate parsedDate = LocalDate.parse(date, DATE);
 
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate startOfWeek = parsedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));

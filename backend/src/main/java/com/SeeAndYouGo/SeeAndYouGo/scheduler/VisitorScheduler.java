@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TODAY_VISITOR;
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TOTAL_VISITOR;
 
@@ -44,7 +44,7 @@ public class VisitorScheduler {
 
         // 날짜들을 파싱하고 정렬 (가장 이른 날짜부터)
         List<LocalDate> sortedDates = fields.stream()
-                .map(field -> LocalDate.parse(field.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .map(field -> LocalDate.parse(field.toString(), DATE))
                 .sorted()
                 .collect(Collectors.toList());
 

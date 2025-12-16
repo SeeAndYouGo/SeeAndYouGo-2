@@ -19,10 +19,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATETIME;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,8 +41,6 @@ public class ReviewService {
     @Value("${app.review.top-review-count}")
     private int topReviewCount;
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     @Transactional
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
@@ -52,7 +51,7 @@ public class ReviewService {
         // 연관관계 존재
 //        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
         Menu menu = menuRepository.getReferenceById(data.getMenuId());
-        Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
+        Review review = Review.createEntity(data, restaurant, menu, time.format(DATETIME));
         menu.addReviewAndUpdateRate(review);
         rateService.updateRateByRestaurant(restaurant, menu, data.getRate());
         reviewRepository.save(review);

@@ -11,10 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 
 @Slf4j
 @Service
@@ -26,20 +27,19 @@ public class NewDishCacheService {
 
     private static final String HISTORICAL_MAIN_DISHES_KEY = "historical:main-dishes:";
     private static final String HISTORICAL_LAST_SYNC_KEY = "historical:last-sync:";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      * 어제 날짜의 메인메뉴들을 historical 캐시에 추가
      */
     public void syncHistoricalDishes(Restaurant restaurant) {
-        String yesterday = LocalDate.now().minusDays(1).format(DATE_FORMATTER);
+        String yesterday = LocalDate.now().minusDays(1).format(DATE);
         String lastSyncDate = getLastSyncDate(restaurant);
         
         // 마지막 동기화 날짜부터 어제까지의 메뉴들을 캐시에 추가
-        LocalDate startDate = lastSyncDate != null ? 
-                LocalDate.parse(lastSyncDate, DATE_FORMATTER).plusDays(1) : 
+        LocalDate startDate = lastSyncDate != null ?
+                LocalDate.parse(lastSyncDate, DATE).plusDays(1) :
                 getNewDishCriteriaStartDate();
-        LocalDate endDate = LocalDate.parse(yesterday, DATE_FORMATTER);
+        LocalDate endDate = LocalDate.parse(yesterday, DATE);
         
         if (startDate.isAfter(endDate)) {
             log.debug("No new dishes to sync for restaurant: {}", restaurant);
@@ -49,8 +49,8 @@ public class NewDishCacheService {
         // ✅ 한 번의 쿼리로 기간 내 모든 메뉴 조회
         List<Menu> periodMenus = menuRepository.findByRestaurantAndDateBetween(
                 restaurant,
-                startDate.format(DATE_FORMATTER),
-                endDate.format(DATE_FORMATTER)
+                startDate.format(DATE),
+                endDate.format(DATE)
         );
 
         Set<Long> mainDishIds = periodMenus.stream()
@@ -124,8 +124,8 @@ public class NewDishCacheService {
         // ✅ DB 쿼리에서 직접 날짜 범위 필터링
         List<Menu> historicalMenus = menuRepository.findByRestaurantAndDateBetween(
                 restaurant,
-                startDate.format(DATE_FORMATTER),
-                yesterday.format(DATE_FORMATTER)
+                startDate.format(DATE),
+                yesterday.format(DATE)
         );
 
         Set<Long> mainDishIds = historicalMenus.stream()
@@ -137,7 +137,7 @@ public class NewDishCacheService {
         if (!mainDishIds.isEmpty()) {
             String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
             redisTemplate.opsForSet().add(cacheKey, mainDishIds.toArray());
-            setLastSyncDate(restaurant, yesterday.format(DATE_FORMATTER));
+            setLastSyncDate(restaurant, yesterday.format(DATE));
         }
 
         log.info("Built historical cache from DB for restaurant: {}", restaurant);
@@ -219,7 +219,7 @@ public class NewDishCacheService {
             return true;
         }
         
-        String yesterday = LocalDate.now().minusDays(1).format(DATE_FORMATTER);
+        String yesterday = LocalDate.now().minusDays(1).format(DATE);
         if (!yesterday.equals(lastSync.toString())) {
             log.debug("Cache is outdated for restaurant: {}. Last sync: {}, Expected: {}", 
                     restaurant, lastSync, yesterday);
