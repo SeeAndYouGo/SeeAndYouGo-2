@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.*;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -201,21 +203,20 @@ public class ReviewService {
         int originalWidth = bi.getWidth();
         int originalHeight = bi.getHeight();
 
-        int targetWidth = originalWidth;
-        int targetHeight = (originalWidth * 3) / 4;
+        int cropWidth = originalWidth;
+        int cropHeight = (originalWidth * ASPECT_RATIO_HEIGHT) / ASPECT_RATIO_WIDTH;
 
-        if (targetHeight > originalHeight) {
-            targetHeight = originalHeight;
-            targetWidth = (originalHeight * 4) / 3;
+        if (cropHeight > originalHeight) {
+            cropHeight = originalHeight;
+            cropWidth = (originalHeight * ASPECT_RATIO_WIDTH) / ASPECT_RATIO_HEIGHT;
         }
 
-        int x = (originalWidth - targetWidth) / 2;
-        int y = (originalHeight - targetHeight) / 2;
+        int x = (originalWidth - cropWidth) / 2;
+        int y = (originalHeight - cropHeight) / 2;
 
-        BufferedImage croppedImage = bi.getSubimage(x, y, targetWidth, targetHeight);
+        BufferedImage croppedImage = bi.getSubimage(x, y, cropWidth, cropHeight);
 
-        // 리사이즈해서 리턴
-        return resizeImage(croppedImage, 800, 600);
+        return resizeImage(croppedImage, TARGET_WIDTH, TARGET_HEIGHT);
     }
 
     BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws Exception {
