@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class RateService {
 
     private Map<String, List<String>> restaurant1MenuByCategory = new HashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
@@ -60,6 +62,7 @@ public class RateService {
                 }
             }
         } catch (IOException e) {
+            log.error("Failed to set rate list for Restaurant 1", e);
             throw new RuntimeException(e);
         }
     }
@@ -91,6 +94,7 @@ public class RateService {
                 restaurant1MenuByPrice.put(name, price);
             }
         } catch (IOException e) {
+            log.error("Failed to set Restaurant 1 menu field", e);
             throw new RuntimeException(e);
         }
     }

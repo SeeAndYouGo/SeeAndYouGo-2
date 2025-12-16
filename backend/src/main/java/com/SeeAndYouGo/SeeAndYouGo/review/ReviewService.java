@@ -193,6 +193,7 @@ public class ReviewService {
         try{
             reviewRepository.deleteById(reviewId);
         }catch (Exception e){
+            log.error("Failed to delete reported review with id: {}", reviewId, e);
             return false;
         }
 

@@ -75,6 +75,7 @@ public class OAuthService {
             br.close();
             bw.close();
         } catch (IOException e) {
+            log.error("Failed to get Kakao access token", e);
             throw new RuntimeException(e);
         }
 
