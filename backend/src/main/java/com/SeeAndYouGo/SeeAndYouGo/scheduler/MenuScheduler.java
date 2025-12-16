@@ -6,10 +6,12 @@ import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MenuScheduler {
@@ -35,8 +37,7 @@ public class MenuScheduler {
                 menuService.saveDailyMenu(restaurant, today);
             }
         } catch (Exception e) {
-            // In production, you might want more sophisticated error handling
-            e.printStackTrace();
+            log.error("Failed to update daily menu", e);
         }
     }
 }

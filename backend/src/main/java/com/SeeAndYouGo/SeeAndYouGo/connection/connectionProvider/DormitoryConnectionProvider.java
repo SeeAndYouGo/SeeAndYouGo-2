@@ -84,7 +84,7 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
                 connectionMap.put(restaurant, connectionVO);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to update connection for restaurant: {}", restaurant, e);
         }
     }
 }
