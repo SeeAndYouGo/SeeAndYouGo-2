@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.global.HttpRequestUtil;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -18,12 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import java.util.HashMap;
 
@@ -49,36 +46,9 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
-    public String getRecentConnectionToString() throws Exception {
-
+    public String getRecentConnectionToString() throws IOException {
         String apiUrl = connectionSaveUrl + connectionSaveEndpoint + "?AUTH_KEY=" + authKey;
-
-        // URL 생성
-        java.net.URL url = new java.net.URL(apiUrl);
-        // HttpURLConnection 설정
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-
-        // 응답 코드 확인
-        int responseCode = connection.getResponseCode();
-        String json = new String();
-
-        // 응답 내용 읽기
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            StringBuilder response = new StringBuilder();
-
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-
-            reader.close();
-            json = response.toString();
-        }
-
-        return json;
+        return HttpRequestUtil.post(apiUrl);
     }
 
     @Override

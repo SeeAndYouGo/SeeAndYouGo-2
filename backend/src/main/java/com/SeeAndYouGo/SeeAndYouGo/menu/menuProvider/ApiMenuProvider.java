@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.HttpRequestUtil;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
@@ -21,12 +22,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -316,7 +313,7 @@ public class ApiMenuProvider implements MenuProvider{
         }
     }
 
-    private String getDailyMenuToString(LocalDate date) throws Exception {
+    private String getDailyMenuToString(LocalDate date) throws IOException {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
         boolean dateFound = false;
@@ -324,26 +321,13 @@ public class ApiMenuProvider implements MenuProvider{
 
         while (page <= 3) { // 최대 3페이지까지 확인
             String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
+            String response = HttpRequestUtil.post(apiUrl);
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                StringBuilder response = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                if (response.toString().contains(dateString)) {
-                    dateFound = true;
-                    mergeJsonResults(rawMenu, response);
-                }
+            if (!response.isEmpty() && response.contains(dateString)) {
+                dateFound = true;
+                mergeJsonResults(rawMenu, new StringBuilder(response));
             }
+
             if (dateFound && !rawMenu.toString().contains(dateString)) {
                 // 해당 페이지에 날짜가 있었지만, 다른 메뉴 정보만 있었을 수 있으므로 다음 페이지도 확인
             } else if (dateFound) {
@@ -354,42 +338,21 @@ public class ApiMenuProvider implements MenuProvider{
         return rawMenu.toString();
     }
 
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
+    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws IOException {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
 
         // 월요일의 메뉴가 들어왔다면 0번째가 true가 됨.
         boolean[] dayOfWeek = new boolean[7];
 
-        while(true) {
-            if(allTrue(dayOfWeek) || page > 3){
-                // 어차피 3페이지 안에 다 나온다
-                break;
-            }
-
+        while (!allTrue(dayOfWeek) && page <= 3) {
+            // 어차피 3페이지 안에 다 나온다
             String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
+            String response = HttpRequestUtil.post(apiUrl);
 
-            // URL 생성
-            java.net.URL url = new java.net.URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-
-            // 응답 코드 확인
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                StringBuilder response = new StringBuilder();
-
-                while ((line = reader.readLine()) != null) response.append(line);
-
-                checkDate(response.toString(), dayOfWeek, monday, sunday);
-
-                reader.close();
-
-                mergeJsonResults(rawMenu, response);
+            if (!response.isEmpty()) {
+                checkDate(response, dayOfWeek, monday, sunday);
+                mergeJsonResults(rawMenu, new StringBuilder(response));
             }
 
             page++;
