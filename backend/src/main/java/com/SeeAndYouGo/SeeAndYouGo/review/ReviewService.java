@@ -11,6 +11,7 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,10 @@ public class ReviewService {
     private final RateRepository rateRepository;
     private final MenuRepository menuRepository;
     private final ReviewReader reviewReader;
-    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
+
+    @Value("${app.review.top-review-count}")
+    private int topReviewCount;
+
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Transactional
@@ -83,7 +87,7 @@ public class ReviewService {
         int count = 0;
 
         for (Review review : reviews) {
-            if(count >= TOP_REVIEW_NUMBER_OF_CRITERIA) return;
+            if(count >= topReviewCount) return;
 
             result.add(review);
             count++;

@@ -8,6 +8,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class KeywordService {
     private final UserReader userReader;
     private final KeywordReader keywordReader;
 
+    @Value("${app.keyword.max-per-user}")
+    private int maxKeywordsPerUser;
+
     public List<Keyword> getKeywords(String email) {
         // 만약 token_id가 넘어오지 않는다면, email은 decoreToEmail()에 의해서 빈 String으로 온다.
         if(email.equals("")) return Collections.emptyList();
@@ -39,8 +43,8 @@ public class KeywordService {
         User user = userReader.getByEmail(email);
         List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
 
-        // 유저는 최대 10개의 키워드밖에 등록하지 못한다.
-        if (userKeywords.size() >= 10) {
+        // 유저는 최대 N개의 키워드밖에 등록하지 못한다.
+        if (userKeywords.size() >= maxKeywordsPerUser) {
             return KeywordAddResponseDto.toDTO(user.getKeywords(), true);
         }
         Keyword keyword = keywordReader.getOrCreate(keywordName);

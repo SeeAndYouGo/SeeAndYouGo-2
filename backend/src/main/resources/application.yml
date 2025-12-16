@@ -17,21 +17,54 @@
     pathmatch:
       matching-strategy: ant_path_matcher
 
-URL:
-  DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
+# External API Configuration
+external-api:
+  dormitory:
+    connection-url: https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
+  menu:
+    get:
+      url: http://www.seeandyougo.com:80
+      endpoint: /api/menu/local
+    save:
+      url: https://api.cnu.ac.kr
+      endpoint: /svc/offcam/pub/FoodInfo
+  connection:
+    get:
+      url: http://www.seeandyougo.com:80
+      endpoint: /api/connection/local
+    save:
+      url: https://api.cnu.ac.kr
+      endpoint: /svc/offcam/pub/WifiAllInfo
+    operating-hours:
+      start: "06:00"
+      end: "19:30"
 
-DISH:
-  GET:
-    URL: http://www.seeandyougo.com:80
-    END_POINT: /api/menu/local
-  SAVE:
-    URL: https://api.cnu.ac.kr
-    END_POINT: /svc/offcam/pub/FoodInfo
+# Application Settings
+app:
+  statistics:
+    start-time: "07:30"
+    end-time: "19:30"
+    time-quantum: 5
+  review:
+    top-review-count: 3
+  keyword:
+    max-per-user: 10
 
-CONN:
-  GET:
-    URL: http://www.seeandyougo.com:80
-    END_POINT: /api/connection/local
-  SAVE:
-    URL: https://api.cnu.ac.kr
-    END_POINT: /svc/offcam/pub/WifiAllInfo
+# Scheduler Cron Expressions
+scheduler:
+  menu:
+    daily-update: "0 15 0 * * *"
+  redis:
+    daily-reset: "0 0 0 * * *"
+    cache-init: "0 5 0 * * *"
+  visitor:
+    daily-sync: "0 0 0 * * *"
+    backup-rate: 1800000
+  like:
+    backup-rate: 1800000
+  iter:
+    weekly-menu: "0 0 0 * * MON"
+    statistics-update: "0 0 21 * * MON-FRI"
+    connection-crawl: "40 0/5 6-20 * * *"
+    jjongal-post: "0 0 10 * * MON-FRI"
+    year-end: "0 0 22 31 12 *"

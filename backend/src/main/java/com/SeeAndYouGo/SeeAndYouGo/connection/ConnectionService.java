@@ -25,12 +25,12 @@ public class ConnectionService {
     private final ConnectionProviderFactory connectionProviderFactory;
 
     @Value("${API.CONN_KEY}")
-    private String CONN_KEY;
+    private String connKey;
 
-    @Value("${CONN.OPERATING_HOURS.START:06:00}")
+    @Value("${external-api.connection.operating-hours.start}")
     private String operatingStartTime;
 
-    @Value("${CONN.OPERATING_HOURS.END:19:30}")
+    @Value("${external-api.connection.operating-hours.end}")
     private String operatingEndTime;
 
     /**
@@ -55,7 +55,7 @@ public class ConnectionService {
     }
 
     public boolean checkSecretKey(String authKey) {
-        return CONN_KEY.equals(authKey);
+        return connKey.equals(authKey);
     }
 
     @Transactional
