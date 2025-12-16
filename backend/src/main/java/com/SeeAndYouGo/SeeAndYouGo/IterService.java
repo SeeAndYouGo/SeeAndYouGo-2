@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import static java.time.DayOfWeek.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IterService {
     private final DishService dishService;
     private final MenuService menuService;
@@ -58,7 +60,7 @@ public class IterService {
         try {
             statisticsService.updateConnectionStatistics(now);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Failed to update connection statistics for date: {}", now, e);
         }
     }
 

@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.holiday;
 
 import com.SeeAndYouGo.SeeAndYouGo.holiday.calendar.HolidayChecker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HolidayService {
     private final HolidayRepository holidayRepository;
     private final HolidayChecker holidayChecker;
@@ -51,6 +53,7 @@ public class HolidayService {
             holidayRepository.saveAll(holidays);
 
         } catch (IOException e) {
+            log.error("Failed to save holiday data for year: {}", date.getYear(), e);
             throw new RuntimeException(e);
         }
     }

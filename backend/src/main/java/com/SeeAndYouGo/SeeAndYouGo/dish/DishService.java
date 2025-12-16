@@ -6,6 +6,7 @@ import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
@@ -87,6 +89,7 @@ public class DishService {
             menuDishRepository.deleteByDishId(id);
             dishRepository.deleteById(id);
         }catch (Exception e){
+            log.error("Failed to delete dish with id: {}", id, e);
             return false;
         }
 

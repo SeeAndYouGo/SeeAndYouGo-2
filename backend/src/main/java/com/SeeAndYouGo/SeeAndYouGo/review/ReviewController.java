@@ -141,6 +141,7 @@ public class ReviewController {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(image.getBytes());
         } catch (IOException e) {
+            log.error("Failed to save temporary image file: {}", file.getPath(), e);
             throw new RuntimeException(e);
         }
 
