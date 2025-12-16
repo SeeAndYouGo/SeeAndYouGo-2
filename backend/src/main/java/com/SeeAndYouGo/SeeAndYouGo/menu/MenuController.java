@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +34,6 @@ public class MenuController {
     private final UserRepository userRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
 
     @GetMapping("/daily-menu/{restaurant}")
     public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
@@ -70,8 +69,7 @@ public class MenuController {
 
     private boolean checkParams(String date) {
         try{
-            LocalDate.parse(date, formatter);
-
+            LocalDate.parse(date, DATE_STRICT);
             return true;
         }catch (Exception e){
             return false;
@@ -80,8 +78,7 @@ public class MenuController {
 
     public static String getTodayDate() {
         LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return currentDate.format(formatter);
+        return currentDate.format(DATE);
     }
 
     private List<MenuResponseDto> parseOneDayRestaurantMenu(List<Menu> oneDayRestaurantMenu) {
