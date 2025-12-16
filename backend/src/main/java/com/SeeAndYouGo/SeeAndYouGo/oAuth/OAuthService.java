@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -99,14 +101,14 @@ public class OAuthService {
             JsonObject jsonObject = JsonParser.parseString(result.toString()).getAsJsonObject();
             String id = jsonObject.get("id").getAsString();
             String email = jsonObject.get("kakao_account").getAsJsonObject().get("email").getAsString();
-            System.out.println(email);
+            log.debug("Kakao user email: {}", email);
 
             return UserIdentityDto.builder()
                     .id(id)
                     .email(email)
                     .build();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to get Kakao user info", e);
         }
         return null;
     }
@@ -155,7 +157,7 @@ public class OAuthService {
                             .socialType(Social.KAKAO)
                             .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to sign up user: {}", dto.getEmail(), e);
         }
     }
 }
