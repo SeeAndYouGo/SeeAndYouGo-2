@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import Modal from "./Modal";
 
@@ -64,30 +64,40 @@ const ButtonBoxHeader = styled.div`
 	color: #303030;
 `;
 
-const KakaoButton = styled.button`
-	background: none;
+const SocialButton = styled.button`
+	height: 48px;
 	border: none;
 	padding: 0;
-	width: 100%;
 	display: block;
 	border-radius: 12px;
 	overflow: hidden;
 	box-shadow: 0 5px 12px rgba(0, 0, 0, 0.16);
 	cursor: pointer;
+	background-color: #F2F2F2;
 `;
 
 const LoginModal = ({ visible, onClose }) => {
-	const REDIRECT_URI = process.env.REACT_APP_KAKAO_REDIRECT_URI;
-	const CLIENT_ID = process.env.REACT_APP_KAKAO_RESTAPI_KEY;
+	const KAKAO_CLIENT_ID = process.env.REACT_APP_KAKAO_RESTAPI_KEY;
+	const KAKAO_REDIRECT_URI = process.env.REACT_APP_KAKAO_REDIRECT_URI;
 
-	const kakaoURL = useMemo(() => {
-		if (!CLIENT_ID || !REDIRECT_URI) return "";
-		return `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
-	}, [CLIENT_ID, REDIRECT_URI]);
+	const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+	const GOOGLE_REDIRECT_URI = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
 
+	const kakaoURL = `https://kauth.kakao.com/oauth/authorize
+		?client_id=${KAKAO_CLIENT_ID}
+		&redirect_uri=${KAKAO_REDIRECT_URI}
+		&response_type=code`;	
 	const handleKakaoLogin = () => {
-		if (!kakaoURL) return;
 		window.location.href = kakaoURL;
+	};
+
+	const googleURL = `https://accounts.google.com/o/oauth2/v2/auth
+		?client_id=${GOOGLE_CLIENT_ID}
+		&redirect_uri=${GOOGLE_REDIRECT_URI}
+		&response_type=code
+		&scope=email`;
+	const handleGoogleLogin = () => {
+		window.location.href = googleURL;
 	};
 
 	return (
@@ -109,13 +119,30 @@ const LoginModal = ({ visible, onClose }) => {
 					<ButtonBoxHeader>
 						<strong>SNS 계정으로 간편하게 로그인</strong>
 					</ButtonBoxHeader>
-					<KakaoButton onClick={handleKakaoLogin}>
+					<SocialButton onClick={handleKakaoLogin}>
 						<img
 							src="/assets/images/kakao_login_large_wide.png"
 							alt="Kakao Login"
 							style={{ width: "100%", display: "block" }}
 						/>
-					</KakaoButton>
+					</SocialButton>
+					<SocialButton onClick={handleGoogleLogin} style={{position: "relative"}}>
+						<img
+							src="/assets/images/google_login_neutral_sq_na@1x.png"
+							alt="google Login"
+							style={{float: "left", marginLeft: 7}}
+						/>
+						<div>
+							<span style={{
+								position: "absolute",
+								transform: "translate(-65%, 30%)",
+								fontFamily: "Roboto",
+								fontWeight: "500",
+							}}
+							> Google 로그인
+							</span>
+						</div>
+					</SocialButton>
 				</ButtonBox>
 			</Wrapper>
 		</Modal>
