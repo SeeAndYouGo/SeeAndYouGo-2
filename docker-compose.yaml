@@ -35,6 +35,7 @@ services:
       - backbone
     depends_on:
       - mysql
+      - redis
     environment:
       - TZ=Asia/Seoul
   seeandyougo-nginx:
