@@ -149,40 +149,6 @@ public class RateService {
     }
 
     /**
-     * 1학에서제공되는 평점을 뽑아온다.
-     */
-    private List<RestaurantDetailRateResponseDto> getDetailRestaurant1Rate() {
-        List<RestaurantDetailRateResponseDto> detailRate = new ArrayList<>();
-        for (String deptToString : restaurant1MenuByCategory.keySet()) {
-            List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
-            List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
-            for (String dishName : dishNames) {
-                Dish dish = dishRepository.findByName(dishName)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(dishName+"의 Dish를 찾을 수 없습니다."));
-                double rate = dish.getRateByDish();
-
-                RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
-                        .menuName(dishName)
-                        .price(restaurant1MenuByPrice.get(dishName))
-                        .averageRate(rate)
-                        .build();
-
-                dishRate.add(rateDto);
-            }
-
-            RestaurantDetailRateResponseDto detailRateDto = RestaurantDetailRateResponseDto.builder()
-                    .category(deptToString)
-                    .avgRateByMenu(dishRate)
-                    .build();
-
-            detailRate.add(detailRateDto);
-        }
-
-        return detailRate;
-    }
-
-    /**
      * 입력받은 restaurant에 rate를 등록해준다.
      * 1학이라면 해당 메뉴를 찾아서 해당 메뉴에도 등록해줘야한다.
      */
