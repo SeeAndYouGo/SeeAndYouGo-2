@@ -2,9 +2,11 @@ package com.SeeAndYouGo.SeeAndYouGo.like;
 
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.review.ReviewReader;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewRepository;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,11 +20,13 @@ public class LikeService {
     private final TokenProvider tokenProvider;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
+    private final UserReader userReader;
+    private final ReviewReader reviewReader;
 
     @Transactional
     public LikeResponseDto postLikeCount(Long reviewId, String email) {
-        Review review = reviewRepository.findById(reviewId).get();
-        User user = userRepository.findByEmail(email);
+        Review review = reviewReader.getById(reviewId);
+        User user = userReader.getByEmail(email);
 
         if(review.getWriterEmail().equals(email)){
             return LikeResponseDto.builder()
@@ -69,11 +73,8 @@ public class LikeService {
     public boolean isLike(Review review, String userEmail) {
         if(userEmail.equals("") || userEmail.equals("none")) return false;
 
-        User user = userRepository.findByEmail(userEmail);
-        if(likeRepository.existsByReviewAndUser(review, user)){
-            return true;
-        }
-
-        return false;
+        return userReader.findByEmail(userEmail)
+                .map(user -> likeRepository.existsByReviewAndUser(review, user))
+                .orElse(false);
     }
 }

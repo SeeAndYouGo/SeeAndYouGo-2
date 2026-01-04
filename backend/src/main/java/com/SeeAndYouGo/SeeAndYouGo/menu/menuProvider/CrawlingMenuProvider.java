@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Component
 @RequiredArgsConstructor
@@ -70,14 +72,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Elements mealTds = dayDocument.select(".diet_table td");
             for (Element mealTd : mealTds) {
                 String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType;
-                if (mealTypeStr.equals("아침")) {
-                    menuType = MenuType.BREAKFAST;
-                } else if (mealTypeStr.equals("점심")) {
-                    menuType = MenuType.LUNCH;
-                } else {
-                    menuType = MenuType.DINNER;
-                }
+                MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
                 String menuContent = mealTd.toString();
                 if (!menuContent.isEmpty()) {
@@ -134,14 +129,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Elements mealTds = dayDocument.select(".diet_table td");
             for (Element mealTd : mealTds) {
                 String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType;
-                if (mealTypeStr.equals("아침")) {
-                    menuType = MenuType.BREAKFAST;
-                } else if (mealTypeStr.equals("점심")) {
-                    menuType = MenuType.LUNCH;
-                } else {
-                    menuType = MenuType.DINNER;
-                }
+                MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
                 String menuContent = mealTd.toString();
                 if (!menuContent.isEmpty()) {
@@ -198,7 +186,7 @@ public class CrawlingMenuProvider implements MenuProvider{
 
     private void addDefaultMenu(List<MenuVO> menus, LocalDate date, Dept dept, Restaurant restaurant, MenuType menuType) {
         MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
-        DishVO defaultDish = new DishVO("메뉴 정보 없음", DishType.SIDE);
+        DishVO defaultDish = new DishVO(DEFAULT_DISH_NAME, DishType.SIDE);
 
         defaultMenu.addDishVO(defaultDish);
         menus.add(defaultMenu);
@@ -290,7 +278,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         }
 
         if (menuMap.containsKey(newTitle)) {
-            System.out.println("중복된 메뉴 코너가 발생했습니다: " + newTitle);
+            logger.warn("중복된 메뉴 코너가 발생했습니다: {}", newTitle);
             throw new IllegalStateException("Duplicate menu corner found: " + newTitle);
         }
         menuMap.put(newTitle, new ArrayList<>(menuList));
@@ -333,7 +321,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         List<LocalDate> dates = new ArrayList<>();
         while (matcher.find()) {
             String dateString = matcher.group();
-            LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate date = LocalDate.parse(dateString, DATE);
 
             dates.add(date);
         }

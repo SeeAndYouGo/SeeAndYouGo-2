@@ -5,10 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface StatisticsRepository extends JpaRepository<Statistics, Long> {
 
     List<Statistics> findByRestaurant(Restaurant restaurant);
 
-    Statistics findByRestaurantAndTime(Restaurant restaurant, LocalTime time);
+    Optional<Statistics> findByRestaurantAndTime(Restaurant restaurant, LocalTime time);
 }
