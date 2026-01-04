@@ -9,6 +9,7 @@ import com.SeeAndYouGo.SeeAndYouGo.rate.RateService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.statistics.StatisticsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import static java.time.DayOfWeek.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class IterService {
     private final DishService dishService;
     private final MenuService menuService;
@@ -32,7 +34,7 @@ public class IterService {
     private static final List<DayOfWeek> weekday = List.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
     private static final List<DayOfWeek> weekend = List.of(SATURDAY, SUNDAY);
 
-    @Scheduled(cron="0 0 0 * * MON")
+    @Scheduled(cron="${scheduler.iter.weekly-menu}")
     public void weeklyIterative() throws Exception {
         // 기본적으로 토요일에 호출되는 메섣.
 
@@ -50,7 +52,7 @@ public class IterService {
             }
     }
 
-    @Scheduled(cron="0 0 21 * * MON-FRI")
+    @Scheduled(cron="${scheduler.iter.statistics-update}")
     public void updateConnectionStatistics(){
         // 모두 모아진 connection 데이터의 평균을 업데이트해준다.
         LocalDate now = LocalDate.now();
@@ -58,11 +60,11 @@ public class IterService {
         try {
             statisticsService.updateConnectionStatistics(now);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Failed to update connection statistics for date: {}", now, e);
         }
     }
 
-    @Scheduled(cron = "40 0/5 6-20 * * *")
+    @Scheduled(cron = "${scheduler.iter.connection-crawl}")
     public void continuousIterative() throws Exception {
         LocalTime now = LocalTime.now();
         LocalTime startTime = LocalTime.of(6, 0);
@@ -74,14 +76,9 @@ public class IterService {
     }
 
     // 평일 점심 정보는 10시에 올리기
-    @Scheduled(cron = "0 0 10 * * MON-FRI")
+    @Scheduled(cron = "${scheduler.iter.jjongal-post}")
     public void postMenuInfo(){
-        Restaurant[] restaurantNames = Restaurant.values();
-
-        for (Restaurant restaurant : restaurantNames) {
-            if(restaurant.equals(Restaurant.제1학생회관))
-                continue;
-
+        for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
             menuService.postMenu(restaurant, LocalDate.now().toString());
         }
     }
@@ -114,7 +111,7 @@ public class IterService {
         return monday.plusDays(6);
     }
 
-    @Scheduled(cron = "0 0 22 31 12 *")
+    @Scheduled(cron = "${scheduler.iter.year-end}")
     public void saveNextYearHolidayInfo(){
         // 내년의 정보는 매년 말일에 해야하므로, 다음 날을 return하여 2025년을 계산하도록 진행
         holidayService.saveThisYearHoliday(LocalDate.now().plusDays(1));

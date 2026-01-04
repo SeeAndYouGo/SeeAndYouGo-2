@@ -11,6 +11,7 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.imgscalr.Scalr;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +19,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATETIME;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,8 +36,10 @@ public class ReviewService {
     private final ReviewHistoryRepository reviewHistoryRepository;
     private final RateRepository rateRepository;
     private final MenuRepository menuRepository;
-    private static final int TOP_REVIEW_NUMBER_OF_CRITERIA = 3; // top-review에서 각 DEPT별 리뷰를 몇개까지 살릴 것인가?
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final ReviewReader reviewReader;
+
+    @Value("${app.review.top-review-count}")
+    private int topReviewCount;
 
     @Transactional
     public Long registerReview(ReviewData data) {
@@ -47,7 +51,7 @@ public class ReviewService {
         // 연관관계 존재
 //        Menu menu = findMenuByRestaurantAndDept(restaurant, Dept.valueOf(data.getDept()), data.getMenuName());
         Menu menu = menuRepository.getReferenceById(data.getMenuId());
-        Review review = Review.createEntity(data, restaurant, menu, time.format(formatter));
+        Review review = Review.createEntity(data, restaurant, menu, time.format(DATETIME));
         menu.addReviewAndUpdateRate(review);
         rateService.updateRateByRestaurant(restaurant, menu, data.getRate());
         reviewRepository.save(review);
@@ -82,7 +86,7 @@ public class ReviewService {
         int count = 0;
 
         for (Review review : reviews) {
-            if(count >= TOP_REVIEW_NUMBER_OF_CRITERIA) return;
+            if(count >= topReviewCount) return;
 
             result.add(review);
             count++;
@@ -104,8 +108,8 @@ public class ReviewService {
     public List<Review> findRestaurantReviews(String restaurantName, String date) {
         Restaurant restaurant = Restaurant.valueOf(Restaurant.parseName(restaurantName));
 
-        if(restaurant.equals(Restaurant.제1학생회관)){
-            // 1학의 경우 아래의 로직대로 하면 너무 오래 걸리므로 그냥 1학 리뷰는 싹다 가져오게 진행한다.
+        if(restaurant.hasFixedMenu()){
+            // 고정 메뉴 식당의 경우 날짜 필터링이 불필요하므로 모든 리뷰를 가져온다.
             return reviewRepository.findByRestaurantOrderByMadeTimeDesc(restaurant);
         }
 
@@ -121,7 +125,7 @@ public class ReviewService {
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
+        Review review = reviewReader.getById(reviewId);
         return review.incrementReportCount();
     }
 
@@ -163,19 +167,19 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).get();
+        Review review = reviewReader.getById(reviewId);
         Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){
             deleteById(reviewId);
 
-            Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString());
-            rateByRestaurant.exceptRate(review.getReviewRate());
+            rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString())
+                    .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
 
-            // 1학의 경우 실제 dept를 가지고 있는 데이터도 갱신하지만, 각 메뉴에 대한 정보를 갖고 있는 데이터에도 반영해야한다.
-            if(restaurant.equals(Restaurant.제1학생회관)){
-                Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName());
-                rateByMenu.exceptRate(review.getReviewRate());
+            // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴에 대한 Rate 데이터에도 반영해야 한다.
+            if(restaurant.hasPerMenuRating()){
+                rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName())
+                        .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
             }
 
             return true;
@@ -189,6 +193,7 @@ public class ReviewService {
         try{
             reviewRepository.deleteById(reviewId);
         }catch (Exception e){
+            log.error("Failed to delete reported review with id: {}", reviewId, e);
             return false;
         }
 

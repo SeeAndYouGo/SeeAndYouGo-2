@@ -106,7 +106,7 @@ public class ReviewController {
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        String nickname = userService.findNickname(email);
+        String nickname = userService.getNicknameByEmail(email);
 
         String imgUrl = "";
         if (image != null) {
@@ -141,6 +141,7 @@ public class ReviewController {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(image.getBytes());
         } catch (IOException e) {
+            log.error("Failed to save temporary image file: {}", file.getPath(), e);
             throw new RuntimeException(e);
         }
 

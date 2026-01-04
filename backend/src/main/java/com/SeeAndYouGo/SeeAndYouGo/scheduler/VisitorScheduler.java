@@ -12,11 +12,12 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TODAY_VISITOR;
 import static com.SeeAndYouGo.SeeAndYouGo.visitor.Const.KEY_TOTAL_VISITOR;
 
@@ -31,7 +32,7 @@ public class VisitorScheduler {
     private final VisitorCountRepository visitorCountRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${scheduler.visitor.daily-sync}")
     public void syncDBAndRedis() {
         logger.info("[VISITOR COUNT] Syncing DB and Redis data...");
 
@@ -43,7 +44,7 @@ public class VisitorScheduler {
 
         // 날짜들을 파싱하고 정렬 (가장 이른 날짜부터)
         List<LocalDate> sortedDates = fields.stream()
-                .map(field -> LocalDate.parse(field.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .map(field -> LocalDate.parse(field.toString(), DATE))
                 .sorted()
                 .collect(Collectors.toList());
 
@@ -57,9 +58,9 @@ public class VisitorScheduler {
 
         while (!currentDate.isAfter(today)) {
             // DB에서 해당 날짜 데이터 조회
-            VisitorCount dbTodayData = visitorCountRepository.findByIsTotalFalseAndCreatedAt(currentDate);
+            Optional<VisitorCount> dbTodayData = visitorCountRepository.findByIsTotalFalseAndCreatedAt(currentDate);
 
-            if (dbTodayData != null) {
+            if (dbTodayData.isPresent()) {
                 // DB에 데이터가 있는 날짜: 기존 sync 로직으로 안전하게 처리
                 logger.info("[VISITOR COUNT] Found DB data for date: {}, syncing safely", currentDate);
                 syncTodayAndTotal(currentDate);
@@ -73,7 +74,7 @@ public class VisitorScheduler {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 60000 * 30)
+    @Scheduled(fixedRateString = "${scheduler.visitor.backup-rate}")
     public void backupVisitorCount() {
         LocalDate today = LocalDate.now();
         syncTodayAndTotal(today);
@@ -90,8 +91,9 @@ public class VisitorScheduler {
         visitorCountRepository.save(todayVisitorCount);
 
         // DB의 가장 최근 total을 가져와서 해당 날짜의 total로 세팅
-        VisitorCount latestTotal = visitorCountRepository.findTopByIsTotalTrueOrderByCreatedAtDesc();
-        int totalCount = latestTotal != null ? latestTotal.getCount() : 0;
+        int totalCount = visitorCountRepository.findTopByIsTotalTrueOrderByCreatedAtDesc()
+                .map(VisitorCount::getCount)
+                .orElse(0);
 
         VisitorCount todayTotal = VisitorCount.from(totalCount, date, true);
         visitorCountRepository.save(todayTotal);
@@ -105,7 +107,7 @@ public class VisitorScheduler {
     private void syncTotal(LocalDate date) {
         logger.info("[VISITOR COUNT] Syncing total visitor count for date: {}", date);
 
-        VisitorCount dbTotalVisitorCount = visitorCountRepository.findByIsTotalTrueAndCreatedAt(date);
+        Optional<VisitorCount> dbTotalVisitorCount = visitorCountRepository.findByIsTotalTrueAndCreatedAt(date);
         LocalDate today = LocalDate.now();
 
         if (date.equals(today)) {
@@ -116,7 +118,7 @@ public class VisitorScheduler {
                 redisTotal = "0";
             }
 
-            int dbTotal = dbTotalVisitorCount != null ? dbTotalVisitorCount.getCount() : 0;
+            int dbTotal = dbTotalVisitorCount.map(VisitorCount::getCount).orElse(0);
             logger.info("[VISITOR COUNT] DB total count for {}: {}", date, dbTotal);
 
             int resultCount = getResultValue(Integer.parseInt(redisTotal), dbTotal);
@@ -124,10 +126,11 @@ public class VisitorScheduler {
             totalRedisTemplate.set(KEY_TOTAL_VISITOR, String.valueOf(resultCount));
 
             // DB에 해당 날짜 total이 있으면 업데이트, 없으면 새로 생성
-            if(dbTotalVisitorCount != null){
+            if(dbTotalVisitorCount.isPresent()){
                 logger.info("[VISITOR COUNT] Updating existing total entry for date: {}", date);
-                dbTotalVisitorCount.updateCount(resultCount);
-                visitorCountRepository.save(dbTotalVisitorCount);
+                VisitorCount vc = dbTotalVisitorCount.get();
+                vc.updateCount(resultCount);
+                visitorCountRepository.save(vc);
             }else{
                 logger.info("[VISITOR COUNT] Creating new total entry for date: {}", date);
                 VisitorCount visitorCountByDate = VisitorCount.from(resultCount, date, true);
@@ -135,8 +138,8 @@ public class VisitorScheduler {
             }
         } else {
             // 과거 날짜는 DB만 확인하여 정합성 유지 (Redis total은 건드리지 않음)
-            if(dbTotalVisitorCount != null) {
-                logger.info("[VISITOR COUNT] Past date {} DB total: {} (no Redis update)", date, dbTotalVisitorCount.getCount());
+            if(dbTotalVisitorCount.isPresent()) {
+                logger.info("[VISITOR COUNT] Past date {} DB total: {} (no Redis update)", date, dbTotalVisitorCount.get().getCount());
             } else {
                 logger.info("[VISITOR COUNT] No DB total data for past date: {}, skipping", date);
             }
@@ -147,23 +150,24 @@ public class VisitorScheduler {
         logger.info("[VISITOR COUNT] Syncing today visitor count for date: {}", date);
 
         String redisToday = todayRedisTemplate.get(KEY_TODAY_VISITOR, date.toString());
-        VisitorCount dbTodayVisitorCount = visitorCountRepository.findByIsTotalFalseAndCreatedAt(date);
+        Optional<VisitorCount> dbTodayVisitorCount = visitorCountRepository.findByIsTotalFalseAndCreatedAt(date);
 
-        logger.info("[VISITOR COUNT] Redis today count: {}, DB today count: {}", redisToday, dbTodayVisitorCount == null ?  "null" : dbTodayVisitorCount.getCount());
+        logger.info("[VISITOR COUNT] Redis today count: {}, DB today count: {}", redisToday, dbTodayVisitorCount.map(vc -> String.valueOf(vc.getCount())).orElse("null"));
         if (redisToday == null) {
             redisToday = "0";
         }
 
-        int dbToday = dbTodayVisitorCount != null ? dbTodayVisitorCount.getCount() : 0;
+        int dbToday = dbTodayVisitorCount.map(VisitorCount::getCount).orElse(0);
         int resultCount = getResultValue(Integer.parseInt(redisToday), dbToday);
         logger.info("[VISITOR COUNT] Final today count after sync: {}", resultCount);
 
         todayRedisTemplate.put(KEY_TODAY_VISITOR, date.toString(), String.valueOf(resultCount));
 
         // DB에 기존 데이터가 있으면 업데이트, 없으면 새로 생성
-        if (dbTodayVisitorCount != null) {
-            dbTodayVisitorCount.updateCount(resultCount);
-            visitorCountRepository.save(dbTodayVisitorCount);
+        if (dbTodayVisitorCount.isPresent()) {
+            VisitorCount vc = dbTodayVisitorCount.get();
+            vc.updateCount(resultCount);
+            visitorCountRepository.save(vc);
         } else {
             VisitorCount newTodayCount = VisitorCount.from(resultCount, date, false);
             visitorCountRepository.save(newTodayCount);

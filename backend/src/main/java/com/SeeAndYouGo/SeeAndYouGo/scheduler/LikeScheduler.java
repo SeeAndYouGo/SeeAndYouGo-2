@@ -4,8 +4,10 @@ import com.SeeAndYouGo.SeeAndYouGo.like.Like;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeRepository;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
+import com.SeeAndYouGo.SeeAndYouGo.review.ReviewReader;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewRepository;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +31,10 @@ public class LikeScheduler {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final UserReader userReader;
+    private final ReviewReader reviewReader;
 
-    @Scheduled(fixedRate = 60000 * 30) // 30분마다 실행
+    @Scheduled(fixedRateString = "${scheduler.like.backup-rate}")
     public void backupReviewLike() {
         try {
             // Redis에서 review:like:* 패턴의 모든 키를 가져옴
@@ -55,11 +59,11 @@ public class LikeScheduler {
                     LikeResponseDto dto = objectMapper.readValue(value, LikeResponseDto.class);
                     if (!dto.isLike()) continue;
 
-                    User user = userRepository.findByEmail(userEmail);
-                    Review review = reviewRepository.findById(Long.parseLong(reviewId)).get();
+                    Optional<User> userOptional = userReader.findByEmail(userEmail);
+                    Optional<Review> reviewOptional = reviewReader.findById(Long.parseLong(reviewId));
 
-                    if (user != null) {
-                        Like like = new Like(review, user);
+                    if (userOptional.isPresent() && reviewOptional.isPresent()) {
+                        Like like = new Like(reviewOptional.get(), userOptional.get());
                         likeRepository.save(like);
                     } else {
                         logger.warn("User 또는 Review를 찾을 수 없습니다. UserEmail: {}, ReviewId: {}", userEmail, reviewId);

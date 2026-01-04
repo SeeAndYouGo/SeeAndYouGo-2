@@ -6,6 +6,7 @@ import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
@@ -51,10 +53,7 @@ public class DishService {
     public List<DishResponseDto> getWeeklyDish(LocalDate monday, LocalDate sunday) {
         Set<Dish> dishes = new HashSet<>();
 
-        for (Restaurant restaurant : Restaurant.values()) {
-            // 1학생회관은 제외하고 전송
-            if(restaurant.equals(Restaurant.제1학생회관)) {continue;}
-
+        for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
             Set<Dish> dishList = getWeeklyDishByRestaurant(restaurant, monday, sunday);
             dishes.addAll(dishList);
         }
@@ -90,6 +89,7 @@ public class DishService {
             menuDishRepository.deleteByDishId(id);
             dishRepository.deleteById(id);
         }catch (Exception e){
+            log.error("Failed to delete dish with id: {}", id, e);
             return false;
         }
 
