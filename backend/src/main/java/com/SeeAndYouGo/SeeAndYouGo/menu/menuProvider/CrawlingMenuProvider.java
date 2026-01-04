@@ -292,7 +292,7 @@ public class CrawlingMenuProvider implements MenuProvider{
         }
 
         if (menuMap.containsKey(newTitle)) {
-            System.out.println("중복된 메뉴 코너가 발생했습니다: " + newTitle);
+            logger.warn("중복된 메뉴 코너가 발생했습니다: {}", newTitle);
             throw new IllegalStateException("Duplicate menu corner found: " + newTitle);
         }
         menuMap.put(newTitle, new ArrayList<>(menuList));
