@@ -23,11 +23,13 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class RateService {
+
+    private static final String RESTAURANT1_MENU_JSON_PATH = "src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json";
 
     private Map<String, List<String>> restaurant1MenuByCategory = new HashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
     private Map<String, Integer> restaurant1MenuByPrice = new HashMap<>(); // 메뉴와 가격이 매칭되어있음.
@@ -36,67 +38,62 @@ public class RateService {
 
     @Transactional
     public void saveRate(){
-        // DB에 저장되어 있지 않은 1학생회관 dish를 저장한다.
-        try {
-            // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
-
-            // Parse the JSON data
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
-
-            // Extract menuName
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-            for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
-
-                if(!rateRepository.existsByDept(name)){
-                    Rate rate = Rate.builder()
-                                .restaurant(Restaurant.제1학생회관)
-                                .dept(name)
-                                .build();
-
-                    rateRepository.save(rate);
-                }
+        List<Restaurant1MenuItem> menuItems = parseRestaurant1MenuJson();
+        for (Restaurant1MenuItem item : menuItems) {
+            if (!rateRepository.existsByDept(item.name())) {
+                Rate rate = Rate.builder()
+                        .restaurant(Restaurant.제1학생회관)
+                        .dept(item.name())
+                        .build();
+                rateRepository.save(rate);
             }
-        } catch (IOException e) {
-            log.error("Failed to set rate list for Restaurant 1", e);
-            throw new RuntimeException(e);
         }
     }
 
     public void setRestaurant1MenuField() {
+        List<Restaurant1MenuItem> menuItems = parseRestaurant1MenuJson();
+        for (Restaurant1MenuItem item : menuItems) {
+            restaurant1MenuByCategory.computeIfAbsent(item.dept().toString(), k -> new ArrayList<>())
+                    .add(item.name());
+            restaurant1MenuByPrice.put(item.name(), item.price());
+        }
+    }
+
+    private List<Restaurant1MenuItem> parseRestaurant1MenuJson() {
+        List<Restaurant1MenuItem> menuItems = new ArrayList<>();
         try {
-            // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
-
-            // Parse the JSON data
-            JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
-
-            // Extract menuName
+            String jsonContent = new String(Files.readAllBytes(Paths.get(RESTAURANT1_MENU_JSON_PATH).toAbsolutePath()));
+            JsonObject jsonData = JsonParser.parseString(jsonContent).getAsJsonObject();
             JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
+
             for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
-
-                List<String> dishesByDept = restaurant1MenuByCategory.get(dept.toString());
-                // 1학 메뉴가 초기화되지 않았다면 가장 처음 초기화해주는 작업.
-                if (dishesByDept == null) {
-                    dishesByDept = new ArrayList<>();
-                }
-
-                dishesByDept.add(name);
-                restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
-                restaurant1MenuByPrice.put(name, price);
+                JsonObject menuObject = menuJson.getAsJsonObject();
+                String name = menuObject.get("name").getAsString();
+                Dept dept = Dept.valueOf(menuObject.get("dept").getAsString());
+                Integer price = menuObject.get("price").getAsInt();
+                menuItems.add(new Restaurant1MenuItem(name, dept, price));
             }
         } catch (IOException e) {
-            log.error("Failed to set Restaurant 1 menu field", e);
-            throw new RuntimeException(e);
+            log.error("Failed to parse Restaurant 1 menu JSON file", e);
+            throw new RuntimeException("Failed to parse Restaurant 1 menu JSON", e);
         }
+        return menuItems;
+    }
+
+    private static class Restaurant1MenuItem {
+        private final String name;
+        private final Dept dept;
+        private final Integer price;
+
+        Restaurant1MenuItem(String name, Dept dept, Integer price) {
+            this.name = name;
+            this.dept = dept;
+            this.price = price;
+        }
+
+        String name() { return name; }
+        Dept dept() { return dept; }
+        Integer price() { return price; }
     }
 
     public RestaurantTotalRateResponseDto getTotalRestaurantRate(String restaurantName) {
