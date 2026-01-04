@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.*;
+
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -100,7 +102,6 @@ public class ReviewController {
     }
 
     // 리뷰 게시
-    private static final String IMAGE_DIR = "imageStorage";
     @PostMapping(value = "/review")
     @ResponseStatus(HttpStatus.CREATED)
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
@@ -113,7 +114,7 @@ public class ReviewController {
             String imgName = UUID.randomUUID() + LocalDateTime.now().toString().replace(".", "").replace(":", "") + ".png";  // 테스트 완료: jpg 업로드 후 png 임의저장해도 잘 보여짐!
             File file = createTempFileFromMultipart(image);
             saveImage(file, imgName);
-            imgUrl = "/api/images/" + imgName;
+            imgUrl = IMAGE_API_PREFIX + imgName;
         }
 
         ReviewData data = ReviewData.builder()
@@ -132,7 +133,7 @@ public class ReviewController {
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
-        File dir = new File("./tmpImage");
+        File dir = new File(TEMP_IMAGE_DIR);
         if (!dir.exists()) {
             dir.mkdirs(); // 디렉토리 생성
         }
@@ -151,8 +152,8 @@ public class ReviewController {
     private void saveImage(File image, String imgName) {
         Runnable runnable = () -> {
             try {
-                Files.createDirectories(Paths.get(IMAGE_DIR));
-                Path targetPath = Paths.get(IMAGE_DIR, imgName);
+                Files.createDirectories(Paths.get(IMAGE_STORAGE_DIR));
+                Path targetPath = Paths.get(IMAGE_STORAGE_DIR, imgName);
                 BufferedImage resized = reviewService.resize(image);
                 ImageIO.write(resized, "png", new File(targetPath.toUri()));
                 image.delete();
@@ -171,7 +172,7 @@ public class ReviewController {
             throw new IllegalArgumentException("Invalid image name");
         }
 
-        Path imagePath = Paths.get(IMAGE_DIR, imgName).normalize();
+        Path imagePath = Paths.get(IMAGE_STORAGE_DIR, imgName).normalize();
 
         if (!Files.exists(imagePath)) {
             throw new FileNotFoundException("Image not found");
