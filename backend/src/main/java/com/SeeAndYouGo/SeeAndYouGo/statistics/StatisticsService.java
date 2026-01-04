@@ -5,9 +5,11 @@ import com.SeeAndYouGo.SeeAndYouGo.connection.ConnectionRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.holiday.HolidayService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -20,9 +22,24 @@ public class StatisticsService {
     private final ConnectionRepository connectionRepository;
     private final StatisticsRepository statisticsRepository;
     private final HolidayService holidayService;
-    private static final LocalTime START_TIME = LocalTime.of(7, 30, 0);
-    private static final LocalTime END_TIME = LocalTime.of(19, 30, 0);
-    private static final Long TIME_QUANTUM = 5l; // 5분 간격으로 connection이 갱신되는 것을 의미.
+
+    @Value("${app.statistics.start-time}")
+    private String startTimeStr;
+
+    @Value("${app.statistics.end-time}")
+    private String endTimeStr;
+
+    @Value("${app.statistics.time-quantum}")
+    private Long timeQuantum;
+
+    private LocalTime startTime;
+    private LocalTime endTime;
+
+    @PostConstruct
+    public void init() {
+        this.startTime = LocalTime.parse(startTimeStr);
+        this.endTime = LocalTime.parse(endTimeStr);
+    }
 
     public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
@@ -49,9 +66,8 @@ public class StatisticsService {
             List<Connection> connectionByRestaurant = connectionRepository.findByRestaurantAndTimeStartsWith(restaurant, date.toString());
             for (Connection connection : connectionByRestaurant) {
                 LocalTime time = getValidTime(connection);
-                Statistics statistics = statisticsRepository.findByRestaurantAndTime(restaurant, time);
-
-                statistics.updateAverageConnection(connection, date);
+                statisticsRepository.findByRestaurantAndTime(restaurant, time)
+                        .ifPresent(statistics -> statistics.updateAverageConnection(connection, date));
             }
         }
     }
@@ -84,7 +100,7 @@ public class StatisticsService {
 
         List<Statistics> statisticsList = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
-            for(LocalTime time = START_TIME; time.isBefore(END_TIME) || time.equals(END_TIME); time = time.plusMinutes(TIME_QUANTUM)){
+            for(LocalTime time = startTime; time.isBefore(endTime) || time.equals(endTime); time = time.plusMinutes(timeQuantum)){
                 Statistics statistics = Statistics.builder()
                         .restaurant(restaurant)
                         .time(time)

@@ -1,9 +1,13 @@
 package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
+import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
+import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderType;
 import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public enum Restaurant {
@@ -11,49 +15,91 @@ public enum Restaurant {
             486,
             Location.of(36.367838, 127.343160),
             1,
-            Arrays.asList(Dept.NOODLE, Dept.WESTERN, Dept.SNACK, Dept.KOREAN, Dept.JAPANESE, Dept.CHINESE)
+            Arrays.asList(Dept.NOODLE, Dept.WESTERN, Dept.SNACK, Dept.KOREAN, Dept.JAPANESE, Dept.CHINESE),
+            true,
+            MenuProviderType.JSON,
+            ConnectionProviderType.INFO_CENTER
     ),
     제2학생회관(
             392,
             Location.of(36.365959, 127.345828),
             2,
-            Arrays.asList(Dept.STUDENT, Dept.STAFF)
+            Arrays.asList(Dept.STUDENT, Dept.STAFF),
+            false,
+            MenuProviderType.API,
+            ConnectionProviderType.INFO_CENTER
     ),
     제3학생회관(
             273,
             Location.of(36.371479, 127.344841),
             3,
-            Arrays.asList(Dept.STUDENT, Dept.STAFF)
+            Arrays.asList(Dept.STUDENT, Dept.STAFF),
+            false,
+            MenuProviderType.API,
+            ConnectionProviderType.INFO_CENTER
     ),
     상록회관(
             140,
             Location.of(36.368605, 127.350374),
             4,
-            Arrays.asList(Dept.STUDENT)
+            Arrays.asList(Dept.STUDENT),
+            false,
+            MenuProviderType.API,
+            ConnectionProviderType.INFO_CENTER
     ),
     생활과학대(
             190,
             Location.of(36.376309, 127.343158),
             5,
-            Arrays.asList(Dept.STUDENT)
+            Arrays.asList(Dept.STUDENT),
+            false,
+            MenuProviderType.API,
+            ConnectionProviderType.INFO_CENTER
     ),
     학생생활관(
             320,
             Location.of(36.372874, 127.347005),
             6,
-            Arrays.asList(Dept.DORM_A, Dept.DORM_C)
+            Arrays.asList(Dept.DORM_A, Dept.DORM_C),
+            false,
+            MenuProviderType.CRAWLING,
+            ConnectionProviderType.DORMITORY
     );
 
     private final Integer capacity;
     private final Location location;
     private final int number;
     private final List<Dept> possibleDept;
+    private final boolean fixedMenu;  // 고정 메뉴 여부 (날짜에 상관없이 동일한 메뉴 제공)
+    private final MenuProviderType menuProviderType;
+    private final ConnectionProviderType connectionProviderType;
 
-    Restaurant(int capacity, Location location, int number, List<Dept> possibleDept) {
+    Restaurant(int capacity, Location location, int number, List<Dept> possibleDept, boolean fixedMenu,
+               MenuProviderType menuProviderType, ConnectionProviderType connectionProviderType) {
         this.capacity = capacity;
         this.location = location;
         this.number = number;
         this.possibleDept = possibleDept;
+        this.fixedMenu = fixedMenu;
+        this.menuProviderType = menuProviderType;
+        this.connectionProviderType = connectionProviderType;
+    }
+
+    /**
+     * 고정 메뉴 식당인지 여부 (날짜에 상관없이 동일한 메뉴 제공)
+     * - true: 날짜 필터링 불필요, 메뉴별 개별 평점 관리
+     * - false: 날짜별 메뉴가 다름
+     */
+    public boolean hasFixedMenu() {
+        return this.fixedMenu;
+    }
+
+    /**
+     * 메뉴별 개별 평점 관리가 필요한지 여부
+     * 고정 메뉴 식당은 개별 메뉴마다 평점을 관리함
+     */
+    public boolean hasPerMenuRating() {
+        return this.fixedMenu;
     }
 
     public static String parseName(String name){
@@ -62,5 +108,9 @@ public enum Restaurant {
                 return restaurant.name();
         }
         throw new IllegalArgumentException("[ERROR] 해당하는 레스토랑명이 없음: input: " + name);
+    }
+
+    public static List<Restaurant> getNonFixedMenuRestaurant(){
+        return Arrays.stream(Restaurant.values()).filter(r -> !r.isFixedMenu()).collect(Collectors.toList());
     }
 }

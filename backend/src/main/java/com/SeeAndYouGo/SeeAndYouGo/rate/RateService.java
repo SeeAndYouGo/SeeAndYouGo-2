@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class RateService {
 
     private Map<String, List<String>> restaurant1MenuByCategory = new HashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
@@ -60,6 +62,7 @@ public class RateService {
                 }
             }
         } catch (IOException e) {
+            log.error("Failed to set rate list for Restaurant 1", e);
             throw new RuntimeException(e);
         }
     }
@@ -91,6 +94,7 @@ public class RateService {
                 restaurant1MenuByPrice.put(name, price);
             }
         } catch (IOException e) {
+            log.error("Failed to set Restaurant 1 menu field", e);
             throw new RuntimeException(e);
         }
     }
@@ -113,9 +117,9 @@ public class RateService {
     public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(String restaurantName) {
         Restaurant restaurant = Restaurant.valueOf(restaurantName);
 
-        if(!restaurant.equals(Restaurant.제1학생회관)){
-            // 1학생활관이 아니라면 아직 기능을 제공 안함.
-            throw new IllegalArgumentException("1학을 제외하고는 지원하지 않는 메서드입니다.");
+        if(!restaurant.hasPerMenuRating()){
+            // 메뉴별 개별 평점을 관리하는 식당이 아니라면 세부 평점 기능을 제공하지 않음.
+            throw new IllegalArgumentException("메뉴별 개별 평점을 관리하는 식당만 지원하는 메서드입니다.");
         }
 
         // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기
@@ -149,56 +153,21 @@ public class RateService {
     }
 
     /**
-     * 1학에서제공되는 평점을 뽑아온다.
-     */
-    private List<RestaurantDetailRateResponseDto> getDetailRestaurant1Rate() {
-        List<RestaurantDetailRateResponseDto> detailRate = new ArrayList<>();
-        for (String deptToString : restaurant1MenuByCategory.keySet()) {
-            List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
-            List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
-            for (String dishName : dishNames) {
-                Dish dish = dishRepository.findByName(dishName)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(dishName+"의 Dish를 찾을 수 없습니다."));
-                double rate = dish.getRateByDish();
-
-                RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
-                        .menuName(dishName)
-                        .price(restaurant1MenuByPrice.get(dishName))
-                        .averageRate(rate)
-                        .build();
-
-                dishRate.add(rateDto);
-            }
-
-            RestaurantDetailRateResponseDto detailRateDto = RestaurantDetailRateResponseDto.builder()
-                    .category(deptToString)
-                    .avgRateByMenu(dishRate)
-                    .build();
-
-            detailRate.add(detailRateDto);
-        }
-
-        return detailRate;
-    }
-
-    /**
      * 입력받은 restaurant에 rate를 등록해준다.
      * 1학이라면 해당 메뉴를 찾아서 해당 메뉴에도 등록해줘야한다.
      */
     @Transactional
     public void updateRateByRestaurant(Restaurant restaurant, Menu menu, Double rate) {
         Dept dept = menu.getDept();
-        Rate rateByRestaurant = rateRepository.findByRestaurantAndDept(restaurant, dept.toString());
 
-        // 1학일 경우, 실제 dept에도 평점을 반영해야하고, 각 메뉴별 데이터에도 평점을 반영해줘야한다.
-        // 따라서 개인 메뉴로 한번 더 찾아와서 업데이트해야한다.
-        if(menu.getRestaurant().equals(Restaurant.제1학생회관)){
-            Rate rateByMenu = rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName());
-            rateByMenu.reflectRate(rate);
+        // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴별 데이터에도 평점을 반영해줘야 한다.
+        if(menu.getRestaurant().hasPerMenuRating()){
+            rateRepository.findByRestaurantAndDept(restaurant, menu.getMenuName())
+                    .ifPresent(rateByMenu -> rateByMenu.reflectRate(rate));
         }
 
-        rateByRestaurant.reflectRate(rate);
+        rateRepository.findByRestaurantAndDept(restaurant, dept.toString())
+                .ifPresent(rateByRestaurant -> rateByRestaurant.reflectRate(rate));
     }
 
     public boolean exists() {
@@ -216,9 +185,8 @@ public class RateService {
                                                     .map(Dept::toString)
                                                     .collect(Collectors.toList());
 
-            if(restaurant.equals(Restaurant.제1학생회관)){
-                // 만약 1학생회관이라면 일반 메뉴들도 rate 테이블에 넣어야함.
-                // 따라서 아래의 메서드에서 1학의 메뉴들을 추가적으로 넣어줘야함.
+            if(restaurant.hasPerMenuRating()){
+                // 메뉴별 개별 평점을 관리하는 식당이라면 일반 메뉴들도 rate 테이블에 넣어야 함.
                 possibleDept.addAll(restaurant1MenuByPrice.keySet());
             }
 

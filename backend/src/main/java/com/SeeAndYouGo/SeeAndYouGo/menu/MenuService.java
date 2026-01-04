@@ -19,13 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,8 +40,6 @@ public class MenuService {
     // 로컬에서 운영서버로 데이터를 넘겨주기 위함.
     private final MenuProviderFactory menuProviderFactory;
     private final NewDishCacheService newDishCacheService;
-
-    public static final String DEFAULT_DISH_NAME = "메뉴 정보 없음";
 
     @Value("${API.DISH_KEY}")
     private String DISH_KEY;
@@ -87,7 +86,7 @@ public class MenuService {
      */
     public List<Menu>[] getOneWeekRestaurantMenu(String restaurantName, String date) {
         // 날짜 문자열을 파싱
-        LocalDate parsedDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate parsedDate = LocalDate.parse(date, DATE);
 
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate startOfWeek = parsedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -105,9 +104,7 @@ public class MenuService {
     public void checkWeekMenu(LocalDate monday, LocalDate sunday) {
         // nearestMonday부터 일요일까지 2~5학의 메뉴 체크를 한다.
         for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
-            for (Restaurant restaurant : Restaurant.values()) {
-                if(restaurant.equals(Restaurant.제1학생회관)) continue; // 1학생회관은 고정적인 메뉴를 제공하므로 메뉴 데이터의 손실이 없으므로 패스
-
+            for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
                 checkMenuByDate(restaurant, date.toString());
             }
         }
@@ -231,7 +228,7 @@ public class MenuService {
                 .content(message)
                 .build();
 
-        logger.info("[API_JJONGAL] 데이터: " + dto.toString());
+        logger.info("[API_JJONGAL] 데이터: {}", dto);
 
         return dto;
     }
@@ -246,7 +243,7 @@ public class MenuService {
             Menu menu = menus.get(i);
 
             // 만약 메뉴정보가 없다면 올리지 않는 방향으로!
-            if(menu.getDishList().get(0).getName().equals("메뉴 정보 없음"))
+            if(menu.getDishList().get(0).getName().equals(DEFAULT_DISH_NAME))
                 continue;
 
             sb.append(menu.getDept().getKoreanDept()+"식당 : ");
@@ -299,17 +296,7 @@ public class MenuService {
         menuRepository.deleteByRestaurantAndDate(restaurant, date.toString());
 
         // Save new menu for the day
-        for (MenuVO menuVO : dailyMenuVO) {
-            Menu menu = new Menu(menuVO);
-            for (DishVO dishVO : menuVO.getDishVOs()) {
-                Dish dish = dishRepository.findByName(dishVO.getName()).orElseGet(() -> {
-                    Dish newDish = Dish.builder().name(dishVO.getName()).dishType(dishVO.getDishType()).build();
-                    return dishRepository.save(newDish);
-                });
-                menu.addDish(dish);
-            }
-            menuRepository.save(menu);
-        }
+        saveMenusWithDishes(dailyMenuVO);
     }
 
     @Transactional
@@ -320,32 +307,36 @@ public class MenuService {
         menuProvider.updateMenuMap(restaurant, monday, sunday);
 
         List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant);
+        saveMenusWithDishes(weeklyMenu);
+    }
 
-        // 이제 받은 List<MenuVO>를 List<Menu>로 변환하고 저장한다.
-        for (MenuVO menuVO : weeklyMenu) {
-            List<DishVO> dishVOs = menuVO.getDishVOs();
-
+    /**
+     * MenuVO 리스트를 Menu 엔티티로 변환하고 저장한다.
+     * 각 MenuVO의 DishVO를 Dish 엔티티로 변환하며, 없으면 새로 생성한다.
+     */
+    private void saveMenusWithDishes(List<MenuVO> menuVOs) {
+        for (MenuVO menuVO : menuVOs) {
             Menu menu = new Menu(menuVO);
-            for (DishVO dishVO : dishVOs) {
-                Dish dish;
-
-                // 만약 해당 Dish가 있으면 그걸 repository에서 가져오고 없다면 생성한다.
-                if(!dishRepository.existsByName(dishVO.getName())){
-                    dish = Dish.builder()
-                                    .name(dishVO.getName())
-                                    .dishType(dishVO.getDishType())
-                                    .build();
-
-                    dishRepository.save(dish);
-                }else{
-                    dish = dishRepository.findByName(dishVO.getName()).get();
-                }
-
+            for (DishVO dishVO : menuVO.getDishVOs()) {
+                Dish dish = findOrCreateDish(dishVO);
                 menu.addDish(dish);
             }
-
             menuRepository.save(menu);
         }
+    }
+
+    /**
+     * DishVO에 해당하는 Dish를 찾거나, 없으면 새로 생성한다.
+     */
+    private Dish findOrCreateDish(DishVO dishVO) {
+        return dishRepository.findByName(dishVO.getName())
+                .orElseGet(() -> {
+                    Dish newDish = Dish.builder()
+                            .name(dishVO.getName())
+                            .dishType(dishVO.getDishType())
+                            .build();
+                    return dishRepository.save(newDish);
+                });
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {
