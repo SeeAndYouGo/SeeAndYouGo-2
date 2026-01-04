@@ -75,14 +75,6 @@ public class IterService {
         connectionService.saveRecentConnection();
     }
 
-    // 평일 점심 정보는 10시에 올리기
-    @Scheduled(cron = "${scheduler.iter.jjongal-post}")
-    public void postMenuInfo(){
-        for (Restaurant restaurant : Restaurant.getNonFixedMenuRestaurant()) {
-            menuService.postMenu(restaurant, LocalDate.now().toString());
-        }
-    }
-
     public static LocalDate getNearestMonday(LocalDate now) {
 //        if(weekday.contains(now.getDayOfWeek())){
             // 평일이면 해당 주 월요일 반환

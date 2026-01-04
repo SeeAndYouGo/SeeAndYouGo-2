@@ -66,5 +66,4 @@ scheduler:
     weekly-menu: "0 0 0 * * MON"
     statistics-update: "0 0 21 * * MON-FRI"
     connection-crawl: "40 0/5 6-20 * * *"
-    jjongal-post: "0 0 10 * * MON-FRI"
     year-end: "0 0 22 31 12 *"
