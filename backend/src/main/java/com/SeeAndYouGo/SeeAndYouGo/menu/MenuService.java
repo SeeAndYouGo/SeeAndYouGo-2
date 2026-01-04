@@ -23,8 +23,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
