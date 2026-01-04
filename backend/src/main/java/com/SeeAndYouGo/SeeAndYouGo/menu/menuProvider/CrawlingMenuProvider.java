@@ -72,14 +72,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Elements mealTds = dayDocument.select(".diet_table td");
             for (Element mealTd : mealTds) {
                 String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType;
-                if (mealTypeStr.equals("아침")) {
-                    menuType = MenuType.BREAKFAST;
-                } else if (mealTypeStr.equals("점심")) {
-                    menuType = MenuType.LUNCH;
-                } else {
-                    menuType = MenuType.DINNER;
-                }
+                MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
                 String menuContent = mealTd.toString();
                 if (!menuContent.isEmpty()) {
@@ -136,14 +129,7 @@ public class CrawlingMenuProvider implements MenuProvider{
             Elements mealTds = dayDocument.select(".diet_table td");
             for (Element mealTd : mealTds) {
                 String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType;
-                if (mealTypeStr.equals("아침")) {
-                    menuType = MenuType.BREAKFAST;
-                } else if (mealTypeStr.equals("점심")) {
-                    menuType = MenuType.LUNCH;
-                } else {
-                    menuType = MenuType.DINNER;
-                }
+                MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
                 String menuContent = mealTd.toString();
                 if (!menuContent.isEmpty()) {
