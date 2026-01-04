@@ -15,12 +15,14 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    private final IterService iterService;
     private final ConnectionService connectionService;
     private final MenuService menuService;
     private final RateService rateService;
@@ -48,7 +50,10 @@ public class DataLoader implements CommandLineRunner {
             holidayService.saveThisYearHoliday(LocalDate.now());
         }
 
-        iterService.weeklyIterative();
+        // 주간 메뉴 저장 (IterService.weeklyIterative() 대체)
+        LocalDate nearestMonday = getNearestMonday(LocalDate.now());
+        LocalDate sunday = getSundayOfWeek(nearestMonday);
+        menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
         connectionService.saveRecentConnection();
         
         // Historical 캐시 초기화

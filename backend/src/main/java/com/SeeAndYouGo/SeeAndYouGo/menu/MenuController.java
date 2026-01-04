@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getNearestMonday;
-import static com.SeeAndYouGo.SeeAndYouGo.IterService.getSundayOfWeek;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 
@@ -177,14 +177,6 @@ public class MenuController {
         }
 
         return menuListArr;
-    }
-
-    @TraceMethodLog
-    @GetMapping("/test/{restaurantName}/{date}")
-    public MenuPostDto test(@PathVariable String restaurantName, @PathVariable String date){
-        String parseRestaurantName = Restaurant.parseName(restaurantName);
-        Restaurant restaurant = Restaurant.valueOf(parseRestaurantName);
-        return menuService.postMenu(restaurant, date);
     }
 
     @PostMapping("/menu/local")
