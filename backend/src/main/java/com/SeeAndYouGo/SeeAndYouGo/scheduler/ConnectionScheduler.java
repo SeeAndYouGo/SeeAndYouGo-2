@@ -22,7 +22,7 @@ public class ConnectionScheduler {
      * 5분마다 연결 정보를 크롤링하여 저장한다.
      * 운영 시간(06:00 ~ 19:30) 내에서만 실행된다.
      */
-    @Scheduled(cron = "${scheduler.iter.connection-crawl}")
+    @Scheduled(cron = "${scheduler.connection.crawl}")
     public void crawlConnectionInfo() {
         LocalTime now = LocalTime.now();
         LocalTime startTime = LocalTime.of(6, 0);

@@ -21,7 +21,7 @@ public class HolidayScheduler {
     /**
      * 매년 12월 31일 22시에 다음 해의 휴일 정보를 저장한다.
      */
-    @Scheduled(cron = "${scheduler.iter.year-end}")
+    @Scheduled(cron = "${scheduler.holiday.year-end}")
     public void saveNextYearHolidayInfo() {
         try {
             // 다음 날(1월 1일)을 기준으로 해당 연도의 휴일 정보를 저장

@@ -55,7 +55,7 @@ public class MenuScheduler {
     /**
      * 매주 월요일 자정에 주간 메뉴를 저장한다.
      */
-    @Scheduled(cron = "${scheduler.iter.weekly-menu}")
+    @Scheduled(cron = "${scheduler.menu.weekly-save}")
     public void saveWeeklyMenu() {
         try {
             LocalDate nearestMonday = getNearestMonday(LocalDate.now());

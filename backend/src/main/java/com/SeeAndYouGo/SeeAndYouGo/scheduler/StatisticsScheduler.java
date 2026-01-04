@@ -21,7 +21,7 @@ public class StatisticsScheduler {
     /**
      * 매일 저녁 21시에 연결 통계를 업데이트한다.
      */
-    @Scheduled(cron = "${scheduler.iter.statistics-update}")
+    @Scheduled(cron = "${scheduler.statistics.daily-update}")
     public void updateConnectionStatistics() {
         LocalDate today = LocalDate.now();
 

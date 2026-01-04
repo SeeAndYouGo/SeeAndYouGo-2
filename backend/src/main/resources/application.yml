@@ -54,6 +54,7 @@ app:
 scheduler:
   menu:
     daily-update: "0 15 0 * * *"
+    weekly-save: "0 0 0 * * MON"
   redis:
     daily-reset: "0 0 0 * * *"
     cache-init: "0 5 0 * * *"
@@ -62,8 +63,9 @@ scheduler:
     backup-rate: 1800000
   like:
     backup-rate: 1800000
-  iter:
-    weekly-menu: "0 0 0 * * MON"
-    statistics-update: "0 0 21 * * MON-FRI"
-    connection-crawl: "40 0/5 6-20 * * *"
+  statistics:
+    daily-update: "0 0 21 * * MON-FRI"
+  connection:
+    crawl: "40 0/5 6-20 * * *"
+  holiday:
     year-end: "0 0 22 31 12 *"
