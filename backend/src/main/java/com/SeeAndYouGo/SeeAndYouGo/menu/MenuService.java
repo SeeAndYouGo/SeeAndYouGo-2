@@ -2,13 +2,11 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
-import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuPostDto;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
 import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.ClearMainDishCache;
 import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProvider;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
-import com.SeeAndYouGo.SeeAndYouGo.restaurant.Location;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -206,55 +204,6 @@ public class MenuService {
 
         dishRepository.save(dish);
         return dish;
-    }
-
-    public MenuPostDto postMenu(Restaurant restaurant, String date) {
-        String restaurantName = restaurant.toString();
-        List<Menu> menu = getOneDayRestaurantMenu(restaurantName, date);
-
-        String message = parseMessageFormat(menu, restaurantName);
-
-        // message가 없다 == 메뉴가 없다. <- 이 경우 message에 "없음" 전송
-        if(message == null || message.equals("")){
-            message = "없음";
-        }
-
-        Location location = restaurant.getLocation();
-
-        MenuPostDto dto = MenuPostDto.builder()
-                .latitude(location.getLatitude().toString())
-                .longitude(location.getLongitude().toString())
-                .title("오늘의 메뉴")
-                .content(message)
-                .build();
-
-        logger.info("[API_JJONGAL] 데이터: {}", dto);
-
-        return dto;
-    }
-
-    /**
-     * 각 학생식당의 메뉴를 message 형식으로 변환하여 return한다.
-     */
-    private String parseMessageFormat(List<Menu> menus, String restaurantName){
-        StringBuilder sb = new StringBuilder();
-
-        for(int i=0; i<menus.size(); i++){
-            Menu menu = menus.get(i);
-
-            // 만약 메뉴정보가 없다면 올리지 않는 방향으로!
-            if(menu.getDishList().get(0).getName().equals(DEFAULT_DISH_NAME))
-                continue;
-
-            sb.append(menu.getDept().getKoreanDept()+"식당 : ");
-            sb.append(menu.getDishList());
-
-            if((i+1) != menus.size())
-                // 마지막이 아닐 때만 개행문자를 추가함.
-                sb.append("\n");
-        }
-
-        return sb.toString();
     }
 
     public List<Menu> findAllMenuByMainDish(Menu menu) {
