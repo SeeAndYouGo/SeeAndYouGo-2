@@ -5,11 +5,9 @@ import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -17,144 +15,119 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
 
     @Value("${kakao.REST_API_KEY}")
-    private String KAKAO_REST_API_KEY;
+    private String kakaoClientId;
 
     @Value("${kakao.REDIRECT_URI}")
-    private String KAKAO_REDIRECT_URI;
+    private String kakaoRedirectUri;
 
-    @Autowired
+    @Value("${google.CLIENT_ID}")
+    private String googleClientId;
+
+    @Value("${google.CLIENT_SECRET}")
+    private String googleClientSecret;
+
+    @Value("${google.REDIRECT_URI}")
+    private String googleRedirectUri;
+
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
 
+    // ===== KAKAO =====
     public String getKakaoAccessToken(String code) {
-        String accessToken;
-        try {
-            URL tokenRequestURL = new URL("https://kauth.kakao.com/oauth/token");
-            HttpURLConnection connection = (HttpURLConnection) tokenRequestURL.openConnection();
-
-            // POST요청을 위한 세팅
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-
-            // POST요청이 요구하는 파라미터 세팅 & 스트림에 쓰기
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-            StringBuilder sb = new StringBuilder();
-            sb.append("grant_type=authorization_code")
-                    .append("&client_id=").append(KAKAO_REST_API_KEY) // REST_API_KEY
-                    .append("&redirect_uri=").append(KAKAO_REDIRECT_URI) // 인가코드 받았던 그 URI
-                    .append("&code=").append(code); // 파라미터의 인가코드
-            bw.write(sb.toString());
-            bw.flush();
-
-            // 응답코드 200: JSON Response를 받아온다.
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            String line;
-            StringBuilder result = new StringBuilder();
-
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
-
-            // JSON 파싱 후 access token 확인하기
-            JsonElement jsonElement = JsonParser.parseString(result.toString());
-            accessToken = jsonElement.getAsJsonObject().get("access_token").getAsString();
-
-            // 끝!
-            br.close();
-            bw.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return accessToken;
+        String params = String.format(
+                "grant_type=authorization_code&client_id=%s&redirect_uri=%s&code=%s",
+                kakaoClientId, kakaoRedirectUri, code
+        );
+        String response = OAuthHttpClient.postForAccessToken("https://kauth.kakao.com/oauth/token", params);
+        return OAuthHttpClient.parseJson(response).getAsJsonObject().get("access_token").getAsString();
     }
 
     public UserIdentityDto getUserKakaoInfo(String accessToken) {
-        try {
-            // GET: 카카오 사용자 정보 가져오기
-            URL userInfoURL = new URL("https://kapi.kakao.com/v2/user/me");
-            HttpURLConnection connection = (HttpURLConnection) userInfoURL.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        String response = OAuthHttpClient.getWithBearer("https://kapi.kakao.com/v2/user/me", accessToken);
+        JsonObject json = OAuthHttpClient.parseJson(response).getAsJsonObject();
 
-            // 응답코드 200 이후
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            StringBuilder result = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
+        String id = json.get("id").getAsString();
+        String email = json.get("kakao_account").getAsJsonObject().get("email").getAsString();
+        log.info("Kakao user email: {}", email);
 
-            // 받아온 유저정보에서 id와 email을 가져온다.
-            JsonObject jsonObject = JsonParser.parseString(result.toString()).getAsJsonObject();
-            String id = jsonObject.get("id").getAsString();
-            String email = jsonObject.get("kakao_account").getAsJsonObject().get("email").getAsString();
-            System.out.println(email);
-
-            return UserIdentityDto.builder()
-                    .id(id)
-                    .email(email)
-                    .build();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return UserIdentityDto.builder().id(id).email(email).build();
     }
 
     public TokenDto kakaoLogin(String accessToken) {
-        // Get user info from kakao
-        UserIdentityDto userIdentityDto = getUserKakaoInfo(accessToken);
+        return processLogin(getUserKakaoInfo(accessToken), Social.KAKAO);
+    }
+
+    // ===== GOOGLE =====
+    public String getGoogleAccessToken(String code) {
+        String params = String.format(
+                "grant_type=authorization_code&client_id=%s&client_secret=%s&redirect_uri=%s&code=%s",
+                googleClientId, googleClientSecret,
+                URLEncoder.encode(googleRedirectUri, StandardCharsets.UTF_8), code
+        );
+        String response = OAuthHttpClient.postForAccessToken("https://oauth2.googleapis.com/token", params);
+        return OAuthHttpClient.parseJson(response).getAsJsonObject().get("access_token").getAsString();
+    }
+
+    public UserIdentityDto getUserGoogleInfo(String accessToken) {
+        String response = OAuthHttpClient.getWithBearer("https://www.googleapis.com/oauth2/v2/userinfo", accessToken);
+        JsonObject json = OAuthHttpClient.parseJson(response).getAsJsonObject();
+
+        String id = json.get("id").getAsString();
+        String email = json.get("email").getAsString();
+        log.info("Google user email: {}", email);
+
+        return UserIdentityDto.builder().id(id).email(email).build();
+    }
+
+    public TokenDto googleLogin(String accessToken) {
+        return processLogin(getUserGoogleInfo(accessToken), Social.GOOGLE);
+    }
+
+    // ===== COMMON =====
+    private TokenDto processLogin(UserIdentityDto userInfo, Social socialType) {
+        String email = userInfo.getEmail();
         String message = "login";
-        String email = userIdentityDto.getEmail();
 
         if (!userRepository.existsByEmail(email)) {
-            signUp(userIdentityDto);
+            signUp(userInfo, socialType);
             message = "join";
         }
 
-        // Create jwt token (access & refresh)
         TokenDto tokenDto = tokenProvider.createToken(email);
         tokenDto.setMessage(message);
-
         return tokenDto;
     }
 
     public TokenDto reIssue(String refreshToken) {
-        // 1. 인증된 사용자 정보 얻기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 2. 리프레시 검증 (1, 2차 검증)
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired Refresh Token");
         }
+
         User user = userRepository.findByEmail(authentication.getName());
         if (!user.getRefreshToken().equals(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token");
         }
 
-        // 액세스 재발급
         return tokenProvider.reIssueToken(authentication, refreshToken);
     }
 
-    private void signUp(UserIdentityDto dto) {
-        try {
-            userRepository.save(User.builder()
-                            .email(dto.getEmail())
-                            .nickname(null)
-                            .socialType(Social.KAKAO)
-                            .build());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void signUp(UserIdentityDto dto, Social social) {
+        userRepository.save(User.builder()
+                .email(dto.getEmail())
+                .nickname(null)
+                .socialType(social)
+                .build());
+        log.info("New user signed up: {}", dto.getEmail());
     }
 }

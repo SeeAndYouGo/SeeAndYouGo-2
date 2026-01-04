@@ -17,6 +17,15 @@
     pathmatch:
       matching-strategy: ant_path_matcher
 
+kakao:
+  REST_API_KEY: ${KAKAO_REST_API_KEY}
+  REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+
+google:
+  CLIENT_ID: ${GOOGLE_CLIENT_ID}
+  CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+  REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+
 URL:
   DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
 
