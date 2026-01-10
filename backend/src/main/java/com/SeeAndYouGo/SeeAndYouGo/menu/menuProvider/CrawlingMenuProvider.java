@@ -52,42 +52,52 @@ public class CrawlingMenuProvider implements MenuProvider{
     public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
         List<MenuVO> dailyMenu = new ArrayList<>();
 
-        // 1. 주간 URL 가져오기
-        Connection mainConnection = Jsoup.connect(DORM_URL);
-        Document mainDocument = mainConnection.get();
-        Elements dayLinks = mainDocument.select(".custom-week li a");
+        try {
+            // 1. 주간 URL 가져오기
+            Connection mainConnection = Jsoup.connect(DORM_URL)
+                    .timeout(10000); // 10초 타임아웃
+            Document mainDocument = mainConnection.get();
+            Elements dayLinks = mainDocument.select(".custom-week li a");
 
-        for (Element dayLink : dayLinks) {
-            String dayUrl = DORM_URL + dayLink.attr("href");
-            String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
-            LocalDate targetDate = LocalDate.parse(dateStr);
+            for (Element dayLink : dayLinks) {
+                String dayUrl = DORM_URL + dayLink.attr("href");
+                String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
+                LocalDate targetDate = LocalDate.parse(dateStr);
 
-            // updateDailyMenu는 특정 날짜의 데이터만 업데이트 해야함.
-            if(!targetDate.equals(date)) continue;
+                // updateDailyMenu는 특정 날짜의 데이터만 업데이트 해야함.
+                if(!targetDate.equals(date)) continue;
 
-            Connection dayConnection = Jsoup.connect(dayUrl);
-            Document dayDocument = dayConnection.get();
+                Connection dayConnection = Jsoup.connect(dayUrl)
+                        .timeout(10000);
+                Document dayDocument = dayConnection.get();
 
-            // 2. 아침, 점심, 저녁 메뉴 가져오기
-            Elements mealTds = dayDocument.select(".diet_table td");
-            for (Element mealTd : mealTds) {
-                String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType = MenuType.fromKorean(mealTypeStr);
+                // 2. 아침, 점심, 저녁 메뉴 가져오기
+                Elements mealTds = dayDocument.select(".diet_table td");
+                for (Element mealTd : mealTds) {
+                    String mealTypeStr = mealTd.attr("data-cell-header");
+                    MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
-                String menuContent = mealTd.toString();
-                if (!menuContent.isEmpty()) {
-                    Map<String, List<String>> dishes = getDishes(menuContent);
-                    for (String deptStr : dishes.keySet()) {
-                        Dept dept = Dept.changeStringToDept(deptStr);
-                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
-                        for (String dishToStr : dishes.get(deptStr)) {
-                            DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                            menuVO.addDishVO(dishVO);
+                    String menuContent = mealTd.toString();
+                    if (!menuContent.isEmpty()) {
+                        Map<String, List<String>> dishes = getDishes(menuContent);
+                        for (String deptStr : dishes.keySet()) {
+                            Dept dept = Dept.changeStringToDept(deptStr);
+                            MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
+                            for (String dishToStr : dishes.get(deptStr)) {
+                                DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                                menuVO.addDishVO(dishVO);
+                            }
+                            dailyMenu.add(menuVO);
                         }
-                        dailyMenu.add(menuVO);
                     }
                 }
             }
+        } catch (IOException e) {
+            logger.warn("기숙사 홈페이지 접속 실패 ({}): {}. 기본 메뉴로 대체합니다.", DORM_URL, e.getMessage());
+            // 접속 실패 시 기본 메뉴로 채움
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.BREAKFAST);
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.LUNCH);
+            addDefaultMenu(dailyMenu, date, Dept.DORM_A, restaurant, MenuType.DINNER);
         }
 
         // Fill absent menu for the day
@@ -109,42 +119,49 @@ public class CrawlingMenuProvider implements MenuProvider{
         }
     }
 
-    public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws IOException {
+    public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) {
         List<MenuVO> menuVOs = new ArrayList<>();
 
-        // 1. 주간 URL 가져오기
-        Connection mainConnection = Jsoup.connect(DORM_URL);
-        Document mainDocument = mainConnection.get();
-        Elements dayLinks = mainDocument.select(".custom-week li a");
+        try {
+            // 1. 주간 URL 가져오기
+            Connection mainConnection = Jsoup.connect(DORM_URL)
+                    .timeout(10000); // 10초 타임아웃
+            Document mainDocument = mainConnection.get();
+            Elements dayLinks = mainDocument.select(".custom-week li a");
 
-        for (Element dayLink : dayLinks) {
-            String dayUrl = DORM_URL + dayLink.attr("href");
-            String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
-            LocalDate date = LocalDate.parse(dateStr);
+            for (Element dayLink : dayLinks) {
+                String dayUrl = DORM_URL + dayLink.attr("href");
+                String dateStr = dayLink.attr("href").split("=")[1].split("#")[0];
+                LocalDate date = LocalDate.parse(dateStr);
 
-            Connection dayConnection = Jsoup.connect(dayUrl);
-            Document dayDocument = dayConnection.get();
+                Connection dayConnection = Jsoup.connect(dayUrl)
+                        .timeout(10000);
+                Document dayDocument = dayConnection.get();
 
-            // 2. 아침, 점심, 저녁 메뉴 가져오기
-            Elements mealTds = dayDocument.select(".diet_table td");
-            for (Element mealTd : mealTds) {
-                String mealTypeStr = mealTd.attr("data-cell-header");
-                MenuType menuType = MenuType.fromKorean(mealTypeStr);
+                // 2. 아침, 점심, 저녁 메뉴 가져오기
+                Elements mealTds = dayDocument.select(".diet_table td");
+                for (Element mealTd : mealTds) {
+                    String mealTypeStr = mealTd.attr("data-cell-header");
+                    MenuType menuType = MenuType.fromKorean(mealTypeStr);
 
-                String menuContent = mealTd.toString();
-                if (!menuContent.isEmpty()) {
-                    Map<String, List<String>> dishes = getDishes(menuContent);
-                    for (String deptStr : dishes.keySet()) {
-                        Dept dept = Dept.changeStringToDept(deptStr);
-                        MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
-                        for (String dishToStr : dishes.get(deptStr)) {
-                            DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
-                            menuVO.addDishVO(dishVO);
+                    String menuContent = mealTd.toString();
+                    if (!menuContent.isEmpty()) {
+                        Map<String, List<String>> dishes = getDishes(menuContent);
+                        for (String deptStr : dishes.keySet()) {
+                            Dept dept = Dept.changeStringToDept(deptStr);
+                            MenuVO menuVO = CreateMenuVO(dept, date, restaurant, menuType);
+                            for (String dishToStr : dishes.get(deptStr)) {
+                                DishVO dishVO = new DishVO(dishToStr, DishType.SIDE);
+                                menuVO.addDishVO(dishVO);
+                            }
+                            menuVOs.add(menuVO);
                         }
-                        menuVOs.add(menuVO);
                     }
                 }
             }
+        } catch (IOException e) {
+            logger.warn("기숙사 홈페이지 접속 실패 ({}): {}. 기본 메뉴로 대체합니다.", DORM_URL, e.getMessage());
+            // 접속 실패 시에도 fillAbsentMenu에서 기본 메뉴로 채워짐
         }
 
         fillAbsentMenu(restaurant, menuVOs, monday, sunday);
