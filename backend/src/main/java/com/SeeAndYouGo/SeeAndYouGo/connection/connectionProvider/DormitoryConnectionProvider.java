@@ -28,8 +28,14 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
 
     @Override
     public ConnectionVO getRecentConnection(Restaurant restaurant) {
-        log.info("res {} getRecentConnection result: {}", restaurant, connectionMap.get(restaurant).getConnected());
-        return connectionMap.get(restaurant);
+        ConnectionVO connection = connectionMap.get(restaurant);
+        if (connection == null) {
+            log.warn("res {} 접속자 정보 없음. 기본값 0으로 반환합니다.", restaurant);
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            return new ConnectionVO(0, now, restaurant);
+        }
+        log.info("res {} getRecentConnection result: {}", restaurant, connection.getConnected());
+        return connection;
     }
 
     @Override
@@ -47,6 +53,8 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
             // HttpURLConnection 설정
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(10000); // 연결 타임아웃 10초
+            connection.setReadTimeout(10000);    // 읽기 타임아웃 10초
 
             // 응답 코드 확인
             int responseCode = connection.getResponseCode();
@@ -83,9 +91,15 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
                 ConnectionVO connectionVO = new ConnectionVO(connected, formattedDateTime, restaurant);
 
                 connectionMap.put(restaurant, connectionVO);
+            } else {
+                log.warn("기숙사 접속자 API 응답 실패 (HTTP {}): {}", responseCode, urlString);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("기숙사 접속자 정보 조회 실패: {}. 기본값 0으로 설정합니다.", e.getMessage());
+            // 에러 발생 시 기본값 0으로 설정
+            String formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            ConnectionVO defaultConnection = new ConnectionVO(0, formattedDateTime, restaurant);
+            connectionMap.put(restaurant, defaultConnection);
         }
     }
 }
