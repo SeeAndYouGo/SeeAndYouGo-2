@@ -56,6 +56,10 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
             connectionMap.put(restaurant, connectionVO);
         } catch (Exception e) {
             log.error("Failed to update connection for restaurant: {}", restaurant, e);
+            // 에러 발생 시 기본값 0으로 설정
+            String formattedDateTime = LocalDateTime.now().format(DATETIME);
+            ConnectionVO defaultConnection = new ConnectionVO(0, formattedDateTime, restaurant);
+            connectionMap.put(restaurant, defaultConnection);
         }
     }
 }
