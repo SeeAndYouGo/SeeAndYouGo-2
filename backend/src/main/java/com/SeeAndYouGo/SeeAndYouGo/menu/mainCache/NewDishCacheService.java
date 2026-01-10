@@ -30,7 +30,9 @@ public class NewDishCacheService {
 
     /**
      * 어제 날짜의 메인메뉴들을 historical 캐시에 추가
+     * Lazy Loading 시, 세션이 끊어짐을 방지하기 위해 해당 메서드를 Transactional 단위로 설정
      */
+    @Transactional(readOnly = true)
     public void syncHistoricalDishes(Restaurant restaurant) {
         String yesterday = LocalDate.now().minusDays(1).format(DATE);
         String lastSyncDate = getLastSyncDate(restaurant);
