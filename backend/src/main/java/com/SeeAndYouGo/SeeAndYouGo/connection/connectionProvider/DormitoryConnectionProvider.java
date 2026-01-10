@@ -95,7 +95,11 @@ public class DormitoryConnectionProvider implements ConnectionProvider{
                 log.warn("기숙사 접속자 API 응답 실패 (HTTP {}): {}", responseCode, urlString);
             }
         } catch (Exception e) {
-            log.warn("기숙사 접속자 정보 조회 실패: {}. 기존 캐시를 유지합니다.", e.getMessage());
+            log.warn("기숙사 접속자 정보 조회 실패: {}. 기본값 0으로 설정합니다.", e.getMessage());
+            // 에러 발생 시 기본값 0으로 설정
+            String formattedDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            ConnectionVO defaultConnection = new ConnectionVO(0, formattedDateTime, restaurant);
+            connectionMap.put(restaurant, defaultConnection);
         }
     }
 }
