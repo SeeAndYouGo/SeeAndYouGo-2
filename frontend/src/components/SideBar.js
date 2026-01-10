@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import LoginModal from './LoginModal';
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
@@ -128,6 +128,8 @@ const SideBar = ({isOpen, setIsOpen}) => {
   const loginState = user.loginState;
   const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigator = useNavigate();
+  
   const toggleMenu = () => {
     setIsOpen(false);
   };
@@ -194,6 +196,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       removeCookie('refreshToken', { path: '/' });
                       dispatch(logout());
+                      navigator("/");
                       dispatch(showToast({ contents: "login", toastIndex: 4 }));
                       setTimeout(() => {
                         window.location.reload();
