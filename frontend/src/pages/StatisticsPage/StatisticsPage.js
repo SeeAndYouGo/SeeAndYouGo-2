@@ -84,12 +84,12 @@ const TabBar = ({ currentTab = 0, setCurrentTab }) => {
 			<Slider>
 				<Swiper
 					className="sw-tap"
-					style={{ textAlign: "center", fontSize: 18 }}
+					style={{ textAlign: "center", fontSize: 17 }}
 					initialSlide={
             currentTab < 3 ? 0 : currentTab
           }
 					speed={1000}
-					slidesPerView={3.5}
+					slidesPerView={3.6}
           onSwiper={setSwiper}
 				>
 					{StatisticsSwiperSlide()}
