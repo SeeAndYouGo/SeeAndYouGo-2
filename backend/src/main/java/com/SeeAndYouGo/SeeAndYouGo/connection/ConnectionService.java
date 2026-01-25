@@ -61,10 +61,10 @@ public class ConnectionService {
     @Transactional
     public void saveRecentConnection() throws Exception {
         // 운영시간이 아니면 저장하지 않음
-        if (!isOperatingHours()) {
-            log.info("비운영시간 혼잡도 저장 요청 무시 - 현재시간: {}", LocalTime.now());
-            return;
-        }
+//        if (!isOperatingHours()) {
+//            log.info("비운영시간 혼잡도 저장 요청 무시 - 현재시간: {}", LocalTime.now());
+//            return;
+//        }
 
         for (Restaurant restaurant : Restaurant.values()) {
             // 부르기 전에 먼저 DB에 있는지 확인한다.
@@ -111,10 +111,10 @@ public class ConnectionService {
 
     public void updateAllRestaurantMenuMap() throws Exception {
         // 운영시간이 아니면 업데이트하지 않음
-        if (!isOperatingHours()) {
-            log.info("비운영시간 혼잡도 캐시 업데이트 요청 무시 - 현재시간: {}", LocalTime.now());
-            return;
-        }
+//        if (!isOperatingHours()) {
+//            log.info("비운영시간 혼잡도 캐시 업데이트 요청 무시 - 현재시간: {}", LocalTime.now());
+//            return;
+//        }
 
         for (Restaurant restaurant : Restaurant.values()) {
             ConnectionProvider connectionProvider = connectionProviderFactory.getConnectionProvider(restaurant);
