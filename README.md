@@ -73,3 +73,10 @@ SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 �
 - **Storage**: AWS S3
 - **API Documentation**: SpringDoc OpenAPI
 - **Build Tool**: Gradle
+- 
+---
+
+## 🗺️ 향후 개발 예정
+
+- [ ]  충남대학교 도서관 실시간 혼잡도
+- [ ]  누적 데이터를 활용한 혼잡도 예측 기능
