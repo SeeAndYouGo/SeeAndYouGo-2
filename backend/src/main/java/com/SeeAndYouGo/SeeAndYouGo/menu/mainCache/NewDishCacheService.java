@@ -59,7 +59,7 @@ public class NewDishCacheService {
                 .collect(Collectors.toSet());
 
         if (!mainDishIds.isEmpty()) {
-            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
+            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toRedisKey();
             redisTemplate.opsForSet().add(cacheKey, mainDishIds.toArray());
         }
         
@@ -72,8 +72,8 @@ public class NewDishCacheService {
      * 특정 레스토랑의 historical 캐시 무효화
      */
     public void clearHistoricalCache(Restaurant restaurant) {
-        String dishCacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
-        String syncCacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toString();
+        String dishCacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toRedisKey();
+        String syncCacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toRedisKey();
         
         redisTemplate.delete(dishCacheKey);
         redisTemplate.delete(syncCacheKey);
@@ -95,7 +95,7 @@ public class NewDishCacheService {
      * 레스토랑의 과거 메인메뉴들 조회 (캐시 우선, 없으면 DB에서 구성)
      */
     public Set<Long> getHistoricalMainDishes(Restaurant restaurant) {
-        String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
+        String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toRedisKey();
         Set<Object> cachedDishes = redisTemplate.opsForSet().members(cacheKey);
 
         if (cachedDishes != null && !cachedDishes.isEmpty()) {
@@ -135,7 +135,7 @@ public class NewDishCacheService {
 
         // 캐시에 저장
         if (!mainDishIds.isEmpty()) {
-            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
+            String cacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toRedisKey();
             redisTemplate.opsForSet().add(cacheKey, mainDishIds.toArray());
             setLastSyncDate(restaurant, yesterday.format(DATE_FORMATTER));
         }
@@ -156,7 +156,7 @@ public class NewDishCacheService {
      * 마지막 동기화 날짜 조회
      */
     private String getLastSyncDate(Restaurant restaurant) {
-        String cacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toString();
+        String cacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toRedisKey();
         Object lastSync = redisTemplate.opsForValue().get(cacheKey);
         return lastSync != null ? lastSync.toString() : null;
     }
@@ -165,7 +165,7 @@ public class NewDishCacheService {
      * 마지막 동기화 날짜 설정
      */
     private void setLastSyncDate(Restaurant restaurant, String date) {
-        String cacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toString();
+        String cacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toRedisKey();
         redisTemplate.opsForValue().set(cacheKey, date);
     }
 
@@ -196,8 +196,8 @@ public class NewDishCacheService {
      * 캐시 동기화가 필요한지 검증
      */
     private boolean needsCacheSync(Restaurant restaurant) {
-        String dishCacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toString();
-        String syncCacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toString();
+        String dishCacheKey = HISTORICAL_MAIN_DISHES_KEY + restaurant.toRedisKey();
+        String syncCacheKey = HISTORICAL_LAST_SYNC_KEY + restaurant.toRedisKey();
         
         // 1. 캐시가 존재하지 않는 경우
         if (!redisTemplate.hasKey(dishCacheKey)) {
