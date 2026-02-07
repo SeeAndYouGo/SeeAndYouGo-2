@@ -70,10 +70,8 @@ SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 �
 - **Database**: MySQL 8.0.27
 - **Cache**: Redis
 - **Security**: Spring Security, JWT
-- **Storage**: AWS S3
 - **API Documentation**: SpringDoc OpenAPI
 - **Build Tool**: Gradle
-- 
 ---
 
 ## 🗺️ 향후 개발 예정
