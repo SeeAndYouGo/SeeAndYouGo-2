@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
+import LoginModal from './LoginModal';
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
@@ -126,6 +127,9 @@ const SideBar = ({isOpen, setIsOpen}) => {
   const nickname = user.nickname;
   const loginState = user.loginState;
   const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigator = useNavigate();
+  
   const toggleMenu = () => {
     setIsOpen(false);
   };
@@ -192,6 +196,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       if (window.confirm("로그아웃 하시겠습니까?") === false) return;
                       removeCookie('refreshToken', { path: '/' });
                       dispatch(logout());
+                      navigator("/");
                       dispatch(showToast({ contents: "login", toastIndex: 4 }));
                       setTimeout(() => {
                         window.location.reload();
@@ -202,17 +207,17 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 </div>
               </Title>
             ) :(
-              <Link to="/login-page" onClick={toggleMenu} style={{display: "block"}}>
+              <button onClick={() => setIsLoginModalOpen(true)} style={{display: "block", width: "100%", padding: 0}}>
                 <Title>
                   <div style={{height: "100%"}}>
                     <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
                     <AccountWrap>
                       <span style={{marginLeft: 5, float: "left", fontSize: 16, lineHeight: "50px"}}>로그인&nbsp;</span>
-                      <span className="material-symbols-outlined" style={{float: "right", lineHeight: "50px", fontSize: 18}}>arrow_forward_ios</span>
+                      {/* <span className="material-symbols-outlined" style={{float: "right", lineHeight: "50px", fontSize: 18}}>arrow_forward_ios</span> */}
                     </AccountWrap>
                   </div>
                 </Title>
-              </Link>
+              </button>
             )
           }
 
@@ -272,6 +277,10 @@ const SideBar = ({isOpen, setIsOpen}) => {
           </VisitorBadge>
         </div>
       </SideBarWrap>
+      <LoginModal
+        visible={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </>
   );
 }

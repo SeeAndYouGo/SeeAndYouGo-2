@@ -32,7 +32,6 @@ const BarChart = ({ datas, tab }) => {
 					autoSkip: true,
 					maxTicksLimit: (tab === 5 ? 25 : 11),
 				},
-				labels: statisticsLabel,
 			},
 		},
 		responsive: false,
@@ -55,7 +54,7 @@ const BarChart = ({ datas, tab }) => {
 		],
 	};
 
-	return <Bar options={option} data={topAvgData} height={600} style={{ position: "relative", height: tab === 5 ? "700px" : "600px", width: "300px"}}/>;
+	return <Bar options={option} data={topAvgData} height={600} style={{ position: "relative", height: "600px", width: "300px"}}/>;
 };
 
 export default BarChart;

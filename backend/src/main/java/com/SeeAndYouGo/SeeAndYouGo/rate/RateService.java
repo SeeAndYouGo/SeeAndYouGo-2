@@ -62,18 +62,35 @@ public class RateService {
     private List<Restaurant1MenuItem> parseRestaurant1MenuJson() {
         List<Restaurant1MenuItem> menuItems = new ArrayList<>();
         try {
-            String jsonContent = new String(Files.readAllBytes(Paths.get(RESTAURANT1_MENU_JSON_PATH).toAbsolutePath()));
-            JsonObject jsonData = JsonParser.parseString(jsonContent).getAsJsonObject();
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
+            // Read the JSON file
+            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
 
-            for (JsonElement menuJson : menuNameArray) {
-                JsonObject menuObject = menuJson.getAsJsonObject();
-                String name = menuObject.get("name").getAsString();
-                Dept dept = Dept.valueOf(menuObject.get("dept").getAsString());
-                Integer price = menuObject.get("price").getAsInt();
-                menuItems.add(new Restaurant1MenuItem(name, dept, price));
+            // Parse the JSON data
+            JsonParser jsonParser = new JsonParser();
+            JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
+
+            // Extract menus from each dept
+            for (JsonElement deptElement : deptArray) {
+                JsonObject deptObj = deptElement.getAsJsonObject();
+                Dept dept = Dept.valueOf(deptObj.get("deptEn").getAsString());
+                JsonArray menusArray = deptObj.getAsJsonArray("menus");
+
+                for (JsonElement menuJson : menusArray) {
+                    String name = menuJson.getAsJsonObject().get("name").getAsString();
+                    Integer price = menuJson.getAsJsonObject().get("price").getAsInt();
+
+                    List<String> dishesByDept = restaurant1MenuByCategory.get(dept.toString());
+                    // 1학 메뉴가 초기화되지 않았다면 가장 처음 초기화해주는 작업.
+                    if (dishesByDept == null) {
+                        dishesByDept = new ArrayList<>();
+                    }
+
+                    dishesByDept.add(name);
+                    restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
+                    restaurant1MenuByPrice.put(name, price);
+                }
             }
-        } catch (IOException e) {
+        }catch (IOException e) {
             log.error("Failed to parse Restaurant 1 menu JSON file", e);
             throw new RuntimeException("Failed to parse Restaurant 1 menu JSON", e);
         }

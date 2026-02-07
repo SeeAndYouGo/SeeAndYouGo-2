@@ -15,6 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,5 +206,12 @@ public class MenuController {
         LocalDate sunday = getSundayOfWeek(nearestMonday);
 
         menuService.saveWeeklyMenuAllRestaurant(nearestMonday, sunday);
+    }
+
+    @GetMapping(value = "/restaurant1-menu", produces = "application/json; charset=UTF-8")
+    public String getRestaurant1Menu() throws IOException {
+        String jsonContent = new String(Files.readAllBytes(
+                Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
+        return jsonContent;
     }
 }
