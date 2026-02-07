@@ -45,23 +45,27 @@ public class JsonMenuProvider implements MenuProvider{
 
         // Parse the JSON data
         JsonParser jsonParser = new JsonParser();
-        JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+        JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
 
         List<MenuVO> dailyMenu = new ArrayList<>();
 
-        // Extract menuName
-        JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-        for (JsonElement menuJson : menuNameArray) {
-            String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-            Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-            Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+        // Extract menus from each dept
+        for (JsonElement deptElement : deptArray) {
+            JsonObject deptObj = deptElement.getAsJsonObject();
+            Dept dept = Dept.valueOf(deptObj.get("deptEn").getAsString());
+            JsonArray menusArray = deptObj.getAsJsonArray("menus");
 
-            DishVO dishVO = new DishVO(name, DishType.MAIN);
+            for (JsonElement menuJson : menusArray) {
+                String name = menuJson.getAsJsonObject().get("name").getAsString();
+                Integer price = menuJson.getAsJsonObject().get("price").getAsInt();
 
-            // Only create menu for the given date
-            MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
-            menuVO.addDishVO(dishVO);
-            dailyMenu.add(menuVO);
+                DishVO dishVO = new DishVO(name, DishType.MAIN);
+
+                // Only create menu for the given date
+                MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
+                menuVO.addDishVO(dishVO);
+                dailyMenu.add(menuVO);
+            }
         }
 
         // Update the menuMap for the specific day
@@ -80,27 +84,31 @@ public class JsonMenuProvider implements MenuProvider{
 
         // Parse the JSON data
         JsonParser jsonParser = new JsonParser();
-        JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+        JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
 
         List<MenuVO> menuVOs = new ArrayList<>();
 
-        // Extract menuName
-        JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-        for (JsonElement menuJson : menuNameArray) {
-            String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-            Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-            Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+        // Extract menus from each dept
+        for (JsonElement deptElement : deptArray) {
+            JsonObject deptObj = deptElement.getAsJsonObject();
+            Dept dept = Dept.valueOf(deptObj.get("deptEn").getAsString());
+            JsonArray menusArray = deptObj.getAsJsonArray("menus");
 
-            DishVO dishVO = new DishVO(name, DishType.MAIN);
+            for (JsonElement menuJson : menusArray) {
+                String name = menuJson.getAsJsonObject().get("name").getAsString();
+                Integer price = menuJson.getAsJsonObject().get("price").getAsInt();
 
-            // 1학은 주말에 운영하지 않으므로 메뉴가 들어가면 안된다.
-            LocalDate friday = sunday.minusDays(2);
+                DishVO dishVO = new DishVO(name, DishType.MAIN);
 
-            for(LocalDate date=monday; !date.isAfter(friday); date = date.plusDays(1)) {
-                MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
+                // 1학은 주말에 운영하지 않으므로 메뉴가 들어가면 안된다.
+                LocalDate friday = sunday.minusDays(2);
 
-                menuVO.addDishVO(dishVO);
-                menuVOs.add(menuVO);
+                for (LocalDate date = monday; !date.isAfter(friday); date = date.plusDays(1)) {
+                    MenuVO menuVO = getMenuVO(price, date, dept, MenuType.LUNCH, restaurant);
+
+                    menuVO.addDishVO(dishVO);
+                    menuVOs.add(menuVO);
+                }
             }
         }
 

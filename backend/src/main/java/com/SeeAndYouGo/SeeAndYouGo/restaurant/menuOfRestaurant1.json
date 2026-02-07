@@ -1,220 +1,81 @@
-{
-  "restaurantName": "제1학생회관",
-  "menuName": [
-    {
-      "name": "라면",
-      "dept": "NOODLE",
-      "price": 2500
-    },
-    {
-      "name": "떡만두라면",
-      "dept": "NOODLE",
-      "price": 3000
-    },
-    {
-      "name": "해장라면",
-      "dept": "NOODLE",
-      "price": 3000
-    },
-    {
-      "name": "치즈라면",
-      "dept": "NOODLE",
-      "price": 3000
-    },
-    {
-      "name": "부대라면",
-      "dept": "NOODLE",
-      "price": 4000
-    },
-    {
-      "name": "김밥",
-      "dept": "NOODLE",
-      "price": 3000
-    },
-    {
-      "name": "등심왕돈까스",
-      "dept": "WESTERN",
-      "price": 5500
-    },
-    {
-      "name": "눈꽃치즈돈까스",
-      "dept": "WESTERN",
-      "price": 6000
-    },
-    {
-      "name": "파채돈까스",
-      "dept": "WESTERN",
-      "price": 6000
-    },
-    {
-      "name": "돈까스&파스타",
-      "dept": "WESTERN",
-      "price": 6500
-    },
-    {
-      "name": "닭다리살스테이크",
-      "dept": "WESTERN",
-      "price": 6000
-    },
-    {
-      "name": "파닭스테이크",
-      "dept": "WESTERN",
-      "price": 6500
-    },
-    {
-      "name": "베이컨로제파스타",
-      "dept": "WESTERN",
-      "price": 5800
-    },
-    {
-      "name": "버터김치별달알밥",
-      "dept": "SNACK",
-      "price": 5600
-    },
-    {
-      "name": "버터김치치즈알밥",
-      "dept": "SNACK",
-      "price": 6500
-    },
-    {
-      "name": "컵버터감자칩",
-      "dept": "SNACK",
-      "price": 2000
-    },
-    {
-      "name": "비빔밥",
-      "dept": "KOREAN",
-      "price": 7000
-    },
-    {
-      "name": "묵은지김치찌개",
-      "dept": "KOREAN",
-      "price": 5800
-    },
-    {
-      "name": "부대햄플러스김치찌개",
-      "dept": "KOREAN",
-      "price": 6800
-    },
-    {
-      "name": "우삼겹된장찌개",
-      "dept": "KOREAN",
-      "price": 6600
-    },
-    {
-      "name": "별달소고기국밥",
-      "dept": "KOREAN",
-      "price": 7000
-    },
-    {
-      "name": "뚝배기닭갈비덮밥",
-      "dept": "KOREAN",
-      "price": 5800
-    },
-    {
-      "name": "얼큰순두부우동국밥",
-      "dept": "JAPANESE",
-      "price": 6300
-    },
-    {
-      "name": "매운부타동고기덮밥",
-      "dept": "JAPANESE",
-      "price": 7500
-    },
-    {
-      "name": "고소한카레덮밥",
-      "dept": "JAPANESE",
-      "price": 5800
-    },
-    {
-      "name": "부타동고기덮밥",
-      "dept": "JAPANESE",
-      "price": 5800
-    },
-    {
-      "name": "치킨가라아게마요",
-      "dept": "JAPANESE",
-      "price": 6500
-    },
-    {
-      "name": "세곱배기생우동",
-      "dept": "JAPANESE",
-      "price": 6500
-    },
-    {
-      "name": "매운속풀이해장우동",
-      "dept": "JAPANESE",
-      "price": 5300
-    },
-    {
-      "name": "가스오부시생우동",
-      "dept": "JAPANESE",
-      "price": 5000
-    },
-    {
-      "name": "마제소바",
-      "dept": "JAPANESE",
-      "price": 6000
-    },
-    {
-      "name": "1L치킨포케샐러드",
-      "dept": "JAPANESE",
-      "price": 6800
-    },
-    {
-      "name": "1/2우동+주먹밥+가라아게4p",
-      "dept": "JAPANESE",
-      "price": 7500
-    },
-    {
-      "name": "꼬치어묵2p+생우동",
-      "dept": "JAPANESE",
-      "price": 6500
-    },
-    {
-      "name": "컵가라아게4p",
-      "dept": "JAPANESE",
-      "price": 2000
-    },
-    {
-      "name": "1/2우동",
-      "dept": "JAPANESE",
-      "price": 3500
-    },
-    {
-      "name": "주먹밥2개",
-      "dept": "JAPANESE",
-      "price": 1500
-    },
-    {
-      "name": "차돌온면",
-      "dept": "CHINESE",
-      "price": 6500
-    },
-    {
-      "name": "매운차돌온면",
-      "dept": "CHINESE",
-      "price": 6500
-    },
-    {
-      "name": "온국밥",
-      "dept": "CHINESE",
-      "price": 6500
-    },
-    {
-      "name": "매운온국밥",
-      "dept": "CHINESE",
-      "price": 6500
-    },
-    {
-      "name": "비빔면",
-      "dept": "CHINESE",
-      "price": 5800
-    },
-    {
-      "name": "냉면",
-      "dept": "CHINESE",
-      "price": 5800
-    }
-  ]
-}
+[
+  {
+    "deptKo": "분식",
+    "deptEn": "NOODLE",
+    "menus": [
+      { "name": "라면", "price": 2500 },
+      { "name": "떡만두라면", "price": 3000 },
+      { "name": "해장라면", "price": 3000 },
+      { "name": "치즈라면", "price": 3000 },
+      { "name": "부대라면", "price": 4000 },
+      { "name": "김밥", "price": 3000 }
+    ]
+  },
+  {
+    "deptKo": "양식",
+    "deptEn": "WESTERN",
+    "menus": [
+      { "name": "등심왕돈까스", "price": 5500 },
+      { "name": "눈꽃치즈돈까스", "price": 6000 },
+      { "name": "파채돈까스", "price": 6000 },
+      { "name": "돈까스&파스타", "price": 6500 },
+      { "name": "닭다리살스테이크", "price": 6000 },
+      { "name": "파닭스테이크", "price": 6500 },
+      { "name": "베이컨로제파스타", "price": 5800 }
+    ]
+  },
+  {
+    "deptKo": "스낵",
+    "deptEn": "SNACK",
+    "menus": [
+      { "name": "버터김치별달알밥", "price": 5600 },
+      { "name": "버터김치치즈알밥", "price": 6500 },
+      { "name": "컵버터감자칩", "price": 2000 }
+    ]
+  },
+  {
+    "deptKo": "한식",
+    "deptEn": "KOREAN",
+    "menus": [
+      { "name": "비빔밥", "price": 7000 },
+      { "name": "묵은지김치찌개", "price": 5800 },
+      { "name": "부대햄플러스김치찌개", "price": 6800 },
+      { "name": "우삼겹된장찌개", "price": 6600 },
+      { "name": "별달소고기국밥", "price": 7000 },
+      { "name": "뚝배기닭갈비덮밥", "price": 5800 }
+    ]
+  },
+  {
+    "deptKo": "일식",
+    "deptEn": "JAPANESE",
+    "menus": [
+      { "name": "얼큰순두부우동국밥", "price": 6300 },
+      { "name": "매운부타동고기덮밥", "price": 7500 },
+      { "name": "고소한카레덮밥", "price": 5800 },
+      { "name": "부타동고기덮밥", "price": 5800 },
+      { "name": "치킨가라아게마요", "price": 6500 },
+      { "name": "세곱배기생우동", "price": 6500 },
+      { "name": "매운속풀이해장우동", "price": 5300 },
+      { "name": "가스오부시생우동", "price": 5000 },
+      { "name": "마제소바", "price": 6000 },
+      { "name": "1L치킨포케샐러드", "price": 6800 },
+      { "name": "1/2우동+주먹밥+가라아게4p", "price": 7500 },
+      { "name": "꼬치어묵2p+생우동", "price": 6500 },
+      { "name": "컵가라아게4p", "price": 2000 },
+      { "name": "1/2우동", "price": 3500 },
+      { "name": "주먹밥2개", "price": 1500 }
+    ]
+  },
+  {
+    "deptKo": "중식",
+    "deptEn": "CHINESE",
+    "menus": [
+      { "name": "차돌온면", "price": 6500 },
+      { "name": "매운차돌온면", "price": 6500 },
+      { "name": "온국밥", "price": 6500 },
+      { "name": "매운온국밥", "price": 6500 },
+      { "name": "비빔면", "price": 5800 },
+      { "name": "냉면", "price": 5800 }
+    ]
+  }
+]

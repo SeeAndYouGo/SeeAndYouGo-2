@@ -41,22 +41,24 @@ public class RateService {
 
             // Parse the JSON data
             JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+            JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
 
-            // Extract menuName
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-            for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+            // Extract menus from each dept
+            for (JsonElement deptElement : deptArray) {
+                JsonObject deptObj = deptElement.getAsJsonObject();
+                JsonArray menusArray = deptObj.getAsJsonArray("menus");
 
-                if(!rateRepository.existsByDept(name)){
-                    Rate rate = Rate.builder()
-                                .restaurant(Restaurant.제1학생회관)
-                                .dept(name)
-                                .build();
+                for (JsonElement menuJson : menusArray) {
+                    String name = menuJson.getAsJsonObject().get("name").getAsString();
 
-                    rateRepository.save(rate);
+                    if(!rateRepository.existsByDept(name)){
+                        Rate rate = Rate.builder()
+                                    .restaurant(Restaurant.제1학생회관)
+                                    .dept(name)
+                                    .build();
+
+                        rateRepository.save(rate);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -71,24 +73,28 @@ public class RateService {
 
             // Parse the JSON data
             JsonParser jsonParser = new JsonParser();
-            JsonObject jsonData = jsonParser.parse(jsonContent).getAsJsonObject();
+            JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
 
-            // Extract menuName
-            JsonArray menuNameArray = jsonData.getAsJsonArray("menuName");
-            for (JsonElement menuJson : menuNameArray) {
-                String name = menuJson.getAsJsonObject().get("name").toString().replace("\"", "");
-                Dept dept = Dept.valueOf(menuJson.getAsJsonObject().get("dept").toString().replace("\"", ""));
-                Integer price = Integer.parseInt(menuJson.getAsJsonObject().get("price").toString());
+            // Extract menus from each dept
+            for (JsonElement deptElement : deptArray) {
+                JsonObject deptObj = deptElement.getAsJsonObject();
+                Dept dept = Dept.valueOf(deptObj.get("deptEn").getAsString());
+                JsonArray menusArray = deptObj.getAsJsonArray("menus");
 
-                List<String> dishesByDept = restaurant1MenuByCategory.get(dept.toString());
-                // 1학 메뉴가 초기화되지 않았다면 가장 처음 초기화해주는 작업.
-                if (dishesByDept == null) {
-                    dishesByDept = new ArrayList<>();
+                for (JsonElement menuJson : menusArray) {
+                    String name = menuJson.getAsJsonObject().get("name").getAsString();
+                    Integer price = menuJson.getAsJsonObject().get("price").getAsInt();
+
+                    List<String> dishesByDept = restaurant1MenuByCategory.get(dept.toString());
+                    // 1학 메뉴가 초기화되지 않았다면 가장 처음 초기화해주는 작업.
+                    if (dishesByDept == null) {
+                        dishesByDept = new ArrayList<>();
+                    }
+
+                    dishesByDept.add(name);
+                    restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
+                    restaurant1MenuByPrice.put(name, price);
                 }
-
-                dishesByDept.add(name);
-                restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
-                restaurant1MenuByPrice.put(name, price);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
