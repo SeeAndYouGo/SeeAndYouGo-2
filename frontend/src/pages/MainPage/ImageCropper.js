@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from '@emotion/styled'
-import { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
 import { getCroppedImg, dataURLtoFile } from "../../hooks/useCrop";
 
@@ -25,15 +24,50 @@ const Modal = styled.div`
   padding: 20px;
   width: 80%;
   max-width: 360px;
-  height: 345px;
+  height: 450px;
   overflow: hidden;
-  & > .cropperWrapper {
-    width: 100%;
-    height: 100%;
-    max-height: 168px;
-    position: relative;
-    padding: 20px;
-    overflow: hidden !important;
+`;
+
+const CropperContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 250px;
+  background: #333;
+`;
+
+const ZoomBox = styled.div`
+  padding: 10px 0;
+  width: 100%;
+`;
+
+const ZoomInput = styled.input`
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+  
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #222;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #222;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -51,13 +85,24 @@ const Button = styled.button`
   `}
 `;
 
-const ImageCropper = ({ setImage, setPrevImage, isOpen, setIsOpen, setImageURL, src, croppedAreaPixels, setCroppedAreaPixels }) => {
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
+const ImageCropper = ({ 
+  setImage, 
+  setPrevImage, 
+  isOpen, 
+  setIsOpen, 
+  setImageURL, 
+  src, 
+  croppedAreaPixels, 
+  setCroppedAreaPixels 
+}) => {
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const width = 16;
+  const height = 9;
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixel) => {
     setCroppedAreaPixels(croppedAreaPixel);
-  }, []);
+  }, [setCroppedAreaPixels]);
 
   const handleCropImage = async () => {
     try {
@@ -73,26 +118,39 @@ const ImageCropper = ({ setImage, setPrevImage, isOpen, setIsOpen, setImageURL, 
 
   return (
     <Container isOpen={isOpen}>
-      <Modal className='modal modal'>
+      <Modal>
         <h3>이미지 편집</h3>
-        <div className='cropperWrapper'>
+        <CropperContainer>
           <Cropper
             image={src}
             crop={crop}
             zoom={zoom}
-            aspect={16 / 9}
+            aspect={width / height}
             onCropChange={setCrop}
             onCropComplete={onCropComplete}
             onZoomChange={setZoom}
           />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 20}}>
+        </CropperContainer>
+        <ZoomBox>
+          <ZoomInput
+            type="range"
+            value={zoom}
+            min={1}
+            max={3}
+            step={0.1}
+            aria-labelledby="Zoom"
+            onChange={(e) => {
+              setZoom(parseFloat(e.target.value));
+            }}
+          />
+        </ZoomBox>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 10 }}>
           <Button onClick={() => setIsOpen(false)}>취소</Button>
           <Button onClick={handleCropImage} className='uploadBtn'>업로드</Button>
         </div>
       </Modal>
     </Container>
-  )
-}
+  );
+};
 
 export default ImageCropper;
