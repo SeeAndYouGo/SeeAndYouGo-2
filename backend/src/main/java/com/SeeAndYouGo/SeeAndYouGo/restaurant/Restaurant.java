@@ -63,4 +63,8 @@ public enum Restaurant {
         }
         throw new IllegalArgumentException("[ERROR] 해당하는 레스토랑명이 없음: input: " + name);
     }
+
+    public String toRedisKey() {
+        return "restaurant" + this.number;
+    }
 }
