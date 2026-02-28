@@ -33,14 +33,8 @@ DISH:
   GET:
     URL: http://www.seeandyougo.com:80
     END_POINT: /api/menu/local
-  SAVE:
-    URL: https://api.cnu.ac.kr
-    END_POINT: /svc/offcam/pub/FoodInfo
 
 CONN:
   GET:
     URL: http://www.seeandyougo.com:80
     END_POINT: /api/connection/local
-  SAVE:
-    URL: https://api.cnu.ac.kr
-    END_POINT: /svc/offcam/pub/WifiAllInfo
