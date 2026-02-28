@@ -11,3 +11,13 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+DISH:
+  SAVE:
+    URL: https://seeandyougo-mock-server.onrender.com
+    END_POINT: /svc/offcam/pub/FoodInfo
+
+CONN:
+  SAVE:
+    URL: https://seeandyougo-mock-server.onrender.com
+    END_POINT: /svc/offcam/pub/WifiAllInfo

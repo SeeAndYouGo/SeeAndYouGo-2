@@ -12,3 +12,13 @@ spring:
     redis:
       host: redis
       port: 6379
+
+DISH:
+  SAVE:
+    URL: https://api.cnu.ac.kr
+    END_POINT: /svc/offcam/pub/FoodInfo
+
+CONN:
+  SAVE:
+    URL: https://api.cnu.ac.kr
+    END_POINT: /svc/offcam/pub/WifiAllInfo
