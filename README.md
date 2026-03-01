@@ -1,12 +1,10 @@
-# SeeAndYouGo
-![seeandyougo_readme](https://github.com/user-attachments/assets/c5419b07-baac-4a61-b251-fe5e8a00f98d)
+# <img src="frontend/public/assets/images/icon.png" height="30" alt="SeeAndYouGo Icon"> SeeAndYouGo
+![SeeAndYouGo 서비스 소개](frontend/public/assets/images/readme/readme_thumbnail.jpg)
 
 
 > 충남대학교 공공 API를 활용한 식당 혼잡도 · 메뉴 · 리뷰 커뮤니티 플랫폼
 
 SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 한눈에 확인하고, 학생들이 직접 리뷰를 남기며 정보를 공유할 수 있는 웹 기반 커뮤니티 서비스입니다.
-
----
 
 ## 📌 프로젝트 개요
 
@@ -19,8 +17,6 @@ SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 �
     - 사용자 리뷰 및 평점 시스템
     - 식당별 혼잡도 통계
 - **프로젝트 지속 기간**: 2023-07 ~
-
----
 
 ## 👥 팀원 소개
 
@@ -38,19 +34,25 @@ SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 �
 
 충남대학교 공공 API를 통해 각 식당의 실시간 혼잡도를 시각적으로 제공합니다.
 
+<img src="frontend/public/assets/images/readme/readme_congestion.png" alt="실시간 혼잡도 표시" height="300">
+
 ### 🍽️ 식당 메뉴 조회
 
-식당별 메뉴 및 가격 정보를 한눈에 확인할 수 있습니다. 
+식당별 메뉴 및 가격 정보를 한눈에 확인할 수 있습니다.
+
+<img src="frontend/public/assets/images/readme/readme_menu.png" alt="식당 메뉴 조회" height="300">
 
 ### ✍️ 리뷰 & 평점 커뮤니티
 
 학생들이 직접 리뷰와 평점을 남기고 정보를 공유할 수 있습니다.
 
+<img src="frontend/public/assets/images/readme/readme_review.png" alt="리뷰 & 평점 커뮤니티" height="300">
+
 ### 📈 혼잡도 통계
 
 식당별 혼잡도 통계를 차트로 확인할 수 있어, 시간대별 혼잡도 패턴을 파악할 수 있습니다.
 
----
+<img src="frontend/public/assets/images/readme/readme_chart.png" alt="혼잡도 통계" height="300">
 
 ## 🛠️ 기술 스택
 
@@ -72,7 +74,6 @@ SeeAndYouGo는 충남대학교 학내 식당의 혼잡도와 메뉴 정보를 �
 - **Security**: Spring Security, JWT
 - **API Documentation**: SpringDoc OpenAPI
 - **Build Tool**: Gradle
----
 
 ## 🗺️ 향후 개발 예정
 

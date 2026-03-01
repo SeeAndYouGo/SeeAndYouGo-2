@@ -110,6 +110,10 @@ public enum Restaurant {
         throw new IllegalArgumentException("[ERROR] 해당하는 레스토랑명이 없음: input: " + name);
     }
 
+    public String toRedisKey() {
+        return "restaurant" + this.number;
+    }
+
     public static List<Restaurant> getNonFixedMenuRestaurant(){
         return Arrays.stream(Restaurant.values()).filter(r -> !r.isFixedMenu()).collect(Collectors.toList());
     }

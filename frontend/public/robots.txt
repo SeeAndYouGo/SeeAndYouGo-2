@@ -1,3 +1,21 @@
 # https://www.robotstxt.org/robotstxt.html
+# 모든 검색엔진 허용
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /oauth
+Disallow: /set-nickname
+Disallow: /my-review-page
+Disallow: /api/
+
+# 네이버 검색엔진 최적화
+User-agent: Yeti
+Allow: /
+Disallow: /admin/
+Disallow: /oauth
+Disallow: /set-nickname
+Disallow: /my-review-page
+Disallow: /api/
+
+# 사이트맵 위치
+Sitemap: https://www.seeandyougo.com/sitemap.xml
