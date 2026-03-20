@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { Cascader } from "rsuite";
+import { get } from "../../api/index";
 
 const MenuSelectorContainer = styled.div`
 	width: 100%;
@@ -18,29 +19,34 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const url = "/assets/json/restaurant1-menu.json";
-			const res = await fetch(url, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-				method: "GET",
-			});
-			const result = await res.json();
-			return result;
+			const response = await get("/restaurant1-menu");
+			const result = response.data;
+			const formatted = result.map((dept) => ({
+				label: dept.deptKo,
+				value: dept.deptEn,
+				children: dept.menus.map((menu) => ({
+					label: menu.name,
+					value: menu.name,
+					price: menu.price,
+				})),
+			}));
+
+			setMenuData(formatted);
 		};
-		fetchData().then((data) => {
-			setMenuData(data);
-		});
+
+		fetchData();
 	}, []);
 
 	const handleMenuClick = (value) => {
-		menuData.forEach((list) => {
-			list.children.forEach((menu) => {
-				if (menu.label === value) {
-					onSelectMenu({value: value, category: list.value});
-				}
-			});
-		});
+		if (!value) return;
+		
+		const category = menuData.find((list) =>
+			list.children.some((menu) => menu.label === value)
+		)?.value;
+
+		if (category) {
+			onSelectMenu({ value, category });
+		}
 	};
 
 	return (
@@ -50,9 +56,7 @@ const MenuSelector = ({ onSelectMenu }) => {
 				placeholder="메뉴를 선택해주세요"
 				data={menuData}
 				onClean={() => onSelectMenu({})}
-				onChange={(value) => {
-					handleMenuClick(value);
-				}}
+				onChange={handleMenuClick}
 				menuWidth={150}
 			/>
 		</MenuSelectorContainer>
