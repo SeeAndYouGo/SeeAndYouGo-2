@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from '@emotion/styled'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Cropper from 'react-easy-crop'
 import { getCroppedImg, dataURLtoFile } from "../../hooks/useCrop";
 
@@ -70,6 +70,17 @@ const ImageCropper = ({ setImage, setPrevImage, isOpen, setIsOpen, setImageURL, 
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, setIsOpen]);
 
   return (
     <Container isOpen={isOpen}>
