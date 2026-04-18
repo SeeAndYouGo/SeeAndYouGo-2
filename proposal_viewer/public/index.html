@@ -3,21 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>혼잡도 예측 독립 데모</title>
+  <title>학생식당 예측</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <main class="shell">
     <section class="hero">
-      <p class="eyebrow">SeeAndYouGo와 분리된 DB 연동 데모</p>
-      <h1>과거 데이터 실제값 · 예측값 비교</h1>
-      <p>식당과 날짜를 고르면 해당 날짜의 30분, 60분, 90분 후 실제값과 예측값 차이를 보여줍니다. 파라미터를 바꿔 오차 변화를 바로 확인할 수 있습니다.</p>
+      <p class="eyebrow">SeeAndYouGo</p>
+      <h1>학생식당 예측</h1>
     </section>
 
     <section class="panel">
-      <form id="predictionForm" class="form history-form">
-        <label>
-          식당
+      <form id="predictionForm" class="history-form">
+        <div class="field field--wide">
+          <span class="field-label">비교 기준</span>
+          <div class="mode-switch" role="tablist" aria-label="비교 기준 선택">
+            <button type="button" class="strategy-button is-active" data-profile="allData">전체 누적 데이터</button>
+            <button type="button" class="strategy-button" data-profile="trainTo2025">2025까지 학습 → 2026 검증</button>
+          </div>
+          <p class="hint" id="profileHelp">DB에 있는 전체 누적 데이터로 학습한 뒤 선택 날짜를 확인합니다.</p>
+        </div>
+
+        <div class="field">
+          <label for="restaurant">식당</label>
           <select id="restaurant">
             <option>제1학생회관</option>
             <option>제2학생회관</option>
@@ -26,87 +34,95 @@
             <option>생활과학대</option>
             <option>학생생활관</option>
           </select>
-        </label>
-        <label>
-          검증 날짜
+        </div>
+
+        <div class="field">
+          <label for="date">날짜</label>
           <input id="date" type="date" required>
-        </label>
-        <label>
-          30분 반영률
-          <input id="w30" type="number" min="0" max="1" step="0.1" value="0.6">
-        </label>
-        <label>
-          60분 반영률
-          <input id="w60" type="number" min="0" max="1" step="0.1" value="0.4">
-        </label>
-        <label>
-          90분 반영률
-          <input id="w90" type="number" min="0" max="1" step="0.1" value="0.2">
-        </label>
-        <button type="submit">비교하기</button>
+        </div>
+
+        <input id="w30" type="hidden" value="0.8">
+        <input id="w60" type="hidden" value="0.7">
+        <input id="w90" type="hidden" value="0.6">
+        <p class="hint" id="modeHelp" hidden></p>
+        <p class="hint" id="strategyHelp" hidden></p>
+        <button type="button" id="applyPreset" hidden>추천값 다시 적용</button>
+
+        <section class="experiment-box field--wide">
+          <p class="hint" id="adjustedHelp">피크 압력식 고정 계수와 실시간 계산값으로 예측합니다.</p>
+        </section>
+
+        <div class="actions">
+          <button type="submit">확인하기</button>
+        </div>
       </form>
     </section>
 
-    <section class="panel" id="resultPanel" hidden>
+    <section class="panel panel--result" id="resultPanel" hidden>
+      <section class="formula" id="formulaSection">
+        <div class="section-head section-head--tight">
+          <div>
+            <h2>예측식</h2>
+          </div>
+        </div>
+        <div class="formula-list" id="formulaList"></div>
+        <p class="formula-selection" id="formulaSelection"></p>
+        <div class="formula-primer" id="formulaPrimer"></div>
+        <div class="calculation-guide" id="calculationGuide"></div>
+        <div class="strategy-tables" id="strategyTables"></div>
+      </section>
+
       <div class="summary" id="summary"></div>
       <div class="cards" id="predictionCards"></div>
+      <div class="overview-guide" id="overviewGuide"></div>
       <div class="chart" id="chart"></div>
+
+      <section class="grid-block">
+        <div class="section-head section-head--tight">
+          <div>
+            <h2>같은 날짜 전체 식당 비교</h2>
+          </div>
+        </div>
+        <div class="grid-controls" id="gridControls"></div>
+        <div class="restaurant-grid" id="restaurantGrid"></div>
+      </section>
+
+      <div class="section-head section-head--tight">
+        <div>
+          <h2>상세 비교</h2>
+          <p class="hint" id="tableHint" hidden></p>
+        </div>
+      </div>
+
+      <div class="detail-controls" id="detailControls"></div>
+      <div class="detail-insights" id="detailInsights"></div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>기준 시각</th>
-              <th>예측 범위</th>
               <th>목표 시각</th>
+              <th>현재값</th>
               <th>실제값</th>
               <th>예측값</th>
-              <th>차이</th>
+              <th>오차</th>
+              <th>판정</th>
+              <th>보정</th>
             </tr>
           </thead>
           <tbody id="comparisonRows"></tbody>
         </table>
       </div>
-      <div class="formula">
-        <strong>산출 방식</strong>
-        <code>목표 시점 평소값 + (현재값 - 현재 시점 평소값) × 현재 차이 반영률</code>
-      </div>
     </section>
 
-    <section class="panel muted">
-      <h2>초기 파라미터</h2>
+    <section hidden aria-hidden="true">
+      <p id="presetEyebrow"></p>
+      <p id="presetHint"></p>
+      <p id="commonPresetValue"></p>
+      <p id="commonPresetNote"></p>
       <table>
-        <thead>
-          <tr>
-            <th>식당</th>
-            <th>30분</th>
-            <th>60분</th>
-            <th>90분</th>
-            <th>평균 기준</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>생활과학대</td>
-            <td>0.0</td>
-            <td>0.0</td>
-            <td>0.0</td>
-            <td>시즌성 평균</td>
-          </tr>
-          <tr>
-            <td>학생생활관</td>
-            <td>0.2</td>
-            <td>0.1</td>
-            <td>0.0</td>
-            <td>전 기간 평균</td>
-          </tr>
-          <tr>
-            <td>그 외 식당</td>
-            <td>0.6</td>
-            <td>0.4</td>
-            <td>0.2</td>
-            <td>시즌성 평균</td>
-          </tr>
-        </tbody>
+        <tbody id="restaurantPresetRows"></tbody>
       </table>
     </section>
   </main>
