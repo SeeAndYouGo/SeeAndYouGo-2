@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>혼잡도 예측 독립 데모</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">SeeAndYouGo와 분리된 DB 연동 데모</p>
+      <h1>과거 데이터 실제값 · 예측값 비교</h1>
+      <p>식당과 날짜를 고르면 해당 날짜의 30분, 60분, 90분 후 실제값과 예측값 차이를 보여줍니다. 파라미터를 바꿔 오차 변화를 바로 확인할 수 있습니다.</p>
+    </section>
+
+    <section class="panel">
+      <form id="predictionForm" class="form history-form">
+        <label>
+          식당
+          <select id="restaurant">
+            <option>제1학생회관</option>
+            <option>제2학생회관</option>
+            <option>제3학생회관</option>
+            <option>상록회관</option>
+            <option>생활과학대</option>
+            <option>학생생활관</option>
+          </select>
+        </label>
+        <label>
+          검증 날짜
+          <input id="date" type="date" required>
+        </label>
+        <label>
+          30분 반영률
+          <input id="w30" type="number" min="0" max="1" step="0.1" value="0.6">
+        </label>
+        <label>
+          60분 반영률
+          <input id="w60" type="number" min="0" max="1" step="0.1" value="0.4">
+        </label>
+        <label>
+          90분 반영률
+          <input id="w90" type="number" min="0" max="1" step="0.1" value="0.2">
+        </label>
+        <button type="submit">비교하기</button>
+      </form>
+    </section>
+
+    <section class="panel" id="resultPanel" hidden>
+      <div class="summary" id="summary"></div>
+      <div class="cards" id="predictionCards"></div>
+      <div class="chart" id="chart"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>기준 시각</th>
+              <th>예측 범위</th>
+              <th>목표 시각</th>
+              <th>실제값</th>
+              <th>예측값</th>
+              <th>차이</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonRows"></tbody>
+        </table>
+      </div>
+      <div class="formula">
+        <strong>산출 방식</strong>
+        <code>목표 시점 평소값 + (현재값 - 현재 시점 평소값) × 현재 차이 반영률</code>
+      </div>
+    </section>
+
+    <section class="panel muted">
+      <h2>초기 파라미터</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>식당</th>
+            <th>30분</th>
+            <th>60분</th>
+            <th>90분</th>
+            <th>평균 기준</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>생활과학대</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>시즌성 평균</td>
+          </tr>
+          <tr>
+            <td>학생생활관</td>
+            <td>0.2</td>
+            <td>0.1</td>
+            <td>0.0</td>
+            <td>전 기간 평균</td>
+          </tr>
+          <tr>
+            <td>그 외 식당</td>
+            <td>0.6</td>
+            <td>0.4</td>
+            <td>0.2</td>
+            <td>시즌성 평균</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

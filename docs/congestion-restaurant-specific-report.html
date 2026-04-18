@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>식당별 혼잡도 예측 통합 보고서</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --panel: #fffdf9;
+      --line: #e7d7bf;
+      --ink: #1f2a2e;
+      --muted: #6e6a63;
+      --accent: #14532d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fff7eb 0, var(--bg) 40%, #efe5d7 100%);
+      line-height: 1.65;
+    }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid rgba(143, 116, 74, 0.2);
+      border-radius: 24px;
+      box-shadow: 0 14px 30px rgba(76, 54, 24, 0.06);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .panel {
+      padding: 24px;
+      margin-top: 18px;
+    }
+    h1, h2, h3 {
+      margin: 0 0 10px;
+      color: var(--ink);
+    }
+    h1 { font-size: 32px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 20px; margin-top: 8px; }
+    p, li { color: var(--ink); }
+    .meta, .hint {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid #eee4d5;
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf4ea;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .graph {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: white;
+      padding: 10px;
+    }
+    .graph img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+    .links a, a {
+      color: #8a4b00;
+      text-decoration: none;
+    }
+    .links a:hover, a:hover {
+      text-decoration: underline;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      h1 { font-size: 26px; }
+      .wrap { padding: 20px 14px 44px; }
+      .hero, .panel { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>식당별 혼잡도 예측 통합 보고서</h1>
+      <p class="meta">작성일: 2026-03-28<br>검증 구간: 2026-03-01 ~ 2026-03-27<br>기준 단위: 식당별 5분 데이터</p>
+      <p>이 보고서는 식당별 실제값과 예측값을 날짜 기준으로 비교한 그래프를 한 곳에 모아둔 문서입니다. 이번에는 모든 식당에 같은 규칙을 적용하지 않고, 식당 특성에 따라 예측 방식을 다르게 적용하였습니다.</p>
+      <p class="hint">평소값 = 지난주 같은 요일 같은 시간대 값 90.9% + 최근 8주 같은 요일 같은 시간대 평균 9.1%</p>
+    </section>
+
+    <section class="panel">
+      <h2>1. 한눈에 보는 결론</h2>
+      <p>공통 규칙 하나로도 운영은 가능했지만, 식당별 규칙을 따로 두었을 때 30분 후와 60분 후 예측이 조금 더 좋아졌습니다.</p>
+      <table>
+        <thead>
+          <tr><th>예측 범위</th><th>식당별 규칙 적용 후 평균 차이</th><th>±10명 이내 비율</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>5분 후</td><td>4.5명</td><td>87.4%</td></tr>
+          <tr><td>30분 후</td><td>11.5명</td><td>71.9%</td></tr>
+          <tr><td>60분 후</td><td>15.2명</td><td>66.2%</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>2. 식당별 추천 방식</h2>
+      <table>
+        <thead>
+          <tr><th>식당</th><th>특성 요약</th><th>5분 후</th><th>30분 후</th><th>60분 후</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>상록회관</td><td>비교적 안정적이고 점심이 저녁보다 조금 높음</td><td>지금 값 그대로</td><td>30분 뒤 평소값 + 현재 차이 80%</td><td>60분 뒤 평소값 + 현재 차이 60%</td></tr>
+          <tr><td>생활과학대</td><td>0명 구간이 많고 검증 구간에서는 변화가 거의 없음</td><td>지금 값 그대로</td><td>지금 값 그대로</td><td>지금 값 그대로</td></tr>
+          <tr><td>제1학생회관</td><td>가장 규모가 크고 변동도 큼</td><td>지금 값 그대로</td><td>30분 뒤 평소값 + 현재 차이 90%</td><td>60분 뒤 평소값 + 현재 차이 80%</td></tr>
+          <tr><td>제2학생회관</td><td>점심 피크가 뚜렷한 중간 규모 식당</td><td>지금 값 그대로</td><td>30분 뒤 평소값 + 현재 차이 80%</td><td>60분 뒤 평소값 + 현재 차이 60%</td></tr>
+          <tr><td>제3학생회관</td><td>규모는 작지만 점심 집중이 분명함</td><td>지금 값 그대로</td><td>30분 뒤 평소값 + 현재 차이 70%</td><td>60분 뒤 평소값 + 현재 차이 50%</td></tr>
+          <tr><td>학생생활관</td><td>저녁 비중이 높고 0명 구간도 많음</td><td>지금 값 그대로</td><td>지금 값 그대로</td><td>60분 뒤 평소값 + 현재 차이 30%</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>3. 전체 그래프</h2>
+      <h3>전체 5분 후</h3>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/overall-5m.svg" alt="전체 5분 후 그래프"></div>
+      <h3>전체 30분 후</h3>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/overall-30m.svg" alt="전체 30분 후 그래프"></div>
+      <h3>전체 60분 후</h3>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/overall-60m.svg" alt="전체 60분 후 그래프"></div>
+    </section>
+
+    <section class="panel">
+      <h2>4. 식당별 그래프</h2>
+
+      <h3>상록회관</h3>
+      <p>학습 구간 기준 평균 33.1명, 상위 5% 수준은 92명, 0명 비율은 9.2%였습니다. 점심 평균은 43.1명, 저녁 평균은 36.8명이었습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/sangnok-5m.svg" alt="상록회관 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/sangnok-30m.svg" alt="상록회관 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/sangnok-60m.svg" alt="상록회관 60분 후 그래프"></div>
+
+      <h3>생활과학대</h3>
+      <p>학습 구간 기준 평균 20.5명, 상위 5% 수준은 88명, 0명 비율은 28.0%였습니다. 검증 구간에서는 지금 값을 그대로 쓰는 방식이 가장 잘 맞았습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/life_science-5m.svg" alt="생활과학대 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/life_science-30m.svg" alt="생활과학대 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/life_science-60m.svg" alt="생활과학대 60분 후 그래프"></div>
+
+      <h3>제1학생회관</h3>
+      <p>학습 구간 기준 평균 117.1명, 상위 5% 수준은 368명, 0명 비율은 0.1%였습니다. 현재 흐름을 강하게 이어가는 편이 더 잘 맞았습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_1-5m.svg" alt="제1학생회관 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_1-30m.svg" alt="제1학생회관 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_1-60m.svg" alt="제1학생회관 60분 후 그래프"></div>
+
+      <h3>제2학생회관</h3>
+      <p>학습 구간 기준 평균 59.8명, 상위 5% 수준은 172명, 0명 비율은 12.7%였습니다. 점심 피크가 뚜렷한 중간 규모 식당이었습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_2-5m.svg" alt="제2학생회관 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_2-30m.svg" alt="제2학생회관 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_2-60m.svg" alt="제2학생회관 60분 후 그래프"></div>
+
+      <h3>제3학생회관</h3>
+      <p>학습 구간 기준 평균 17.7명, 상위 5% 수준은 64명, 0명 비율은 26.1%였습니다. 시간이 멀어질수록 현재 차이를 더 빨리 줄여야 했습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_3-5m.svg" alt="제3학생회관 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_3-30m.svg" alt="제3학생회관 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/student_center_3-60m.svg" alt="제3학생회관 60분 후 그래프"></div>
+
+      <h3>학생생활관</h3>
+      <p>학습 구간 기준 평균 33.3명, 상위 5% 수준은 190명, 0명 비율은 56.1%였습니다. 저녁 비중이 더 높고 30분 후까지는 지금 값을 그대로 보는 편이 좋았습니다.</p>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/dormitory-5m.svg" alt="학생생활관 5분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/dormitory-30m.svg" alt="학생생활관 30분 후 그래프"></div>
+      <div class="graph"><img src="./congestion-restaurant-specific-graphs/dormitory-60m.svg" alt="학생생활관 60분 후 그래프"></div>
+    </section>
+
+    <section class="panel links">
+      <h2>5. 함께 보시면 좋은 파일</h2>
+      <ul>
+        <li><a href="./congestion-restaurant-specific-report.md">마크다운 보고서</a></li>
+        <li><a href="./congestion-restaurant-specific-series.csv">식당별 예측 시계열 CSV</a></li>
+        <li><a href="./congestion-restaurant-specific-graphs">식당별 그래프 폴더</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

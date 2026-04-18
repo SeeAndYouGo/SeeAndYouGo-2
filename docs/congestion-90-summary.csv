@@ -1,0 +1,8 @@
+section,name,old_mae,new_mae,old_within10,new_within10,old_decline_mae,new_decline_mae,selected_rule,season_mode
+overall,90min,18.5,18.0,61.1,61.2,16.6,15.9,peak_aware,mixed
+상록회관,90min,11.7,11.4,61.5,62.8,13.3,13.1,peak_r1.0_0.0_f0.8_0.0,season_aware
+생활과학대,90min,4.2,4.4,85.8,83.7,5.9,5.8,peak_r0.9_0.0_f0.7_0.0,season_aware
+제1학생회관,90min,36.0,35.8,38.7,38.1,29.0,29.7,peak_r1.0_0.4_f0.8_0.0,season_aware
+제2학생회관,90min,17.8,17.0,52.0,52.4,16.6,15.4,peak_r1.0_0.0_f0.7_0.0,season_aware
+제3학생회관,90min,13.6,12.9,69.4,69.5,13.0,10.1,peak_r1.0_0.0_f0.7_0.0,season_aware
+학생생활관,90min,32.6,31.3,58.5,60.4,4.3,4.7,peak_r0.4_0.4_f0.4_0.2,all_year

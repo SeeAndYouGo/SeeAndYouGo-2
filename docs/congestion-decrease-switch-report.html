@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>피크 이후 감소 보정 비교 보고서</title>
+  <style>
+    :root {
+      --bg: #f7f1e7;
+      --panel: #fffdfa;
+      --line: #e8dcc8;
+      --ink: #1f2933;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-soft: #ecfdf5;
+      --warn: #9a3412;
+      --warn-soft: #fff7ed;
+      --blue: #2563eb;
+      --orange: #d97706;
+      --green: #15803d;
+      --gray: #6b7280;
+      --shadow: rgba(63, 42, 12, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fff8ef 0, #f5efe5 40%, #eadfce 100%);
+      line-height: 1.68;
+    }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 20px 64px; }
+    .hero, .panel { background: var(--panel); border: 1px solid rgba(156, 120, 72, 0.18); border-radius: 24px; box-shadow: 0 14px 32px var(--shadow); }
+    .hero { padding: 32px; margin-bottom: 20px; }
+    .panel { padding: 24px; margin-top: 18px; }
+    h1, h2, h3 { margin: 0 0 10px; }
+    h1 { font-size: 36px; line-height: 1.25; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; margin-top: 14px; }
+    p { margin: 10px 0 0; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .lead { font-size: 17px; margin-top: 16px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+    .card { background: #fff; border: 1px solid #eee4d5; border-radius: 18px; padding: 18px; }
+    .label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .value { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1.2; }
+    .desc { margin-top: 8px; font-size: 14px; color: var(--muted); }
+    .warn { margin-top: 14px; padding: 16px 18px; border-radius: 18px; background: var(--warn-soft); border: 1px solid rgba(154, 52, 18, 0.14); }
+    .callout { margin-top: 14px; padding: 16px 18px; border-radius: 18px; background: var(--accent-soft); border: 1px solid rgba(15, 118, 110, 0.15); }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 14px; background: #fff; border-radius: 16px; overflow: hidden; }
+    th, td { border-bottom: 1px solid #f0e6d6; padding: 12px 14px; text-align: left; vertical-align: top; }
+    th { background: #fbf6ef; font-weight: 700; }
+    tr:last-child td { border-bottom: none; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .control { background: #fff; border: 1px solid #eee4d5; border-radius: 16px; padding: 14px; }
+    select { width: 100%; margin-top: 6px; padding: 10px 12px; border-radius: 12px; border: 1px solid #dbcdb5; background: #fffdfa; font: inherit; }
+    .legend-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .legend-btn { border: 1px solid #e5d8c2; background: #fff9f0; color: var(--ink); border-radius: 999px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+    .legend-btn.off { opacity: 0.45; text-decoration: line-through; background: #f3efe8; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+    .chart-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+    .chart-card { background: #fff; border: 1px solid #eee4d5; border-radius: 20px; padding: 18px; }
+    .metric-line { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    .chart-shell { border: 1px solid #eee4d5; border-radius: 16px; background: #fffdfa; padding: 10px; margin-top: 12px; overflow-x: auto; }
+    .chart-shell svg { width: 100%; height: auto; display: block; }
+    a { color: #7c3f00; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .small-note { margin-top: 18px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 960px) { .cards, .controls { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="meta">작성일 2026-04-04 · 기준 기간 2025-01-01 ~ 2025-12-31 · 검증 기간 2026-01-01 ~ 2026-03-27</div>
+      <h1>피크 이후 감소 보정 비교 보고서</h1>
+      <p class="lead">이번 비교는 피크 시간대가 지난 뒤, 예측값을 단순히 유지하거나 조금 줄이는 것이 아니라 <strong>과거 평균 감소량을 직접 반영해도 되는지</strong>를 확인하기 위한 작업입니다. 결론은 분명했습니다. <strong>5분 후에는 효과가 있었지만, 30분 후와 60분 후에는 오히려 너무 공격적으로 작동했습니다.</strong></p>
+      <div class="cards">
+        <div class="card">
+          <div class="label">5분 후</div>
+          <div class="value">3.6 → 3.4</div>
+          <div class="desc">피크 이후 평균 감소량을 직접 반영하는 방식이 가장 좋았습니다. 감소 구간 MAE도 `5.8 → 4.8`로 개선되었습니다.</div>
+        </div>
+        <div class="card">
+          <div class="label">30분 후</div>
+          <div class="value">10.8 → 11.0</div>
+          <div class="desc">직접 감소량을 빼는 방식은 오히려 전체 오차를 키웠습니다. 30분 후는 기존의 완만한 피크 인식 규칙이 더 안정적이었습니다.</div>
+        </div>
+        <div class="card">
+          <div class="label">60분 후</div>
+          <div class="value">15.6 → 16.0+</div>
+          <div class="desc">60분 후는 직접 감소 보정이 특히 과했습니다. 감소를 직접 넣기보다, 기존처럼 반영률을 줄여서 완만하게 낮추는 쪽이 더 적절했습니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>1. 비교한 방식</h2>
+      <table>
+        <thead>
+          <tr><th>방식</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>기존 규칙</td><td>`5분 후`는 `현재값 + 최근 변화량 10%`, `30분/60분 후`는 이전에 정한 `피크 인식 기반 완만한 반영률 조정 규칙`입니다.</td></tr>
+          <tr><td>피크만 사용</td><td>피크가 지났고 현재값이 평소보다 높고, 같은 조건의 과거 데이터에서 평균 감소량이 확인되면 그 감소량을 직접 적용합니다.</td></tr>
+          <tr><td>피크 + 하락 추세 확인</td><td>위 조건에 더해 최근 5분 기울기까지 실제로 꺾였을 때만 감소 보정을 적용합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>2. 전체 결과</h2>
+      <table>
+        <thead>
+          <tr><th>구간</th><th>기존 규칙 MAE</th><th>피크만 사용 MAE</th><th>피크+하락 추세 MAE</th><th>기존 감소 구간 MAE</th><th>피크만 사용 감소 MAE</th><th>피크+하락 추세 감소 MAE</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>5분 후</td><td>3.6</td><td>3.4</td><td>3.5</td><td>5.8</td><td>4.8</td><td>5.2</td></tr>
+          <tr><td>30분 후</td><td>10.8</td><td>11.0</td><td>10.9</td><td>11.1</td><td>12.0</td><td>11.4</td></tr>
+          <tr><td>60분 후</td><td>15.6</td><td>16.3</td><td>16.0</td><td>13.2</td><td>15.5</td><td>14.3</td></tr>
+        </tbody>
+      </table>
+      <div class="warn">
+        직접 감소량을 빼는 방식은 `5분 후`에는 도움이 되었지만, `30분 후`와 `60분 후`에는 전체적으로 너무 빠르게 내려가면서 오차를 키웠습니다. 따라서 최종 적용은 `5분 후만 감소 보정 채택`, `30분/60분 후는 기존 규칙 유지`가 적절합니다.
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. 날짜 선택 비교</h2>
+      <p>식당과 날짜를 선택하면 실제값과 함께 `기존 규칙`과 `감소 보정 규칙`을 직접 비교할 수 있습니다. 파란선은 실제값, 주황선은 기존 규칙, 초록선은 감소 보정 규칙, 회색선은 평소값입니다.</p>
+      <div class="controls">
+        <div class="control">
+          <strong>식당</strong>
+          <select id="restaurantSelect"></select>
+        </div>
+        <div class="control">
+          <strong>날짜</strong>
+          <select id="dateSelect"></select>
+        </div>
+        <div class="control">
+          <strong>읽는 방법</strong>
+          `5분 후`는 감소 보정이 실제로 도움이 되는지, `30분/60분 후`는 오히려 너무 일찍 내려가는지 확인하시면 됩니다.
+        </div>
+      </div>
+      <div class="legend-row">
+        <button class="legend-btn" data-key="actual"><span class="legend-dot" style="background:var(--blue);"></span>실제값</button>
+        <button class="legend-btn" data-key="old"><span class="legend-dot" style="background:var(--orange);"></span>기존 규칙</button>
+        <button class="legend-btn" data-key="new"><span class="legend-dot" style="background:var(--green);"></span>감소 보정 규칙</button>
+        <button class="legend-btn" data-key="baseline"><span class="legend-dot" style="background:var(--gray);"></span>평소값</button>
+      </div>
+      <div class="chart-grid" id="chartGrid"></div>
+      <p class="small-note">참고: 복날처럼 메뉴가 거의 고정되는 특수일은 이후 이벤트 플래그 규칙으로 따로 관리하는 편이 적절합니다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>4. 확인 파일</h2>
+      <ul>
+        <li><a href="./congestion-decrease-switch-report.md">마크다운 보고서</a></li>
+        <li><a href="./congestion-decrease-switch-summary.csv">비교 CSV</a></li>
+        <li><a href="./congestion-decrease-switch-viewer-data.js">날짜 선택용 데이터</a></li>
+        <li><a href="/D:/SeeAndYouGo-2/backend/tools/CongestionDecreaseSwitchStudy.java">분석 코드</a></li>
+      </ul>
+    </section>
+  </main>
+  <script src="./congestion-decrease-switch-viewer-data.js"></script>
+  <script>
+    (function () {
+      const data = window.CONGESTION_DECREASE_VIEWER_DATA;
+      const restaurantSelect = document.getElementById('restaurantSelect');
+      const dateSelect = document.getElementById('dateSelect');
+      const chartGrid = document.getElementById('chartGrid');
+      const visible = { actual: true, old: true, new: true, baseline: true };
+      const colors = { actual: '#2563eb', old: '#d97706', new: '#15803d', baseline: '#6b7280' };
+      const labels = { h5: '5분 후', h30: '30분 후', h60: '60분 후' };
+
+      function populateRestaurants() {
+        data.restaurants.forEach((restaurant) => {
+          const option = document.createElement('option');
+          option.value = restaurant;
+          option.textContent = restaurant;
+          restaurantSelect.appendChild(option);
+        });
+      }
+      function populateDates() {
+        dateSelect.innerHTML = '';
+        const restaurant = restaurantSelect.value;
+        const days = Object.keys(data.days[restaurant] || {});
+        days.forEach((day) => {
+          const option = document.createElement('option');
+          option.value = day;
+          option.textContent = day;
+          dateSelect.appendChild(option);
+        });
+        if (days.length > 0) dateSelect.value = days[days.length - 1];
+      }
+      function pathFor(points, key, min, max, width, height, pad) {
+        const plotW = width - pad.left - pad.right;
+        const plotH = height - pad.top - pad.bottom;
+        return points.map((point, index) => {
+          const x = pad.left + (points.length === 1 ? plotW / 2 : index * plotW / (points.length - 1));
+          const y = pad.top + plotH - ((point[key] - min) / (max - min || 1)) * plotH;
+          return (index === 0 ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
+        }).join('');
+      }
+      function chartSvg(points, title) {
+        const width = 1120;
+        const height = 320;
+        const pad = { left: 58, right: 24, top: 28, bottom: 42 };
+        const activeKeys = Object.keys(visible).filter((key) => visible[key]);
+        const values = [];
+        points.forEach((point) => activeKeys.forEach((key) => values.push(point[key])));
+        const min = Math.min.apply(null, values.length ? values : [0]);
+        const max = Math.max.apply(null, values.length ? values : [1]);
+        const bottom = height - pad.bottom;
+        const right = width - pad.right;
+        let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+        svg += `<text x="${pad.left}" y="18" fill="#14532d" font-size="18" font-family="Pretendard, Noto Sans KR, sans-serif">${title}</text>`;
+        for (let i = 0; i <= 4; i++) {
+          const value = min + (max - min) * i / 4;
+          const y = bottom - ((value - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
+          svg += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${right}" y2="${y.toFixed(1)}" stroke="#eee1cf" stroke-width="1"/>`;
+          svg += `<text x="${pad.left - 10}" y="${(y + 4).toFixed(1)}" fill="#6b7280" font-size="12" text-anchor="end" font-family="Pretendard, Noto Sans KR, sans-serif">${value.toFixed(1)}</text>`;
+        }
+        svg += `<line x1="${pad.left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#d7c6ad" stroke-width="1.2"/>`;
+        if (visible.actual) svg += `<path d="${pathFor(points, 'actual', min, max, width, height, pad)}" fill="none" stroke="${colors.actual}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.old) svg += `<path d="${pathFor(points, 'old', min, max, width, height, pad)}" fill="none" stroke="${colors.old}" stroke-width="3" stroke-dasharray="8 6" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.new) svg += `<path d="${pathFor(points, 'new', min, max, width, height, pad)}" fill="none" stroke="${colors.new}" stroke-width="3" stroke-dasharray="10 5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.baseline) svg += `<path d="${pathFor(points, 'baseline', min, max, width, height, pad)}" fill="none" stroke="${colors.baseline}" stroke-width="2.5" stroke-dasharray="3 5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        const tickEvery = Math.max(1, Math.floor(points.length / 8));
+        points.forEach((point, index) => {
+          if (index % tickEvery !== 0 && index !== points.length - 1) return;
+          const x = pad.left + (points.length === 1 ? (width - pad.left - pad.right) / 2 : index * (width - pad.left - pad.right) / (points.length - 1));
+          svg += `<text x="${x.toFixed(1)}" y="${height - 14}" fill="#6b7280" font-size="11" text-anchor="middle" font-family="Pretendard, Noto Sans KR, sans-serif">${point.time}</text>`;
+        });
+        svg += '</svg>';
+        return svg;
+      }
+      function mae(points, key) {
+        if (!points.length) return '0.0';
+        const sum = points.reduce((acc, point) => acc + Math.abs(point.actual - point[key]), 0);
+        return (sum / points.length).toFixed(1);
+      }
+      function renderCharts() {
+        const restaurant = restaurantSelect.value;
+        const date = dateSelect.value;
+        const day = data.days[restaurant] && data.days[restaurant][date];
+        chartGrid.innerHTML = '';
+        if (!day) return;
+        [['h5', day.h5], ['h30', day.h30], ['h60', day.h60]].forEach(([key, points]) => {
+          const card = document.createElement('div');
+          card.className = 'chart-card';
+          const title = document.createElement('h3');
+          title.textContent = labels[key];
+          const metrics = document.createElement('div');
+          metrics.className = 'metric-line';
+          metrics.textContent = `기존 규칙 MAE ${mae(points, 'old')} · 감소 보정 규칙 MAE ${mae(points, 'new')}`;
+          const shell = document.createElement('div');
+          shell.className = 'chart-shell';
+          shell.innerHTML = chartSvg(points, `${restaurant} · ${date} · ${labels[key]}`);
+          card.appendChild(title);
+          card.appendChild(metrics);
+          card.appendChild(shell);
+          chartGrid.appendChild(card);
+        });
+      }
+      document.querySelectorAll('.legend-btn[data-key]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.key;
+          visible[key] = !visible[key];
+          btn.classList.toggle('off', !visible[key]);
+          renderCharts();
+        });
+      });
+      restaurantSelect.addEventListener('change', () => { populateDates(); renderCharts(); });
+      dateSelect.addEventListener('change', renderCharts);
+      populateRestaurants();
+      restaurantSelect.value = data.restaurants[0];
+      populateDates();
+      renderCharts();
+    }());
+  </script>
+</body>
+</html>

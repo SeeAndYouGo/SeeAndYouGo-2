@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생식당 혼잡도 예측 적용 제안서</title>
+  <style>
+    :root {
+      --paper: #fffdfa;
+      --ink: #1f2933;
+      --muted: #667085;
+      --line: #e8dcc8;
+      --accent: #14532d;
+      --accent-soft: #eefbf2;
+      --warn: #9a3412;
+      --warn-soft: #fff6ef;
+      --shadow: rgba(37, 31, 23, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      line-height: 1.7;
+      background: radial-gradient(circle at top left, #fffaf2 0%, #f6f3ec 42%, #eee4d3 100%);
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 64px;
+    }
+    .hero, .panel {
+      background: var(--paper);
+      border: 1px solid rgba(150, 118, 73, 0.16);
+      border-radius: 24px;
+      box-shadow: 0 16px 34px var(--shadow);
+    }
+    .hero {
+      padding: 34px;
+      margin-bottom: 18px;
+    }
+    .panel {
+      padding: 24px;
+      margin-top: 18px;
+    }
+    h1, h2, h3 {
+      margin: 0 0 10px;
+      color: var(--ink);
+    }
+    h1 {
+      font-size: 38px;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+    }
+    h2 {
+      font-size: 25px;
+      line-height: 1.3;
+    }
+    h3 {
+      font-size: 18px;
+      margin-top: 12px;
+    }
+    p { margin: 10px 0 0; }
+    .meta, .small-note, .footer-note {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .lead {
+      font-size: 18px;
+      margin-top: 14px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fbf4ea;
+      border: 1px solid #efdfc6;
+      font-size: 13px;
+      color: #6b4f2e;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #efe4d2;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .desc {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .box {
+      background: #fff;
+      border: 1px solid #efe4d2;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .callout {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(20, 83, 45, 0.14);
+    }
+    .warn {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: var(--warn-soft);
+      border: 1px solid rgba(154, 52, 18, 0.14);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f1e6d7;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #fbf6ef;
+      font-weight: 700;
+    }
+    tr:last-child td { border-bottom: none; }
+    code {
+      background: #f6efe4;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+    li + li { margin-top: 6px; }
+    a {
+      color: #7c3f00;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    .selector-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      margin-bottom: 14px;
+    }
+    .selector-btn {
+      border: 1px solid #ead7bd;
+      background: #fff8ef;
+      color: #6d3c10;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .selector-btn.active {
+      background: #eefbf2;
+      color: #14532d;
+      border-color: rgba(20, 83, 45, 0.24);
+      font-weight: 700;
+    }
+    .viewer {
+      background: #fff;
+      border: 1px solid #efe4d2;
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .viewer-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .viewer-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .viewer-sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .viewer-link {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #ead7bd;
+      background: #fff8ef;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+    .viewer-shell {
+      border: 1px solid #eee4d5;
+      border-radius: 16px;
+      background: #fffdfa;
+      overflow: hidden;
+    }
+    .viewer-shell img {
+      width: 100%;
+      display: block;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #ead7bd;
+      background: #fff8ef;
+      color: #6d3c10;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .btn:hover { background: #fff2e1; }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .control {
+      background: #fff;
+      border: 1px solid #eee4d5;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    select {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #dbcdb5;
+      background: #fffdfa;
+      font: inherit;
+    }
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .legend-btn {
+      border: 1px solid #e5d8c2;
+      background: #fff9f0;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .legend-btn.off {
+      opacity: 0.45;
+      background: #f3efe8;
+    }
+    .legend-btn.active {
+      background: #eefbf2;
+      color: #14532d;
+      border-color: rgba(20, 83, 45, 0.24);
+      font-weight: 700;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .chart-card {
+      background: #fff;
+      border: 1px solid #eee4d5;
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .metric-line {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+    .chart-shell {
+      border: 1px solid #eee4d5;
+      border-radius: 16px;
+      background: #fffdfa;
+      padding: 10px;
+      margin-top: 12px;
+      overflow-x: auto;
+    }
+    .chart-shell svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    @media (max-width: 980px) {
+      .cards, .grid-2, .controls { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 720px) {
+      .cards, .grid-2, .controls { grid-template-columns: 1fr; }
+      .hero, .panel { padding: 20px; }
+      h1 { font-size: 30px; }
+      h2 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="meta">작성일 2026-04-05 · 규칙 기준 데이터 2025-01-01 ~ 2025-12-31 · 검증 데이터 2026-01-01 ~ 2026-03-27</div>
+      <h1>학생식당 혼잡도 예측 적용 제안서</h1>
+      <p class="lead">본 문서는 학생식당 혼잡도 예측을 서비스에 어떻게 적용하면 좋을지 설명하기 위한 보고서입니다. 복잡한 모델 설명보다, 제3자가 바로 이해할 수 있는 운영 규칙과 그 근거를 짧고 분명하게 정리하는 데 목적이 있습니다.</p>
+      <div class="chips">
+        <span class="chip">질문 1. 평균값은 어떤 기준으로 계산해야 하는가</span>
+        <span class="chip">질문 2. 시즌성은 어디까지 공통 적용할 것인가</span>
+        <span class="chip">질문 3. 30분 · 60분 · 90분 후는 어떻게 나눠서 볼 것인가</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="label">이번 문서의 운영 원칙</div>
+          <div class="value">학생생활관 제외 시즌성 공통 반영</div>
+          <div class="desc">운영 단순성과 설명 편의성을 위해, 학생생활관을 제외한 식당에는 시즌성 평균을 공통 기준으로 적용하는 안으로 정리했습니다.</div>
+        </div>
+        <div class="card">
+          <div class="label">시즌성 평균 효과</div>
+          <div class="value">31.1 → 25.8</div>
+          <div class="desc">30분 후 평소값만 비교했을 때, 시즌을 나누면 평균 오차가 크게 줄었습니다.</div>
+        </div>
+        <div class="card">
+          <div class="label">최종 규칙 효과</div>
+          <div class="value">15.6 → 15.1</div>
+          <div class="desc">60분 후 최종 규칙에서도 시즌성 반영이 전체 기준으로 개선을 만들었습니다.</div>
+        </div>
+        <div class="card">
+          <div class="label">주의 식당</div>
+          <div class="value">상록회관 · 제3학생회관</div>
+          <div class="desc">두 식당은 시즌성 적용 시 소폭 또는 중간 수준의 손해가 있어, 운영 반영 후 모니터링 대상으로 두는 것이 좋습니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>1. 먼저 알아둘 용어</h2>
+      <div class="grid-2">
+        <div class="box">
+          <h3>MAE</h3>
+          <p><code>MAE</code>는 예측값과 실제값이 평균적으로 몇 명 차이 나는지를 뜻합니다. 숫자가 작을수록 실제값에 더 가깝습니다.</p>
+          <p>예를 들어 <code>MAE 10</code>이면, 예측이 실제와 평균 10명 정도 차이 난다는 뜻입니다.</p>
+        </div>
+        <div class="box">
+          <h3>평소값</h3>
+          <p>평소값은 <code>같은 식당 + 같은 요일 + 같은 시간대</code>의 평균 인원입니다. 이번 제안에서는 여기에 <code>같은 시즌</code>을 먼저 붙이는 방식을 기본으로 봤습니다.</p>
+          <p>예를 들어 2026년 3월 수요일 12시 30분 제1학생회관을 예측할 때는, 2025년 <code>3~6월</code> 수요일 12시 30분 제1학생회관 데이터를 우선 참고합니다.</p>
+        </div>
+      </div>
+      <div class="callout">
+        평소값은 단순한 전체 평균이 아닙니다. 예측하려는 날짜와 비슷한 조건의 과거 데이터를 모아 만든 기준값입니다.
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. 왜 시즌성을 넣어야 하는가</h2>
+      <p>학생식당은 학기 중과 방학의 이용 패턴이 다릅니다. 따라서 모든 과거 데이터를 한 번에 섞어 평균을 내면, 실제보다 높거나 낮게 잡히는 경우가 생깁니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>시즌 구간</th>
+            <th>의미</th>
+            <th>평균값 계산 시 우선 참고하는 데이터</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1~2월</td>
+            <td>겨울 비수기</td>
+            <td>1~2월의 같은 식당, 같은 요일, 같은 시간대</td>
+          </tr>
+          <tr>
+            <td>3~6월</td>
+            <td>1학기</td>
+            <td>3~6월의 같은 식당, 같은 요일, 같은 시간대</td>
+          </tr>
+          <tr>
+            <td>7~8월</td>
+            <td>여름 비수기</td>
+            <td>7~8월의 같은 식당, 같은 요일, 같은 시간대</td>
+          </tr>
+          <tr>
+            <td>9~12월</td>
+            <td>2학기</td>
+            <td>9~12월의 같은 식당, 같은 요일, 같은 시간대</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">같은 시즌 데이터가 너무 적으면, 전체 기간의 같은 요일·같은 시간대 평균으로 보완하는 방식이 적절합니다.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>비교 항목</th>
+            <th>기존 기준 MAE</th>
+            <th>개선 기준 MAE</th>
+            <th>해석</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>30분 후 평소값만 사용</td>
+            <td>31.1</td>
+            <td>25.8</td>
+            <td>시즌을 나누면 평균값 자체가 훨씬 현실에 가까워졌습니다.</td>
+          </tr>
+          <tr>
+            <td>60분 후 평소값만 사용</td>
+            <td>31.9</td>
+            <td>26.4</td>
+            <td>시간이 멀어질수록 시즌성 반영 효과가 더 분명했습니다.</td>
+          </tr>
+          <tr>
+            <td>30분 후 최종 규칙</td>
+            <td>10.8</td>
+            <td>10.6</td>
+            <td>최종 규칙에도 소폭이지만 실제 개선이 있었습니다.</td>
+          </tr>
+          <tr>
+            <td>60분 후 최종 규칙</td>
+            <td>15.6</td>
+            <td>15.1</td>
+            <td>60분 후 예측은 시즌성 반영 시 더 안정적이었습니다.</td>
+          </tr>
+          <tr>
+            <td>90분 후 최종 규칙</td>
+            <td>18.5</td>
+            <td>18.0</td>
+            <td>90분 후 예측도 평소값 복귀를 강하게 보면 소폭 개선됐습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        결론적으로, 평균값은 모든 과거 데이터를 한 번에 섞기보다 예측 대상 날짜와 같은 시즌의 데이터를 우선 쓰는 편이 맞습니다.
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. 이번 문서의 운영 기준</h2>
+      <p>정확도만 최우선으로 보면 식당별 예외를 더 많이 둘 수 있습니다. 다만 운영 단계에서는 규칙이 너무 많아지면 설명과 유지보수가 어려워집니다. 따라서 이번 문서에서는 <strong>운영 통일성</strong>을 우선해 아래 기준으로 정리했습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>기준</th>
+            <th>선택 이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>학생생활관 제외 전 식당</td>
+            <td>시즌성 평균 사용</td>
+            <td>대부분의 식당에서 도움이 되었고, 설명도 가장 쉽습니다.</td>
+          </tr>
+          <tr>
+            <td>학생생활관</td>
+            <td>전 기간 평균 유지</td>
+            <td>시즌성 효과가 거의 없고, 식당 자체 패턴이 더 강했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>식당</th>
+            <th>60분 후 MAE 변화</th>
+            <th>이번 문서의 적용 방향</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>생활과학대</td>
+            <td>4.4 → 3.2</td>
+            <td>시즌성 적용</td>
+            <td>개선 폭이 큽니다.</td>
+          </tr>
+          <tr>
+            <td>제1학생회관</td>
+            <td>32.1 → 28.5</td>
+            <td>시즌성 적용</td>
+            <td>개선 폭이 큽니다.</td>
+          </tr>
+          <tr>
+            <td>제2학생회관</td>
+            <td>16.9 → 15.7</td>
+            <td>시즌성 적용</td>
+            <td>개선이 확인됐습니다.</td>
+          </tr>
+          <tr>
+            <td>상록회관</td>
+            <td>9.3 → 9.5</td>
+            <td>시즌성 적용</td>
+            <td>손해 폭이 작아 운영 통일안에서는 포함합니다.</td>
+          </tr>
+          <tr>
+            <td>제3학생회관</td>
+            <td>7.8 → 10.5</td>
+            <td>시즌성 적용</td>
+            <td>손해 폭이 상대적으로 있어 모니터링이 필요합니다.</td>
+          </tr>
+          <tr>
+            <td>학생생활관</td>
+            <td>27.5 → 27.5</td>
+            <td>시즌성 미적용</td>
+            <td>기존 단순 규칙 유지가 적절합니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn">
+        상록회관과 제3학생회관은 시즌성 적용 시 손해가 있습니다. 다만 이번 문서에서는 운영 기준을 통일하는 쪽을 우선했습니다. 두 식당은 실제 반영 후 주간 단위로 오차를 확인하는 모니터링 대상으로 두는 것이 좋습니다.
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>4. 시간대별 최종 적용 방향</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>예측 범위</th>
+            <th>먼저 보는 값</th>
+            <th>추가로 보는 값</th>
+            <th>적용 방향</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>30분 후</td>
+            <td>30분 뒤 평소값</td>
+            <td>지금이 평소보다 얼마나 많은지 또는 적은지</td>
+            <td>목표 시점의 평소값을 기본으로 두고, 현재 차이는 일부만 가져갑니다.</td>
+          </tr>
+          <tr>
+            <td>60분 후</td>
+            <td>60분 뒤 평소값</td>
+            <td>현재 차이, 피크 이후 여부</td>
+            <td>30분 후보다 더 강하게 평소값 쪽으로 되돌아가게 봅니다.</td>
+          </tr>
+          <tr>
+            <td>90분 후</td>
+            <td>90분 뒤 평소값</td>
+            <td>현재 차이, 피크 이후 여부</td>
+            <td>더 먼 미래이므로 현재 상태보다 평소 흐름 복귀를 더 강하게 보는 편이 적절했습니다. 전체 MAE는 18.5에서 18.0으로 소폭 개선됐습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="grid-2">
+        <div class="box">
+          <h3>30분 후</h3>
+          <ul>
+            <li>목표 시점의 평소값을 먼저 봅니다.</li>
+            <li>현재가 평소보다 많거나 적으면 그 차이를 일부 반영합니다.</li>
+            <li>현재 상황이 아직 영향을 줄 가능성이 있어 60분 후보다 현재 차이를 더 크게 반영합니다.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>60분 · 90분 후</h3>
+          <ul>
+            <li>시간이 멀어질수록 현재값만 끌고 가면 늦게 반응하는 문제가 생깁니다.</li>
+            <li>따라서 목표 시점의 평소값을 먼저 봐야 합니다.</li>
+            <li>60분 후는 현재 차이를 중간 정도만 반영합니다.</li>
+            <li>90분 후는 현재 상태보다 평소 흐름으로 돌아가는 쪽을 더 강하게 봅니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>4.1. 60분 후 예측값 산출 예시</h2>
+      <p>60분 후 예측은 “60분 뒤 평소값”에 “현재가 평소보다 얼마나 다른지”를 일부 더하는 방식입니다.</p>
+      <div class="callout">
+        60분 후 예측값 = 60분 뒤 평소값 + (현재값 - 현재 시점 평소값) × 현재 차이 반영률
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>예시 값</th>
+            <th>의미</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>현재값</td>
+            <td>80명</td>
+            <td>지금 식당에 있는 인원입니다.</td>
+          </tr>
+          <tr>
+            <td>현재 시점 평소값</td>
+            <td>60명</td>
+            <td>같은 식당 · 같은 요일 · 같은 시간 · 같은 시즌의 평균입니다.</td>
+          </tr>
+          <tr>
+            <td>60분 뒤 평소값</td>
+            <td>45명</td>
+            <td>예측하려는 시각의 과거 평균입니다.</td>
+          </tr>
+          <tr>
+            <td>현재 차이</td>
+            <td>20명</td>
+            <td>현재값 80명 - 현재 평소값 60명입니다.</td>
+          </tr>
+          <tr>
+            <td>현재 차이 반영률</td>
+            <td>0.4</td>
+            <td>현재의 특이 상황을 40%만 60분 뒤에 반영합니다.</td>
+          </tr>
+          <tr>
+            <td>최종 예측값</td>
+            <td>53명</td>
+            <td>45 + 20 × 0.4 = 53명입니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">위 숫자는 설명용 예시입니다. 실제 반영률은 식당과 예측 범위별 검증 결과를 기준으로 조정합니다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>4.2. 90분 후 혼잡도 예측 방법</h2>
+      <p>90분 후 혼잡도 예측은 현재 시점으로부터 먼 미래를 예측하는 것이므로, 현재의 일시적인 변화보다는 장기적인 '평소 흐름'으로의 복귀에 강하게 중점을 둡니다.</p>
+      <ul>
+        <li><strong>주요 기준:</strong> 90분 뒤의 '평소값'을 가장 중요한 기준으로 삼습니다. '평소값'은 <strong>같은 식당, 같은 요일, 같은 시간대, 그리고 같은 시즌</strong>의 과거 데이터를 기반으로 계산됩니다.</li>
+        <li><strong>시즌성 반영:</strong> 학생식당의 이용 패턴은 학기 중과 방학에 따라 크게 달라지므로, 예측의 정확도를 높이기 위해 시즌을 구분하여 평소값을 산정합니다. (예: 1-2월 겨울 비수기, 3-6월 1학기, 7-8월 여름 비수기, 9-12월 2학기)</li>
+        <li><strong>보조적 고려 사항:</strong> 현재의 혼잡도 차이와 피크 시간 이후 여부도 보조적으로 고려하지만, 예측 시점이 멀기 때문에 이 요소들의 영향력은 상대적으로 약하게 반영됩니다.</li>
+        <li><strong>예측 방향:</strong> 현재 상태의 급격한 변화를 그대로 반영하기보다는, 목표 시점의 평소값으로 천천히 되돌아가는 경향을 더 강하게 예측합니다. 이는 먼 미래 예측의 안정성을 높이는 데 기여하며, 실제 검증 결과 전체 MAE가 18.5에서 18.0으로 소폭 개선되었습니다.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>5. 후보별 채택 여부</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>후보</th>
+            <th>채택 여부</th>
+            <th>이유</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>같은 요일 · 같은 시간대 평균</td>
+            <td>채택</td>
+            <td>가장 기본이 되는 평소값입니다.</td>
+          </tr>
+          <tr>
+            <td>같은 시즌 · 같은 요일 · 같은 시간대 평균</td>
+            <td>채택</td>
+            <td>특히 30분·60분 후에서 평균값 자체가 더 좋아졌습니다.</td>
+          </tr>
+          <tr>
+            <td>학생생활관 제외 시즌성 공통 적용</td>
+            <td>채택</td>
+            <td>운영 단순성과 설명 편의성을 우선한 기준입니다.</td>
+          </tr>
+          <tr>
+            <td>피크 이후 감소 허용</td>
+            <td>부분 채택</td>
+            <td>30분·60분 직접 감소는 과했으므로, 평소값 복귀 방식 안에서만 보조적으로 봅니다.</td>
+          </tr>
+          <tr>
+            <td>같은 메인메뉴 기준</td>
+            <td>비채택</td>
+            <td>적용 가능한 구간이 약 7% 수준으로 적었습니다.</td>
+          </tr>
+          <tr>
+            <td>피크 이후 평균 감소량 직접 차감</td>
+            <td>비채택</td>
+            <td>30분 후 10.8 → 11.0, 60분 후 15.6 → 16.3으로 오히려 악화됐습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>6. 식당별 최종 적용안</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>식당</th>
+            <th>평균값 기준</th>
+            <th>30분 후</th>
+            <th>60분 후</th>
+            <th>90분 후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>상록회관</td>
+            <td>시즌성 평균</td>
+            <td>시즌 평소값 + 현재 차이 크게 반영</td>
+            <td>시즌 평소값 + 현재 차이 중간 반영</td>
+            <td>시즌 평소값 + 현재 차이 약하게 반영</td>
+          </tr>
+          <tr>
+            <td>생활과학대</td>
+            <td>시즌성 평균</td>
+            <td>시즌 평소값 중심</td>
+            <td>시즌 평소값 중심</td>
+            <td>시즌 평소값 중심</td>
+          </tr>
+          <tr>
+            <td>제1학생회관</td>
+            <td>시즌성 평균</td>
+            <td>시즌 평소값 + 현재 차이 크게 반영</td>
+            <td>시즌 평소값 + 현재 차이 중간 반영</td>
+            <td>시즌 평소값 + 현재 차이 약하게 반영</td>
+          </tr>
+          <tr>
+            <td>제2학생회관</td>
+            <td>시즌성 평균</td>
+            <td>시즌 평소값 + 현재 차이 크게 반영</td>
+            <td>시즌 평소값 + 현재 차이 중간 반영</td>
+            <td>시즌 평소값 + 현재 차이 약하게 반영</td>
+          </tr>
+          <tr>
+            <td>제3학생회관</td>
+            <td>시즌성 평균</td>
+            <td>시즌 평소값 + 현재 차이 크게 반영</td>
+            <td>시즌 평소값 + 현재 차이 중간 반영</td>
+            <td>시즌 평소값 + 현재 차이 약하게 반영</td>
+          </tr>
+          <tr>
+            <td>학생생활관</td>
+            <td>전 기간 평균</td>
+            <td>전 기간 평소값 + 현재 차이 약하게 반영</td>
+            <td>전 기간 평소값 + 현재 차이 더 약하게 반영</td>
+            <td>전 기간 평소값 중심</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="small-note">정확한 반영 비율은 식당별로 다르지만, 공유용 운영 원칙 수준에서는 위와 같이 정리하는 것이 가장 이해하기 쉽습니다.</p>
+    </section>
+
+    <section class="panel"> 
+      <h2>7. 대표 그래프</h2>
+      <p>아래에서 식당과 날짜를 직접 고르면 해당 날짜의 실제값, 기존 규칙, 개선 규칙, 평소값을 30분·60분·90분 후 기준으로 비교할 수 있습니다. 범례 버튼은 여러 개를 동시에 선택할 수 있습니다.</p>
+      <div class="controls">
+        <div class="control">
+          <strong>식당</strong>
+          <select id="restaurantSelect"></select>
+        </div>
+        <div class="control">
+          <strong>날짜</strong>
+          <select id="dateSelect"></select>
+        </div>
+        <div class="control">
+          <strong>읽는 방법</strong>
+          파란선은 실제값, 주황선은 기존 규칙, 초록선은 개선 규칙, 회색선은 평소값입니다.
+        </div>
+      </div>
+      <div class="legend-row">
+        <button class="legend-btn" data-mode="all">전체 보기</button>
+        <button class="legend-btn" data-key="actual"><span class="legend-dot" style="background:#2563eb;"></span>실제값</button>
+        <button class="legend-btn" data-key="old"><span class="legend-dot" style="background:#d97706;"></span>기존 규칙</button>
+        <button class="legend-btn" data-key="new"><span class="legend-dot" style="background:#15803d;"></span>개선 규칙</button>
+        <button class="legend-btn" data-key="baseline"><span class="legend-dot" style="background:#6b7280;"></span>평소값</button>
+      </div>
+      <div class="chart-grid" id="chartGrid"></div>
+      <div class="links">
+        <a class="btn" href="./congestion-lag-aware-report.html">세부 검증 화면 보기</a>
+        <a class="btn" href="./congestion-decrease-switch-report.html">감소 보정 비교 보기</a>
+        <a class="btn" href="./congestion-2026-validation-report.html">기존 2026 검증 보고서 보기</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>8. 최종 정리</h2>
+      <div class="callout">
+        가장 단순하고 설명하기 쉬운 방향은 다음과 같습니다. 평균값은 학생생활관을 제외하고 시즌성을 반영해서 계산하고, 30분·60분·90분 후는 목표 시점의 평소값을 먼저 본 뒤 현재 차이를 일부만 가져가는 방식입니다. 상록회관과 제3학생회관은 시즌성 적용 시 손해가 있으므로, 통일 기준으로 적용하되 모니터링 식당으로 관리하는 것이 좋습니다.
+      </div>
+      <p class="footer-note">참고 메모: 복날처럼 메뉴가 거의 고정되는 특수일은 이후 별도 이벤트 플래그나 예외 규칙으로 추가 검토할 수 있습니다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>9. 식당별 예측 공식 요약</h2>
+      <p>각 식당의 혼잡도 예측은 '평균값 기준'과 '예측 범위'에 따라 다음과 같은 규칙을 따릅니다. '평소값'은 <strong>같은 식당, 같은 요일, 같은 시간대, 그리고 같은 시즌(학생생활관 제외)</strong>의 과거 데이터를 기반으로 합니다.</p>
+
+      <h3>공통 정의</h3>
+      <ul>
+        <li><strong>평소값:</strong> 같은 식당, 같은 요일, 같은 시간대, 그리고 같은 시즌(학생생활관 제외)의 과거 데이터를 기반으로 계산된 평균 인원.</li>
+        <li><strong>현재 흐름 중심:</strong> 현재의 혼잡도 값을 기본으로 보되, 최근 변화량(예: 10%)이나 피크 이후 감소 허용 등의 보정을 적용.</li>
+        <li><strong>현재 차이 반영:</strong> 목표 시점의 평소값에 현재 시점의 혼잡도와 평소값 간의 차이(현재 편차)를 더하여 예측값을 보정.</li>
+      </ul>
+
+      <h3>운영 파라미터</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>파라미터</th>
+            <th>권장 초기값</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>시즌 구간</td>
+            <td>1~2월, 3~6월, 7~8월, 9~12월</td>
+            <td>평소값을 계산할 때 과거 데이터를 나누는 기준입니다.</td>
+          </tr>
+          <tr>
+            <td>30분 현재 차이 반영률</td>
+            <td>크게 반영</td>
+            <td>현재 상황이 아직 이어질 가능성을 비교적 크게 봅니다.</td>
+          </tr>
+          <tr>
+            <td>60분 현재 차이 반영률</td>
+            <td>중간 반영</td>
+            <td>현재 상황과 평소 흐름을 절충합니다.</td>
+          </tr>
+          <tr>
+            <td>90분 현재 차이 반영률</td>
+            <td>약하게 반영 또는 평소값 중심</td>
+            <td>시간이 멀어질수록 현재 상황보다 평소 흐름을 더 중요하게 봅니다.</td>
+          </tr>
+          <tr>
+            <td>학생생활관 평균 기준</td>
+            <td>전 기간 평균</td>
+            <td>검증 결과상 시즌성 이득이 크지 않아 단순 기준을 유지합니다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>개념적 적용 (반영률)</h3>
+      <ul>
+        <li><strong>크게 반영:</strong> 현재 편차의 영향력을 높게 가져가, 현재 상황 변화에 민감하게 반응합니다.</li>
+        <li><strong>중간 반영:</strong> 현재 편차의 영향력을 중간 수준으로 가져가, 평소값과 현재 상황 변화를 균형 있게 고려합니다.</li>
+        <li><strong>약하게 반영 / 더 약하게 반영:</strong> 현재 편차의 영향력을 낮게 가져가, 평소값으로의 회귀 경향을 강하게 유지합니다.</li>
+        <li><strong>중심:</strong> 현재 편차의 영향력을 거의 가져가지 않고, 평소값에 거의 전적으로 의존합니다.</li>
+      </ul>
+
+      <h3>상록회관, 제1학생회관, 제2학생회관, 제3학생회관 (시즌성 평균 적용)</h3>
+      <ul>
+        <li><strong>평균값 기준:</strong> 시즌성 평균</li>
+        <li><strong>30분 후 예측:</strong> 시즌 평소값 + 현재 차이 크게 반영</li>
+        <li><strong>60분 후 예측:</strong> 시즌 평소값 + 현재 차이 중간 반영</li>
+        <li><strong>90분 후 예측:</strong> 시즌 평소값 + 현재 차이 약하게 반영</li>
+      </ul>
+
+      <h3>생활과학대 (시즌성 평균 적용)</h3>
+      <ul>
+        <li><strong>평균값 기준:</strong> 시즌성 평균</li>
+        <li><strong>30분 후 예측:</strong> 시즌 평소값 중심</li>
+        <li><strong>60분 후 예측:</strong> 시즌 평소값 중심</li>
+        <li><strong>90분 후 예측:</strong> 시즌 평소값 중심</li>
+      </ul>
+
+      <h3>학생생활관 (전 기간 평균 적용)</h3>
+      <ul>
+        <li><strong>평균값 기준:</strong> 전 기간 평균</li>
+        <li><strong>30분 후 예측:</strong> 전 기간 평소값 + 현재 차이 약하게 반영</li>
+        <li><strong>60분 후 예측:</strong> 전 기간 평소값 + 현재 차이 더 약하게 반영</li>
+        <li><strong>90분 후 예측:</strong> 전 기간 평소값 중심</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>10. DB 연동 프로젝트 제안</h2>
+      <p>정적 HTML에 DB 접속 정보를 직접 넣는 방식은 권장하지 않습니다. 브라우저에 DB 주소와 계정이 노출되기 때문입니다. 실제 프로젝트에서는 백엔드가 DB를 조회하고, 프론트엔드는 백엔드 API만 호출하는 구조가 안전합니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>구성</th>
+            <th>역할</th>
+            <th>초기 구현 범위</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DB</td>
+            <td>실제 혼잡도, 식당, 메뉴, 시간대 데이터 저장</td>
+            <td>기존 MySQL 사용</td>
+          </tr>
+          <tr>
+            <td>백엔드 API</td>
+            <td>평소값 계산, 30·60·90분 예측값 계산, 결과 반환</td>
+            <td><code>/api/congestion/predictions</code> 형태로 시작</td>
+          </tr>
+          <tr>
+            <td>프론트엔드</td>
+            <td>식당과 날짜 선택, 그래프 표시, 파라미터 표시</td>
+            <td>현재 HTML 화면을 API 기반 화면으로 전환</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        우선은 “식당 + 기준 시각”을 입력하면 현재값, 현재 평소값, 30분 뒤 평소값, 60분 뒤 평소값, 90분 뒤 평소값, 각 예측값, 적용 파라미터를 함께 반환하는 API부터 만드는 것이 좋습니다.
+      </div>
+    </section>
+  </main>
+    <script src="./congestion-lag-aware-viewer-data.js"></script>
+  <script src="./congestion-90-viewer-data.js"></script>
+  <script>
+    (function () {
+      const base = window.CONGESTION_LAG_VIEWER_DATA;
+      const extra = window.CONGESTION_90_VIEWER_DATA;
+      const merged = { restaurants: base.restaurants.slice(), days: {} };
+      merged.restaurants.forEach((restaurant) => {
+        const baseDays = (base.days && base.days[restaurant]) || {};
+        const extraDays = (extra.days && extra.days[restaurant]) || {};
+        const dates = Array.from(new Set(Object.keys(baseDays).concat(Object.keys(extraDays)))).sort();
+        merged.days[restaurant] = {};
+        dates.forEach((date) => {
+          const left = baseDays[date] || { restaurant, date, h5: [], h30: [], h60: [] };
+          const right = extraDays[date] || { restaurant, date, h90: [] };
+          merged.days[restaurant][date] = {
+            restaurant,
+            date,
+            h5: left.h5 || [],
+            h30: left.h30 || [],
+            h60: left.h60 || [],
+            h90: right.h90 || []
+          };
+        });
+      });
+
+      const restaurantSelect = document.getElementById('restaurantSelect');
+      const dateSelect = document.getElementById('dateSelect');
+      const chartGrid = document.getElementById('chartGrid');
+      const visible = { actual: true, old: true, new: true, baseline: true };
+      const colors = { actual: '#2563eb', old: '#d97706', new: '#15803d', baseline: '#6b7280' };
+      const labels = { h5: '5분 후', h30: '30분 후', h60: '60분 후', h90: '90분 후' };
+
+      function setAllVisible() {
+        Object.keys(visible).forEach((key) => {
+          visible[key] = true;
+        });
+      }
+
+      function toggleVisibility(key) {
+        visible[key] = !visible[key];
+        if (!Object.keys(visible).some((name) => visible[name])) {
+          visible[key] = true;
+        }
+      }
+
+      function syncLegendButtons() {
+        const allBtn = document.querySelector('.legend-btn[data-mode="all"]');
+        const isAll = Object.keys(visible).every((key) => visible[key]);
+        if (allBtn) {
+          allBtn.classList.toggle('active', isAll);
+          allBtn.classList.toggle('off', !isAll);
+        }
+        document.querySelectorAll('.legend-btn[data-key]').forEach((btn) => {
+          const key = btn.dataset.key;
+          btn.classList.toggle('active', visible[key]);
+          btn.classList.toggle('off', !visible[key]);
+        });
+      }
+
+      function populateRestaurants() {
+        merged.restaurants.forEach((restaurant) => {
+          const option = document.createElement('option');
+          option.value = restaurant;
+          option.textContent = restaurant;
+          restaurantSelect.appendChild(option);
+        });
+      }
+
+      function populateDates() {
+        dateSelect.innerHTML = '';
+        const restaurant = restaurantSelect.value;
+        const days = Object.keys((merged.days && merged.days[restaurant]) || {});
+        days.forEach((day) => {
+          const option = document.createElement('option');
+          option.value = day;
+          option.textContent = day;
+          dateSelect.appendChild(option);
+        });
+        if (days.length > 0) dateSelect.value = days[days.length - 1];
+      }
+
+      function pathFor(points, key, min, max, width, height, pad) {
+        const plotW = width - pad.left - pad.right;
+        const plotH = height - pad.top - pad.bottom;
+        return points.map((point, index) => {
+          const x = pad.left + (points.length === 1 ? plotW / 2 : index * plotW / (points.length - 1));
+          const y = pad.top + plotH - ((point[key] - min) / (max - min || 1)) * plotH;
+          return (index === 0 ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
+        }).join('');
+      }
+
+      function chartSvg(points, title) {
+        const width = 1120;
+        const height = 320;
+        const pad = { left: 58, right: 24, top: 28, bottom: 42 };
+        const activeKeys = Object.keys(visible).filter((key) => visible[key]);
+        const values = [];
+        points.forEach((point) => {
+          activeKeys.forEach((key) => values.push(point[key]));
+        });
+        const min = Math.min.apply(null, values.length ? values : [0]);
+        const max = Math.max.apply(null, values.length ? values : [1]);
+        const bottom = height - pad.bottom;
+        const right = width - pad.right;
+        let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+        svg += `<text x="${pad.left}" y="18" fill="#14532d" font-size="18" font-family="Pretendard, Noto Sans KR, sans-serif">${title}</text>`;
+        for (let i = 0; i <= 4; i++) {
+          const value = min + (max - min) * i / 4;
+          const y = bottom - ((value - min) / (max - min || 1)) * (height - pad.top - pad.bottom);
+          svg += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${right}" y2="${y.toFixed(1)}" stroke="#eee1cf" stroke-width="1"/>`;
+          svg += `<text x="${pad.left - 10}" y="${(y + 4).toFixed(1)}" fill="#6b7280" font-size="12" text-anchor="end" font-family="Pretendard, Noto Sans KR, sans-serif">${value.toFixed(1)}</text>`;
+        }
+        svg += `<line x1="${pad.left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#d7c6ad" stroke-width="1.2"/>`;
+        if (visible.actual) svg += `<path d="${pathFor(points, 'actual', min, max, width, height, pad)}" fill="none" stroke="${colors.actual}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.old) svg += `<path d="${pathFor(points, 'old', min, max, width, height, pad)}" fill="none" stroke="${colors.old}" stroke-width="3" stroke-dasharray="8 6" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.new) svg += `<path d="${pathFor(points, 'new', min, max, width, height, pad)}" fill="none" stroke="${colors.new}" stroke-width="3" stroke-dasharray="10 5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if (visible.baseline) svg += `<path d="${pathFor(points, 'baseline', min, max, width, height, pad)}" fill="none" stroke="${colors.baseline}" stroke-width="2.5" stroke-dasharray="3 5" stroke-linejoin="round" stroke-linecap="round"/>`;
+        const tickEvery = Math.max(1, Math.floor(points.length / 8));
+        points.forEach((point, index) => {
+          if (index % tickEvery !== 0 && index !== points.length - 1) return;
+          const x = pad.left + (points.length === 1 ? (width - pad.left - pad.right) / 2 : index * (width - pad.left - pad.right) / (points.length - 1));
+          svg += `<text x="${x.toFixed(1)}" y="${height - 14}" fill="#6b7280" font-size="11" text-anchor="middle" font-family="Pretendard, Noto Sans KR, sans-serif">${point.time}</text>`;
+        });
+        svg += '</svg>';
+        return svg;
+      }
+
+      function mae(points, key) {
+        if (!points.length) return '0.0';
+        const sum = points.reduce((acc, point) => acc + Math.abs(point.actual - point[key]), 0);
+        return (sum / points.length).toFixed(1);
+      }
+
+      function renderCharts() {
+        const restaurant = restaurantSelect.value;
+        const date = dateSelect.value;
+        const day = merged.days[restaurant] && merged.days[restaurant][date];
+        chartGrid.innerHTML = '';
+        if (!day) return;
+        [['h30', day.h30], ['h60', day.h60], ['h90', day.h90]].forEach(([key, points]) => {
+          if (!points || !points.length) return;
+          const card = document.createElement('div');
+          card.className = 'chart-card';
+          const title = document.createElement('h3');
+          title.textContent = labels[key];
+          const metrics = document.createElement('div');
+          metrics.className = 'metric-line';
+          metrics.textContent = `기존 규칙 MAE ${mae(points, 'old')} · 개선 규칙 MAE ${mae(points, 'new')}`;
+          const shell = document.createElement('div');
+          shell.className = 'chart-shell';
+          shell.innerHTML = chartSvg(points, `${restaurant} · ${date} · ${labels[key]}`);
+          card.appendChild(title);
+          card.appendChild(metrics);
+          card.appendChild(shell);
+          chartGrid.appendChild(card);
+        });
+      }
+
+      document.querySelector('.legend-btn[data-mode="all"]').addEventListener('click', () => {
+        setAllVisible();
+        syncLegendButtons();
+        renderCharts();
+      });
+
+      document.querySelectorAll('.legend-btn[data-key]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          toggleVisibility(btn.dataset.key);
+          syncLegendButtons();
+          renderCharts();
+        });
+      });
+
+      restaurantSelect.addEventListener('change', () => {
+        populateDates();
+        renderCharts();
+      });
+      dateSelect.addEventListener('change', renderCharts);
+
+      populateRestaurants();
+      restaurantSelect.value = merged.restaurants[0];
+      populateDates();
+      syncLegendButtons();
+      renderCharts();
+    }());
+  </script>
+</body>
+</html>
