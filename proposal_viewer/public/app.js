@@ -41,6 +41,7 @@ const overviewGuide = document.getElementById('overviewGuide');
 const chart = document.getElementById('chart');
 const gridControls = document.getElementById('gridControls');
 const restaurantGrid = document.getElementById('restaurantGrid');
+const formulaControls = document.getElementById('formulaControls');
 const formulaList = document.getElementById('formulaList');
 const formulaSelection = document.getElementById('formulaSelection');
 const formulaPrimer = document.getElementById('formulaPrimer');
@@ -77,6 +78,7 @@ let selectedProfile = PROFILE_ALL_DATA;
 let lastPresetMode = 'common';
 let lastRenderedData = null;
 let selectedDetailHorizon = 60;
+let selectedFormulaHorizon = 60;
 let selectedDetailModel = MODEL_ADJUSTED;
 let selectedDetailView = 'largest';
 let selectedGridHorizon = 60;
@@ -138,37 +140,19 @@ applyPresetButton.addEventListener('click', () => {
 });
 
 resultPanel.addEventListener('click', (event) => {
+  const formulaHorizonButton = event.target.closest('[data-formula-horizon]');
+  if (formulaHorizonButton && lastRenderedData) {
+    selectedFormulaHorizon = Number(formulaHorizonButton.dataset.formulaHorizon);
+    renderFormulaSectionPresentation(lastRenderedData);
+    return;
+  }
+
   const card = event.target.closest('[data-card-horizon]');
   if (card && lastRenderedData) {
     selectedDetailHorizon = Number(card.dataset.cardHorizon);
     selectedGridHorizon = selectedDetailHorizon;
-    renderDetailSection();
-    renderFormulaSectionPresentation(lastRenderedData);
+    syncPredictionCardFocus();
     renderRestaurantGrid();
-    return;
-  }
-
-  const horizonButton = event.target.closest('[data-detail-horizon]');
-  if (horizonButton && lastRenderedData) {
-    selectedDetailHorizon = Number(horizonButton.dataset.detailHorizon);
-    renderDetailSection();
-    renderFormulaSectionPresentation(lastRenderedData);
-    return;
-  }
-
-  const modelButton = event.target.closest('[data-detail-model]');
-  if (modelButton && lastRenderedData) {
-    selectedDetailModel = modelButton.dataset.detailModel;
-    renderDetailSection();
-    renderFormulaSectionPresentation(lastRenderedData);
-    return;
-  }
-
-  const viewButton = event.target.closest('[data-detail-view]');
-  if (viewButton && lastRenderedData) {
-    selectedDetailView = viewButton.dataset.detailView;
-    renderDetailSection();
-    renderFormulaSectionPresentation(lastRenderedData);
     return;
   }
 
@@ -179,6 +163,12 @@ resultPanel.addEventListener('click', (event) => {
     renderRestaurantGrid();
   }
 });
+
+function syncPredictionCardFocus() {
+  for (const card of predictionCards.querySelectorAll('.card--comparison')) {
+    card.classList.toggle('card--focus', Number(card.dataset.cardHorizon) === selectedDetailHorizon);
+  }
+}
 
 async function initializeMetadata() {
   try {
@@ -263,15 +253,16 @@ form.addEventListener('submit', async (event) => {
   chart.innerHTML = '';
   gridControls.innerHTML = '';
   restaurantGrid.innerHTML = '';
+  formulaControls.innerHTML = '';
   formulaList.innerHTML = '';
   formulaSelection.textContent = '';
   formulaPrimer.innerHTML = '';
   strategyTables.innerHTML = '';
   calculationGuide.innerHTML = '';
-  detailControls.innerHTML = '';
-  detailInsights.innerHTML = '';
-  comparisonRows.innerHTML = '';
-  tableHint.textContent = '';
+  if (detailControls) detailControls.innerHTML = '';
+  if (detailInsights) detailInsights.innerHTML = '';
+  if (comparisonRows) comparisonRows.innerHTML = '';
+  if (tableHint) tableHint.textContent = '';
 
   const params = new URLSearchParams({
     restaurant: restaurantInput.value,
@@ -300,6 +291,9 @@ function render(data) {
   lastRenderedData = data;
   selectedDetailHorizon = pickDefaultDetailHorizon(data.horizons);
   selectedGridHorizon = selectedDetailHorizon;
+  if (!data.horizons?.some((item) => item.horizonMinutes === selectedFormulaHorizon)) {
+    selectedFormulaHorizon = selectedDetailHorizon;
+  }
   selectedDetailModel = data.comparisonSummary.preferredModel || MODEL_ADJUSTED;
   selectedDetailView = 'largest';
   lastGridData = [];
@@ -422,7 +416,6 @@ function render(data) {
 
   renderGridControlsBar();
   restaurantGrid.innerHTML = '<p class="status status--soft">선택 날짜의 전체 식당 그래프를 불러오는 중입니다.</p>';
-  renderDetailSection();
   renderFormulaSectionPresentation(data);
   void loadRestaurantGrid(data);
 }
@@ -1602,6 +1595,10 @@ function selectedHorizonRecord(data) {
   return data?.horizons?.find((item) => item.horizonMinutes === selectedDetailHorizon) || data?.horizons?.[0] || null;
 }
 
+function selectedFormulaHorizonRecord(data) {
+  return data?.horizons?.find((item) => item.horizonMinutes === selectedFormulaHorizon) || data?.horizons?.[0] || null;
+}
+
 function pickFormulaExampleRow(horizon) {
   return pickExampleRow(horizon?.models?.adjusted?.rows || []);
 }
@@ -2106,11 +2103,12 @@ function simplifyPresentation(data) {
   `).join('');
 
   renderFormulaSectionPresentation(data);
-  tableHint.textContent = '';
+  if (tableHint) tableHint.textContent = '';
 }
 
 function renderFormulaSectionPresentation(data) {
   if (!data) {
+    formulaControls.innerHTML = '';
     formulaList.innerHTML = '';
     formulaSelection.textContent = '';
     formulaPrimer.innerHTML = '';
@@ -2119,10 +2117,25 @@ function renderFormulaSectionPresentation(data) {
     return;
   }
 
-  const horizon = selectedHorizonRecord(data);
+  const horizon = selectedFormulaHorizonRecord(data);
   const row = pickFormulaExampleRow(horizon);
   const scopeText = buildFormulaScopeTextV2(data, horizon);
   const optimizedFormula = buildReadableOptimizedFormulaPresentation();
+
+  formulaControls.innerHTML = `
+    <div class="segmented" aria-label="예측식 분 후 선택">
+      ${HORIZONS.map((minutes) => `
+        <button
+          type="button"
+          class="segmented-button ${minutes === selectedFormulaHorizon ? 'is-active' : ''}"
+          data-formula-horizon="${minutes}"
+          aria-pressed="${String(minutes === selectedFormulaHorizon)}"
+        >
+          ${minutes}분 후
+        </button>
+      `).join('')}
+    </div>
+  `;
 
   formulaList.innerHTML = `
     <article class="formula-card">
@@ -2378,7 +2391,7 @@ function simplifyPresentationV2(data) {
   `).join('');
 
   renderFormulaSectionPresentation(data);
-  tableHint.textContent = '';
+  if (tableHint) tableHint.textContent = '';
 }
 
 function formatValidationDelta(item) {

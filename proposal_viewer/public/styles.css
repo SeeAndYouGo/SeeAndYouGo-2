@@ -747,6 +747,11 @@ button:hover {
   gap: 16px;
 }
 
+.formula-controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .formula-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1181,6 +1186,10 @@ tbody tr:nth-child(even) {
   .section-head {
     align-items: start;
     flex-direction: column;
+  }
+
+  .formula-controls {
+    justify-content: flex-start;
   }
 }
 
