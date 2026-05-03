@@ -111,10 +111,6 @@ const SURGE30_KEEP_HORIZON_MIN_MAE_DELTA = 0.35;
 const EXTERNAL_FEATURE_MIN_IMPROVEMENT = 0.15;
 const EXTERNAL_FEATURE_MAX_HORIZON_DEGRADATION = 0.05;
 const EXTERNAL_MENU_MIN_COVERAGE = 0.85;
-const SAFETY_BLEND_MIN = 0.35;
-const SAFETY_GAIN_FULL_EFFECT = 1.8;
-const SAFETY_SAMPLE_FULL_EFFECT = 900;
-const SAFETY_SIGNAL_FULL_EFFECT = 90;
 const SAFETY_POSITIVE_CAP_BASE = 10;
 const SAFETY_POSITIVE_CAP_PRESSURE_WEIGHT = 0.55;
 const SAFETY_POSITIVE_CAP_SHIFT_WEIGHT = 0.35;
@@ -899,9 +895,8 @@ function buildParameterPayload(restaurant, mode, weights, optimizedLibrary, form
       minSamples: OPTIMIZED_MIN_SAMPLES,
       peakScoreWeights: PEAK_SCORE_WEIGHTS,
       safetyGuard: {
-        type: 'blendAndCap',
-        minBlendRatio: SAFETY_BLEND_MIN,
-        note: '피크 압력식으로 계산한 뒤, 과한 보정은 기본식 쪽으로 일부 되돌리고 보정폭 상한을 둡니다.'
+        type: 'capOnly',
+        note: '6항식이 제안한 보정량을 그대로 쓰지 않고, 기본식에서 움직일 수 있는 최대 상향/하향 폭만 제한합니다.'
       },
       selectedFormulaGroupCount: optimizedLibrary.summary.selectedFormulaGroupCount,
       baseFallbackGroupCount: optimizedLibrary.summary.baseFallbackGroupCount
@@ -915,7 +910,7 @@ function buildParameterPayload(restaurant, mode, weights, optimizedLibrary, form
     searchNote: formulaStrategy === STRATEGY_RESTAURANT_HORIZON
       ? `최적화식은 ${tuningWindowLabel(tuningWindow)} 누적 데이터에서 식당별 · 30/60/90분별로 피크 압력식 계수를 다시 학습해, 시간대 구분 없이 식당×분 단위의 고정식을 사용합니다.`
       : `최적화식은 ${tuningWindowLabel(tuningWindow)} 누적 데이터에서 식당별 · 30/60/90분별 · 목표 시간대별로 피크 압력식 계수를 다시 학습해, 운영 시에는 그 구간의 고정식을 그대로 사용합니다.`,
-    selectionNote: '이제 조정식 종류는 피크 압력식 하나로 통일했고, 점심 진입과 점심 피크는 과소예측 벌점을 반영해 계수가 피크를 더 빨리 따라가도록 학습합니다. 최종 예측에서는 기본식을 기준점으로 삼는 안전장치를 함께 적용합니다.',
+    selectionNote: '이제 조정식 종류는 피크 압력식 하나로 통일했고, 점심 진입과 점심 피크는 과소예측 벌점을 반영해 계수가 피크를 더 빨리 따라가도록 학습합니다. 최종 예측에서는 6항식 보정이 너무 커지지 않도록 보정폭 상한만 추가 적용합니다.',
     qualityNote: '데이터 품질 필터로 고립된 0·거의 0 값, 한 칸만 튀었다가 바로 되돌아오는 급반등 값, 실제로 거의 운영되지 않는 비활성 시간대는 학습과 비교에서 제외합니다.',
     validationNote: `${optimizedLibrary.profile.label} 학습 기준 적합 MAE: 30분 ${formatValidationDelta(validationByStrategy(optimizedLibrary, formulaStrategy)[30])}, 60분 ${formatValidationDelta(validationByStrategy(optimizedLibrary, formulaStrategy)[60])}, 90분 ${formatValidationDelta(validationByStrategy(optimizedLibrary, formulaStrategy)[90])}`,
     inspectionNote: optimizedLibrary.profile.key === PROFILE_TRAIN_TO_2025
@@ -1156,20 +1151,6 @@ function clampUnit(value) {
   return clampBetween(value, 0, 1);
 }
 
-function buildSafetyProfile(sampleCount, baseMae, optimizedMae) {
-  const gain = baseMae - optimizedMae;
-  const sampleFactor = clampUnit((sampleCount - OPTIMIZED_MIN_SAMPLES) / SAFETY_SAMPLE_FULL_EFFECT);
-  const gainFactor = clampUnit((gain + 0.2) / SAFETY_GAIN_FULL_EFFECT);
-  const minBlendRatio = clampBetween(SAFETY_BLEND_MIN + sampleFactor * 0.15, SAFETY_BLEND_MIN, 0.9);
-
-  return {
-    gain: round3(gain),
-    gainFactor: round3(gainFactor),
-    sampleFactor: round3(sampleFactor),
-    minBlendRatio: round3(minBlendRatio)
-  };
-}
-
 function safetySignalValues(shared) {
   const pressureGap = shared.pressureGap ?? Math.max((shared.targetBaseline ?? 0) - (shared.currentValue ?? 0), 0);
   const baselineShiftPos = shared.baselineShiftPos ?? Math.max(shared.baselineShiftSigned ?? 0, 0);
@@ -1198,46 +1179,18 @@ function negativeAdjustmentCap(shared) {
 }
 
 function applyPredictionSafetyGuard(basePredictionRaw, formulaRawPrediction, shared, safetyProfile) {
-  if (!safetyProfile) {
-    return {
-      applied: false,
-      blendRatio: 1,
-      signalFactor: 1,
-      reliability: 1,
-      positiveCap: round3(positiveAdjustmentCap(shared)),
-      negativeCap: round3(negativeAdjustmentCap(shared)),
-      formulaAdjustment: round3(formulaRawPrediction - basePredictionRaw),
-      finalAdjustment: round3(formulaRawPrediction - basePredictionRaw),
-      rawPrediction: round3(formulaRawPrediction),
-      reasons: []
-    };
-  }
-
-  const { pressureGap, baselineShiftPos, gapPos } = safetySignalValues(shared);
-  const signalScore = pressureGap + baselineShiftPos + gapPos;
-  const signalFactor = clampUnit(signalScore / SAFETY_SIGNAL_FULL_EFFECT);
-  const reliability = clampUnit(
-    safetyProfile.gainFactor * 0.55
-    + safetyProfile.sampleFactor * 0.2
-    + signalFactor * 0.25
-  );
-  const blendRatio = safetyProfile.minBlendRatio + (1 - safetyProfile.minBlendRatio) * reliability;
   const formulaAdjustment = formulaRawPrediction - basePredictionRaw;
-  const blendedAdjustment = formulaAdjustment * blendRatio;
   const positiveCap = positiveAdjustmentCap(shared);
   const negativeCap = negativeAdjustmentCap(shared);
-  const finalAdjustment = clampBetween(blendedAdjustment, -negativeCap, positiveCap);
+  const finalAdjustment = clampBetween(formulaAdjustment, -negativeCap, positiveCap);
   const rawPrediction = basePredictionRaw + finalAdjustment;
   const reasons = [];
 
-  if (blendRatio < 0.995) reasons.push('blend');
-  if (Math.abs(finalAdjustment - blendedAdjustment) > 0.05) reasons.push('cap');
+  if (Math.abs(finalAdjustment - formulaAdjustment) > 0.05) reasons.push('cap');
 
   return {
     applied: reasons.length > 0,
-    blendRatio: round3(blendRatio),
-    signalFactor: round3(signalFactor),
-    reliability: round3(reliability),
+    type: 'capOnly',
     positiveCap: round3(positiveCap),
     negativeCap: round3(negativeCap),
     formulaAdjustment: round3(formulaAdjustment),
@@ -1748,35 +1701,21 @@ function buildAdjustedMethodPayload(optimizedLibrary, restaurant, horizonMinutes
     sampleCount: spec.sampleCount,
     baseMae: spec.baseMae,
     optimizedMae: spec.optimizedMae,
-    safetyApplied: Boolean(spec.safetyProfile),
+    safetyApplied: true,
     features: buildModelFeaturePayload(spec.featureKeys, spec.coefficients)
   };
 }
 
 function buildSafetyGuardPayload() {
   return {
-    type: 'blendAndCap',
-    minSamples: OPTIMIZED_MIN_SAMPLES,
-    gainFullEffect: SAFETY_GAIN_FULL_EFFECT,
-    sampleFullEffect: SAFETY_SAMPLE_FULL_EFFECT,
-    signalFullEffect: SAFETY_SIGNAL_FULL_EFFECT,
-    reliabilityWeights: {
-      gainFactor: 0.55,
-      sampleFactor: 0.2,
-      signalFactor: 0.25
-    },
+    type: 'capOnly',
     formulas: {
-      gainFactor: `clamp((gain + 0.2) / ${SAFETY_GAIN_FULL_EFFECT}, 0, 1)`,
-      sampleFactor: `clamp((sampleCount - ${OPTIMIZED_MIN_SAMPLES}) / ${SAFETY_SAMPLE_FULL_EFFECT}, 0, 1)`,
-      signalFactor: `clamp((pressureGap + baselineShiftPos + gapPos) / ${SAFETY_SIGNAL_FULL_EFFECT}, 0, 1)`,
-      minBlendRatio: `clamp(${SAFETY_BLEND_MIN} + sampleFactor × 0.15, ${SAFETY_BLEND_MIN}, 0.90)`,
-      reliability: 'gainFactor × 0.55 + sampleFactor × 0.20 + signalFactor × 0.25',
-      blendRatio: 'minBlendRatio + (1 - minBlendRatio) × reliability',
+      formulaAdjustment: '6항식 계산값 - 기본식',
+      finalAdjustment: 'clamp(formulaAdjustment, -negativeCap, +positiveCap)',
       positiveCap: `${SAFETY_POSITIVE_CAP_BASE} + pressureGap × ${SAFETY_POSITIVE_CAP_PRESSURE_WEIGHT} + baselineShiftPos × ${SAFETY_POSITIVE_CAP_SHIFT_WEIGHT} + gapPos × ${SAFETY_POSITIVE_CAP_GAP_WEIGHT}`,
       negativeCap: `${SAFETY_NEGATIVE_CAP_BASE} + |currentGap| × ${SAFETY_NEGATIVE_CAP_GAP_WEIGHT} + gapPos × ${SAFETY_NEGATIVE_CAP_EXCESS_WEIGHT}`
     },
     constants: {
-      minBlendBase: SAFETY_BLEND_MIN,
       positiveCapBase: SAFETY_POSITIVE_CAP_BASE,
       positiveCapPressureWeight: SAFETY_POSITIVE_CAP_PRESSURE_WEIGHT,
       positiveCapShiftWeight: SAFETY_POSITIVE_CAP_SHIFT_WEIGHT,
@@ -1801,15 +1740,7 @@ function buildFixedModelPayload(optimizedLibrary) {
       baseMae: spec.baseMae || 0,
       optimizedMae: spec.optimizedMae || 0,
       gain: round1((spec.baseMae || 0) - (spec.optimizedMae || 0)),
-      coefficients: coefficientMap(spec.featureKeys || featureKeys, spec.coefficients || []),
-      safetyProfile: spec.safetyProfile
-        ? {
-            gain: round3(spec.safetyProfile.gain || 0),
-            gainFactor: round3(spec.safetyProfile.gainFactor || 0),
-            sampleFactor: round3(spec.safetyProfile.sampleFactor || 0),
-            minBlendRatio: round3(spec.safetyProfile.minBlendRatio || 0)
-          }
-        : null
+      coefficients: coefficientMap(spec.featureKeys || featureKeys, spec.coefficients || [])
     };
   }));
 
@@ -1968,7 +1899,7 @@ function ruleLabelAdjusted(spec) {
   const scopeLabel = spec.scopeLabel || spec.bandLabel;
   if (spec.formulaKey !== FORMULA_BASE) {
     const peakNote = spec.penaltyWeight > 0 ? ` · 피크 벌점 ${spec.penaltyWeight}` : '';
-    const safetyNote = spec.safetyProfile ? ' · 안전장치 적용' : '';
+    const safetyNote = ' · 보정 상한 적용';
     return `${scopeLabel}: ${spec.formulaLabel} · 튜닝 ${spec.sampleCount}건 · MAE ${spec.baseMae}→${spec.optimizedMae}${peakNote}${safetyNote}`;
   }
 
@@ -2325,18 +2256,13 @@ function chooseBestCandidate(samples, scorer, basePredictor, baseRawPredictor) {
     family.featureKeys,
     formulaFeatureValueMap(sample, FORCED_OPTIMIZED_FORMULA_KEY)
   );
-  const unguardedStats = scorer(
-    samples,
-    (sample) => Math.max(0, Math.round(rawPredictor(sample)))
-  );
-  const safetyProfile = buildSafetyProfile(samples.length, baseStats.mae, unguardedStats.mae);
   const stats = scorer(
     samples,
     (sample) => Math.max(0, Math.round(applyPredictionSafetyGuard(
       baseRawPredictor(sample),
       rawPredictor(sample),
       sample,
-      safetyProfile
+      null
     ).rawPrediction))
   );
 
@@ -2347,7 +2273,7 @@ function chooseBestCandidate(samples, scorer, basePredictor, baseRawPredictor) {
     featureKeys: family.featureKeys,
     coefficients: coefficients.map(round3),
     stats,
-    safetyProfile
+    safetyProfile: null
   };
 
   return {

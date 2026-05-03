@@ -2326,6 +2326,15 @@ function renderCalculationGuidePresentation(horizon) {
       <em>${termResultV2(key, adjustedRow)}</em>
     </article>
   `).join('');
+  const formulaRawPrediction = adjustedRow.formulaRawPrediction ?? adjustedRow.rawPrediction ?? 0;
+  const formulaAdjustment = adjustedRow.safetyGuard?.formulaAdjustment ?? adjustedRow.formulaAdjustmentTotal ?? 0;
+  const finalAdjustment = adjustedRow.safetyGuard?.finalAdjustment ?? adjustedRow.adjustmentTotal ?? formulaAdjustment;
+  const positiveCap = adjustedRow.safetyGuard?.positiveCap ?? null;
+  const negativeCap = adjustedRow.safetyGuard?.negativeCap ?? null;
+  const finalRawPrediction = adjustedRow.rawPrediction ?? formulaRawPrediction;
+  const safetyNote = adjustedRow.safetyGuard?.reasons?.includes('cap')
+    ? `이번 행은 보정량을 ${formatSignedNumberEnhanced(formulaAdjustment, '명')}까지 쓰지 않고, 상한 안의 ${formatSignedNumberEnhanced(finalAdjustment, '명')}만 반영했습니다.`
+    : '이번 행은 보정량이 상한 안에 있어서 6항식 보정량을 그대로 사용했습니다.';
 
   calculationGuide.innerHTML = `
     <div class="guide-grid guide-grid--formula">
@@ -2340,17 +2349,24 @@ function renderCalculationGuidePresentation(horizon) {
         <p class="guide-copy">30분·60분·90분 반영률은 이 비교용 기본식에서만 사용합니다.</p>
       </article>
       <article class="guide-card guide-card--wide">
-        <span class="guide-label">최종 피크 압력식</span>
+        <span class="guide-label">6항식 계산</span>
         <code>${buildReadableOptimizedFormulaPresentation()}</code>
         <div class="term-grid">
           ${termCards}
         </div>
-        <code>모든 항의 합 = ${formatOneDecimal(adjustedRow.rawPrediction)} → 최종 예측 ${numberFormat.format(adjustedRow.predicted)}</code>
+        <code>모든 항의 합 = ${formatOneDecimal(formulaRawPrediction)}명</code>
+      </article>
+      <article class="guide-card guide-card--wide">
+        <span class="guide-label">보정 상한 적용</span>
+        <code>6항식 보정량 = ${formatOneDecimal(formulaRawPrediction)} - ${formatOneDecimal(baseRow.basePrediction)} = ${formatSignedNumberEnhanced(formulaAdjustment, '명')}</code>
+        <code>최종 보정 = clamp(${formatSignedNumberEnhanced(formulaAdjustment, '명')}, -${formatOneDecimal(negativeCap ?? 0)}명, +${formatOneDecimal(positiveCap ?? 0)}명) = ${formatSignedNumberEnhanced(finalAdjustment, '명')}</code>
+        <code>최종 예측 = 기본식 ${formatOneDecimal(baseRow.basePrediction)} + ${formatSignedNumberEnhanced(finalAdjustment, '명')} = ${formatOneDecimal(finalRawPrediction)} → ${numberFormat.format(adjustedRow.predicted)}</code>
+        <p class="guide-copy">${safetyNote}</p>
       </article>
       <article class="guide-card guide-card--wide">
         <span class="guide-label">실제값 비교</span>
         <p class="guide-copy">실제값이 <strong>${numberFormat.format(adjustedRow.actual)}명</strong>, 최종 예측이 <strong>${numberFormat.format(adjustedRow.predicted)}명</strong>, 오차가 <strong>${numberFormat.format(adjustedRow.error)}명</strong>입니다.</p>
-        <p class="guide-copy">기본식 ${numberFormat.format(baseRow.predicted)}명에서 바로 쓰지 않고, 피크 압력식 보정 ${formatSignedNumberEnhanced(adjustedRow.adjustmentTotal, '명')}을 반영한 값을 최종 예측으로 사용합니다.</p>
+        <p class="guide-copy">기본식 ${numberFormat.format(baseRow.predicted)}명에 6항식 보정량을 그대로 다 더하지 않고, 보정 상한 안으로 잘라낸 뒤 최종 예측에 반영합니다.</p>
       </article>
     </div>
   `;
@@ -2579,7 +2595,7 @@ function renderExplanationPanels(data) {
   const scope = data?.fixedModel?.scope || '식당 × 30/60/90분';
   const tuningLabel = data?.parameters?.tuningWindow?.label || data?.profile?.label || '전체 누적 데이터';
   const guardNote = data?.parameters?.optimized?.safetyGuard?.note
-    || '6항식 보정이 과하게 튀는 경우에는 일부만 반영하고, 올리거나 내리는 폭에도 상한을 둡니다.';
+    || '6항식 보정이 너무 크면 기본식에서 움직일 수 있는 최대 폭만 남기고 잘라냅니다.';
 
   reasonOverview.innerHTML = `
     <div class="reason-overview__head">
@@ -2611,7 +2627,7 @@ function renderExplanationPanels(data) {
       </article>
       <article class="reason-card">
         <span class="reason-card__label">안전장치</span>
-        <strong>reliability, blendRatio, cap</strong>
+        <strong>cap only</strong>
         <p>${guardNote}</p>
       </article>
     </div>
@@ -2636,7 +2652,7 @@ function renderExplanationPanels(data) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">왜 안전장치를 두나</span>
-        <p>6항식 계산값이 어떤 날에는 너무 크게 움직일 수 있어서, 기본식에서 멀어지는 폭을 한 번 더 점검하기 위해 넣었습니다.</p>
+        <p>6항식 계산값이 어떤 날에는 너무 크게 움직일 수 있어서, 기본식에서 멀어지는 폭만 마지막에 한 번 제한합니다.</p>
       </article>
     </div>
   `;
@@ -2668,15 +2684,15 @@ function renderExplanationPanels(data) {
     <div class="feature-analysis__candidate-grid">
       <article class="primer-card">
         <span class="primer-card__label">고정값</span>
-        <p>식당 × 30/60/90분 계수, gainFactor, sampleFactor, minBlendRatio 같은 값입니다.</p>
+        <p>식당 × 30/60/90분 계수와 cap 계산에 쓰는 상수들입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">실시간값</span>
-        <p>pressureGap, baselineShiftPos, gapPos, currentGap, reliability, blendRatio, cap은 예측 행마다 다시 계산됩니다.</p>
+        <p>pressureGap, baselineShiftPos, gapPos, currentGap, positiveCap, negativeCap은 예측 행마다 다시 계산됩니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">처음 보는 사람용 해석</span>
-        <p>고정 계수는 “이 식당의 평소 습관”, 실시간값은 “오늘 지금 분위기”, 안전장치는 “너무 튀지 않게 마지막으로 잡아주는 장치”라고 보면 됩니다.</p>
+        <p>고정 계수는 “이 식당의 평소 습관”, 실시간값은 “오늘 지금 분위기”, 안전장치는 “너무 튀면 마지막에 잘라주는 장치”라고 보면 됩니다.</p>
       </article>
     </div>
   `;
@@ -2704,7 +2720,6 @@ function renderFixedReferenceTables(data) {
   const totalSamples = rows.reduce((sum, row) => sum + (row.sampleCount || 0), 0);
   const bestGainRow = rows.reduce((best, row) => (!best || (row.gain || 0) > (best.gain || 0) ? row : best), null);
   const constants = guard.constants || {};
-  const weights = guard.reliabilityWeights || {};
 
   fixedReferenceSummary.innerHTML = `
     <div class="formula-summary-grid">
@@ -2717,16 +2732,12 @@ function renderFixedReferenceTables(data) {
         <p>${featureKeys.map((key) => featureLabelForData(docMap, key)).join(' · ')}</p>
       </article>
       <article class="primer-card">
-        <span class="primer-card__label">reliability</span>
-        <p>이번 예측에서 6항 보정량을 얼마나 믿을지 정하는 0~1 점수입니다. 과거 성적, 표본 수, 이번 피크 신호를 합쳐 만듭니다.</p>
-      </article>
-      <article class="primer-card">
-        <span class="primer-card__label">blendRatio</span>
-        <p>6항식이 제안한 보정량을 실제로 몇 % 반영할지 정하는 비율입니다. reliability가 높을수록 더 많이 반영합니다.</p>
+        <span class="primer-card__label">안전장치 방식</span>
+        <p>복잡한 신뢰도 계산 없이, 6항식 보정량을 그대로 구한 뒤 상한 안으로만 잘라냅니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">positiveCap / negativeCap</span>
-        <p>최종 보정이 기본식에서 너무 멀어지지 않도록 최대 상향폭과 최대 하향폭을 따로 둔 값입니다.</p>
+        <p>기본식에서 최대 몇 명까지 위로 올릴지, 아래로 내릴지를 정하는 상한입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">표본 규모</span>
@@ -2778,53 +2789,23 @@ function renderFixedReferenceTables(data) {
     <section class="strategy-block">
       <div class="section-head section-head--tight">
         <div>
-          <h3>그룹별 안전장치 기본 점수</h3>
-          <p class="hint">여기 값들은 식당 × 30/60/90분 그룹마다 고정입니다. 이 값들이 있어야 runtime 단계에서 reliability와 blendRatio를 계산할 수 있습니다.</p>
+          <h3>그룹별 추가 안전장치 없음</h3>
+          <p class="hint">이전의 reliability, blendRatio, gainFactor 같은 그룹별 신뢰도 값은 제거했습니다. 이제는 모든 그룹이 같은 cap 규칙을 공유합니다.</p>
         </div>
       </div>
       <div class="formula-summary-grid">
         <article class="primer-card">
-          <span class="primer-card__label">gain</span>
-          <p>기본식 MAE에서 운영식 MAE를 뺀 값입니다. 클수록 그 그룹에서 운영식이 실제로 더 잘 맞았다는 뜻입니다.</p>
+          <span class="primer-card__label">단순화한 이유</span>
+          <p>실험해보면 reliability / blend는 설명은 복잡한데 개선폭이 작았고, 실제로 성능 개선은 cap 쪽이 더 크게 만들었습니다.</p>
         </article>
         <article class="primer-card">
-          <span class="primer-card__label">gainFactor</span>
-          <p>gain을 0~1 범위로 바꾼 값입니다. 과거 성적이 좋을수록 이번에도 더 믿게 됩니다.</p>
+          <span class="primer-card__label">지금 남은 고정값</span>
+          <p>식당 × 30/60/90분 계수와, positiveCap / negativeCap 계산에 쓰는 상수만 유지합니다.</p>
         </article>
         <article class="primer-card">
-          <span class="primer-card__label">sampleFactor</span>
-          <p>표본 수를 0~1 범위로 바꾼 값입니다. 데이터가 많은 그룹일수록 안정적인 그룹으로 봅니다.</p>
+          <span class="primer-card__label">실시간으로 계산하는 값</span>
+          <p>pressureGap, baselineShiftPos, gapPos, currentGap 그리고 여기서 나온 positiveCap / negativeCap입니다.</p>
         </article>
-        <article class="primer-card">
-          <span class="primer-card__label">minBlendRatio</span>
-          <p>이번 행이 애매해도 최소한 이 비율만큼은 6항 보정을 반영하겠다는 하한입니다.</p>
-        </article>
-      </div>
-      <div class="table-wrap table-wrap--plain">
-        <table class="mapping-table mapping-table--compact">
-          <thead>
-            <tr>
-              <th>식당</th>
-              <th>예측 구간</th>
-              <th>gain</th>
-              <th>gainFactor</th>
-              <th>sampleFactor</th>
-              <th>minBlendRatio</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map((row) => `
-              <tr>
-                <td>${row.restaurant}</td>
-                <td>${row.horizonMinutes}분 후</td>
-                <td>${fixedValueText(row.safetyProfile?.gain)}</td>
-                <td>${fixedValueText(row.safetyProfile?.gainFactor)}</td>
-                <td>${fixedValueText(row.safetyProfile?.sampleFactor)}</td>
-                <td>${fixedValueText(row.safetyProfile?.minBlendRatio)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
       </div>
     </section>
   `;
@@ -2858,46 +2839,11 @@ function renderFixedReferenceTables(data) {
 
   const guardRows = [
     {
-      label: 'gainFactor',
-      meaning: '과거 성적 점수',
-      formula: `clamp((gain + 0.2) / ${guard.gainFullEffect ?? 1.8}, 0, 1)`,
-      runtime: 'gain',
-      note: '과거에 운영식이 잘 맞았던 그룹이면 커집니다.'
-    },
-    {
-      label: 'sampleFactor',
-      meaning: '표본 수 점수',
-      formula: `clamp((sampleCount - ${guard.minSamples ?? 300}) / ${guard.sampleFullEffect ?? 900}, 0, 1)`,
-      runtime: 'sampleCount',
-      note: '표본이 충분한 그룹이면 커집니다.'
-    },
-    {
-      label: 'signalFactor',
-      meaning: '이번 행의 피크 신호 점수',
-      formula: `clamp((pressureGap + baselineShiftPos + gapPos) / ${guard.signalFullEffect ?? 90}, 0, 1)`,
-      runtime: 'pressureGap, baselineShiftPos, gapPos',
-      note: '지금 행이 실제로 피크 진입 구간처럼 보일수록 커집니다.'
-    },
-    {
-      label: 'reliability',
-      meaning: '이번 예측에서 6항 보정을 얼마나 믿을지 정하는 점수',
-      formula: `gainFactor × ${weights.gainFactor ?? 0.55} + sampleFactor × ${weights.sampleFactor ?? 0.20} + signalFactor × ${weights.signalFactor ?? 0.25}`,
-      runtime: 'gainFactor, sampleFactor, signalFactor',
-      note: '그룹의 과거 성적, 표본 수, 이번 피크 신호를 함께 반영합니다.'
-    },
-    {
-      label: 'minBlendRatio',
-      meaning: '아무리 보수적이어도 최소 반영할 비율',
-      formula: `clamp(${constants.minBlendBase ?? 0.35} + sampleFactor × 0.15, ${constants.minBlendBase ?? 0.35}, 0.90)`,
-      runtime: 'sampleFactor',
-      note: '표본이 충분할수록 최소 반영 비율이 조금 올라갑니다.'
-    },
-    {
-      label: 'blendRatio',
-      meaning: '6항식 보정량을 실제로 몇 % 반영할지',
-      formula: 'minBlendRatio + (1 - minBlendRatio) × reliability',
-      runtime: 'minBlendRatio, reliability',
-      note: 'reliability가 높을수록 6항식 보정량을 더 많이 받아들입니다.'
+      label: 'formulaAdjustment',
+      meaning: '6항식이 기본식에서 얼마나 더 움직이자고 제안하는지',
+      formula: guard.formulas?.formulaAdjustment || '6항식 계산값 - 기본식',
+      runtime: 'formulaRawPrediction, basePrediction',
+      note: '양수면 기본식보다 더 올리고, 음수면 더 내리자는 뜻입니다.'
     },
     {
       label: 'positiveCap',
@@ -2912,6 +2858,13 @@ function renderFixedReferenceTables(data) {
       formula: `${constants.negativeCapBase ?? 8} + |currentGap| × ${constants.negativeCapGapWeight ?? 0.30} + gapPos × ${constants.negativeCapExcessWeight ?? 0.15}`,
       runtime: 'currentGap, gapPos',
       note: '하향 보정은 상향보다 더 보수적으로 제한합니다.'
+    },
+    {
+      label: 'finalAdjustment',
+      meaning: '최종적으로 기본식에 더하는 보정값',
+      formula: guard.formulas?.finalAdjustment || 'clamp(formulaAdjustment, -negativeCap, +positiveCap)',
+      runtime: 'formulaAdjustment, positiveCap, negativeCap',
+      note: '6항식 보정량이 상한 안에 있으면 그대로, 넘치면 상한까지만 사용합니다.'
     }
   ];
 
@@ -2920,25 +2873,25 @@ function renderFixedReferenceTables(data) {
       <div class="section-head section-head--tight">
         <div>
           <h3>안전장치 계산 규칙</h3>
-          <p class="hint">안전장치는 “6항식이 제안한 보정량을 얼마나 믿을지”와 “최대 몇 명까지 움직이게 둘지”를 나누어 계산합니다.</p>
+          <p class="hint">지금 안전장치는 단순합니다. 6항식 보정량을 먼저 구하고, 그 값을 positiveCap / negativeCap 범위 안으로만 잘라냅니다.</p>
         </div>
       </div>
       <div class="formula-summary-grid">
         <article class="primer-card">
-          <span class="primer-card__label">reliability</span>
-          <p>과거 성적(gainFactor), 표본 수(sampleFactor), 이번 피크 신호(signalFactor)를 합친 이번 행의 신뢰도입니다.</p>
+          <span class="primer-card__label">1. 보정량 계산</span>
+          <p>먼저 6항식 계산값에서 기본식을 빼서, 얼마나 더 올리거나 내릴지 구합니다.</p>
         </article>
         <article class="primer-card">
-          <span class="primer-card__label">blendRatio</span>
-          <p>reliability를 실제 반영 비율로 바꾼 값입니다. 6항식 보정량을 전부 쓰지 않고 일부만 쓰게 만듭니다.</p>
+          <span class="primer-card__label">2. 상향 상한</span>
+          <p>앞으로 더 붐빌 여지가 크면 positiveCap이 커져서 위로 더 많이 올릴 수 있습니다.</p>
         </article>
         <article class="primer-card">
-          <span class="primer-card__label">positiveCap</span>
-          <p>기본식보다 위로 얼마나 올릴지의 상한입니다. 피크 신호가 강하면 더 크게 허용합니다.</p>
+          <span class="primer-card__label">3. 하향 상한</span>
+          <p>negativeCap은 과도한 하향 보정을 막기 위해 더 보수적으로 둡니다.</p>
         </article>
         <article class="primer-card">
-          <span class="primer-card__label">negativeCap</span>
-          <p>기본식보다 아래로 얼마나 내릴지의 상한입니다. 과한 하향 보정을 막기 위해 더 보수적으로 둡니다.</p>
+          <span class="primer-card__label">4. 최종 보정</span>
+          <p>최종 보정은 clamp(formulaAdjustment, -negativeCap, +positiveCap)로 계산합니다.</p>
         </article>
       </div>
       <div class="table-wrap table-wrap--plain">
