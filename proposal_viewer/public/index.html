@@ -19,9 +19,9 @@
           <span class="field-label">비교 기준</span>
           <div class="mode-switch" role="tablist" aria-label="비교 기준 선택">
             <button type="button" class="strategy-button is-active" data-profile="allData">전체 누적 데이터</button>
-            <button type="button" class="strategy-button" data-profile="trainTo2025">2025까지 학습 → 2026 검증</button>
+            <button type="button" class="strategy-button" data-profile="trainTo2025">2025까지 학습 후 2026 검증</button>
           </div>
-          <p class="hint" id="profileHelp">DB에 있는 전체 누적 데이터로 학습한 뒤 선택 날짜를 확인합니다.</p>
+          <p class="hint" id="profileHelp">DB에 있는 전체 누적 데이터로 학습해서 선택한 날짜를 확인합니다.</p>
         </div>
 
         <div class="field">
@@ -49,7 +49,7 @@
         <button type="button" id="applyPreset" hidden>추천값 다시 적용</button>
 
         <section class="experiment-box field--wide">
-          <p class="hint" id="adjustedHelp">피크 압력식 고정 계수와 실시간 계산값으로 예측합니다.</p>
+          <p class="hint" id="adjustedHelp">피크 압력식은 고정 계수와 실시간 계산값으로 예측합니다.</p>
         </section>
 
         <div class="actions">
@@ -59,33 +59,90 @@
     </section>
 
     <section class="panel panel--result" id="resultPanel" hidden>
-      <section class="formula" id="formulaSection">
-        <div class="section-head section-head--tight">
-          <div>
-            <h2>예측식</h2>
+      <div class="result-tabs" id="resultTabs" role="tablist" aria-label="결과 보기 선택">
+        <button type="button" class="result-tab is-active" data-result-view="graph" role="tab" aria-selected="true">
+          <span class="result-tab__index">01</span>
+          <strong>그래프</strong>
+          <small>실제값과 예측값 비교</small>
+        </button>
+        <button type="button" class="result-tab" data-result-view="calculation" role="tab" aria-selected="false">
+          <span class="result-tab__index">02</span>
+          <strong>계산 예시</strong>
+          <small>특정 일자 계산 순서</small>
+        </button>
+        <button type="button" class="result-tab" data-result-view="explanation" role="tab" aria-selected="false">
+          <span class="result-tab__index">03</span>
+          <strong>식 설명</strong>
+          <small>계수와 운영 근거</small>
+        </button>
+        <button type="button" class="result-tab" data-result-view="fixed" role="tab" aria-selected="false">
+          <span class="result-tab__index">04</span>
+          <strong>고정값 표</strong>
+          <small>식당별 계수와 안전장치 상수</small>
+        </button>
+      </div>
+
+      <section class="result-view is-active" data-result-view-panel="graph">
+        <div class="summary" id="summary"></div>
+        <div class="cards" id="predictionCards"></div>
+        <div class="overview-guide" id="overviewGuide"></div>
+        <div class="chart" id="chart"></div>
+
+        <section class="grid-block">
+          <div class="section-head section-head--tight">
+            <div>
+              <h2>같은 날짜 전체 식당 비교</h2>
+            </div>
           </div>
-        </div>
-        <div class="formula-controls" id="formulaControls"></div>
-        <div class="formula-list" id="formulaList"></div>
-        <p class="formula-selection" id="formulaSelection"></p>
-        <div class="formula-primer" id="formulaPrimer"></div>
-        <div class="calculation-guide" id="calculationGuide"></div>
-        <div class="strategy-tables" id="strategyTables"></div>
+          <div class="grid-controls" id="gridControls"></div>
+          <div class="restaurant-grid" id="restaurantGrid"></div>
+        </section>
       </section>
 
-      <div class="summary" id="summary"></div>
-      <div class="cards" id="predictionCards"></div>
-      <div class="overview-guide" id="overviewGuide"></div>
-      <div class="chart" id="chart"></div>
-
-      <section class="grid-block">
-        <div class="section-head section-head--tight">
-          <div>
-            <h2>같은 날짜 전체 식당 비교</h2>
+      <section class="result-view" data-result-view-panel="calculation" hidden>
+        <section class="formula" id="formulaSection">
+          <div class="section-head section-head--tight">
+            <div>
+              <h2>특정 일자 계산</h2>
+            </div>
           </div>
-        </div>
-        <div class="grid-controls" id="gridControls"></div>
-        <div class="restaurant-grid" id="restaurantGrid"></div>
+          <div class="formula-controls" id="formulaControls"></div>
+          <div class="formula-list" id="formulaList"></div>
+          <p class="formula-selection" id="formulaSelection"></p>
+          <div class="formula-primer" id="formulaPrimer"></div>
+          <div class="calculation-guide" id="calculationGuide"></div>
+          <div class="strategy-tables" id="strategyTables"></div>
+        </section>
+      </section>
+
+      <section class="result-view" data-result-view-panel="explanation" hidden>
+        <section class="reason-overview" id="reasonOverview"></section>
+
+        <section class="feature-analysis" id="featureAnalysisSection">
+          <div class="section-head section-head--tight">
+            <div>
+              <h2>식 설명</h2>
+            </div>
+          </div>
+          <div class="feature-analysis__controls" id="featureAnalysisControls"></div>
+          <div class="feature-analysis__summary" id="featureAnalysisSummary"></div>
+          <div class="feature-analysis__table" id="featureAnalysisTable"></div>
+          <div class="feature-analysis__candidates" id="featureCandidatePanel"></div>
+        </section>
+      </section>
+
+      <section class="result-view" data-result-view-panel="fixed" hidden>
+        <section class="fixed-reference" id="fixedReferenceSection">
+          <div class="section-head section-head--tight">
+            <div>
+              <h2>고정계수와 안전장치 표</h2>
+            </div>
+          </div>
+          <div class="fixed-reference__summary" id="fixedReferenceSummary"></div>
+          <div class="fixed-reference__coefficients" id="fixedReferenceCoefficients"></div>
+          <div class="fixed-reference__safety-profile" id="fixedReferenceSafetyProfile"></div>
+          <div class="fixed-reference__guard-rules" id="fixedReferenceGuardRules"></div>
+        </section>
       </section>
     </section>
 

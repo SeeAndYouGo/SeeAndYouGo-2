@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>예측식 비교</title>
+  <link rel="stylesheet" href="./compare.css">
+</head>
+<body>
+  <main class="compare-shell">
+    <header class="hero">
+      <div>
+        <p class="hero__eyebrow">SeeAndYouGo</p>
+        <h1>예측식 비교</h1>
+        <p class="hero__lead">기본식, 현재 운영식, 기본식 + 잔차 보정식을 같은 날짜에서 바로 비교합니다.</p>
+      </div>
+      <div class="hero__actions">
+        <a class="hero__link" href="./">기존 검증 화면</a>
+      </div>
+    </header>
+
+    <section class="control-panel">
+      <form id="compareForm" class="control-form">
+        <div class="control-field control-field--wide">
+          <span class="control-label">비교 기준</span>
+          <div class="profile-switch" id="profileSwitch" role="tablist" aria-label="프로필 선택"></div>
+          <p class="control-hint" id="profileHint"></p>
+        </div>
+
+        <div class="control-field">
+          <label for="restaurant">식당</label>
+          <select id="restaurant"></select>
+        </div>
+
+        <div class="control-field">
+          <label for="date">날짜</label>
+          <input id="date" type="date" required>
+        </div>
+
+        <div class="control-actions">
+          <button type="submit" id="runButton">비교 보기</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="status-panel" id="statusPanel" hidden></section>
+
+    <section class="compare-panel" id="comparePanel" hidden>
+      <div class="summary-strip" id="summaryStrip"></div>
+      <div class="horizon-strip" id="horizonStrip"></div>
+
+      <section class="focus-grid">
+        <article class="panel chart-panel">
+          <div class="panel__head">
+            <div>
+              <p class="panel__eyebrow" id="focusEyebrow"></p>
+              <h2 id="focusTitle"></h2>
+            </div>
+            <div class="legend" id="chartLegend"></div>
+          </div>
+          <div class="chart-stage" id="chartStage"></div>
+        </article>
+
+        <aside class="panel metrics-panel">
+          <div class="panel__head">
+            <div>
+              <p class="panel__eyebrow">모델 비교</p>
+              <h2>한눈에 보기</h2>
+            </div>
+          </div>
+          <div class="metrics-stack" id="metricsStack"></div>
+        </aside>
+      </section>
+
+      <section class="panel method-panel">
+        <div class="panel__head">
+          <div>
+            <p class="panel__eyebrow">식 비교</p>
+            <h2>어떻게 다른가</h2>
+          </div>
+        </div>
+        <div class="method-grid" id="methodGrid"></div>
+      </section>
+
+      <section class="panel sample-panel">
+        <div class="panel__head">
+          <div>
+            <p class="panel__eyebrow">대표 시각</p>
+            <h2>실제값과 예측값</h2>
+          </div>
+        </div>
+        <div class="sample-table-wrap">
+          <table class="sample-table">
+            <thead>
+              <tr>
+                <th>목표 시각</th>
+                <th>실제</th>
+                <th>기본식</th>
+                <th>현재 운영식</th>
+                <th>제안식</th>
+              </tr>
+            </thead>
+            <tbody id="sampleRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./compare.js"></script>
+</body>
+</html>

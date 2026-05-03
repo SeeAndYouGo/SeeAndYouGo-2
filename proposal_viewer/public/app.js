@@ -62,6 +62,17 @@ const presetHint = document.getElementById('presetHint');
 const commonPresetValue = document.getElementById('commonPresetValue');
 const commonPresetNote = document.getElementById('commonPresetNote');
 const restaurantPresetRows = document.getElementById('restaurantPresetRows');
+const resultTabButtons = Array.from(document.querySelectorAll('[data-result-view]'));
+const resultViewPanels = Array.from(document.querySelectorAll('[data-result-view-panel]'));
+const reasonOverview = document.getElementById('reasonOverview');
+const featureAnalysisSection = document.getElementById('featureAnalysisSection');
+const featureAnalysisSummary = document.getElementById('featureAnalysisSummary');
+const featureAnalysisTable = document.getElementById('featureAnalysisTable');
+const featureCandidatePanel = document.getElementById('featureCandidatePanel');
+const fixedReferenceSummary = document.getElementById('fixedReferenceSummary');
+const fixedReferenceCoefficients = document.getElementById('fixedReferenceCoefficients');
+const fixedReferenceSafetyProfile = document.getElementById('fixedReferenceSafetyProfile');
+const fixedReferenceGuardRules = document.getElementById('fixedReferenceGuardRules');
 const modeButtons = Array.from(document.querySelectorAll('[data-mode]'));
 const strategyButtons = Array.from(document.querySelectorAll('[data-strategy]'));
 const profileButtons = Array.from(document.querySelectorAll('[data-profile]'));
@@ -82,6 +93,7 @@ let selectedFormulaHorizon = 60;
 let selectedDetailModel = MODEL_ADJUSTED;
 let selectedDetailView = 'largest';
 let selectedGridHorizon = 60;
+let selectedResultView = 'graph';
 let lastGridData = [];
 let gridRequestId = 0;
 
@@ -91,6 +103,7 @@ setFormulaStrategy(STRATEGY_RESTAURANT_HORIZON);
 setProfile(PROFILE_ALL_DATA);
 adjustedHelp.textContent = '피크 압력식 기준 설명 화면입니다. 계수는 고정이고, 현재값·평소값·상승량 같은 계산값만 예측 시점마다 다시 계산합니다.';
 renderPresetSection();
+setResultView(selectedResultView);
 void initializeMetadata();
 
 restaurantInput.addEventListener('change', () => {
@@ -135,6 +148,12 @@ for (const input of Object.values(weightInputs)) {
   });
 }
 
+for (const button of resultTabButtons) {
+  button.addEventListener('click', () => {
+    setResultView(button.dataset.resultView || 'graph');
+  });
+}
+
 applyPresetButton.addEventListener('click', () => {
   applyMode(lastPresetMode);
 });
@@ -163,6 +182,22 @@ resultPanel.addEventListener('click', (event) => {
     renderRestaurantGrid();
   }
 });
+
+function setResultView(nextView) {
+  selectedResultView = nextView;
+
+  for (const button of resultTabButtons) {
+    const isActive = button.dataset.resultView === nextView;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  }
+
+  for (const panel of resultViewPanels) {
+    const isActive = panel.dataset.resultViewPanel === nextView;
+    panel.classList.toggle('is-active', isActive);
+    panel.hidden = !isActive;
+  }
+}
 
 function syncPredictionCardFocus() {
   for (const card of predictionCards.querySelectorAll('.card--comparison')) {
@@ -259,6 +294,14 @@ form.addEventListener('submit', async (event) => {
   formulaPrimer.innerHTML = '';
   strategyTables.innerHTML = '';
   calculationGuide.innerHTML = '';
+  if (reasonOverview) reasonOverview.innerHTML = '';
+  if (featureAnalysisSummary) featureAnalysisSummary.innerHTML = '';
+  if (featureAnalysisTable) featureAnalysisTable.innerHTML = '';
+  if (featureCandidatePanel) featureCandidatePanel.innerHTML = '';
+  if (fixedReferenceSummary) fixedReferenceSummary.innerHTML = '';
+  if (fixedReferenceCoefficients) fixedReferenceCoefficients.innerHTML = '';
+  if (fixedReferenceSafetyProfile) fixedReferenceSafetyProfile.innerHTML = '';
+  if (fixedReferenceGuardRules) fixedReferenceGuardRules.innerHTML = '';
   if (detailControls) detailControls.innerHTML = '';
   if (detailInsights) detailInsights.innerHTML = '';
   if (comparisonRows) comparisonRows.innerHTML = '';
@@ -417,6 +460,8 @@ function render(data) {
   renderGridControlsBar();
   restaurantGrid.innerHTML = '<p class="status status--soft">선택 날짜의 전체 식당 그래프를 불러오는 중입니다.</p>';
   renderFormulaSectionPresentation(data);
+  renderExplanationPanels(data);
+  renderFixedReferenceTables(data);
   void loadRestaurantGrid(data);
 }
 
@@ -2121,6 +2166,14 @@ function renderFormulaSectionPresentation(data) {
   const row = pickFormulaExampleRow(horizon);
   const scopeText = buildFormulaScopeTextV2(data, horizon);
   const optimizedFormula = buildReadableOptimizedFormulaPresentation();
+  const runtimeFeatureSummary = row?.coefficients
+    ? orderedFormulaKeysV2(row.coefficients)
+      .filter((key) => key !== 'intercept')
+      .map((key) => featureLabelEnhanced(key))
+      .join(' · ')
+    : '현재값 · 목표 평소값 · 피크 압력';
+  const optimizedNote = data.parameters?.optimized?.safetyGuard?.note
+    || '현재 화면의 최종 예측은 모두 이 식으로 계산합니다.';
 
   formulaControls.innerHTML = `
     <div class="segmented" aria-label="예측식 분 후 선택">
@@ -2152,7 +2205,7 @@ function renderFormulaSectionPresentation(data) {
         <span class="formula-card__short">실제 적용</span>
       </div>
       <code>${optimizedFormula}</code>
-      <p class="formula-card__note">현재 화면의 최종 예측은 모두 이 식으로 계산합니다.</p>
+      <p class="formula-card__note">${optimizedNote}</p>
     </article>
   `;
 
@@ -2209,7 +2262,7 @@ function renderFormulaSectionPresentation(data) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">매번 다시 계산되는 값</span>
-        <p>현재값, 목표 평소값, 피크 압력, 15분 상승, 30분 상승 같은 값은 예측할 때마다 다시 계산합니다.</p>
+        <p>${runtimeFeatureSummary} 같은 값은 예측할 때마다 다시 계산합니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">반영률 사용 위치</span>
@@ -2396,4 +2449,544 @@ function simplifyPresentationV2(data) {
 
 function formatValidationDelta(item) {
   return `${item.baseMae}->${item.optimizedMae}`;
+}
+
+function fixedValueText(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '-';
+  return formatCoefficient(numeric);
+}
+
+function featureDocMapForData(data) {
+  return new Map((data?.formulas?.featureDocs || []).map((doc) => [doc.key, doc]));
+}
+
+function featureLabelForData(docMap, key) {
+  return docMap.get(key)?.label || featureLabelEnhanced(key);
+}
+
+function featureDetailForData(docMap, key) {
+  return docMap.get(key)?.detail || coefficientMeaningV2(key);
+}
+
+buildReadableOptimizedFormulaPresentation = function buildReadableOptimizedFormulaPresentation() {
+  const keys = lastRenderedData?.parameters?.optimized?.featureKeys
+    || lastRenderedData?.fixedModel?.featureKeys
+    || [];
+
+  if (!keys.length) {
+    return '예측값 = (목표 평소값 계수 × 목표 평소값) + (현재값 계수 × 현재값) + (피크 압력 계수 × 피크 압력)';
+  }
+
+  const terms = keys.map((key) => {
+    if (key === 'intercept') return '절편';
+    return `(${coefficientNameV2(key)} × ${featureLabelEnhanced(key)})`;
+  });
+  return `예측값 = ${terms.join(' + ')}`;
+};
+
+runtimeValueRowsV2 = function runtimeValueRowsV2(row, horizon) {
+  const featureKeys = orderedFormulaKeysV2(row?.coefficients || {});
+  const hasFeature = (key) => featureKeys.includes(key);
+  const rows = [
+    {
+      label: '현재 시점 평소값',
+      formula: '같은 식당·같은 요일·같은 시간대의 과거 평균',
+      value: formatOneDecimal(row.currentBaseline),
+      note: '현재가 평소보다 높은지 낮은지를 판단할 기준값입니다.'
+    },
+    {
+      label: '목표 평소값',
+      formula: `${horizon?.horizonMinutes || 0}분 뒤 같은 식당·같은 요일·같은 시간대의 과거 평균`,
+      value: formatOneDecimal(row.targetBaseline),
+      note: '예측하려는 시각이 원래 얼마나 붐비는지 보여줍니다.'
+    },
+    {
+      label: '현재값',
+      formula: '기준 시각 실제 혼잡도',
+      value: formatOneDecimal(row.currentValue),
+      note: '지금 실제 혼잡도입니다.'
+    }
+  ];
+
+  if (hasFeature('pressureGap')) {
+    rows.push({
+      label: '피크 압력',
+      formula: `max(목표 평소값 ${formatOneDecimal(row.targetBaseline)}명 - 현재값 ${formatOneDecimal(row.currentValue)}명, 0명)`,
+      value: formatOneDecimal(row.featureValues?.pressureGap ?? 0),
+      note: '앞으로 더 붐빌 여지가 남아 있으면 커집니다.'
+    });
+  }
+
+  if (hasFeature('baselineShiftPos')) {
+    rows.push({
+      label: '상승 평소값 이동',
+      formula: `max(목표 평소값 ${formatOneDecimal(row.targetBaseline)}명 - 현재 시점 평소값 ${formatOneDecimal(row.currentBaseline)}명, 0명)`,
+      value: formatOneDecimal(row.featureValues?.baselineShiftPos ?? 0),
+      note: '현재보다 목표 시각이 원래 더 바쁜 시간대인지 보는 값입니다.'
+    });
+  }
+
+  if (hasFeature('gapPos')) {
+    rows.push({
+      label: '현재 초과분',
+      formula: `max(현재값 ${formatOneDecimal(row.currentValue)}명 - 현재 시점 평소값 ${formatOneDecimal(row.currentBaseline)}명, 0명)`,
+      value: formatOneDecimal(row.featureValues?.gapPos ?? 0),
+      note: '지금이 평소보다 이미 얼마나 높은지 보여줍니다.'
+    });
+  }
+
+  if (hasFeature('rise15')) {
+    rows.push({
+      label: '최근 15분 상승량',
+      formula: `max(최근 15분 변화량 ${formatOneDecimal(row.trend15 ?? 0)}명, 0명)`,
+      value: formatOneDecimal(row.featureValues?.rise15 ?? 0),
+      note: '직전 15분의 상승 흐름을 계산용으로 바꾼 값입니다.'
+    });
+  }
+
+  if (hasFeature('rise30') || hasFeature('surge30')) {
+    rows.push({
+      label: '최근 30분 상승량',
+      formula: `max(최근 30분 변화량 ${formatOneDecimal(row.trend30 ?? 0)}명, 0명)`,
+      value: formatOneDecimal(row.featureValues?.rise30 ?? 0),
+      note: hasFeature('surge30')
+        ? '30분 가속을 계산할 때 함께 쓰는 중간값입니다.'
+        : '최근 30분의 상승 흐름을 계산용으로 바꾼 값입니다.'
+    });
+  }
+
+  if (hasFeature('surge30')) {
+    rows.push({
+      label: '30분 가속',
+      formula: `피크 압력 ${formatOneDecimal(row.featureValues?.pressureGap ?? 0)} × 최근 30분 상승량 ${formatOneDecimal(row.featureValues?.rise30 ?? 0)} / 50`,
+      value: formatOneDecimal(row.featureValues?.surge30 ?? 0),
+      note: '앞으로 더 붐빌 압력과 최근 상승 흐름이 동시에 큰지 보는 보조 신호입니다.'
+    });
+  }
+
+  return rows;
+};
+
+function renderExplanationPanels(data) {
+  if (!reasonOverview || !featureAnalysisSummary || !featureAnalysisTable || !featureCandidatePanel) {
+    return;
+  }
+
+  const docMap = featureDocMapForData(data);
+  const featureKeys = data?.parameters?.optimized?.featureKeys || data?.fixedModel?.featureKeys || [];
+  const optimizedLabel = data?.parameters?.optimized?.formulaLabel || data?.formulas?.optimized?.label || '피크 압력식';
+  const scope = data?.fixedModel?.scope || '식당 × 30/60/90분';
+  const tuningLabel = data?.parameters?.tuningWindow?.label || data?.profile?.label || '전체 누적 데이터';
+  const guardNote = data?.parameters?.optimized?.safetyGuard?.note
+    || '6항식 보정이 과하게 튀는 경우에는 일부만 반영하고, 올리거나 내리는 폭에도 상한을 둡니다.';
+
+  reasonOverview.innerHTML = `
+    <div class="reason-overview__head">
+      <div>
+        <p class="eyebrow eyebrow--small">식 설명</p>
+        <h2>무엇을 보고 예측하고, 계수는 언제 고정되는가</h2>
+      </div>
+      <div class="summary-badges">
+        <span class="tag">${optimizedLabel}</span>
+        <span class="tag">${scope}</span>
+        <span class="tag">${tuningLabel}</span>
+      </div>
+    </div>
+    <div class="reason-overview__grid">
+      <article class="reason-card reason-card--accent">
+        <span class="reason-card__label">기본 생각</span>
+        <strong>평소 패턴 + 현재 상태 + 피크 진입 신호</strong>
+        <p>같은 식당, 같은 요일, 같은 시간대의 평소 혼잡도를 기준으로 잡고, 현재 실제값과 최근 상승 흐름을 더해 최종 예측을 만듭니다.</p>
+      </article>
+      <article class="reason-card">
+        <span class="reason-card__label">계수 단위</span>
+        <strong>${scope}</strong>
+        <p>계수는 식당별·30분/60분/90분별로 따로 학습한 뒤 고정합니다. 날짜가 바뀌어도 같은 식당의 같은 예측 구간이면 같은 계수를 씁니다.</p>
+      </article>
+      <article class="reason-card">
+        <span class="reason-card__label">실시간 입력값</span>
+        <strong>${featureKeys.map((key) => featureLabelForData(docMap, key)).join(' · ')}</strong>
+        <p>계수는 고정이지만, 현재값·피크 압력·현재 초과분 같은 입력값은 예측할 때마다 새로 계산됩니다.</p>
+      </article>
+      <article class="reason-card">
+        <span class="reason-card__label">안전장치</span>
+        <strong>reliability, blendRatio, cap</strong>
+        <p>${guardNote}</p>
+      </article>
+    </div>
+  `;
+
+  if (featureAnalysisSection) {
+    featureAnalysisSection.hidden = false;
+  }
+  featureAnalysisSummary.innerHTML = `
+    <div class="feature-analysis__cards">
+      <article class="primer-card">
+        <span class="primer-card__label">계수는 언제 정해지나</span>
+        <p>서버가 튜닝 데이터를 읽을 때 한 번 학습합니다. 그 뒤에는 사용 중에 바뀌지 않고, 서버를 다시 학습하거나 재시작할 때만 새로 만들어집니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">이번 예측에서 달라지는 것</span>
+        <p>현재값, 현재 시점 평소값, 목표 평소값, 최근 30분 상승량처럼 날짜와 시각에 따라 바뀌는 값입니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">요일·시즌 반영 위치</span>
+        <p>요일과 시간대, 시즌성은 평소값을 만드는 단계에 먼저 반영됩니다. 일반 식당은 시즌 평균을 우선 쓰고, 학생생활관은 전 기간 평균을 사용합니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">왜 안전장치를 두나</span>
+        <p>6항식 계산값이 어떤 날에는 너무 크게 움직일 수 있어서, 기본식에서 멀어지는 폭을 한 번 더 점검하기 위해 넣었습니다.</p>
+      </article>
+    </div>
+  `;
+
+  featureAnalysisTable.innerHTML = `
+    <div class="table-wrap table-wrap--plain">
+      <table class="mapping-table mapping-table--compact">
+        <thead>
+          <tr>
+            <th>입력값</th>
+            <th>무엇을 뜻하나</th>
+            <th>왜 넣었나</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${featureKeys.map((key) => `
+            <tr>
+              <td>${featureLabelForData(docMap, key)}</td>
+              <td>${docMap.get(key)?.meaning || coefficientMeaningV2(key)}</td>
+              <td>${featureDetailForData(docMap, key)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  featureCandidatePanel.innerHTML = `
+    <div class="feature-analysis__candidate-grid">
+      <article class="primer-card">
+        <span class="primer-card__label">고정값</span>
+        <p>식당 × 30/60/90분 계수, gainFactor, sampleFactor, minBlendRatio 같은 값입니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">실시간값</span>
+        <p>pressureGap, baselineShiftPos, gapPos, currentGap, reliability, blendRatio, cap은 예측 행마다 다시 계산됩니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">처음 보는 사람용 해석</span>
+        <p>고정 계수는 “이 식당의 평소 습관”, 실시간값은 “오늘 지금 분위기”, 안전장치는 “너무 튀지 않게 마지막으로 잡아주는 장치”라고 보면 됩니다.</p>
+      </article>
+    </div>
+  `;
+}
+
+function renderFixedReferenceTables(data) {
+  if (!fixedReferenceSummary || !fixedReferenceCoefficients || !fixedReferenceSafetyProfile || !fixedReferenceGuardRules) {
+    return;
+  }
+
+  const fixedModel = data?.fixedModel;
+  if (!fixedModel?.rows?.length) {
+    const placeholder = '<p class="status status--soft">고정 계수 표를 만들 데이터가 없습니다.</p>';
+    fixedReferenceSummary.innerHTML = placeholder;
+    fixedReferenceCoefficients.innerHTML = '';
+    fixedReferenceSafetyProfile.innerHTML = '';
+    fixedReferenceGuardRules.innerHTML = '';
+    return;
+  }
+
+  const docMap = featureDocMapForData(data);
+  const featureKeys = fixedModel.featureKeys || [];
+  const rows = fixedModel.rows || [];
+  const guard = fixedModel.safetyGuard || {};
+  const totalSamples = rows.reduce((sum, row) => sum + (row.sampleCount || 0), 0);
+  const bestGainRow = rows.reduce((best, row) => (!best || (row.gain || 0) > (best.gain || 0) ? row : best), null);
+  const constants = guard.constants || {};
+  const weights = guard.reliabilityWeights || {};
+
+  fixedReferenceSummary.innerHTML = `
+    <div class="formula-summary-grid">
+      <article class="primer-card">
+        <span class="primer-card__label">고정 단위</span>
+        <p>${fixedModel.scope} 단위로 계수를 따로 저장합니다. 그래서 같은 식당이라도 30분 후와 90분 후는 계수가 다를 수 있습니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">사용 항목</span>
+        <p>${featureKeys.map((key) => featureLabelForData(docMap, key)).join(' · ')}</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">reliability</span>
+        <p>이번 예측에서 6항 보정량을 얼마나 믿을지 정하는 0~1 점수입니다. 과거 성적, 표본 수, 이번 피크 신호를 합쳐 만듭니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">blendRatio</span>
+        <p>6항식이 제안한 보정량을 실제로 몇 % 반영할지 정하는 비율입니다. reliability가 높을수록 더 많이 반영합니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">positiveCap / negativeCap</span>
+        <p>최종 보정이 기본식에서 너무 멀어지지 않도록 최대 상향폭과 최대 하향폭을 따로 둔 값입니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">표본 규모</span>
+        <p>고정 계수 표 전체 표본은 ${numberFormat.format(totalSamples)}건입니다.${bestGainRow ? ` 가장 개선폭이 큰 그룹은 ${bestGainRow.restaurant} ${bestGainRow.horizonMinutes}분 후(${formatSignedNumber(bestGainRow.gain || 0, '명')})입니다.` : ''}</p>
+      </article>
+    </div>
+  `;
+
+  fixedReferenceCoefficients.innerHTML = `
+    <section class="strategy-block">
+      <div class="section-head section-head--tight">
+        <div>
+          <h3>식당 × 분별 고정 계수</h3>
+          <p class="hint">이 표의 숫자는 서버가 학습 시점에 한 번 정해둔 값입니다. 실제 예측 때는 이 계수에 현재 입력값을 곱합니다.</p>
+        </div>
+      </div>
+      <div class="table-wrap table-wrap--plain">
+        <table class="mapping-table mapping-table--compact">
+          <thead>
+            <tr>
+              <th>식당</th>
+              <th>예측 구간</th>
+              <th>표본 수</th>
+              <th>기본식 MAE</th>
+              <th>운영식 MAE</th>
+              <th>개선폭</th>
+              ${featureKeys.map((key) => `<th>${featureLabelForData(docMap, key)} 계수</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td>${row.restaurant}</td>
+                <td>${row.horizonMinutes}분 후</td>
+                <td>${numberFormat.format(row.sampleCount || 0)}건</td>
+                <td>${formatOneDecimal(row.baseMae || 0)}명</td>
+                <td>${formatOneDecimal(row.optimizedMae || 0)}명</td>
+                <td>${formatSignedNumber(row.gain || 0, '명')}</td>
+                ${featureKeys.map((key) => `<td>${fixedValueText(row.coefficients?.[key])}</td>`).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+
+  fixedReferenceSafetyProfile.innerHTML = `
+    <section class="strategy-block">
+      <div class="section-head section-head--tight">
+        <div>
+          <h3>그룹별 안전장치 기본 점수</h3>
+          <p class="hint">여기 값들은 식당 × 30/60/90분 그룹마다 고정입니다. 이 값들이 있어야 runtime 단계에서 reliability와 blendRatio를 계산할 수 있습니다.</p>
+        </div>
+      </div>
+      <div class="formula-summary-grid">
+        <article class="primer-card">
+          <span class="primer-card__label">gain</span>
+          <p>기본식 MAE에서 운영식 MAE를 뺀 값입니다. 클수록 그 그룹에서 운영식이 실제로 더 잘 맞았다는 뜻입니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">gainFactor</span>
+          <p>gain을 0~1 범위로 바꾼 값입니다. 과거 성적이 좋을수록 이번에도 더 믿게 됩니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">sampleFactor</span>
+          <p>표본 수를 0~1 범위로 바꾼 값입니다. 데이터가 많은 그룹일수록 안정적인 그룹으로 봅니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">minBlendRatio</span>
+          <p>이번 행이 애매해도 최소한 이 비율만큼은 6항 보정을 반영하겠다는 하한입니다.</p>
+        </article>
+      </div>
+      <div class="table-wrap table-wrap--plain">
+        <table class="mapping-table mapping-table--compact">
+          <thead>
+            <tr>
+              <th>식당</th>
+              <th>예측 구간</th>
+              <th>gain</th>
+              <th>gainFactor</th>
+              <th>sampleFactor</th>
+              <th>minBlendRatio</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td>${row.restaurant}</td>
+                <td>${row.horizonMinutes}분 후</td>
+                <td>${fixedValueText(row.safetyProfile?.gain)}</td>
+                <td>${fixedValueText(row.safetyProfile?.gainFactor)}</td>
+                <td>${fixedValueText(row.safetyProfile?.sampleFactor)}</td>
+                <td>${fixedValueText(row.safetyProfile?.minBlendRatio)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+
+  const signalRows = [
+    {
+      label: 'pressureGap',
+      meaning: '앞으로 더 붐빌 여지',
+      formula: 'max(목표 평소값 - 현재값, 0)',
+      note: '목표 시각이 현재보다 원래 더 붐비고, 아직 그 수준에 도달하지 않았을 때 커집니다.'
+    },
+    {
+      label: 'baselineShiftPos',
+      meaning: '평소 흐름상 얼마나 더 올라가는 시간대로 가는지',
+      formula: 'max(목표 평소값 - 현재 시점 평소값, 0)',
+      note: '지금보다 목표 시각이 원래 더 바쁜 시간대인지 판단합니다.'
+    },
+    {
+      label: 'gapPos',
+      meaning: '현재가 평소보다 얼마나 높은지',
+      formula: 'max(현재값 - 현재 시점 평소값, 0)',
+      note: '이미 평소보다 높게 차 있는 상황이면 이 값이 커집니다.'
+    },
+    {
+      label: 'currentGap',
+      meaning: '현재와 평소의 차이 전체',
+      formula: '현재값 - 현재 시점 평소값',
+      note: '음수까지 포함한 차이입니다. negativeCap을 계산할 때 씁니다.'
+    }
+  ];
+
+  const guardRows = [
+    {
+      label: 'gainFactor',
+      meaning: '과거 성적 점수',
+      formula: `clamp((gain + 0.2) / ${guard.gainFullEffect ?? 1.8}, 0, 1)`,
+      runtime: 'gain',
+      note: '과거에 운영식이 잘 맞았던 그룹이면 커집니다.'
+    },
+    {
+      label: 'sampleFactor',
+      meaning: '표본 수 점수',
+      formula: `clamp((sampleCount - ${guard.minSamples ?? 300}) / ${guard.sampleFullEffect ?? 900}, 0, 1)`,
+      runtime: 'sampleCount',
+      note: '표본이 충분한 그룹이면 커집니다.'
+    },
+    {
+      label: 'signalFactor',
+      meaning: '이번 행의 피크 신호 점수',
+      formula: `clamp((pressureGap + baselineShiftPos + gapPos) / ${guard.signalFullEffect ?? 90}, 0, 1)`,
+      runtime: 'pressureGap, baselineShiftPos, gapPos',
+      note: '지금 행이 실제로 피크 진입 구간처럼 보일수록 커집니다.'
+    },
+    {
+      label: 'reliability',
+      meaning: '이번 예측에서 6항 보정을 얼마나 믿을지 정하는 점수',
+      formula: `gainFactor × ${weights.gainFactor ?? 0.55} + sampleFactor × ${weights.sampleFactor ?? 0.20} + signalFactor × ${weights.signalFactor ?? 0.25}`,
+      runtime: 'gainFactor, sampleFactor, signalFactor',
+      note: '그룹의 과거 성적, 표본 수, 이번 피크 신호를 함께 반영합니다.'
+    },
+    {
+      label: 'minBlendRatio',
+      meaning: '아무리 보수적이어도 최소 반영할 비율',
+      formula: `clamp(${constants.minBlendBase ?? 0.35} + sampleFactor × 0.15, ${constants.minBlendBase ?? 0.35}, 0.90)`,
+      runtime: 'sampleFactor',
+      note: '표본이 충분할수록 최소 반영 비율이 조금 올라갑니다.'
+    },
+    {
+      label: 'blendRatio',
+      meaning: '6항식 보정량을 실제로 몇 % 반영할지',
+      formula: 'minBlendRatio + (1 - minBlendRatio) × reliability',
+      runtime: 'minBlendRatio, reliability',
+      note: 'reliability가 높을수록 6항식 보정량을 더 많이 받아들입니다.'
+    },
+    {
+      label: 'positiveCap',
+      meaning: '기본식보다 최대 몇 명까지 올릴 수 있는지',
+      formula: `${constants.positiveCapBase ?? 10} + pressureGap × ${constants.positiveCapPressureWeight ?? 0.55} + baselineShiftPos × ${constants.positiveCapShiftWeight ?? 0.35} + gapPos × ${constants.positiveCapGapWeight ?? 0.15}`,
+      runtime: 'pressureGap, baselineShiftPos, gapPos',
+      note: '앞으로 더 붐빌 여지가 클수록 상향 보정 한도도 커집니다.'
+    },
+    {
+      label: 'negativeCap',
+      meaning: '기본식보다 최대 몇 명까지 내릴 수 있는지',
+      formula: `${constants.negativeCapBase ?? 8} + |currentGap| × ${constants.negativeCapGapWeight ?? 0.30} + gapPos × ${constants.negativeCapExcessWeight ?? 0.15}`,
+      runtime: 'currentGap, gapPos',
+      note: '하향 보정은 상향보다 더 보수적으로 제한합니다.'
+    }
+  ];
+
+  fixedReferenceGuardRules.innerHTML = `
+    <section class="strategy-block">
+      <div class="section-head section-head--tight">
+        <div>
+          <h3>안전장치 계산 규칙</h3>
+          <p class="hint">안전장치는 “6항식이 제안한 보정량을 얼마나 믿을지”와 “최대 몇 명까지 움직이게 둘지”를 나누어 계산합니다.</p>
+        </div>
+      </div>
+      <div class="formula-summary-grid">
+        <article class="primer-card">
+          <span class="primer-card__label">reliability</span>
+          <p>과거 성적(gainFactor), 표본 수(sampleFactor), 이번 피크 신호(signalFactor)를 합친 이번 행의 신뢰도입니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">blendRatio</span>
+          <p>reliability를 실제 반영 비율로 바꾼 값입니다. 6항식 보정량을 전부 쓰지 않고 일부만 쓰게 만듭니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">positiveCap</span>
+          <p>기본식보다 위로 얼마나 올릴지의 상한입니다. 피크 신호가 강하면 더 크게 허용합니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">negativeCap</span>
+          <p>기본식보다 아래로 얼마나 내릴지의 상한입니다. 과한 하향 보정을 막기 위해 더 보수적으로 둡니다.</p>
+        </article>
+      </div>
+      <div class="table-wrap table-wrap--plain">
+        <table class="mapping-table mapping-table--compact">
+          <thead>
+            <tr>
+              <th>실시간 입력값</th>
+              <th>무엇을 뜻하나</th>
+              <th>계산식</th>
+              <th>왜 보나</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${signalRows.map((row) => `
+              <tr>
+                <td><strong>${row.label}</strong></td>
+                <td>${row.meaning}</td>
+                <td><code>${row.formula}</code></td>
+                <td>${row.note}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap table-wrap--plain">
+        <table class="mapping-table mapping-table--compact">
+          <thead>
+            <tr>
+              <th>안전장치 값</th>
+              <th>무엇을 뜻하나</th>
+              <th>계산식</th>
+              <th>이번 예측에서 쓰는 입력값</th>
+              <th>한 줄 해석</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${guardRows.map((row) => `
+              <tr>
+                <td><strong>${row.label}</strong></td>
+                <td>${row.meaning}</td>
+                <td><code>${row.formula}</code></td>
+                <td>${row.runtime}</td>
+                <td>${row.note}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
 }
