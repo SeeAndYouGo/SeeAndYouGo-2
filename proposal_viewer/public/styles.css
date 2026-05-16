@@ -115,6 +115,13 @@ p {
   gap: 12px;
 }
 
+.result-export {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .result-tab {
   display: grid;
   justify-items: start;
@@ -191,6 +198,29 @@ p {
 
 .field--wide {
   grid-column: 1 / -1;
+}
+
+.scope-entry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: end;
+}
+
+.scope-entry__time {
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 220px);
+}
+
+.scope-entry__time span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.scope-entry__time.is-disabled {
+  opacity: 0.48;
 }
 
 .field label,
@@ -584,6 +614,59 @@ button:hover {
   line-height: 1.7;
 }
 
+.overview-card--wide {
+  grid-column: 1 / -1;
+}
+
+.scope-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 18px;
+}
+
+.scope-panel__copy {
+  display: grid;
+  gap: 8px;
+}
+
+.scope-panel__controls {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  min-width: min(100%, 340px);
+}
+
+.scope-panel__picker {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(25, 91, 74, 0.06);
+  border: 1px solid rgba(25, 91, 74, 0.1);
+}
+
+.scope-panel__picker span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.scope-panel__picker select {
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  font: inherit;
+}
+
+.scope-panel__picker.is-disabled {
+  opacity: 0.58;
+}
+
 .calculation-guide {
   display: grid;
 }
@@ -895,8 +978,129 @@ button:hover {
 }
 
 .formula-controls {
+  display: grid;
+  justify-content: flex-end;
+}
+
+.formula-controls__stack {
+  display: grid;
+  gap: 12px;
+  justify-items: end;
+}
+
+.formula-row-picker {
+  display: grid;
+  gap: 8px;
+  min-width: min(100%, 360px);
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(95, 70, 35, 0.06);
+  border: 1px solid rgba(95, 70, 35, 0.12);
+}
+
+.formula-row-picker__label {
+  color: #5f4623;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.formula-row-picker__select {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(95, 70, 35, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #3d3120;
+  font: inherit;
+}
+
+.formula-row-picker__hint {
+  color: #6d573b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.formula-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.point-snapshot {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(25, 91, 74, 0.08), rgba(95, 70, 35, 0.08));
+  border: 1px solid rgba(25, 91, 74, 0.12);
+}
+
+.point-snapshot__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.point-snapshot__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.point-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(25, 91, 74, 0.1);
+}
+
+.point-card--empty {
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.point-card__label {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.point-card strong {
+  color: #233b33;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.point-card__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.point-card__metrics span {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(25, 91, 74, 0.06);
+}
+
+.point-card__metrics em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.point-card__metrics b {
+  color: #233b33;
+  font-size: 15px;
+}
+
+.point-card__note {
+  color: #486357;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .formula-list {
@@ -1623,6 +1827,7 @@ tbody tr:nth-child(even) {
   .formula-primer__cards--wide,
   .strategy-compare-grid,
   .restaurant-grid,
+  .point-snapshot__cards,
   .term-grid,
   .formula-summary-grid,
   .explain-steps,
@@ -1639,6 +1844,8 @@ tbody tr:nth-child(even) {
   .summary-head,
   .reason-overview__head,
   .mini-chart__head,
+  .point-snapshot__head,
+  .scope-panel,
   .section-head {
     align-items: start;
     flex-direction: column;
@@ -1646,6 +1853,25 @@ tbody tr:nth-child(even) {
 
   .formula-controls {
     justify-content: flex-start;
+  }
+
+  .formula-controls__stack {
+    justify-items: stretch;
+  }
+
+  .formula-row-picker {
+    min-width: 0;
+  }
+
+  .scope-panel__controls {
+    width: 100%;
+    justify-items: stretch;
+    min-width: 0;
+  }
+
+  .result-export {
+    justify-content: stretch;
+    flex-direction: column;
   }
 
   .feature-analysis__controls {
@@ -1696,9 +1922,81 @@ tbody tr:nth-child(even) {
     grid-template-columns: 1fr;
   }
 
+  .point-card__metrics {
+    grid-template-columns: 1fr;
+  }
+
   .mini-chart svg,
   table {
     min-width: 640px;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .hero,
+  #predictionForm,
+  .result-tabs,
+  .result-export,
+  .formula-controls,
+  button {
+    display: none !important;
+  }
+
+  .panel {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .panel--result {
+    display: block !important;
+  }
+
+  .result-view,
+  .result-view[hidden] {
+    display: none !important;
+  }
+
+  body[data-print-mode="current"] .result-view.is-active,
+  body[data-print-mode="current"] .result-view.is-active[hidden] {
+    display: block !important;
+  }
+
+  body[data-print-mode="all"] .result-view,
+  body[data-print-mode="all"] .result-view[hidden] {
+    display: block !important;
+  }
+
+  body[data-print-mode="all"] .result-view + .result-view {
+    margin-top: 18mm;
+  }
+
+  body[data-print-mode="all"] .grid-block {
+    display: grid !important;
+  }
+
+  .point-snapshot,
+  .formula-primer,
+  .strategy-block,
+  .guide-card,
+  .formula-card,
+  .primer-card {
+    break-inside: avoid;
   }
 }
 

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
@@ -41,9 +41,25 @@
           <input id="date" type="date" required>
         </div>
 
-        <input id="w30" type="hidden" value="0.8">
-        <input id="w60" type="hidden" value="0.7">
-        <input id="w90" type="hidden" value="0.6">
+        <div class="field field--wide">
+          <span class="field-label">예측 범위</span>
+          <div class="scope-entry">
+            <div class="mode-switch" role="tablist" aria-label="예측 범위 선택">
+              <button type="button" class="strategy-button is-active" data-request-scope="all">전체 시각</button>
+              <button type="button" class="strategy-button" data-request-scope="point">특정 기준 시각</button>
+            </div>
+            <label class="scope-entry__time is-disabled" id="predictionTimeWrap">
+              <span>기준 시각</span>
+              <input id="predictionTime" type="time" step="300" value="11:30" disabled>
+            </label>
+          </div>
+          <p class="hint" id="predictionScopeHelp">선택한 날짜의 모든 기준 시각을 합산해 하루 전체 예측 결과를 봅니다.</p>
+        </div>
+
+        <input id="w10" type="hidden" value="1.0">
+        <input id="w20" type="hidden" value="1.0">
+        <input id="w30" type="hidden" value="0.9">
+        <input id="w60" type="hidden" value="0.9">
         <p class="hint" id="modeHelp" hidden></p>
         <p class="hint" id="strategyHelp" hidden></p>
         <button type="button" id="applyPreset" hidden>추천값 다시 적용</button>
@@ -81,6 +97,11 @@
           <small>식당별 계수와 안전장치 상수</small>
         </button>
       </div>
+      <div class="result-export">
+        <button type="button" class="ghost-button" data-capture-report="current">현재 탭 이미지 저장</button>
+        <button type="button" class="ghost-button" data-capture-report="all">전체 결과 이미지 저장</button>
+        <button type="button" class="ghost-button" data-print-report="all">전체 결과 PDF 저장</button>
+      </div>
 
       <section class="result-view is-active" data-result-view-panel="graph">
         <div class="summary" id="summary"></div>
@@ -109,6 +130,7 @@
           <div class="formula-controls" id="formulaControls"></div>
           <div class="formula-list" id="formulaList"></div>
           <p class="formula-selection" id="formulaSelection"></p>
+          <div class="point-snapshot" id="pointPredictionPanel"></div>
           <div class="formula-primer" id="formulaPrimer"></div>
           <div class="calculation-guide" id="calculationGuide"></div>
           <div class="strategy-tables" id="strategyTables"></div>

@@ -1,4 +1,4 @@
-const HORIZONS = [30, 60, 90];
+﻿const HORIZONS = [10, 20, 30, 60];
 const TIME_BANDS = ['morning', 'preLunch', 'lunchPeak', 'postLunch', 'afternoon', 'dinner'];
 const MODEL_BASE = 'base';
 const MODEL_ADJUSTED = 'adjusted';
@@ -7,33 +7,36 @@ const STRATEGY_BANDED = 'banded';
 const STRATEGY_RESTAURANT_HORIZON = 'restaurantHorizon';
 const PROFILE_ALL_DATA = 'allData';
 const PROFILE_TRAIN_TO_2025 = 'trainTo2025';
-const DEFAULT_ROWS_LIMIT = 72;
+const DEFAULT_ROWS_LIMIT = 0;
 const GRID_ROWS_LIMIT = 48;
 const numberFormat = new Intl.NumberFormat('ko-KR');
 
 const FALLBACK_COMMON_RECOMMENDED_WEIGHTS = Object.freeze({
-  30: 0.8,
-  60: 0.7,
-  90: 0.6
+  10: 1.0,
+  20: 1.0,
+  30: 0.9,
+  60: 0.9
 });
 
 const FALLBACK_RESTAURANT_RECOMMENDED_WEIGHTS = Object.freeze({
-  '제1학생회관': Object.freeze({ 30: 0.9, 60: 0.7, 90: 0.7 }),
-  '제2학생회관': Object.freeze({ 30: 0.9, 60: 0.7, 90: 0.6 }),
-  '제3학생회관': Object.freeze({ 30: 0.9, 60: 0.6, 90: 0.6 }),
-  '상록회관': Object.freeze({ 30: 0.9, 60: 0.8, 90: 0.8 }),
-  '생활과학대': Object.freeze({ 30: 0.9, 60: 0.7, 90: 0.6 }),
-  '학생생활관': Object.freeze({ 30: 0.6, 60: 0.4, 90: 0.2 })
+  '제1학생회관': Object.freeze({ 10: 1.0, 20: 0.9, 30: 0.9, 60: 0.8 }),
+  '제2학생회관': Object.freeze({ 10: 1.0, 20: 1.0, 30: 1.0, 60: 0.9 }),
+  '제3학생회관': Object.freeze({ 10: 1.0, 20: 1.0, 30: 1.0, 60: 0.9 }),
+  '상록회관': Object.freeze({ 10: 1.0, 20: 1.0, 30: 1.0, 60: 1.0 }),
+  '생활과학대': Object.freeze({ 10: 1.0, 20: 1.0, 30: 1.0, 60: 0.9 }),
+  '학생생활관': Object.freeze({ 10: 0.9, 20: 0.8, 30: 0.8, 60: 0.5 })
 });
 
 const form = document.getElementById('predictionForm');
 const restaurantInput = document.getElementById('restaurant');
 const dateInput = document.getElementById('date');
-const weightInputs = {
-  30: document.getElementById('w30'),
-  60: document.getElementById('w60'),
-  90: document.getElementById('w90')
-};
+const predictionTimeInput = document.getElementById('predictionTime');
+const predictionTimeWrap = document.getElementById('predictionTimeWrap');
+const predictionScopeHelp = document.getElementById('predictionScopeHelp');
+const predictionScopeButtons = Array.from(document.querySelectorAll('[data-request-scope]'));
+const weightInputs = Object.fromEntries(
+  HORIZONS.map((minutes) => [minutes, document.getElementById(`w${minutes}`)])
+);
 const resultPanel = document.getElementById('resultPanel');
 const summary = document.getElementById('summary');
 const predictionCards = document.getElementById('predictionCards');
@@ -44,6 +47,7 @@ const restaurantGrid = document.getElementById('restaurantGrid');
 const formulaControls = document.getElementById('formulaControls');
 const formulaList = document.getElementById('formulaList');
 const formulaSelection = document.getElementById('formulaSelection');
+const pointPredictionPanel = document.getElementById('pointPredictionPanel');
 const formulaPrimer = document.getElementById('formulaPrimer');
 const strategyTables = document.getElementById('strategyTables');
 const calculationGuide = document.getElementById('calculationGuide');
@@ -90,6 +94,8 @@ let lastPresetMode = 'common';
 let lastRenderedData = null;
 let selectedDetailHorizon = 60;
 let selectedFormulaHorizon = 60;
+let selectedPointTime = '';
+let selectedGraphScope = 'all';
 let selectedDetailModel = MODEL_ADJUSTED;
 let selectedDetailView = 'largest';
 let selectedGridHorizon = 60;
@@ -97,13 +103,79 @@ let selectedResultView = 'graph';
 let lastGridData = [];
 let gridRequestId = 0;
 
+function normalizeTimeValue(value) {
+  return String(value || '').trim().slice(0, 5);
+}
+
+function timeValueToMinutes(value) {
+  const normalized = normalizeTimeValue(value);
+  const [hour, minute] = normalized.split(':').map(Number);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  return hour * 60 + minute;
+}
+
+function findClosestTimeValue(times, preferred) {
+  const preferredMinutes = timeValueToMinutes(preferred);
+  if (!times.length || preferredMinutes === null) return times[0] || '';
+
+  return times.reduce((best, current) => {
+    const bestMinutes = timeValueToMinutes(best);
+    const currentMinutes = timeValueToMinutes(current);
+    if (bestMinutes === null) return current;
+    if (currentMinutes === null) return best;
+    const currentDistance = Math.abs(currentMinutes - preferredMinutes);
+    const bestDistance = Math.abs(bestMinutes - preferredMinutes);
+    if (currentDistance !== bestDistance) return currentDistance < bestDistance ? current : best;
+    return current < best ? current : best;
+  }, times[0]);
+}
+
+function syncPredictionTimeInput() {
+  if (predictionTimeInput && selectedPointTime) {
+    predictionTimeInput.value = selectedPointTime;
+  }
+}
+
+function updatePredictionScopeInputs() {
+  const isPointScope = selectedGraphScope === 'point';
+
+  for (const button of predictionScopeButtons) {
+    button.classList.toggle('is-active', button.dataset.requestScope === selectedGraphScope);
+  }
+
+  if (predictionTimeInput) {
+    predictionTimeInput.disabled = !isPointScope;
+  }
+
+  if (predictionTimeWrap) {
+    predictionTimeWrap.classList.toggle('is-disabled', !isPointScope);
+  }
+
+  if (predictionScopeHelp) {
+    predictionScopeHelp.textContent = isPointScope
+      ? '기준 시각 하나를 5분 단위로 선택해 그 시각의 10·20·30·60분 후 예측만 따로 봅니다.'
+      : '선택한 날짜의 모든 기준 시각을 합산해 하루 전체 예측 결과를 봅니다.';
+  }
+
+  syncPredictionTimeInput();
+}
+
+function setGraphScope(scope, { rerender = false } = {}) {
+  selectedGraphScope = scope === 'point' ? 'point' : 'all';
+  updatePredictionScopeInputs();
+  if (rerender && lastRenderedData) {
+    simplifyPresentationV2(lastRenderedData);
+  }
+}
+
 dateInput.value = '2026-04-01';
 applyMode('common');
 setFormulaStrategy(STRATEGY_RESTAURANT_HORIZON);
 setProfile(PROFILE_ALL_DATA);
-adjustedHelp.textContent = '피크 압력식 기준 설명 화면입니다. 계수는 고정이고, 현재값·평소값·상승량 같은 계산값만 예측 시점마다 다시 계산합니다.';
+adjustedHelp.textContent = '피크 압력식 기준 설명 화면입니다. 계수는 고정이고, 목표 평소값·피크 잔여차·상승 평소값 이동·현재 초과분만 예측 시점마다 다시 계산합니다.';
 renderPresetSection();
 setResultView(selectedResultView);
+updatePredictionScopeInputs();
 void initializeMetadata();
 
 restaurantInput.addEventListener('change', () => {
@@ -142,6 +214,21 @@ for (const button of profileButtons) {
   });
 }
 
+for (const button of predictionScopeButtons) {
+  button.addEventListener('click', () => {
+    setGraphScope(button.dataset.requestScope || 'all', { rerender: Boolean(lastRenderedData) });
+  });
+}
+
+if (predictionTimeInput) {
+  predictionTimeInput.addEventListener('change', () => {
+    selectedPointTime = normalizeTimeValue(predictionTimeInput.value);
+    if (lastRenderedData && selectedGraphScope === 'point') {
+      simplifyPresentationV2(lastRenderedData);
+    }
+  });
+}
+
 for (const input of Object.values(weightInputs)) {
   input.addEventListener('input', () => {
     if (selectedMode !== 'custom') setMode('custom');
@@ -159,10 +246,28 @@ applyPresetButton.addEventListener('click', () => {
 });
 
 resultPanel.addEventListener('click', (event) => {
+  const captureButton = event.target.closest('[data-capture-report]');
+  if (captureButton) {
+    void captureReportImage(captureButton.dataset.captureReport || 'current');
+    return;
+  }
+
+  const printButton = event.target.closest('[data-print-report]');
+  if (printButton) {
+    triggerPrintReport(printButton.dataset.printReport || 'current');
+    return;
+  }
+
   const formulaHorizonButton = event.target.closest('[data-formula-horizon]');
   if (formulaHorizonButton && lastRenderedData) {
     selectedFormulaHorizon = Number(formulaHorizonButton.dataset.formulaHorizon);
     renderFormulaSectionPresentation(lastRenderedData);
+    return;
+  }
+
+  const graphScopeButton = event.target.closest('[data-graph-scope]');
+  if (graphScopeButton && lastRenderedData) {
+    setGraphScope(graphScopeButton.dataset.graphScope || 'all', { rerender: true });
     return;
   }
 
@@ -180,6 +285,211 @@ resultPanel.addEventListener('click', (event) => {
     selectedGridHorizon = Number(gridHorizonButton.dataset.gridHorizon);
     renderGridControlsBar();
     renderRestaurantGrid();
+  }
+});
+
+window.addEventListener('afterprint', clearPrintMode);
+
+function triggerPrintReport(mode) {
+  document.body.dataset.printMode = mode === 'all' ? 'all' : 'current';
+  window.print();
+}
+
+function clearPrintMode() {
+  delete document.body.dataset.printMode;
+}
+
+async function captureReportImage(mode) {
+  try {
+    const captureMode = mode === 'all' ? 'all' : 'current';
+    const filename = buildCaptureFilename(captureMode);
+
+    if (captureMode === 'all') {
+      const snapshot = buildExpandedResultSnapshot();
+      try {
+        await exportNodeAsPng(snapshot.target, filename);
+      } finally {
+        snapshot.host.remove();
+      }
+      return;
+    }
+
+    await exportNodeAsPng(resultPanel, filename);
+  } catch (error) {
+    window.alert(error.message || '화면 이미지를 저장하지 못했습니다.');
+  }
+}
+
+function buildCaptureFilename(mode) {
+  const restaurant = restaurantInput.value || 'restaurant';
+  const date = dateInput.value || 'date';
+  const view = selectedResultView || 'view';
+  return mode === 'all'
+    ? `${restaurant}-${date}-전체결과.png`
+    : `${restaurant}-${date}-${view}.png`;
+}
+
+function buildExpandedResultSnapshot() {
+  const clone = resultPanel.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.hidden = false;
+  clone.style.display = 'grid';
+  clone.style.width = `${Math.ceil(resultPanel.getBoundingClientRect().width || resultPanel.scrollWidth || 1200)}px`;
+
+  const tabs = clone.querySelector('.result-tabs');
+  if (tabs) tabs.style.display = 'none';
+  const exportBar = clone.querySelector('.result-export');
+  if (exportBar) exportBar.style.display = 'none';
+
+  clone.querySelectorAll('[data-result-view-panel]').forEach((panel) => {
+    panel.hidden = false;
+    panel.classList.add('is-active');
+    panel.style.display = 'block';
+  });
+
+  const host = document.createElement('div');
+  host.style.position = 'fixed';
+  host.style.left = '-20000px';
+  host.style.top = '0';
+  host.style.zIndex = '-1';
+  host.style.padding = '0';
+  host.style.background = getComputedStyle(document.body).background || '#f5f3ec';
+  host.appendChild(clone);
+  document.body.appendChild(host);
+  return { host, target: clone };
+}
+
+async function exportNodeAsPng(node, filename) {
+  const cloned = cloneNodeWithInlineStyles(node);
+  const width = Math.ceil(node.scrollWidth || node.getBoundingClientRect().width || 1);
+  const height = Math.ceil(node.scrollHeight || node.getBoundingClientRect().height || 1);
+
+  if (!width || !height) {
+    throw new Error('저장할 화면 크기를 계산하지 못했습니다.');
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  wrapper.style.width = `${width}px`;
+  wrapper.style.height = `${height}px`;
+  wrapper.style.padding = '0';
+  wrapper.style.margin = '0';
+  wrapper.style.background = getComputedStyle(document.body).background || '#f5f3ec';
+  wrapper.appendChild(cloned);
+
+  const serialized = new XMLSerializer().serializeToString(wrapper);
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <foreignObject width="100%" height="100%">${serialized}</foreignObject>
+    </svg>
+  `;
+
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const image = await loadImage(url);
+    const pixelLimit = 30000000;
+    const baseScale = Math.min(window.devicePixelRatio || 1, 2);
+    const safeScale = Math.max(1, Math.min(baseScale, Math.sqrt(pixelLimit / Math.max(width * height, 1))));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.floor(width * safeScale));
+    canvas.height = Math.max(1, Math.floor(height * safeScale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('이미지 캔버스를 만들지 못했습니다.');
+    context.scale(safeScale, safeScale);
+    context.drawImage(image, 0, 0, width, height);
+
+    const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!pngBlob) throw new Error('이미지 파일로 변환하지 못했습니다.');
+    downloadBlob(pngBlob, filename);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function cloneNodeWithInlineStyles(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return document.createTextNode(node.textContent || '');
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return document.createDocumentFragment();
+  }
+
+  const source = node;
+  const clone = source.cloneNode(false);
+  inlineComputedStyles(source, clone);
+
+  if (clone instanceof HTMLCanvasElement && source instanceof HTMLCanvasElement) {
+    const context = clone.getContext('2d');
+    if (context) {
+      context.drawImage(source, 0, 0);
+    }
+  }
+
+  if (source instanceof HTMLInputElement || source instanceof HTMLTextAreaElement || source instanceof HTMLSelectElement) {
+    clone.setAttribute('value', source.value);
+    if ('value' in clone) clone.value = source.value;
+  }
+
+  for (const child of source.childNodes) {
+    clone.appendChild(cloneNodeWithInlineStyles(child));
+  }
+
+  return clone;
+}
+
+function inlineComputedStyles(source, target) {
+  const computed = getComputedStyle(source);
+  const cssText = Array.from(computed)
+    .map((property) => `${property}:${computed.getPropertyValue(property)};`)
+    .join('');
+  target.setAttribute('style', cssText);
+
+  if (source instanceof SVGElement) {
+    target.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  }
+
+  if (source instanceof HTMLImageElement && source.currentSrc) {
+    target.setAttribute('src', source.currentSrc);
+  }
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('화면 이미지를 만드는 중 로딩에 실패했습니다.'));
+    image.src = url;
+  });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+resultPanel.addEventListener('change', (event) => {
+  const pointTimeSelect = event.target.closest('[data-point-time-select]');
+  if (pointTimeSelect && lastRenderedData) {
+    selectedPointTime = normalizeTimeValue(pointTimeSelect.value);
+    syncPredictionTimeInput();
+    simplifyPresentationV2(lastRenderedData);
+    return;
+  }
+
+  const graphPointTimeSelect = event.target.closest('[data-graph-point-time-select]');
+  if (graphPointTimeSelect && lastRenderedData) {
+    selectedPointTime = normalizeTimeValue(graphPointTimeSelect.value);
+    syncPredictionTimeInput();
+    simplifyPresentationV2(lastRenderedData);
   }
 });
 
@@ -269,9 +579,7 @@ function renderPresetSection() {
       return `
         <tr>
           <td>${restaurant}</td>
-          <td>${formatWeightValue(weights[30])}</td>
-          <td>${formatWeightValue(weights[60])}</td>
-          <td>${formatWeightValue(weights[90])}</td>
+          ${HORIZONS.map((horizonMinutes) => `<td>${formatWeightValue(weights[horizonMinutes])}</td>`).join('')}
         </tr>
       `;
     }).join('');
@@ -280,6 +588,11 @@ function renderPresetSection() {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+
+  if (selectedGraphScope === 'point') {
+    selectedPointTime = normalizeTimeValue(predictionTimeInput?.value);
+  }
+  updatePredictionScopeInputs();
 
   resultPanel.hidden = false;
   summary.innerHTML = '<p class="status">선택 날짜의 실제값과 예측 비교를 불러오는 중입니다.</p>';
@@ -313,11 +626,11 @@ form.addEventListener('submit', async (event) => {
     profile: selectedProfile,
     mode: selectedMode,
     strategy: STRATEGY_RESTAURANT_HORIZON,
-    w30: weightInputs[30].value,
-    w60: weightInputs[60].value,
-    w90: weightInputs[90].value,
     rowsLimit: String(DEFAULT_ROWS_LIMIT)
   });
+  for (const horizonMinutes of HORIZONS) {
+    params.set(`w${horizonMinutes}`, weightInputs[horizonMinutes].value);
+  }
 
   try {
     const response = await fetch(`/api/history?${params}`);
@@ -434,8 +747,8 @@ function render(data) {
   }).join('');
 
   overviewGuide.innerHTML = `
-    ${renderOverviewCard('Step 1', '상세 비교 한 행', '한 행은 특정 기준 시각에서 30분·60분·90분 뒤를 예측한 뒤, 같은 날의 실제 목표 시각 값과 대조한 1건입니다. 하루 안에 기준 시각이 많아서 행 수가 많아집니다.')}
-    ${renderOverviewCard('Step 2', '운영식 선택 방식', data.parameters.formulaStrategy.key === STRATEGY_RESTAURANT_HORIZON ? '조정식 종류는 피크 압력식 하나로 고정하고, 전체 누적 데이터로 식당별·30/60/90분별 계수만 다시 학습합니다. 날짜와 시간대가 바뀌어도 같은 식당의 같은 분 구간은 같은 피크 압력식을 사용합니다.' : '조정식 종류는 피크 압력식 하나로 고정하고, 전체 누적 데이터로 식당별·분별·목표 시간대별 계수만 다시 학습합니다. 날짜를 바꿔도 그 구간의 피크 압력식은 그대로 적용합니다.')}
+    ${renderOverviewCard('Step 1', '상세 비교 한 행', '한 행은 특정 기준 시각에서 10분·20분·30분·60분 뒤를 예측한 뒤, 같은 날의 실제 목표 시각 값과 대조한 1건입니다. 하루 안에 기준 시각이 많아서 행 수가 많아집니다.')}
+    ${renderOverviewCard('Step 2', '운영식 선택 방식', data.parameters.formulaStrategy.key === STRATEGY_RESTAURANT_HORIZON ? '조정식 종류는 피크 압력식 하나로 고정하고, 전체 누적 데이터로 식당별·10/20/30/60분별 계수만 다시 학습합니다. 날짜와 시간대가 바뀌어도 같은 식당의 같은 분 구간은 같은 피크 압력식을 사용합니다.' : '조정식 종류는 피크 압력식 하나로 고정하고, 전체 누적 데이터로 식당별·분별·목표 시간대별 계수만 다시 학습합니다. 날짜를 바꿔도 그 구간의 피크 압력식은 그대로 적용합니다.')}
     ${renderOverviewCard('Step 3', '피크와 데이터 품질 보정', data.restaurant === '제3학생회관' ? '제3학생회관은 점심 피크 상승이 빨라 기본식만 쓰면 늦게 따라가는 경우가 있어, 점심 진입/피크는 과소예측 벌점을 함께 넣어 반응형 식을 더 우선시합니다. 여기에 고립된 0·급반등 값·거의 운영되지 않는 시간대도 같이 제외합니다.' : '점심 진입과 점심 피크는 혼잡도가 급격히 바뀌므로 MAE만 보면 피크를 늦게 따라가는 식이 남을 수 있습니다. 그래서 상위 혼잡 구간 과소예측을 추가 벌점으로 반영하고, 고립된 0·급반등 값·비활성 시간대는 비교에서 제외합니다.') }
   `;
 
@@ -574,7 +887,7 @@ function renderStrategyTables(strategyData, activeStrategyKey) {
       <div class="section-head section-head--tight">
         <div>
           <h3>시간대별 고정식 표</h3>
-          <p class="hint">식당 × 30/60/90분 × 목표 시간대별로 어떤 식이 고정됐는지 보여줍니다.</p>
+      <p class="hint">식당 × 10/20/30/60분 × 목표 시간대별로 어떤 식이 고정됐는지 보여줍니다.</p>
         </div>
       </div>
       <div class="table-wrap table-wrap--plain">
@@ -610,7 +923,7 @@ function renderStrategyTables(strategyData, activeStrategyKey) {
       <div class="section-head section-head--tight">
         <div>
           <h3>식당×분 고정식 표</h3>
-          <p class="hint">시간대를 구분하지 않고, 식당별 30/60/90분마다 하나의 고정식만 쓰는 단순 운영안입니다.</p>
+      <p class="hint">시간대를 구분하지 않고, 식당별 10/20/30/60분마다 하나의 고정식만 쓰는 단순 운영안입니다.</p>
         </div>
       </div>
       <div class="table-wrap table-wrap--plain">
@@ -652,11 +965,11 @@ async function loadRestaurantGrid(data) {
       profile: selectedProfile,
       mode: selectedMode,
       strategy: selectedFormulaStrategy,
-      w30: weightInputs[30].value,
-      w60: weightInputs[60].value,
-      w90: weightInputs[90].value,
       rowsLimit: String(GRID_ROWS_LIMIT)
     });
+    for (const horizonMinutes of HORIZONS) {
+      params.set(`w${horizonMinutes}`, weightInputs[horizonMinutes].value);
+    }
 
     return { restaurant, params };
   });
@@ -693,6 +1006,11 @@ async function loadRestaurantGrid(data) {
 }
 
 function renderGridControlsBar() {
+  if (selectedGraphScope === 'point') {
+    gridControls.innerHTML = '';
+    return;
+  }
+
   gridControls.innerHTML = `
     <div class="segmented" role="tablist" aria-label="전체 식당 그래프 구간 선택">
       ${HORIZONS.map((horizon) => `
@@ -705,6 +1023,11 @@ function renderGridControlsBar() {
 }
 
 function renderRestaurantGrid(failed = []) {
+  if (selectedGraphScope === 'point') {
+    restaurantGrid.innerHTML = '<p class="status status--soft">특정 기준 시각 모드에서는 날짜 전체 식당 그리드를 숨겼습니다. 전체 시각으로 전환하면 다시 볼 수 있습니다.</p>';
+    return;
+  }
+
   if (!lastGridData.length) return;
 
   const cards = lastGridData.map((data) => {
@@ -848,7 +1171,7 @@ function renderCalculationGuide(horizon) {
         </p>
       </article>
       <article class="guide-card">
-        <span class="guide-label">왜 60분 · 90분이 더 어렵나</span>
+          <span class="guide-label">왜 30분 · 60분이 더 어렵나</span>
         <p class="guide-copy">
           현재 시각과 목표 시각 사이에 점심 진입, 피크, 종료처럼 흐름이 크게 바뀌는 구간이 끼면 현재 혼잡도를 그대로 끌고 가기 어렵습니다.
           그래서 최적화식은 피크 압력식을 기본으로 두고, 점심 구간은 과소예측 벌점까지 함께 반영해 상승 구간을 더 빨리 따라가도록 합니다.
@@ -1159,11 +1482,11 @@ function updateStrategyHelp() {
   if (!strategyHelp) return;
 
   if (selectedFormulaStrategy === STRATEGY_RESTAURANT_HORIZON) {
-    strategyHelp.textContent = '조정식은 전부 피크 압력식으로 통일하고, 식당별 30/60/90분만 나누는 기본 운영안입니다. 설명과 적용이 가장 쉽습니다.';
+  strategyHelp.textContent = '조정식은 전부 피크 압력식으로 통일하고, 식당별 10/20/30/60분만 나누는 기본 운영안입니다. 설명과 적용이 가장 쉽습니다.';
     return;
   }
 
-  strategyHelp.textContent = '조정식은 전부 피크 압력식으로 통일하고, 식당별 30/60/90분과 목표 시간대까지 나누는 상세 운영안입니다. 더 잘 맞지만 규칙은 복잡해집니다.';
+  strategyHelp.textContent = '조정식은 전부 피크 압력식으로 통일하고, 식당별 10/20/30/60분과 목표 시간대까지 나누는 상세 운영안입니다. 더 잘 맞지만 규칙은 복잡해집니다.';
 }
 
 function updateApplyPresetButton() {
@@ -1323,7 +1646,7 @@ function featureLabel(key) {
   if (key === 'fall15') return '15분 하강';
   if (key === 'fall30') return '30분 하강';
   if (key === 'baselineShiftPos') return '상승 평소값 이동';
-  if (key === 'pressureGap') return '피크압력';
+  if (key === 'pressureGap') return '피크 잔여차';
   if (key === 'surge15') return '15분 가속';
   if (key === 'surge30') return '30분 가속';
   return key;
@@ -1338,11 +1661,9 @@ function formatWeightTriplet(weights) {
 }
 
 function freezeWeightSet(weights) {
-  return Object.freeze({
-    30: Number(weights[30]),
-    60: Number(weights[60]),
-    90: Number(weights[90])
-  });
+  return Object.freeze(Object.fromEntries(
+    HORIZONS.map((horizonMinutes) => [horizonMinutes, Number(weights[horizonMinutes])])
+  ));
 }
 
 function freezeRestaurantWeightSets(weightMap) {
@@ -1353,6 +1674,10 @@ function freezeRestaurantWeightSets(weightMap) {
 
 function formatWeightValue(value) {
   return Number(value).toFixed(1);
+}
+
+function round1(value) {
+  return Math.round(Number(value) * 10) / 10;
 }
 
 function formatFactor(value) {
@@ -1528,7 +1853,7 @@ function renderFormulaPrimerEnhanced(data, horizon, row) {
     </div>
     <div class="formula-callout">
       <strong>중요</strong>
-      <p>최종 예측은 기본식에 보정식을 더하는 구조가 아닙니다. 기본식과 피크 압력식을 각각 계산하고, 조정식을 쓰는 경우 최종값은 <strong>피크 압력식 결과</strong>입니다.</p>
+      <p>최종 예측은 <strong>기본식 + 4항식 보정</strong> 구조입니다. 다만 4항식 보정량을 그대로 다 쓰지 않고, 마지막에 positiveCap / negativeCap 범위 안으로 한 번 더 제한합니다.</p>
     </div>
     <div class="table-wrap table-wrap--plain">
       <table class="mapping-table mapping-table--compact formula-breakdown-table">
@@ -1629,7 +1954,7 @@ function renderCalculationGuideEnhanced(horizon) {
       </article>
       <article class="guide-card guide-card--wide">
         <span class="guide-label">최종 사용값</span>
-        <p class="guide-copy">최종 예측은 <strong>${numberFormat.format(adjustedRow.predicted)}명</strong>입니다. 기본식 ${numberFormat.format(baseRow.predicted)}명과 보정식을 다시 더하는 것이 아니라, 피크 압력식 결과를 최종값으로 사용합니다.</p>
+        <p class="guide-copy">최종 예측은 <strong>${numberFormat.format(adjustedRow.predicted)}명</strong>입니다. 기본식 ${numberFormat.format(baseRow.predicted)}명에 4항식 보정량을 더하되, 그 보정량은 마지막에 cap only 안전장치로 한 번 더 제한합니다.</p>
         <p class="guide-copy">이 행에서는 기본식 대비 ${formatSignedNumber(adjustedRow.adjustmentTotal, '명')}만큼 움직였고, 실제값 ${numberFormat.format(adjustedRow.actual)}명과의 오차는 ${numberFormat.format(adjustedRow.error)}명입니다.</p>
       </article>
     </div>
@@ -1644,8 +1969,50 @@ function selectedFormulaHorizonRecord(data) {
   return data?.horizons?.find((item) => item.horizonMinutes === selectedFormulaHorizon) || data?.horizons?.[0] || null;
 }
 
+function selectablePointTimes(data) {
+  const horizons = data?.horizons || [];
+  if (!horizons.length) return [];
+
+  const timeSets = horizons
+    .map((horizon) => new Set((horizon.models?.adjusted?.rows || []).map((row) => row.time)))
+    .filter((set) => set.size > 0);
+
+  if (!timeSets.length) return [];
+
+  const intersection = Array.from(timeSets[0]).filter((time) => timeSets.every((set) => set.has(time)));
+  return intersection.sort();
+}
+
+function syncSelectedPointTime(data) {
+  const times = selectablePointTimes(data);
+  if (!times.length) {
+    selectedPointTime = '';
+    if (predictionTimeInput) predictionTimeInput.value = '';
+    return [];
+  }
+
+  const preferredTime = normalizeTimeValue(selectedPointTime || predictionTimeInput?.value);
+  if (preferredTime && times.includes(preferredTime)) {
+    selectedPointTime = preferredTime;
+  } else if (preferredTime) {
+    selectedPointTime = findClosestTimeValue(times, preferredTime);
+  } else if (!times.includes(selectedPointTime)) {
+    selectedPointTime = times[0];
+  }
+
+  syncPredictionTimeInput();
+  return times;
+}
+
+function pickHorizonRowForTime(horizon, modelKey, time) {
+  const rows = horizon?.models?.[modelKey]?.rows || [];
+  if (!rows.length) return null;
+  if (!time) return pickExampleRow(rows);
+  return rows.find((row) => row.time === time) || pickExampleRow(rows);
+}
+
 function pickFormulaExampleRow(horizon) {
-  return pickExampleRow(horizon?.models?.adjusted?.rows || []);
+  return pickHorizonRowForTime(horizon, MODEL_ADJUSTED, selectedPointTime);
 }
 
 function findMatchingRow(rows, targetRow) {
@@ -1742,7 +2109,7 @@ function featureLabelEnhanced(key) {
   if (key === 'fall15') return '15분 하락량';
   if (key === 'fall30') return '30분 하락량';
   if (key === 'baselineShiftPos') return '평소 상승 구간';
-  if (key === 'pressureGap') return '피크 압력';
+  if (key === 'pressureGap') return '피크 잔여차';
   if (key === 'surge15') return '15분 가속';
   if (key === 'surge30') return '30분 가속';
   return key;
@@ -1770,7 +2137,7 @@ function renderFormulaSectionV2(data) {
       label: '기본식',
       shortLabel: '비교 기준',
       formula: '예측값 = 목표 평소값 + (현재값 - 현재 시점 평소값) × 반영률',
-      note: 'w30 / w60 / w90이 직접 들어가는 단순 기준식'
+    note: 'w10 / w20 / w30 / w60이 직접 들어가는 단순 기준식'
     },
     {
       label: '피크 압력식',
@@ -1791,7 +2158,7 @@ function renderFormulaSectionV2(data) {
     </article>
   `).join('');
 
-  formulaSelection.textContent = `${scopeText} 기준 설명입니다. 계수는 고정이고, 현재값·평소값·상승량 같은 계산값만 예측 시점마다 다시 구합니다.`;
+  formulaSelection.textContent = `${scopeText} 기준 설명입니다. 계수는 고정이고, 목표 평소값·피크 잔여차·상승 평소값 이동·현재 초과분 같은 계산값만 예측 시점마다 다시 구합니다.`;
   formulaPrimer.innerHTML = renderFormulaPrimerV2(data, horizon, exampleRow);
   renderStrategyTables(data.formulaStrategies, data.parameters.formulaStrategy.key);
 }
@@ -1837,11 +2204,11 @@ function renderFormulaPrimerV2(data, horizon, row) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">고정되는 값</span>
-        <p>절편, 목표 평소값 계수, 현재값 계수, 피크 압력 계수처럼 이름 끝이 계수인 값들입니다.</p>
+        <p>목표 평소값 계수, 피크 잔여차 계수, 상승 평소값 이동 계수, 현재 초과분 계수처럼 이름 끝이 계수인 값들입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">매번 다시 계산되는 값</span>
-        <p>현재값, 목표 평소값, 피크 압력, 15분 상승량, 30분 상승량 같은 값들입니다.</p>
+        <p>목표 평소값, 피크 잔여차, 상승 평소값 이동, 현재 초과분처럼 예측 시점마다 달라지는 값들입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">절편이란</span>
@@ -1933,7 +2300,7 @@ function renderCalculationGuideV2(horizon) {
 }
 
 function buildReadableOptimizedFormula() {
-  return '예측값 = 절편 + (목표 평소값 계수 × 목표 평소값) + (현재값 계수 × 현재값) + (피크 압력 계수 × 피크 압력) + (상승 평소값 이동 계수 × 상승 평소값 이동) + (15분 상승 계수 × 15분 상승) + (30분 상승 계수 × 30분 상승) + (초과 차이 계수 × 초과 차이) + (30분 가속 계수 × 30분 가속)';
+  return '예측값 = (목표 평소값 계수 × 목표 평소값) + (피크 잔여차 계수 × 피크 잔여차) + (상승 평소값 이동 계수 × 상승 평소값 이동) + (현재 초과분 계수 × 현재 초과분)';
 }
 
 function buildFormulaScopeTextV2(data, horizon) {
@@ -1952,7 +2319,7 @@ function coefficientNameV2(key) {
   if (key === 'intercept') return '절편';
   if (key === 'targetBaseline') return '목표 평소값 계수';
   if (key === 'currentValue') return '현재값 계수';
-  if (key === 'pressureGap') return '피크 압력 계수';
+  if (key === 'pressureGap') return '피크 잔여차 계수';
   if (key === 'baselineShiftPos') return '상승 평소값 이동 계수';
   if (key === 'rise15') return '15분 상승 계수';
   if (key === 'rise30') return '30분 상승 계수';
@@ -1965,7 +2332,7 @@ function coefficientMeaningV2(key) {
   if (key === 'intercept') return '항상 먼저 더해지는 기본값';
   if (key === 'targetBaseline') return '목표 시각 평소 혼잡도를 얼마나 강하게 반영할지 정하는 값';
   if (key === 'currentValue') return '지금 실제 혼잡도를 얼마나 끌고 갈지 정하는 값';
-  if (key === 'pressureGap') return '앞으로 더 붐빌 압력을 얼마나 크게 볼지 정하는 값';
+  if (key === 'pressureGap') return '목표 평소값까지 아직 얼마나 덜 올라왔는지 반영하는 값';
   if (key === 'baselineShiftPos') return '평소 흐름상 앞으로 올라가는 구간인지 반영하는 값';
   if (key === 'rise15' || key === 'rise30') return '최근 상승 흐름을 얼마나 반영할지 정하는 값';
   if (key === 'gapPos') return '이미 평소보다 높은 상태를 얼마나 반영할지 정하는 값';
@@ -1994,7 +2361,7 @@ function runtimeValueRowsV2(row, horizon) {
       note: '지금 실제로 몇 명인지'
     },
     {
-      label: '피크 압력',
+      label: '피크 잔여차',
       formula: `max(${formatOneDecimal(row.targetBaseline)} - ${formatOneDecimal(row.currentValue)}, 0)`,
       value: formatOneDecimal(row.featureValues.pressureGap ?? 0),
       note: '앞으로 더 붐빌 여지'
@@ -2052,11 +2419,11 @@ function termResultV2(key, row) {
 function valueNameV2(key) {
   if (key === 'targetBaseline') return '목표 평소값';
   if (key === 'currentValue') return '현재값';
-  if (key === 'pressureGap') return '피크 압력';
+  if (key === 'pressureGap') return '피크 잔여차';
   if (key === 'baselineShiftPos') return '상승 평소값 이동';
   if (key === 'rise15') return '15분 상승';
   if (key === 'rise30') return '30분 상승';
-  if (key === 'gapPos') return '초과 차이';
+  if (key === 'gapPos') return '현재 초과분';
   if (key === 'surge30') return '30분 가속';
   return key;
 }
@@ -2073,7 +2440,7 @@ function simplifyPresentation(data) {
     ? `원본 ${numberFormat.format(data.quality.rawCount)}건 중 품질 이상 ${numberFormat.format(data.quality.qualityRemovedCount)}건과 비활성 시간대 ${numberFormat.format(data.quality.inactiveSlotRemovedCount)}건을 제외하고 ${numberFormat.format(data.quality.keptCount)}건으로 검증했습니다.`
     : '선택한 날짜 기준으로 실제값과 예측값을 비교합니다.';
 
-  adjustedHelp.textContent = '최종 예측은 모두 피크 압력식으로 계산합니다. 고정 계수는 유지하고, 현재값과 상승량 같은 입력값만 예측할 때마다 다시 계산합니다.';
+  adjustedHelp.textContent = '최종 예측은 모두 4항 피크 압력식으로 계산합니다. 고정 계수는 유지하고, 목표 평소값·피크 잔여차·상승 평소값 이동·현재 초과분만 예측할 때마다 다시 계산합니다.';
   summary.innerHTML = `
     <div class="summary-head">
       <div>
@@ -2156,12 +2523,14 @@ function renderFormulaSectionPresentation(data) {
     formulaControls.innerHTML = '';
     formulaList.innerHTML = '';
     formulaSelection.textContent = '';
+    if (pointPredictionPanel) pointPredictionPanel.innerHTML = '';
     formulaPrimer.innerHTML = '';
     calculationGuide.innerHTML = '';
     renderStrategyTablesV2();
     return;
   }
 
+  const pointTimes = syncSelectedPointTime(data);
   const horizon = selectedFormulaHorizonRecord(data);
   const row = pickFormulaExampleRow(horizon);
   const scopeText = buildFormulaScopeTextV2(data, horizon);
@@ -2171,22 +2540,38 @@ function renderFormulaSectionPresentation(data) {
       .filter((key) => key !== 'intercept')
       .map((key) => featureLabelEnhanced(key))
       .join(' · ')
-    : '현재값 · 목표 평소값 · 피크 압력';
+        : '목표 평소값 · 피크 잔여차 · 상승 평소값 이동 · 현재 초과분';
   const optimizedNote = data.parameters?.optimized?.safetyGuard?.note
     || '현재 화면의 최종 예측은 모두 이 식으로 계산합니다.';
 
   formulaControls.innerHTML = `
-    <div class="segmented" aria-label="예측식 분 후 선택">
-      ${HORIZONS.map((minutes) => `
-        <button
-          type="button"
-          class="segmented-button ${minutes === selectedFormulaHorizon ? 'is-active' : ''}"
-          data-formula-horizon="${minutes}"
-          aria-pressed="${String(minutes === selectedFormulaHorizon)}"
-        >
-          ${minutes}분 후
-        </button>
-      `).join('')}
+    <div class="formula-controls__stack">
+      <div class="segmented" aria-label="예측식 분 후 선택">
+        ${HORIZONS.map((minutes) => `
+          <button
+            type="button"
+            class="segmented-button ${minutes === selectedFormulaHorizon ? 'is-active' : ''}"
+            data-formula-horizon="${minutes}"
+            aria-pressed="${String(minutes === selectedFormulaHorizon)}"
+          >
+            ${minutes}분 후
+          </button>
+        `).join('')}
+      </div>
+      <label class="formula-row-picker">
+        <span class="formula-row-picker__label">기준 시각 선택</span>
+        <select class="formula-row-picker__select" data-point-time-select ${pointTimes.length ? '' : 'disabled'}>
+          ${pointTimes.length
+            ? pointTimes.map((time) => `
+              <option value="${time}" ${time === selectedPointTime ? 'selected' : ''}>${time} 기준</option>
+            `).join('')
+            : '<option value="">선택 가능한 시각 없음</option>'}
+        </select>
+        <span class="formula-row-picker__hint">이 목록은 같은 날짜 안에서 10·20·30·60분 뒤 실제값까지 모두 있어 한 화면에 비교 가능한 기준 시각만 보여줍니다.</span>
+      </label>
+      <div class="formula-actions">
+        <button type="button" class="ghost-button" data-capture-report="current">현재 계산 화면 이미지 저장</button>
+      </div>
     </div>
   `;
 
@@ -2197,7 +2582,7 @@ function renderFormulaSectionPresentation(data) {
         <span class="formula-card__short">기준선</span>
       </div>
       <code>예측값 = 목표 평소값 + (현재값 - 현재 시점 평소값) × 반영률</code>
-      <p class="formula-card__note">30분·60분·90분 반영률은 이 비교용 기본식에만 직접 들어갑니다.</p>
+        <p class="formula-card__note">10분·20분·30분·60분 반영률은 이 비교용 기본식에만 직접 들어갑니다.</p>
     </article>
     <article class="formula-card">
       <div class="formula-card__top">
@@ -2209,7 +2594,11 @@ function renderFormulaSectionPresentation(data) {
     </article>
   `;
 
-  formulaSelection.textContent = `${scopeText} 기준 고정 계수와 이번 예측에서 다시 계산되는 값을 아래에 나눠서 보여줍니다.`;
+  const pointTimeSentence = selectedPointTime
+    ? `선택한 기준 시각은 ${selectedPointTime}이고, 아래 카드에서 그 시각의 10·20·30·60분 후를 한 번에 보여줍니다.`
+    : '선택 가능한 기준 시각이 없어 특정 시각 카드가 비어 있습니다.';
+  formulaSelection.textContent = `${scopeText} 기준 고정 계수와 이번 예측에서 다시 계산되는 값을 아래에 나눠서 보여줍니다. ${pointTimeSentence}`;
+  renderPointPredictionPanel(data);
 
   if (!row || !row.coefficients || !row.featureValues) {
     formulaPrimer.innerHTML = `
@@ -2266,7 +2655,7 @@ function renderFormulaSectionPresentation(data) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">반영률 사용 위치</span>
-        <p>30분·60분·90분 반영률은 비교용 기본식에만 쓰고, 최종 피크 압력식에는 직접 넣지 않습니다.</p>
+      <p>10분·20분·30분·60분 반영률은 비교용 기본식에만 쓰고, 최종 피크 압력식에는 직접 넣지 않습니다.</p>
       </article>
     </div>
     <div class="table-wrap table-wrap--plain">
@@ -2304,6 +2693,220 @@ function renderFormulaSectionPresentation(data) {
   renderStrategyTablesV2();
 }
 
+function renderPointPredictionPanel(data) {
+  if (!pointPredictionPanel) return;
+
+  const pointTimes = syncSelectedPointTime(data);
+  if (!pointTimes.length || !selectedPointTime) {
+    pointPredictionPanel.innerHTML = `
+      <article class="primer-card">
+        <span class="primer-card__label">특정 시각 예측 없음</span>
+        <p>선택한 날짜에는 10·20·30·60분 뒤 실제값까지 모두 연결되는 기준 시각이 없습니다.</p>
+      </article>
+    `;
+    return;
+  }
+
+  const cards = data.horizons.map((horizon) => {
+    const adjustedRow = pickHorizonRowForTime(horizon, MODEL_ADJUSTED, selectedPointTime);
+    const baseRow = findMatchingRow(horizon?.models?.base?.rows || [], adjustedRow)
+      || pickHorizonRowForTime(horizon, MODEL_BASE, selectedPointTime);
+
+    if (!adjustedRow || adjustedRow.time !== selectedPointTime) {
+      return `
+        <article class="point-card point-card--empty">
+          <span class="point-card__label">${horizon.horizonMinutes}분 후</span>
+          <strong>비교 제외</strong>
+          <p>이 기준 시각에는 해당 구간 실제값이 없습니다.</p>
+        </article>
+      `;
+    }
+
+    const actualDelta = adjustedRow.actual - adjustedRow.currentValue;
+    const capNote = adjustedRow.safetyGuard?.reasons?.includes('cap')
+      ? `보정 상한 적용 ${formatSignedNumberEnhanced(adjustedRow.safetyGuard?.finalAdjustment ?? adjustedRow.adjustmentTotal ?? 0, '명')}`
+      : `보정 ${formatSignedNumberEnhanced(adjustedRow.adjustmentTotal ?? 0, '명')}`;
+
+    return `
+      <article class="point-card">
+        <span class="point-card__label">${horizon.horizonMinutes}분 후</span>
+        <strong>${adjustedRow.targetTime}</strong>
+        <div class="point-card__metrics">
+          <span><em>최종 예측</em><b>${numberFormat.format(adjustedRow.predicted)}명</b></span>
+          <span><em>실제값</em><b>${numberFormat.format(adjustedRow.actual)}명</b></span>
+          <span><em>기본식</em><b>${numberFormat.format(baseRow?.predicted ?? 0)}명</b></span>
+          <span><em>오차</em><b>${numberFormat.format(adjustedRow.error || 0)}명</b></span>
+        </div>
+        <p class="point-card__note">현재 ${numberFormat.format(adjustedRow.currentValue)}명에서 실제는 ${formatSignedNumberEnhanced(actualDelta, '명')} 변했습니다. ${capNote}.</p>
+      </article>
+    `;
+  }).join('');
+
+  pointPredictionPanel.innerHTML = `
+    <div class="point-snapshot__head">
+      <div>
+        <p class="eyebrow eyebrow--small">특정 시각 예측</p>
+        <h3>${selectedPointTime} 기준</h3>
+        <p class="hint">날짜 전체 평균 MAE와 별개로, 선택한 기준 시각 하나를 떼어서 10·20·30·60분 후를 바로 보여줍니다.</p>
+      </div>
+      <div class="summary-badges">
+        <span class="tag">기준 ${selectedPointTime}</span>
+        <span class="tag">10·20·30·60분</span>
+      </div>
+    </div>
+    <div class="point-snapshot__cards">
+      ${cards}
+    </div>
+  `;
+}
+
+function pointScopeRows(data) {
+  const pointTimes = syncSelectedPointTime(data);
+  if (!pointTimes.length || !selectedPointTime) return [];
+
+  return data.horizons.map((horizon) => {
+    const adjustedRow = pickHorizonRowForTime(horizon, MODEL_ADJUSTED, selectedPointTime);
+    const baseRow = findMatchingRow(horizon?.models?.base?.rows || [], adjustedRow)
+      || pickHorizonRowForTime(horizon, MODEL_BASE, selectedPointTime);
+
+    if (!adjustedRow || adjustedRow.time !== selectedPointTime || !baseRow) return null;
+
+    return {
+      horizonMinutes: horizon.horizonMinutes,
+      weight: horizon.weight,
+      adjustedRow,
+      baseRow
+    };
+  }).filter(Boolean);
+}
+
+function buildPointScopeChartPoints(data) {
+  return pointScopeRows(data).map((item) => ({
+    targetTime: `${item.horizonMinutes}분`,
+    actual: item.adjustedRow.actual,
+    basePredicted: item.baseRow.predicted,
+    adjustedPredicted: item.adjustedRow.predicted
+  }));
+}
+
+function renderGraphScopeControls(data) {
+  const pointTimes = syncSelectedPointTime(data);
+  return `
+    <article class="overview-card overview-card--accent overview-card--wide">
+      <div class="scope-panel">
+        <div class="scope-panel__copy">
+          <span class="overview-card__step">View</span>
+          <h3 class="overview-card__title">결과 보기 범위 선택</h3>
+          <p class="overview-card__copy">전체 기준 시각을 합산한 검증 결과를 볼 수도 있고, 기준 시각 하나를 골라 그 시각의 10·20·30·60분 후만 따로 볼 수도 있습니다.</p>
+        </div>
+        <div class="scope-panel__controls">
+          <div class="segmented" aria-label="결과 범위 선택">
+            <button type="button" class="segmented-button ${selectedGraphScope === 'all' ? 'is-active' : ''}" data-graph-scope="all">전체 시각</button>
+            <button type="button" class="segmented-button ${selectedGraphScope === 'point' ? 'is-active' : ''}" data-graph-scope="point">특정 기준 시각</button>
+          </div>
+          <label class="scope-panel__picker ${selectedGraphScope === 'point' ? '' : 'is-disabled'}">
+            <span>기준 시각</span>
+            <select data-graph-point-time-select ${selectedGraphScope === 'point' && pointTimes.length ? '' : 'disabled'}>
+              ${pointTimes.length
+                ? pointTimes.map((time) => `<option value="${time}" ${time === selectedPointTime ? 'selected' : ''}>${time} 기준</option>`).join('')
+                : '<option value="">선택 가능한 시각 없음</option>'}
+            </select>
+          </label>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderPointScopeGuide(data) {
+  const rows = pointScopeRows(data);
+  if (!rows.length) {
+    return `
+      ${renderGraphScopeControls(data)}
+      ${renderOverviewCard('Point', '선택 가능한 시각 없음', '이 날짜에는 10·20·30·60분 뒤 실제값이 모두 이어지는 기준 시각이 없습니다. 전체 시각 보기로 확인하거나 다른 날짜를 선택하세요.')}
+    `;
+  }
+
+  const strongest = rows.reduce((best, item) => ((item.adjustedRow.actual - item.adjustedRow.currentValue) > (best.adjustedRow.actual - best.adjustedRow.currentValue) ? item : best), rows[0]);
+  const strongestRise = strongest.adjustedRow.actual - strongest.adjustedRow.currentValue;
+  const pointLabel = `${selectedPointTime} 기준`;
+
+  return `
+    ${renderGraphScopeControls(data)}
+    ${renderOverviewCard('Point 1', pointLabel, '지금 모드는 날짜 전체 평균이 아니라, 선택한 기준 시각 하나에서 10·20·30·60분 뒤를 어떻게 예측했는지 따로 보여줍니다.')}
+    ${renderOverviewCard('Point 2', '그래프 해석', 'x축은 시간 흐름이 아니라 예측 구간입니다. 같은 기준 시각에서 10분 후, 20분 후, 30분 후, 60분 후를 나란히 비교합니다.')}
+    ${renderOverviewCard('Point 3', '가장 크게 변한 구간', `${strongest.horizonMinutes}분 후에서 현재 ${numberFormat.format(strongest.adjustedRow.currentValue)}명 대비 실제값이 ${formatSignedNumberEnhanced(strongestRise, '명')} 변했습니다.`)}
+  `;
+}
+
+function renderPointScopeCards(data) {
+  const rows = pointScopeRows(data);
+  if (!rows.length) {
+    return '<p class="status status--soft">선택한 기준 시각으로 10·20·30·60분 뒤를 모두 비교할 수 없습니다.</p>';
+  }
+
+  return rows.map((item) => {
+    const errorDelta = (item.adjustedRow.error || 0) - (item.baseRow.error || 0);
+    return `
+      <article class="card card--comparison card--focus">
+        <div class="card-top">
+          <span class="card-horizon">${item.horizonMinutes}분 후</span>
+          <span class="chip">${selectedPointTime} 기준</span>
+        </div>
+        <div class="compare-stack">
+          <div class="compare-metric">
+            <span>기본식 예측</span>
+            <strong>${numberFormat.format(item.baseRow.predicted)}명</strong>
+          </div>
+          <div class="compare-metric compare-metric--accent">
+            <span>피크 압력식 예측</span>
+            <strong>${numberFormat.format(item.adjustedRow.predicted)}명</strong>
+          </div>
+        </div>
+        <div class="metric-grid metric-grid--triple">
+          <div>
+            <span>실제값</span>
+            <strong>${numberFormat.format(item.adjustedRow.actual)}명</strong>
+          </div>
+          <div>
+            <span>운영식 오차</span>
+            <strong>${numberFormat.format(item.adjustedRow.error || 0)}명</strong>
+          </div>
+          <div>
+            <span>기본식 대비</span>
+            <strong class="${deltaTone(errorDelta)}">${formatSignedNumber(errorDelta, '명')}</strong>
+          </div>
+        </div>
+        <p class="card-note">현재 ${numberFormat.format(item.adjustedRow.currentValue)}명에서 ${item.adjustedRow.targetTime} 실제값을 맞춘 결과입니다.</p>
+      </article>
+    `;
+  }).join('');
+}
+
+function renderPointScopeChart(data, profileLabel) {
+  const points = buildPointScopeChartPoints(data);
+  if (!points.length) {
+    return '<p class="status status--soft">특정 기준 시각 그래프를 만들 데이터가 없습니다.</p>';
+  }
+
+  return `
+    <section class="mini-chart">
+      <div class="mini-chart__head">
+        <div>
+          <h3>${selectedPointTime} 기준 10·20·30·60분 후 비교</h3>
+          <p>${profileLabel} · 선택한 기준 시각 하나에서 예측 구간별 실제값과 기본식, 피크 압력식을 비교합니다.</p>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><i class="legend-line legend-line--actual"></i>실제값</span>
+          <span class="legend-item"><i class="legend-line legend-line--base"></i>기본식</span>
+          <span class="legend-item"><i class="legend-line legend-line--adjusted"></i>피크 압력식</span>
+        </div>
+      </div>
+      ${buildChartSvg(points, { width: 960, height: 320, compact: false })}
+    </section>
+  `;
+}
+
 function renderCalculationGuidePresentation(horizon) {
   const adjustedRow = pickFormulaExampleRow(horizon);
   const baseRows = horizon?.models?.base?.rows || [];
@@ -2334,7 +2937,7 @@ function renderCalculationGuidePresentation(horizon) {
   const finalRawPrediction = adjustedRow.rawPrediction ?? formulaRawPrediction;
   const safetyNote = adjustedRow.safetyGuard?.reasons?.includes('cap')
     ? `이번 행은 보정량을 ${formatSignedNumberEnhanced(formulaAdjustment, '명')}까지 쓰지 않고, 상한 안의 ${formatSignedNumberEnhanced(finalAdjustment, '명')}만 반영했습니다.`
-    : '이번 행은 보정량이 상한 안에 있어서 6항식 보정량을 그대로 사용했습니다.';
+    : '이번 행은 보정량이 상한 안에 있어서 4항식 보정량을 그대로 사용했습니다.';
 
   calculationGuide.innerHTML = `
     <div class="guide-grid guide-grid--formula">
@@ -2346,10 +2949,10 @@ function renderCalculationGuidePresentation(horizon) {
         <span class="guide-label">비교용 기본식</span>
         <code>현재 차이 = ${formatOneDecimal(baseRow.currentValue)} - ${formatOneDecimal(baseRow.currentBaseline)} = ${formatSignedNumberEnhanced(baseRow.currentGap, '')}</code>
         <code>기본식 = ${formatOneDecimal(baseRow.targetBaseline)} + (${formatSignedNumberEnhanced(baseRow.currentGap, '')}) × ${formatFactor(baseRow.weight)} = ${formatOneDecimal(baseRow.basePrediction)} → ${numberFormat.format(baseRow.predicted)}</code>
-        <p class="guide-copy">30분·60분·90분 반영률은 이 비교용 기본식에서만 사용합니다.</p>
+        <p class="guide-copy">10분·20분·30분·60분 반영률은 이 비교용 기본식에서만 사용합니다.</p>
       </article>
       <article class="guide-card guide-card--wide">
-        <span class="guide-label">6항식 계산</span>
+        <span class="guide-label">4항식 계산</span>
         <code>${buildReadableOptimizedFormulaPresentation()}</code>
         <div class="term-grid">
           ${termCards}
@@ -2358,7 +2961,7 @@ function renderCalculationGuidePresentation(horizon) {
       </article>
       <article class="guide-card guide-card--wide">
         <span class="guide-label">보정 상한 적용</span>
-        <code>6항식 보정량 = ${formatOneDecimal(formulaRawPrediction)} - ${formatOneDecimal(baseRow.basePrediction)} = ${formatSignedNumberEnhanced(formulaAdjustment, '명')}</code>
+        <code>4항식 보정량 = ${formatOneDecimal(formulaRawPrediction)} - ${formatOneDecimal(baseRow.basePrediction)} = ${formatSignedNumberEnhanced(formulaAdjustment, '명')}</code>
         <code>최종 보정 = clamp(${formatSignedNumberEnhanced(formulaAdjustment, '명')}, -${formatOneDecimal(negativeCap ?? 0)}명, +${formatOneDecimal(positiveCap ?? 0)}명) = ${formatSignedNumberEnhanced(finalAdjustment, '명')}</code>
         <code>최종 예측 = 기본식 ${formatOneDecimal(baseRow.basePrediction)} + ${formatSignedNumberEnhanced(finalAdjustment, '명')} = ${formatOneDecimal(finalRawPrediction)} → ${numberFormat.format(adjustedRow.predicted)}</code>
         <p class="guide-copy">${safetyNote}</p>
@@ -2366,7 +2969,7 @@ function renderCalculationGuidePresentation(horizon) {
       <article class="guide-card guide-card--wide">
         <span class="guide-label">실제값 비교</span>
         <p class="guide-copy">실제값이 <strong>${numberFormat.format(adjustedRow.actual)}명</strong>, 최종 예측이 <strong>${numberFormat.format(adjustedRow.predicted)}명</strong>, 오차가 <strong>${numberFormat.format(adjustedRow.error)}명</strong>입니다.</p>
-        <p class="guide-copy">기본식 ${numberFormat.format(baseRow.predicted)}명에 6항식 보정량을 그대로 다 더하지 않고, 보정 상한 안으로 잘라낸 뒤 최종 예측에 반영합니다.</p>
+        <p class="guide-copy">기본식 ${numberFormat.format(baseRow.predicted)}명에 4항식 보정량을 그대로 다 더하지 않고, 보정 상한 안으로 잘라낸 뒤 최종 예측에 반영합니다.</p>
       </article>
     </div>
   `;
@@ -2380,15 +2983,17 @@ function simplifyPresentationV2(data) {
 
   const optimizedLabel = data.formulas?.optimized?.label || data.parameters?.optimized?.formulaLabel || '피크 압력식';
   const profileLabel = data.profile?.label || activeProfileMeta()?.profile?.label || '전체 누적 데이터';
+  const isPointScope = selectedGraphScope === 'point';
+  const pointRows = pointScopeRows(data);
   const qualitySummary = data.quality
     ? `원본 ${numberFormat.format(data.quality.rawCount)}건 중 품질 이상 ${numberFormat.format(data.quality.qualityRemovedCount)}건과 비활성 시간대 ${numberFormat.format(data.quality.inactiveSlotRemovedCount)}건을 제외하고 ${numberFormat.format(data.quality.keptCount)}건으로 검증했습니다.`
     : '선택한 날짜 기준으로 실제값과 예측값을 비교합니다.';
 
-  adjustedHelp.textContent = `${profileLabel} 기준으로 고정 계수를 불러오고, 현재값과 상승량 같은 입력값만 예측할 때마다 다시 계산합니다.`;
+  adjustedHelp.textContent = `${profileLabel} 기준으로 고정 계수를 불러오고, 목표 평소값·피크 잔여차·상승 평소값 이동·현재 초과분만 예측할 때마다 다시 계산합니다.`;
   summary.innerHTML = `
     <div class="summary-head">
       <div>
-        <p class="eyebrow eyebrow--small">검증 결과</p>
+        <p class="eyebrow eyebrow--small">${isPointScope ? '특정 시각 예측' : '검증 결과'}</p>
         <h2>${data.restaurant} · ${data.date}</h2>
       </div>
       <div class="summary-badges">
@@ -2396,68 +3001,91 @@ function simplifyPresentationV2(data) {
         <span class="tag">${data.baselineMode}</span>
         <span class="tag">${data.season}</span>
         <span class="tag">${optimizedLabel}</span>
+        ${isPointScope && selectedPointTime ? `<span class="tag">기준 ${selectedPointTime}</span>` : ''}
       </div>
     </div>
-    <p class="summary-note">${qualitySummary}</p>
+    <p class="summary-note">${isPointScope
+      ? (pointRows.length
+        ? `${selectedPointTime} 기준 하나를 선택해 그 시각의 10·20·30·60분 후를 따로 봅니다. 전체 평균 MAE가 아니라 선택한 시각의 실제값·기본식·피크 압력식을 직접 비교합니다.`
+        : '선택한 기준 시각에 10·20·30·60분 후 실제값이 모두 연결되지 않아 특정 시각 예측을 만들지 못했습니다.')
+      : qualitySummary}</p>
   `;
 
-  predictionCards.innerHTML = data.horizons.map((item) => {
-    const comparison = item.comparison;
-    const isFocus = item.horizonMinutes === selectedDetailHorizon;
+  predictionCards.innerHTML = isPointScope
+    ? renderPointScopeCards(data)
+    : data.horizons.map((item) => {
+      const comparison = item.comparison;
+      const isFocus = item.horizonMinutes === selectedDetailHorizon;
 
-    return `
-      <article class="card card--comparison ${isFocus ? 'card--focus' : ''}" data-card-horizon="${item.horizonMinutes}">
-        <div class="card-top">
-          <span class="card-horizon">${item.horizonMinutes}분 후</span>
-          <span class="chip">${profileLabel}</span>
-        </div>
-        <div class="compare-stack">
-          <div class="compare-metric">
-            <span>기본식 MAE</span>
-            <strong>${formatOneDecimal(item.models.base.mae)}명</strong>
+      return `
+        <article class="card card--comparison ${isFocus ? 'card--focus' : ''}" data-card-horizon="${item.horizonMinutes}">
+          <div class="card-top">
+            <span class="card-horizon">${item.horizonMinutes}분 후</span>
+            <span class="chip">${profileLabel}</span>
           </div>
-          <div class="compare-metric compare-metric--accent">
-            <span>피크 압력식 MAE</span>
-            <strong>${formatOneDecimal(item.models.adjusted.mae)}명</strong>
+          <div class="compare-stack">
+            <div class="compare-metric">
+              <span>기본식 MAE</span>
+              <strong>${formatOneDecimal(item.models.base.mae)}명</strong>
+            </div>
+            <div class="compare-metric compare-metric--accent">
+              <span>피크 압력식 MAE</span>
+              <strong>${formatOneDecimal(item.models.adjusted.mae)}명</strong>
+            </div>
           </div>
-        </div>
-        <div class="metric-grid metric-grid--triple">
-          <div>
-            <span>MAE 변화</span>
-            <strong class="${deltaTone(comparison.maeDelta)}">${formatSignedNumber(comparison.maeDelta, '명')}</strong>
+          <div class="metric-grid metric-grid--triple">
+            <div>
+              <span>MAE 변화</span>
+              <strong class="${deltaTone(comparison.maeDelta)}">${formatSignedNumber(comparison.maeDelta, '명')}</strong>
+            </div>
+            <div>
+              <span>10명 이내</span>
+              <strong>${formatPercent(item.models.adjusted.within10Rate)}</strong>
+            </div>
+            <div>
+              <span>비교 건수</span>
+              <strong>${numberFormat.format(item.models.adjusted.count)}건</strong>
+            </div>
           </div>
-          <div>
-            <span>10명 이내</span>
-            <strong>${formatPercent(item.models.adjusted.within10Rate)}</strong>
-          </div>
-          <div>
-            <span>비교 건수</span>
-            <strong>${numberFormat.format(item.models.adjusted.count)}건</strong>
-          </div>
-        </div>
-        <p class="card-note">기본식 10명 이내 ${formatPercent(item.models.base.within10Rate)} · 피크 압력식 10명 이내 ${formatPercent(item.models.adjusted.within10Rate)}</p>
-      </article>
-    `;
-  }).join('');
+          <p class="card-note">기본식 10명 이내 ${formatPercent(item.models.base.within10Rate)} · 피크 압력식 10명 이내 ${formatPercent(item.models.adjusted.within10Rate)}</p>
+        </article>
+      `;
+    }).join('');
 
-  overviewGuide.innerHTML = '';
-  chart.innerHTML = data.horizons.map((item) => `
-    <section class="mini-chart">
-      <div class="mini-chart__head">
-        <div>
-          <h3>${item.horizonMinutes}분 후 실제값과 예측값 비교</h3>
-          <p>${profileLabel} · 기본식 MAE ${formatOneDecimal(item.models.base.mae)}명 · 피크 압력식 MAE ${formatOneDecimal(item.models.adjusted.mae)}명 · 변화 ${formatSignedNumber(item.comparison.maeDelta, '명')}</p>
+  overviewGuide.innerHTML = isPointScope
+    ? renderPointScopeGuide(data)
+    : renderGraphScopeControls(data);
+  chart.innerHTML = isPointScope
+    ? renderPointScopeChart(data, profileLabel)
+    : data.horizons.map((item) => `
+      <section class="mini-chart">
+        <div class="mini-chart__head">
+          <div>
+            <h3>${item.horizonMinutes}분 후 실제값과 예측값 비교</h3>
+            <p>${profileLabel} · 기본식 MAE ${formatOneDecimal(item.models.base.mae)}명 · 피크 압력식 MAE ${formatOneDecimal(item.models.adjusted.mae)}명 · 변화 ${formatSignedNumber(item.comparison.maeDelta, '명')}</p>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><i class="legend-line legend-line--actual"></i>실제값</span>
+            <span class="legend-item"><i class="legend-line legend-line--base"></i>기본식</span>
+            <span class="legend-item"><i class="legend-line legend-line--adjusted"></i>피크 압력식</span>
+            <span class="legend-item"><i class="legend-line legend-line--gap"></i>실제-피크 압력식 오차</span>
+          </div>
         </div>
-        <div class="legend">
-          <span class="legend-item"><i class="legend-line legend-line--actual"></i>실제값</span>
-          <span class="legend-item"><i class="legend-line legend-line--base"></i>기본식</span>
-          <span class="legend-item"><i class="legend-line legend-line--adjusted"></i>피크 압력식</span>
-          <span class="legend-item"><i class="legend-line legend-line--gap"></i>실제-피크 압력식 오차</span>
-        </div>
-      </div>
-      ${buildChartSvg(buildChartPoints(item, 72), { width: 960, height: 320, compact: false })}
-    </section>
-  `).join('');
+        ${buildChartSvg(buildChartPoints(item, 72), { width: 960, height: 320, compact: false })}
+      </section>
+    `).join('');
+
+  if (!isPointScope) {
+    renderGridControlsBar();
+    if (!lastGridData.length) {
+      restaurantGrid.innerHTML = '<p class="status status--soft">선택 날짜의 전체 식당 그래프를 불러오는 중입니다.</p>';
+    } else {
+      renderRestaurantGrid();
+    }
+  } else {
+    gridControls.innerHTML = '';
+    restaurantGrid.innerHTML = '<p class="status status--soft">특정 기준 시각 모드에서는 날짜 전체 식당 그리드를 숨겼습니다. 전체 시각으로 전환하면 다시 볼 수 있습니다.</p>';
+  }
 
   renderFormulaSectionPresentation(data);
   if (tableHint) tableHint.textContent = '';
@@ -2491,7 +3119,7 @@ buildReadableOptimizedFormulaPresentation = function buildReadableOptimizedFormu
     || [];
 
   if (!keys.length) {
-    return '예측값 = (목표 평소값 계수 × 목표 평소값) + (현재값 계수 × 현재값) + (피크 압력 계수 × 피크 압력)';
+    return '예측값 = (목표 평소값 계수 × 목표 평소값) + (피크 잔여차 계수 × 피크 잔여차) + (상승 평소값 이동 계수 × 상승 평소값 이동) + (현재 초과분 계수 × 현재 초과분)';
   }
 
   const terms = keys.map((key) => {
@@ -2525,14 +3153,14 @@ runtimeValueRowsV2 = function runtimeValueRowsV2(row, horizon) {
     }
   ];
 
-  if (hasFeature('pressureGap')) {
-    rows.push({
-      label: '피크 압력',
+    if (hasFeature('pressureGap')) {
+      rows.push({
+      label: '피크 잔여차',
       formula: `max(목표 평소값 ${formatOneDecimal(row.targetBaseline)}명 - 현재값 ${formatOneDecimal(row.currentValue)}명, 0명)`,
       value: formatOneDecimal(row.featureValues?.pressureGap ?? 0),
-      note: '앞으로 더 붐빌 여지가 남아 있으면 커집니다.'
-    });
-  }
+      note: '목표 시점 평소값에 비해 현재 실제값이 아직 얼마나 덜 올라왔는지 보여줍니다.'
+      });
+    }
 
   if (hasFeature('baselineShiftPos')) {
     rows.push({
@@ -2592,10 +3220,31 @@ function renderExplanationPanels(data) {
   const docMap = featureDocMapForData(data);
   const featureKeys = data?.parameters?.optimized?.featureKeys || data?.fixedModel?.featureKeys || [];
   const optimizedLabel = data?.parameters?.optimized?.formulaLabel || data?.formulas?.optimized?.label || '피크 압력식';
-  const scope = data?.fixedModel?.scope || '식당 × 30/60/90분';
+  const scope = data?.fixedModel?.scope || '식당 × 10/20/30/60분';
   const tuningLabel = data?.parameters?.tuningWindow?.label || data?.profile?.label || '전체 누적 데이터';
+  const metadata = profileMetadataMap[selectedProfile] || {};
+  const adjustedValidation = metadata.optimizedValidation?.[STRATEGY_RESTAURANT_HORIZON] || {};
+  const residualValidation = metadata.residualValidation || {};
   const guardNote = data?.parameters?.optimized?.safetyGuard?.note
-    || '6항식 보정이 너무 크면 기본식에서 움직일 수 있는 최대 폭만 남기고 잘라냅니다.';
+    || '4항식 보정이 너무 크면 기본식에서 움직일 수 있는 최대 폭만 남기고 잘라냅니다.';
+  const comparisonRows = HORIZONS.map((horizonMinutes) => {
+    const adjustedMae = Number(adjustedValidation[horizonMinutes]?.optimizedMae ?? 0);
+    const residualMae = Number(residualValidation[horizonMinutes]?.optimizedMae ?? 0);
+    const delta = round1(residualMae - adjustedMae);
+
+    return {
+      horizonMinutes,
+      adjustedMae,
+      residualMae,
+      delta,
+      verdict: delta < 0
+        ? `잔차 보정식이 ${formatSignedNumber(delta, '명')} 우세`
+        : delta > 0
+          ? `4항식이 ${formatSignedNumber(-delta, '명')} 우세`
+          : '동률'
+    };
+  });
+  const comparisonHeadline = comparisonRows.map((row) => `${row.horizonMinutes}분 ${row.verdict}`).join(' / ');
 
   reasonOverview.innerHTML = `
     <div class="reason-overview__head">
@@ -2616,14 +3265,19 @@ function renderExplanationPanels(data) {
         <p>같은 식당, 같은 요일, 같은 시간대의 평소 혼잡도를 기준으로 잡고, 현재 실제값과 최근 상승 흐름을 더해 최종 예측을 만듭니다.</p>
       </article>
       <article class="reason-card">
+        <span class="reason-card__label">최종 결정</span>
+        <strong>하나는 4항식으로 통일</strong>
+        <p>${comparisonHeadline}. 60분에서 잔차 보정식이 약간 앞서는 경우가 있지만 차이가 작아서, 운영식은 하나의 4항 피크 압력식으로 유지했습니다.</p>
+      </article>
+      <article class="reason-card">
         <span class="reason-card__label">계수 단위</span>
         <strong>${scope}</strong>
-        <p>계수는 식당별·30분/60분/90분별로 따로 학습한 뒤 고정합니다. 날짜가 바뀌어도 같은 식당의 같은 예측 구간이면 같은 계수를 씁니다.</p>
+          <p>계수는 식당별·10분/20분/30분/60분별로 따로 학습한 뒤 고정합니다. 날짜가 바뀌어도 같은 식당의 같은 예측 구간이면 같은 계수를 씁니다.</p>
       </article>
       <article class="reason-card">
         <span class="reason-card__label">실시간 입력값</span>
         <strong>${featureKeys.map((key) => featureLabelForData(docMap, key)).join(' · ')}</strong>
-        <p>계수는 고정이지만, 현재값·피크 압력·현재 초과분 같은 입력값은 예측할 때마다 새로 계산됩니다.</p>
+        <p>계수는 고정이지만, 목표 평소값·피크 잔여차·상승 평소값 이동·현재 초과분 같은 입력값은 예측할 때마다 새로 계산됩니다.</p>
       </article>
       <article class="reason-card">
         <span class="reason-card__label">안전장치</span>
@@ -2652,7 +3306,11 @@ function renderExplanationPanels(data) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">왜 안전장치를 두나</span>
-        <p>6항식 계산값이 어떤 날에는 너무 크게 움직일 수 있어서, 기본식에서 멀어지는 폭만 마지막에 한 번 제한합니다.</p>
+          <p>4항식 계산값이 어떤 날에는 너무 크게 움직일 수 있어서, 기본식에서 멀어지는 폭만 마지막에 한 번 제한합니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">cap 상수는 어떻게 정했나</span>
+        <p>positiveCap과 negativeCap에 들어가는 10, 8, 0.55, 0.35 같은 숫자는 회귀로 학습한 계수가 아니라, 피크 구간 상향 보정은 더 열고 하향 보정은 더 보수적으로 막기 위해 사람이 정한 운영 상수입니다.</p>
       </article>
     </div>
   `;
@@ -2684,15 +3342,44 @@ function renderExplanationPanels(data) {
     <div class="feature-analysis__candidate-grid">
       <article class="primer-card">
         <span class="primer-card__label">고정값</span>
-        <p>식당 × 30/60/90분 계수와 cap 계산에 쓰는 상수들입니다.</p>
+      <p>식당 × 10/20/30/60분 계수와 cap 계산에 쓰는 상수들입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">실시간값</span>
         <p>pressureGap, baselineShiftPos, gapPos, currentGap, positiveCap, negativeCap은 예측 행마다 다시 계산됩니다.</p>
       </article>
       <article class="primer-card">
+        <span class="primer-card__label">cap 상수의 성격</span>
+        <p>positiveCap / negativeCap 결과값은 매 행마다 달라지지만, 그 계산식의 기준 숫자 10, 8, 0.55, 0.35, 0.15, 0.30, 0.15는 코드에 고정된 운영 규칙입니다.</p>
+      </article>
+      <article class="primer-card">
         <span class="primer-card__label">처음 보는 사람용 해석</span>
         <p>고정 계수는 “이 식당의 평소 습관”, 실시간값은 “오늘 지금 분위기”, 안전장치는 “너무 튀면 마지막에 잘라주는 장치”라고 보면 됩니다.</p>
+      </article>
+      <article class="primer-card candidate-card--table">
+        <span class="primer-card__label">구간별 재비교</span>
+        <div class="table-wrap table-wrap--plain">
+          <table class="mapping-table mapping-table--compact">
+            <thead>
+              <tr>
+                <th>구간</th>
+                <th>4항식 MAE</th>
+                <th>잔차 보정식 MAE</th>
+                <th>판단</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${comparisonRows.map((row) => `
+                <tr>
+                  <td>${row.horizonMinutes}분</td>
+                  <td>${formatOneDecimal(row.adjustedMae)}명</td>
+                  <td>${formatOneDecimal(row.residualMae)}명</td>
+                  <td>${row.verdict}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </article>
     </div>
   `;
@@ -2725,7 +3412,7 @@ function renderFixedReferenceTables(data) {
     <div class="formula-summary-grid">
       <article class="primer-card">
         <span class="primer-card__label">고정 단위</span>
-        <p>${fixedModel.scope} 단위로 계수를 따로 저장합니다. 그래서 같은 식당이라도 30분 후와 90분 후는 계수가 다를 수 있습니다.</p>
+      <p>${fixedModel.scope} 단위로 계수를 따로 저장합니다. 그래서 같은 식당이라도 10분 후와 60분 후는 계수가 다를 수 있습니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">사용 항목</span>
@@ -2733,11 +3420,15 @@ function renderFixedReferenceTables(data) {
       </article>
       <article class="primer-card">
         <span class="primer-card__label">안전장치 방식</span>
-        <p>복잡한 신뢰도 계산 없이, 6항식 보정량을 그대로 구한 뒤 상한 안으로만 잘라냅니다.</p>
+          <p>복잡한 신뢰도 계산 없이, 4항식 보정량을 그대로 구한 뒤 상한 안으로만 잘라냅니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">positiveCap / negativeCap</span>
         <p>기본식에서 최대 몇 명까지 위로 올릴지, 아래로 내릴지를 정하는 상한입니다.</p>
+      </article>
+      <article class="primer-card">
+        <span class="primer-card__label">이 상수는 학습값이 아님</span>
+        <p>10, 8, 0.55, 0.35, 0.15, 0.30, 0.15는 데이터로 회귀 학습한 값이 아니라, 상향 보정은 더 열고 하향 보정은 더 보수적으로 막기 위해 정한 운영 규칙입니다.</p>
       </article>
       <article class="primer-card">
         <span class="primer-card__label">표본 규모</span>
@@ -2800,11 +3491,15 @@ function renderFixedReferenceTables(data) {
         </article>
         <article class="primer-card">
           <span class="primer-card__label">지금 남은 고정값</span>
-          <p>식당 × 30/60/90분 계수와, positiveCap / negativeCap 계산에 쓰는 상수만 유지합니다.</p>
+      <p>식당 × 10/20/30/60분 계수와, positiveCap / negativeCap 계산에 쓰는 상수만 유지합니다.</p>
         </article>
         <article class="primer-card">
           <span class="primer-card__label">실시간으로 계산하는 값</span>
           <p>pressureGap, baselineShiftPos, gapPos, currentGap 그리고 여기서 나온 positiveCap / negativeCap입니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">언제 바뀌나</span>
+          <p>positiveCap / negativeCap 결과값은 예측마다 달라지지만, 계산식 안의 10, 8, 0.55, 0.35 같은 기준 숫자는 코드를 다시 튜닝하거나 바꾸기 전까지 그대로 유지됩니다.</p>
         </article>
       </div>
     </section>
@@ -2840,8 +3535,8 @@ function renderFixedReferenceTables(data) {
   const guardRows = [
     {
       label: 'formulaAdjustment',
-      meaning: '6항식이 기본식에서 얼마나 더 움직이자고 제안하는지',
-      formula: guard.formulas?.formulaAdjustment || '6항식 계산값 - 기본식',
+      meaning: '4항식이 기본식에서 얼마나 더 움직이자고 제안하는지',
+      formula: guard.formulas?.formulaAdjustment || '4항식 계산값 - 기본식',
       runtime: 'formulaRawPrediction, basePrediction',
       note: '양수면 기본식보다 더 올리고, 음수면 더 내리자는 뜻입니다.'
     },
@@ -2864,7 +3559,7 @@ function renderFixedReferenceTables(data) {
       meaning: '최종적으로 기본식에 더하는 보정값',
       formula: guard.formulas?.finalAdjustment || 'clamp(formulaAdjustment, -negativeCap, +positiveCap)',
       runtime: 'formulaAdjustment, positiveCap, negativeCap',
-      note: '6항식 보정량이 상한 안에 있으면 그대로, 넘치면 상한까지만 사용합니다.'
+      note: '4항식 보정량이 상한 안에 있으면 그대로, 넘치면 상한까지만 사용합니다.'
     }
   ];
 
@@ -2873,13 +3568,13 @@ function renderFixedReferenceTables(data) {
       <div class="section-head section-head--tight">
         <div>
           <h3>안전장치 계산 규칙</h3>
-          <p class="hint">지금 안전장치는 단순합니다. 6항식 보정량을 먼저 구하고, 그 값을 positiveCap / negativeCap 범위 안으로만 잘라냅니다.</p>
+      <p class="hint">지금 안전장치는 단순합니다. 4항식 보정량을 먼저 구하고, 그 값을 positiveCap / negativeCap 범위 안으로만 잘라냅니다.</p>
         </div>
       </div>
       <div class="formula-summary-grid">
         <article class="primer-card">
           <span class="primer-card__label">1. 보정량 계산</span>
-          <p>먼저 6항식 계산값에서 기본식을 빼서, 얼마나 더 올리거나 내릴지 구합니다.</p>
+      <p>먼저 4항식 계산값에서 기본식을 빼서, 얼마나 더 올리거나 내릴지 구합니다.</p>
         </article>
         <article class="primer-card">
           <span class="primer-card__label">2. 상향 상한</span>
@@ -2892,6 +3587,10 @@ function renderFixedReferenceTables(data) {
         <article class="primer-card">
           <span class="primer-card__label">4. 최종 보정</span>
           <p>최종 보정은 clamp(formulaAdjustment, -negativeCap, +positiveCap)로 계산합니다.</p>
+        </article>
+        <article class="primer-card">
+          <span class="primer-card__label">숫자 선정 기준</span>
+          <p>pressureGap 비중을 가장 크게 둔 이유는 앞으로 더 붐빌 여지를 가장 직접적으로 보여주기 때문이고, baselineShiftPos는 시간대 이동, gapPos는 현재 과열 정도를 보조로 반영하도록 가볍게 뒀습니다.</p>
         </article>
       </div>
       <div class="table-wrap table-wrap--plain">
@@ -2943,3 +3642,4 @@ function renderFixedReferenceTables(data) {
     </section>
   `;
 }
+
