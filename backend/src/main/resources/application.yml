@@ -38,3 +38,9 @@ CONN:
   GET:
     URL: http://www.seeandyougo.com:80
     END_POINT: /api/connection/local
+
+PREDICTION:
+  BASE_URL: http://localhost:8000
+  HEALTH_ENDPOINT: /internal/health
+  PREDICT_ENDPOINT: /internal/connection/prediction
+  HORIZONS: 10,20,30,60
