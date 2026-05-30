@@ -74,6 +74,18 @@ const Modal = ({
 		};
 	}, [visible]);
 
+  // esc 키로 닫기
+	useEffect(() => {
+		if (!visible) return;
+		const handleKeyDown = (e) => {
+			if (e.key === "Escape" && onClose) {
+				onClose();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [visible, onClose]);
+
 	return ReactDOM.createPortal(
 		<BackgroundDim style={{ display: visible ? "block" : "none" }}>
 			<ModalContainer

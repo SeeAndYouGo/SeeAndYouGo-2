@@ -207,7 +207,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 </div>
               </Title>
             ) :(
-              <button onClick={() => setIsLoginModalOpen(true)} style={{display: "block", width: "100%", padding: 0}}>
+              <button onClick={() => setIsLoginModalOpen(true)} style={{display: "block", width: "100%", padding: 0, outline: "none"}}>
                 <Title>
                   <div style={{height: "100%"}}>
                     <span className="material-symbols-outlined" style={{fontSize:35, lineHeight: "50px", float: "left"}}>account_circle</span>
