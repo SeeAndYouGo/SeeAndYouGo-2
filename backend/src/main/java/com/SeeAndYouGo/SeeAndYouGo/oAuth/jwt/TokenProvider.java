@@ -76,7 +76,8 @@ public class TokenProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
         return refreshToken;

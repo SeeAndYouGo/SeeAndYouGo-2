@@ -54,6 +54,8 @@ dependencies {
     testImplementation("org.junit.vintage:junit-vintage-engine") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
+    // static method mocking (OAuthHttpClient 등) 용
+    testImplementation 'org.mockito:mockito-inline:4.5.1'
 }
 
 tasks.named('test') {

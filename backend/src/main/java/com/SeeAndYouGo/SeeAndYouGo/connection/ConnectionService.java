@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATETIME;
 
 @Slf4j
 @Service
@@ -25,12 +26,12 @@ public class ConnectionService {
     private final ConnectionProviderFactory connectionProviderFactory;
 
     @Value("${API.CONN_KEY}")
-    private String CONN_KEY;
+    private String connKey;
 
-    @Value("${CONN.OPERATING_HOURS.START:06:00}")
+    @Value("${external-api.connection.operating-hours.start}")
     private String operatingStartTime;
 
-    @Value("${CONN.OPERATING_HOURS.END:19:30}")
+    @Value("${external-api.connection.operating-hours.end}")
     private String operatingEndTime;
 
     /**
@@ -45,8 +46,7 @@ public class ConnectionService {
         // 운영시간 체크: 비운영시간이면 -1 반환
         if (!isOperatingHours()) {
             log.info("비운영시간 혼잡도 조회 요청 - restaurant: {}, 현재시간: {}", restaurant, LocalTime.now());
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String currentTime = LocalDateTime.now().format(formatter);
+            String currentTime = LocalDateTime.now().format(DATETIME);
             return new ConnectionVO(-1, currentTime, restaurant);
         }
 
@@ -55,7 +55,7 @@ public class ConnectionService {
     }
 
     public boolean checkSecretKey(String authKey) {
-        return CONN_KEY.equals(authKey);
+        return connKey.equals(authKey);
     }
 
     @Transactional
@@ -100,8 +100,7 @@ public class ConnectionService {
         LocalDateTime now = LocalDateTime.now();
 
         // recentTime을 LocalDateTime으로 변환
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime recentDateTime = LocalDateTime.parse(recentTime, formatter);
+        LocalDateTime recentDateTime = LocalDateTime.parse(recentTime, DATETIME);
 
         // 두 시간의 차이를 계산
         Duration duration = Duration.between(recentDateTime, now);

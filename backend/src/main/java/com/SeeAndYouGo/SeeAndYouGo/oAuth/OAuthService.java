@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
 import com.google.gson.JsonObject;
@@ -38,6 +39,7 @@ public class OAuthService {
     @Value("${google.REDIRECT_URI}")
     private String googleRedirectUri;
 
+    private final UserReader userReader;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
 
@@ -97,7 +99,7 @@ public class OAuthService {
         String email = userInfo.getEmail();
         String message = "login";
 
-        if (!userRepository.existsByEmail(email)) {
+        if (!userReader.existsByEmail(email)) {
             signUp(userInfo, socialType);
             message = "join";
         }
@@ -114,7 +116,7 @@ public class OAuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired Refresh Token");
         }
 
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userReader.getByEmail(authentication.getName());
         if (!user.getRefreshToken().equals(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token");
         }
