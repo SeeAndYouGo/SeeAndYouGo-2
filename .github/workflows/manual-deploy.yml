@@ -50,7 +50,7 @@ jobs:
         run: |
           cd backend/src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > application.yml
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > application-prod.yaml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > application-prod.yml
           echo "${{ secrets.KEY_YML }}" > key.yml
         shell: bash
 
