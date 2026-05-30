@@ -11,9 +11,9 @@ import java.util.Optional;
 @Repository
 public interface VisitorCountRepository extends JpaRepository<VisitorCount, Long> {
 
-    VisitorCount findByIsTotalFalseAndCreatedAt(LocalDate today);
+    Optional<VisitorCount> findByIsTotalFalseAndCreatedAt(LocalDate today);
 
-    VisitorCount findTopByIsTotalTrueOrderByCreatedAtDesc();
+    Optional<VisitorCount> findTopByIsTotalTrueOrderByCreatedAtDesc();
 
-    VisitorCount findByIsTotalTrueAndCreatedAt(LocalDate localDate);
+    Optional<VisitorCount> findByIsTotalTrueAndCreatedAt(LocalDate localDate);
 }

@@ -17,30 +17,55 @@
     pathmatch:
       matching-strategy: ant_path_matcher
 
-kakao:
-  REST_API_KEY: ${KAKAO_REST_API_KEY}
-  REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+# External API Configuration
+external-api:
+  dormitory:
+    connection-url: https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
+  menu:
+    get:
+      url: http://www.seeandyougo.com:80
+      endpoint: /api/menu/local
+    save:
+      url: https://api.cnu.ac.kr
+      endpoint: /svc/offcam/pub/FoodInfo
+  connection:
+    get:
+      url: http://www.seeandyougo.com:80
+      endpoint: /api/connection/local
+    save:
+      url: https://api.cnu.ac.kr
+      endpoint: /svc/offcam/pub/WifiAllInfo
+    operating-hours:
+      start: "06:00"
+      end: "19:30"
 
-google:
-  CLIENT_ID: ${GOOGLE_CLIENT_ID}
-  CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-  REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+# Application Settings
+app:
+  statistics:
+    start-time: "07:30"
+    end-time: "19:30"
+    time-quantum: 5
+  review:
+    top-review-count: 3
+  keyword:
+    max-per-user: 10
 
-URL:
-  DORM_CONN_URL : https://dorm.cnu.ac.kr/intranet/public/ajax_cafe_inwon.php?mode=inwon
-
-DISH:
-  GET:
-    URL: http://www.seeandyougo.com:80
-    END_POINT: /api/menu/local
-
-CONN:
-  GET:
-    URL: http://www.seeandyougo.com:80
-    END_POINT: /api/connection/local
-
-PREDICTION:
-  BASE_URL: http://localhost:8000
-  HEALTH_ENDPOINT: /internal/health
-  PREDICT_ENDPOINT: /internal/connection/prediction
-  HORIZONS: 10,20,30,60
+# Scheduler Cron Expressions
+scheduler:
+  menu:
+    daily-update: "0 15 0 * * *"
+    weekly-save: "0 0 0 * * MON"
+  redis:
+    daily-reset: "0 0 0 * * *"
+    cache-init: "0 5 0 * * *"
+  visitor:
+    daily-sync: "0 0 0 * * *"
+    backup-rate: 1800000
+  like:
+    backup-rate: 1800000
+  statistics:
+    daily-update: "0 0 21 * * MON-FRI"
+  connection:
+    crawl: "40 0/5 6-20 * * *"
+  holiday:
+    year-end: "0 0 22 31 12 *"

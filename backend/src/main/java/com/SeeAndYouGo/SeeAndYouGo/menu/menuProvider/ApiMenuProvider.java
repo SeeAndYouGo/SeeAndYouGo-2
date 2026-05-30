@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.*;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.HttpRequestUtil;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuType;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuVO;
@@ -21,16 +22,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_COMPACT;
+import static com.SeeAndYouGo.SeeAndYouGo.global.MenuConstants.DEFAULT_DISH_NAME;
 
 @Component
 @RequiredArgsConstructor
@@ -38,19 +37,19 @@ import java.util.stream.Collectors;
 public class ApiMenuProvider implements MenuProvider{
 
     @Value("${API.DISH_KEY}")
-    private String AUTH_KEY;
+    private String authKey;
 
-    @Value("${DISH.GET.URL}")
-    private String URL;
+    @Value("${external-api.menu.get.url}")
+    private String menuGetUrl;
 
-    @Value("${DISH.GET.END_POINT}")
-    private String END_POINT;
+    @Value("${external-api.menu.get.endpoint}")
+    private String menuGetEndpoint;
 
-    @Value("${DISH.SAVE.URL}")
-    private String SAVE_URL;
+    @Value("${external-api.menu.save.url}")
+    private String menuSaveUrl;
 
-    @Value("${DISH.SAVE.END_POINT}")
-    private String SAVE_END_POINT;
+    @Value("${external-api.menu.save.endpoint}")
+    private String menuSaveEndpoint;
 
     private Map<Restaurant, List<MenuVO>> menuMap = new HashMap<>();
 
@@ -89,9 +88,9 @@ public class ApiMenuProvider implements MenuProvider{
     }
 
     private URI getUri(Restaurant restaurant) {
-        return UriComponentsBuilder.fromUriString(URL)
-                .path(END_POINT)
-                .queryParam("AUTH_KEY", AUTH_KEY)
+        return UriComponentsBuilder.fromUriString(menuGetUrl)
+                .path(menuGetEndpoint)
+                .queryParam("AUTH_KEY", authKey)
                 .queryParam("restaurant", restaurant)
                 .encode()
                 .build()
@@ -102,7 +101,6 @@ public class ApiMenuProvider implements MenuProvider{
     public void updateMenuMap(Restaurant restaurant, LocalDate monday, LocalDate sunday) throws Exception {
         List<MenuVO> result = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         JsonArray resultArray;
         try{
@@ -146,7 +144,7 @@ public class ApiMenuProvider implements MenuProvider{
                 price = Integer.parseInt(priceStr);
 
             String dateStr = menuObject.get("FOOM_YMD").getAsString();
-            LocalDate objDate = LocalDate.parse(dateStr, formatter);
+            LocalDate objDate = LocalDate.parse(dateStr, DATE_COMPACT);
 
             // DishDto 구성하기
             if (objDate.isAfter(monday) && objDate.isBefore(sunday) || objDate.isEqual(monday) || objDate.isEqual(sunday)) {
@@ -219,7 +217,6 @@ public class ApiMenuProvider implements MenuProvider{
 
     public void updateDailyMenu(Restaurant restaurant, LocalDate date) throws Exception {
         List<MenuVO> dailyMenu = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         String foodInfo = getDailyMenuToString(date);
 
@@ -237,7 +234,7 @@ public class ApiMenuProvider implements MenuProvider{
                     }
 
                     String dateStr = menuObject.get("FOOM_YMD").getAsString();
-                    LocalDate objDate = LocalDate.parse(dateStr, formatter);
+                    LocalDate objDate = LocalDate.parse(dateStr, DATE_COMPACT);
 
                     if (objDate.isEqual(date)) {
                         String deptStr = menuObject.get("CAFE_DTL_DIV_NM").getAsString();
@@ -273,7 +270,7 @@ public class ApiMenuProvider implements MenuProvider{
             }
         }
 
-        // Fill missing menus with default "메뉴 정보 없음"
+        // Fill missing menus with default dish
         fillMissingMenus(restaurant, date, dailyMenu);
 
         // menuMap에서 해당 날짜의 메뉴를 찾아 교체
@@ -312,40 +309,26 @@ public class ApiMenuProvider implements MenuProvider{
 
         if (!menuExists) {
             MenuVO defaultMenu = new MenuVO(0, date.toString(), dept, restaurant, menuType);
-            defaultMenu.addDishVO(new DishVO("메뉴 정보 없음", DishType.SIDE));
+            defaultMenu.addDishVO(new DishVO(DEFAULT_DISH_NAME, DishType.SIDE));
             dailyMenu.add(defaultMenu);
         }
     }
 
-    private String getDailyMenuToString(LocalDate date) throws Exception {
+    private String getDailyMenuToString(LocalDate date) throws IOException {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
         boolean dateFound = false;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        String dateString = date.format(formatter);
+        String dateString = date.format(DATE_COMPACT);
 
         while (page <= 3) { // 최대 3페이지까지 확인
-            String apiUrl = SAVE_URL + SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
+            String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
+            String response = HttpRequestUtil.post(apiUrl);
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                StringBuilder response = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                if (response.toString().contains(dateString)) {
-                    dateFound = true;
-                    mergeJsonResults(rawMenu, response);
-                }
+            if (!response.isEmpty() && response.contains(dateString)) {
+                dateFound = true;
+                mergeJsonResults(rawMenu, new StringBuilder(response));
             }
+
             if (dateFound && !rawMenu.toString().contains(dateString)) {
                 // 해당 페이지에 날짜가 있었지만, 다른 메뉴 정보만 있었을 수 있으므로 다음 페이지도 확인
             } else if (dateFound) {
@@ -356,42 +339,21 @@ public class ApiMenuProvider implements MenuProvider{
         return rawMenu.toString();
     }
 
-    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws Exception {
+    public String getWeeklyMenuToString(LocalDate monday, LocalDate sunday) throws IOException {
         StringBuilder rawMenu = new StringBuilder();
         int page = 1;
 
         // 월요일의 메뉴가 들어왔다면 0번째가 true가 됨.
         boolean[] dayOfWeek = new boolean[7];
 
-        while(true) {
-            if(allTrue(dayOfWeek) || page > 3){
-                // 어차피 3페이지 안에 다 나온다
-                break;
-            }
+        while (!allTrue(dayOfWeek) && page <= 3) {
+            // 어차피 3페이지 안에 다 나온다
+            String apiUrl = menuSaveUrl + menuSaveEndpoint + "?page=" + page + "&AUTH_KEY=" + authKey;
+            String response = HttpRequestUtil.post(apiUrl);
 
-            String apiUrl = SAVE_URL+SAVE_END_POINT + "?page=" + page + "&AUTH_KEY=" + AUTH_KEY;
-
-            // URL 생성
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-
-            // 응답 코드 확인
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                StringBuilder response = new StringBuilder();
-
-                while ((line = reader.readLine()) != null) response.append(line);
-
-                checkDate(response.toString(), dayOfWeek, monday, sunday);
-
-                reader.close();
-
-                mergeJsonResults(rawMenu, response);
+            if (!response.isEmpty()) {
+                checkDate(response, dayOfWeek, monday, sunday);
+                mergeJsonResults(rawMenu, new StringBuilder(response));
             }
 
             page++;
@@ -424,10 +386,9 @@ public class ApiMenuProvider implements MenuProvider{
     }
 
     private void checkDate(String line, boolean[] dayOfWeek, LocalDate monday, LocalDate sunday) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
         for(LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)){
-            String dateToString = date.format(formatter);
+            String dateToString = date.format(DATE_COMPACT);
             if(line.contains(dateToString)){
                 // date에 해당하는 날짜가 line에 포함되면 dayOfWeek의 해당 인덱스 true로 바꿔주기
                 int i = date.getDayOfWeek().getValue() - 1;
