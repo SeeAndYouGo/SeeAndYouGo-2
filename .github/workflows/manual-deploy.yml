@@ -49,8 +49,6 @@ jobs:
       - name: "[Backend] 환경 파일 준비"
         run: |
           cd backend/src/main/resources
-          echo "${{ secrets.APPLICATION_YML }}" > application.yml
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > application-prod.yaml
           echo "${{ secrets.KEY_YML }}" > key.yml
         shell: bash
 
