@@ -40,16 +40,16 @@ public class PredictionService {
 
     private final ConnectionRepository connectionRepository;
 
-    @Value("${PREDICTION.BASE_URL}")
+    @Value("${prediction.base_url}")
     private String baseUrl;
 
-    @Value("${PREDICTION.HEALTH_ENDPOINT}")
+    @Value("${prediction.health_endpoint}")
     private String healthEndpoint;
 
-    @Value("${PREDICTION.PREDICT_ENDPOINT}")
+    @Value("${prediction.predict_endpoint}")
     private String predictEndpoint;
 
-    @Value("${PREDICTION.HORIZONS}")
+    @Value("${prediction.horizons}")
     private List<Integer> horizons;
 
     private final RestTemplate restTemplate = new RestTemplate();
