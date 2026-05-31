@@ -3,11 +3,11 @@ FROM node:18.17.1-slim as build
 
 WORKDIR /app
 COPY frontend/package.json frontend/yarn.lock ./
-RUN npx update-browserslist-db@latest
 RUN yarn cache clean
 RUN yarn install --network-timeout 1000000
 
 COPY frontend/. .
+ENV GENERATE_SOURCEMAP=false
 RUN yarn build
 
 # prod
