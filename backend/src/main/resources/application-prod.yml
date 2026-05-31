@@ -1,17 +1,17 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/seeandyougo?useSSL=false&allowPublicKeyRetrieval=true
-    username: seeandyougo
-    password: seeandyougo
+    url: ENC(H9pUTzJxUaoznblkCPNXfAUjsd6G5folC0vshVow/4dBeEdRtDHEwNAILi8klFXA+fowtnLIMooR0H3ozkCE/2CYaivK/fssb/0ArwNIZHGoMAZUUtdhwGLhgxLPELN8iNIGJHJ5jd6OExpFB/tF2Q==)
+    username: ENC(VAWmf0MkWD4xPJ2zOGPWOHvyajcKuVeQR3jy/tFy6WRpNWHz2vwLGE6zr14yGxVu)
+    password: ENC(y4TOqQa9W+fnHLRJbM/TC6kdGx9qKDbdQ2UqY7Z5vUub/KSCTbeiRlaqjq5UriER)
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
   data:
     redis:
-      host: redis
-      port: 6379
+      host: ENC(s0kY/BCuYxVpbDUFfGHpmvAgaMCx/nu3esTKuqMpHux6jkPQCY2C5s3hNUL9r2CH)
+      port: ENC(GJTSm9A/fFkT3pMbSOgy/6dySCYY+bqVKBgorDKTrcBOOotPMCagsCliZrjfsoCN)
 
 external-api:
   menu:
