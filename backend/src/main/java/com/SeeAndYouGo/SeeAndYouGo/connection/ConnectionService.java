@@ -24,6 +24,7 @@ public class ConnectionService {
 
     private final ConnectionRepository connectionRepository;
     private final ConnectionProviderFactory connectionProviderFactory;
+    private final PredictionService predictionService;
 
     @Value("${API.CONN_KEY}")
     private String connKey;
@@ -92,6 +93,9 @@ public class ConnectionService {
                                                 .build();
 
             connectionRepository.save(connection);
+
+            // 저장 직후 예측 서버에 워밍업 호출 (비동기, 실패해도 저장 영향 X)
+            predictionService.warmUpPrediction(restaurant, connection);
         }
     }
 

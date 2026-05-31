@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -125,6 +126,21 @@ public class PredictionService {
         }
     }
 
+    @Async("asyncTaskExecutor")
+    public void warmUpPrediction(Restaurant restaurant, Connection observed) {
+        try {
+            if (!isPredictionServerHealthy()) {
+                log.warn("예측 캐시 워밍업 스킵 - 예측 서버 다운: restaurant={}", restaurant);
+                return;
+            }
+            callPredictionServer(restaurant, observed);
+            log.info("예측 캐시 워밍업 성공: restaurant={}, observed_at={}", restaurant, observed.getTime());
+        } catch (Exception e) {
+            log.warn("예측 캐시 워밍업 실패: restaurant={}, observed_at={}, error={}",
+                    restaurant, observed.getTime(), e.getMessage());
+        }
+    }
+
     private Optional<Connection> findClosestObservation(Restaurant restaurant, LocalDateTime requestedTime) {
         String start = requestedTime.minusMinutes(OBSERVATION_WINDOW_MINUTES).format(FORMATTER);
         String end = requestedTime.plusMinutes(OBSERVATION_WINDOW_MINUTES).format(FORMATTER);
@@ -155,6 +171,7 @@ public class PredictionService {
         requestBody.put("observed_at", observed.getTime());
         requestBody.put("current_count", observed.getConnected());
         requestBody.put("horizons", horizons);
+        requestBody.put("debug", false);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
