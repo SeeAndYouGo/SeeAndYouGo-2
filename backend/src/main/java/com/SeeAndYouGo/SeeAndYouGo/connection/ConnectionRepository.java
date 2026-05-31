@@ -11,5 +11,7 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
 
     List<Connection> findByRestaurantAndTimeStartsWith(Restaurant restaurant, String date);
 
+    List<Connection> findByRestaurantAndTimeBetween(Restaurant restaurant, String start, String end);
+
     int countByRestaurant(Restaurant restaurant);
 }

@@ -39,6 +39,12 @@ external-api:
       start: "06:00"
       end: "19:30"
 
+prediction:
+  base_url: http://localhost:8000
+  health_endpoint: /internal/health
+  predict_endpoint: /internal/connection/prediction
+  horizons: 10,20,30,60
+
 # Application Settings
 app:
   statistics:
