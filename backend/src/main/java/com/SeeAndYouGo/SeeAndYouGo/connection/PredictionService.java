@@ -153,7 +153,7 @@ public class PredictionService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("restaurant", restaurant.name());
         requestBody.put("observed_at", observed.getTime());
-        requestBody.put("observed_value", observed.getConnected());
+        requestBody.put("current_count", observed.getConnected());
         requestBody.put("horizons", horizons);
 
         HttpHeaders headers = new HttpHeaders();
