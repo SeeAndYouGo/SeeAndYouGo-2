@@ -29,6 +29,9 @@ public class User {
     private String nickname;
     @Enumerated(EnumType.STRING)
     private Social socialType; // Kakao, Naver, Google...
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type")
+    private UserType userType;
 
     @CreationTimestamp // INSERT 시 자동으로 값을 채워줌
     private LocalDateTime createTime = LocalDateTime.now();
@@ -42,10 +45,11 @@ public class User {
     private List<UserKeyword> userKeywords = new ArrayList<>();
 
     @Builder
-    public User(String email, String nickname, Social socialType) {
+    public User(String email, String nickname, Social socialType, UserType userType) {
         this.email = email;
         this.nickname = nickname;
         this.socialType = socialType;
+        this.userType = userType == null ? UserType.USER : userType;
     }
 
     public void changeNickname(String nickname) {
@@ -54,6 +58,18 @@ public class User {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public UserType getUserType() {
+        return userType == null ? UserType.USER : userType;
+    }
+
+    public boolean isAdmin() {
+        return getUserType() == UserType.ADMIN;
+    }
+
+    public void changeUserType(UserType userType) {
+        this.userType = userType == null ? UserType.USER : userType;
     }
 
     public void addKeyword(Keyword keyword){
