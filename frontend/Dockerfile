@@ -7,6 +7,7 @@ RUN yarn cache clean
 RUN yarn install --network-timeout 1000000
 
 COPY frontend/. .
+ENV GENERATE_SOURCEMAP=false
 RUN yarn build
 
 # prod

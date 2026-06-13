@@ -11,6 +11,15 @@ public enum MenuType {
         else return MenuType.DINNER;
     }
 
+    public static MenuType fromKorean(String korean) {
+        if ("아침".equals(korean)) {
+            return BREAKFAST;
+        } else if ("점심".equals(korean)) {
+            return LUNCH;
+        }
+        return DINNER;
+    }
+
     /**
      * timeStr에 맞는 MenuType을 return.
      * @param timeStr 형식은 08:15나 08:15:22 와 같은 형태여야한다.

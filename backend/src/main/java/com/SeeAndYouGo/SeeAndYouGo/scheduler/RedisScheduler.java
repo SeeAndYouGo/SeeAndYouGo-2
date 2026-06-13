@@ -18,7 +18,7 @@ public class RedisScheduler {
     private final RedisTemplate<String, Object> redisTemplate;
     private final NewDishCacheService newDishCacheService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${scheduler.redis.daily-reset}")
     public void resetKey() {
         Set<String> keys = redisTemplate.keys("menu:*");
         if (keys != null && !keys.isEmpty()) {
@@ -32,7 +32,7 @@ public class RedisScheduler {
      *
      * Note: resetKey()보다 5분 늦게 실행되어 실행 순서 보장
      */
-    @Scheduled(cron = "0 5 0 * * *")
+    @Scheduled(cron = "${scheduler.redis.cache-init}")
     public void syncHistoricalDishes() {
         log.info("Starting historical dishes sync for all restaurants");
 

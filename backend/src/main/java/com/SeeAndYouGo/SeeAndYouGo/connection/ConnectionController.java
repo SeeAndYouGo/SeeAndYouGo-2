@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class ConnectionController {
     private final ConnectionService connectionService;
+    private final PredictionService predictionService;
 
     /**
      * restaurant에 해당하는 가장 최근 혼잡도 불러오기(혼잡도는 5분마다 갱신됨)
@@ -35,6 +37,18 @@ public class ConnectionController {
     @GetMapping("/connection/cache")
     public void cache() throws Exception {
         connectionService.saveRecentConnection();
+    }
+
+    /**
+     * 외부 예측 서버에서 받아온 혼잡도 예측 결과를 그대로 릴레이한다.
+     * 호출 전 예측 서버 헬스체크를 수행한다.
+     * @param restaurant 식당 식별자 (예: restaurant1, 제1학생회관)
+     * @param observedAt 관측 시각 (yyyy-MM-dd HH:mm:ss)
+     */
+    @GetMapping("/connection/prediction")
+    public PredictionResponseDto predictConnection(@RequestParam("restaurant") String restaurant,
+                                                   @RequestParam("observed_at") String observedAt) {
+        return predictionService.predict(restaurant, observedAt);
     }
 
     @PostMapping("/connection/local")

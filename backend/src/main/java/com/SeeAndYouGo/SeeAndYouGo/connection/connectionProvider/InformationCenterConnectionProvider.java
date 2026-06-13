@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.Connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.global.HttpRequestUtil;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -18,12 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import java.util.HashMap;
 
@@ -33,52 +30,25 @@ import java.util.HashMap;
 public class InformationCenterConnectionProvider implements ConnectionProvider{
 
     @Value("${API.CONN_KEY}")
-    private String AUTH_KEY;
+    private String authKey;
 
-    @Value("${CONN.GET.URL}")
-    private String URL;
+    @Value("${external-api.connection.get.url}")
+    private String connectionGetUrl;
 
-    @Value("${CONN.GET.END_POINT}")
-    private String END_POINT;
+    @Value("${external-api.connection.get.endpoint}")
+    private String connectionGetEndpoint;
 
-    @Value("${CONN.SAVE.URL}")
-    private String SAVE_URL;
+    @Value("${external-api.connection.save.url}")
+    private String connectionSaveUrl;
 
-    @Value("${CONN.SAVE.END_POINT}")
-    private String SAVE_END_POINT;
+    @Value("${external-api.connection.save.endpoint}")
+    private String connectionSaveEndpoint;
 
     private Map<Restaurant, ConnectionVO> connectionMap = new HashMap<>();
 
-    public String getRecentConnectionToString() throws Exception {
-
-        String apiUrl = SAVE_URL+SAVE_END_POINT + "?AUTH_KEY=" + AUTH_KEY;
-
-        // URL 생성
-        URL url = new URL(apiUrl);
-        // HttpURLConnection 설정
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-
-        // 응답 코드 확인
-        int responseCode = connection.getResponseCode();
-        String json = new String();
-
-        // 응답 내용 읽기
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            StringBuilder response = new StringBuilder();
-
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-
-            reader.close();
-            json = response.toString();
-        }
-
-        return json;
+    public String getRecentConnectionToString() throws IOException {
+        String apiUrl = connectionSaveUrl + connectionSaveEndpoint + "?AUTH_KEY=" + authKey;
+        return HttpRequestUtil.post(apiUrl);
     }
 
     @Override
@@ -107,9 +77,9 @@ public class InformationCenterConnectionProvider implements ConnectionProvider{
     }
 
     private URI getUri(Restaurant restaurant) {
-        return UriComponentsBuilder.fromUriString(URL)
-                .path(END_POINT)
-                .queryParam("AUTH_KEY", AUTH_KEY)
+        return UriComponentsBuilder.fromUriString(connectionGetUrl)
+                .path(connectionGetEndpoint)
+                .queryParam("AUTH_KEY", authKey)
                 .queryParam("restaurant", restaurant.getNumber())
                 .encode()
                 .build()
