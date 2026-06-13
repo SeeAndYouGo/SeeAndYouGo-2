@@ -45,14 +45,14 @@ public class SecurityConfig {
                         HttpMethod.GET,
                         "/api/dish/week",
                         "/api/weekly-menu"
-                ).hasAnyAuthority(UserRole.USER.name(), UserRole.ADMIN.name())
+                ).hasAuthority(UserRole.ADMIN.name())
                 .antMatchers(
                         HttpMethod.PUT,
                         "/api/dish/name",
                         "/api/main-menu"
-                ).hasAnyAuthority(UserRole.USER.name(), UserRole.ADMIN.name())
+                ).hasAuthority(UserRole.ADMIN.name())
                 .antMatchers(HttpMethod.DELETE, "/api/dish/*")
-                .hasAnyAuthority(UserRole.USER.name(), UserRole.ADMIN.name())
+                .hasAuthority(UserRole.ADMIN.name())
                 .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
