@@ -1,10 +1,9 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
-import com.SeeAndYouGo.SeeAndYouGo.aop.log.TraceMethodLog;
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.user.User;
+import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
@@ -34,6 +33,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MenuController {
     private final MenuService menuService;
+    private final AdminAuthorizationService adminAuthorizationService;
     private final UserRepository userRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
@@ -165,7 +165,9 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
-    public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
+    public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin(
+            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        adminAuthorizationService.assertAdmin(email);
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
