@@ -1,7 +1,5 @@
 package com.SeeAndYouGo.SeeAndYouGo.rate;
 
-import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
-import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -31,16 +29,15 @@ public class RateService {
 
     private static final String RESTAURANT1_MENU_JSON_PATH = "src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json";
 
-    private Map<String, List<String>> restaurant1MenuByCategory = new HashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
-    private Map<String, Integer> restaurant1MenuByPrice = new HashMap<>(); // 메뉴와 가격이 매칭되어있음.
+    private final Map<String, List<String>> restaurant1MenuByCategory = new LinkedHashMap<>(); // 카테고리별로 메뉴의 이름이 들어있음.
+    private final Map<String, Integer> restaurant1MenuByPrice = new HashMap<>(); // 메뉴와 가격이 매칭되어있음.
     private final RateRepository rateRepository;
-    private final DishRepository dishRepository;
 
     @Transactional
     public void saveRate(){
         List<Restaurant1MenuItem> menuItems = parseRestaurant1MenuJson();
         for (Restaurant1MenuItem item : menuItems) {
-            if (!rateRepository.existsByDept(item.name())) {
+            if (!rateRepository.existsByRestaurantAndDept(Restaurant.제1학생회관, item.name())) {
                 Rate rate = Rate.builder()
                         .restaurant(Restaurant.제1학생회관)
                         .dept(item.name())
@@ -52,6 +49,9 @@ public class RateService {
 
     public void setRestaurant1MenuField() {
         List<Restaurant1MenuItem> menuItems = parseRestaurant1MenuJson();
+        restaurant1MenuByCategory.clear();
+        restaurant1MenuByPrice.clear();
+
         for (Restaurant1MenuItem item : menuItems) {
             restaurant1MenuByCategory.computeIfAbsent(item.dept().toString(), k -> new ArrayList<>())
                     .add(item.name());
@@ -62,14 +62,10 @@ public class RateService {
     private List<Restaurant1MenuItem> parseRestaurant1MenuJson() {
         List<Restaurant1MenuItem> menuItems = new ArrayList<>();
         try {
-            // Read the JSON file
-            String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
+            String jsonContent = Files.readString(Paths.get(RESTAURANT1_MENU_JSON_PATH).toAbsolutePath());
 
-            // Parse the JSON data
-            JsonParser jsonParser = new JsonParser();
-            JsonArray deptArray = jsonParser.parse(jsonContent).getAsJsonArray();
+            JsonArray deptArray = JsonParser.parseString(jsonContent).getAsJsonArray();
 
-            // Extract menus from each dept
             for (JsonElement deptElement : deptArray) {
                 JsonObject deptObj = deptElement.getAsJsonObject();
                 Dept dept = Dept.valueOf(deptObj.get("deptEn").getAsString());
@@ -79,15 +75,7 @@ public class RateService {
                     String name = menuJson.getAsJsonObject().get("name").getAsString();
                     Integer price = menuJson.getAsJsonObject().get("price").getAsInt();
 
-                    List<String> dishesByDept = restaurant1MenuByCategory.get(dept.toString());
-                    // 1학 메뉴가 초기화되지 않았다면 가장 처음 초기화해주는 작업.
-                    if (dishesByDept == null) {
-                        dishesByDept = new ArrayList<>();
-                    }
-
-                    dishesByDept.add(name);
-                    restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
-                    restaurant1MenuByPrice.put(name, price);
+                    menuItems.add(new Restaurant1MenuItem(name, dept, price));
                 }
             }
         }catch (IOException e) {
@@ -136,15 +124,18 @@ public class RateService {
             throw new IllegalArgumentException("메뉴별 개별 평점을 관리하는 식당만 지원하는 메서드입니다.");
         }
 
-        // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기
-        List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
+        if (restaurant1MenuByCategory.isEmpty() || restaurant1MenuByPrice.isEmpty()) {
+            setRestaurant1MenuField();
+        }
+
         List<RestaurantDetailRateResponseDto> detailRate = new ArrayList<>();
 
         for (String deptToString : restaurant1MenuByCategory.keySet()) {
             List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
             List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
             for (String dishName : dishNames) {
-                Rate rate = rateRepository.findByDept(dishName).get(0);
+                Rate rate = rateRepository.findByRestaurantAndDept(restaurant, dishName)
+                        .orElseThrow(() -> new IllegalStateException("평점 정보가 없습니다: " + restaurant + ", " + dishName));
 
                 RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
                         .menuName(dishName)
