@@ -68,6 +68,9 @@ public class RateService {
 
     public void setRestaurant1MenuField() {
         try {
+            restaurant1MenuByCategory.clear();
+            restaurant1MenuByPrice.clear();
+
             // Read the JSON file
             String jsonContent = new String(Files.readAllBytes(Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
 
@@ -91,7 +94,9 @@ public class RateService {
                         dishesByDept = new ArrayList<>();
                     }
 
-                    dishesByDept.add(name);
+                    if (!dishesByDept.contains(name)) {
+                        dishesByDept.add(name);
+                    }
                     restaurant1MenuByCategory.put(dept.toString(), dishesByDept);
                     restaurant1MenuByPrice.put(name, price);
                 }
@@ -125,19 +130,19 @@ public class RateService {
         }
 
         // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기
-        List<Rate> ratesByRestaurant = rateRepository.findAllByRestaurant(restaurant);
         List<RestaurantDetailRateResponseDto> detailRate = new ArrayList<>();
 
         for (String deptToString : restaurant1MenuByCategory.keySet()) {
             List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
             List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
             for (String dishName : dishNames) {
-                Rate rate = rateRepository.findByDept(dishName).get(0);
+                Rate rate = rateRepository.findByRestaurantAndDept(restaurant, dishName);
+                double averageRate = rate == null ? 0.0 : rate.getRate();
 
                 RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
                         .menuName(dishName)
                         .price(restaurant1MenuByPrice.get(dishName))
-                        .averageRate(rate.getRate())
+                        .averageRate(averageRate)
                         .build();
 
                 dishRate.add(rateDto);
