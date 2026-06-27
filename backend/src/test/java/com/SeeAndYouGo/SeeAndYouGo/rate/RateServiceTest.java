@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,10 +43,10 @@ class RateServiceTest {
                 .thenAnswer(invocation -> {
                     Restaurant restaurant = invocation.getArgument(0);
                     String dept = invocation.getArgument(1);
-                    return Rate.builder()
+                    return Optional.of(Rate.builder()
                             .restaurant(restaurant)
                             .dept(dept)
-                            .build();
+                            .build());
                 });
 
         rateService.setRestaurant1MenuField();
