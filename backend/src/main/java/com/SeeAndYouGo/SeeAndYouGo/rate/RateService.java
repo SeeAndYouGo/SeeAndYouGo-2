@@ -148,8 +148,9 @@ public class RateService {
             List<String> dishNames = restaurant1MenuByCategory.get(deptToString);
             List<RestaurantRateMenuResponseDto> dishRate = new ArrayList<>();
             for (String dishName : dishNames) {
-                Rate rate = rateRepository.findByRestaurantAndDept(restaurant, dishName);
-                double averageRate = rate == null ? 0.0 : rate.getRate();
+                double averageRate = rateRepository.findByRestaurantAndDept(restaurant, dishName)
+                        .map(Rate::getRate)
+                        .orElse(0.0);
 
                 RestaurantRateMenuResponseDto rateDto = RestaurantRateMenuResponseDto.builder()
                         .menuName(dishName)
