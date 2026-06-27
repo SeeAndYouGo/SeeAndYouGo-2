@@ -128,6 +128,8 @@ const MainPage = () => {
 					<Progress
 						ratio={ratio}
 						time={restaurantData[restaurantId - 1]?.dateTime}
+						restaurantId={restaurantId}
+						capacity={restaurantData[restaurantId - 1]?.capacity}
 					/>
 					{restaurantId === 1 ? (
 						<MenuInfoForRestaurant1 />
