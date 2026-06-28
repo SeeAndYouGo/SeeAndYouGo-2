@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.connection;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +36,6 @@ public class PredictionService {
     private static final int OBSERVATION_WINDOW_MINUTES = 5;
 
     private static final String STATUS_OK = "OK";
-    private static final String STATUS_INVALID_REQUEST = "INVALID_REQUEST";
-    private static final String STATUS_NO_OBSERVATION = "NO_OBSERVATION";
-    private static final String STATUS_PREDICTION_SERVER_DOWN = "PREDICTION_SERVER_DOWN";
-    private static final String STATUS_PREDICTION_FAILED = "PREDICTION_FAILED";
 
     private final ConnectionRepository connectionRepository;
 
@@ -62,9 +60,7 @@ public class PredictionService {
             String parsedName = Restaurant.parseName(restaurantParam);
             restaurant = Restaurant.valueOf(parsedName);
         } catch (IllegalArgumentException e) {
-            return errorResponse(STATUS_INVALID_REQUEST,
-                    "알 수 없는 식당입니다: " + restaurantParam,
-                    null, observedAt);
+            throw new IllegalArgumentException("알 수 없는 식당입니다: " + restaurantParam);
         }
 
         // 2. observed_at 파싱
@@ -72,34 +68,23 @@ public class PredictionService {
         try {
             requestedTime = LocalDateTime.parse(observedAt, FORMATTER);
         } catch (DateTimeParseException e) {
-            return errorResponse(STATUS_INVALID_REQUEST,
-                    "observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.",
-                    restaurant.name(), observedAt);
+            throw new IllegalArgumentException("observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.");
         }
 
         // 3. DB에서 ±5분 윈도우 내 가장 가까운 관측값 찾기
         Optional<Connection> matched = findClosestObservation(restaurant, requestedTime);
         if (!matched.isPresent()) {
-            return PredictionResponseDto.builder()
-                    .status(STATUS_NO_OBSERVATION)
-                    .message("해당 시간대(±" + OBSERVATION_WINDOW_MINUTES + "분) 관측 데이터가 없습니다.")
-                    .restaurantName(restaurant.name())
-                    .requestedAt(observedAt)
-                    .build();
+            throw new ApiException(
+                    ErrorCode.PREDICTION_NO_OBSERVATION,
+                    "해당 시간대(±" + OBSERVATION_WINDOW_MINUTES + "분) 관측 데이터가 없습니다."
+            );
         }
 
         Connection observed = matched.get();
 
         // 4. 예측 서버 헬스체크
         if (!isPredictionServerHealthy()) {
-            return PredictionResponseDto.builder()
-                    .status(STATUS_PREDICTION_SERVER_DOWN)
-                    .message("예측 서버가 응답하지 않습니다.")
-                    .restaurantName(restaurant.name())
-                    .requestedAt(observedAt)
-                    .observedAt(observed.getTime())
-                    .observedValue(observed.getConnected())
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_SERVER_DOWN);
         }
 
         // 5. 외부 예측 서버 호출 후 응답 릴레이
@@ -115,14 +100,7 @@ public class PredictionService {
                     .build();
         } catch (RestClientException e) {
             log.error("예측 서버 호출 실패: restaurant={}, observed_at={}", restaurant, observedAt, e);
-            return PredictionResponseDto.builder()
-                    .status(STATUS_PREDICTION_FAILED)
-                    .message("예측 서버 호출 실패: " + e.getMessage())
-                    .restaurantName(restaurant.name())
-                    .requestedAt(observedAt)
-                    .observedAt(observed.getTime())
-                    .observedValue(observed.getConnected())
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_FAILED);
         }
     }
 
@@ -190,13 +168,4 @@ public class PredictionService {
         return body == null ? new HashMap<>() : body;
     }
 
-    private PredictionResponseDto errorResponse(String status, String message,
-                                                String restaurantName, String requestedAt) {
-        return PredictionResponseDto.builder()
-                .status(status)
-                .message(message)
-                .restaurantName(restaurantName)
-                .requestedAt(requestedAt)
-                .build();
-    }
 }

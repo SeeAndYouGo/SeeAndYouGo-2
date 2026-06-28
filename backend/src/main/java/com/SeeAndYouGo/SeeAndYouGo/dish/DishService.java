@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
@@ -10,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +39,7 @@ public class DishService {
                 if (dish.isPresent()) {
                     dish.get().updateMainDish();
                 }else{
-                    throw new EntityNotFoundException(mainDishName+"에 해당하는 dish를 찾을 수 없습니다.");
+                    throw new ApiException(ErrorCode.DISH_NOT_FOUND, mainDishName + "에 해당하는 요리를 찾을 수 없습니다.");
                 }
 
             }
@@ -105,7 +106,7 @@ public class DishService {
 
         // 대상 요리 조회 및 존재 확인
         Dish targetDish = dishRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("ID " + id + "에 해당하는 요리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 요리를 찾을 수 없습니다."));
 
         // 이미 같은 이름이면 변경 불필요
         if (targetDish.getName().equals(newName.trim())) {

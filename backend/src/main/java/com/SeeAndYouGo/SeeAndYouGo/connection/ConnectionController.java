@@ -3,13 +3,12 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,13 +52,11 @@ public class ConnectionController {
 
     @PostMapping("/connection/local")
     public ConnectionVO bridgeConnection(@RequestParam String AUTH_KEY,
-                                         @RequestParam(name = "restaurant") String restaurantToString,
-                                         HttpServletResponse response) throws Exception {
+                                         @RequestParam(name = "restaurant") String restaurantToString) throws Exception {
         boolean isRightSecretKey = connectionService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            throw new IllegalArgumentException("Invalid AUTH_KEY: Unauthorized access");
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
 
         String restaurantName = Restaurant.parseName(restaurantToString);

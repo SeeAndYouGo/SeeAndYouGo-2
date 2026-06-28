@@ -3,6 +3,8 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +42,11 @@ public class DishController {
     @DeleteMapping("/dish/{id}")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishDelete(@PathVariable Long id){
-        return dishService.deleteDish(id);
+        boolean deleted = dishService.deleteDish(id);
+        if(!deleted){
+            throw new ApiException(ErrorCode.DISH_NOT_FOUND);
+        }
+        return true;
     }
 
     @PutMapping("/dish/name")

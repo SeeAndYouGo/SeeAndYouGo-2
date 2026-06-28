@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReportCountResponseDto;
@@ -11,7 +13,6 @@ import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,7 +104,6 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/review")
-    @ResponseStatus(HttpStatus.CREATED)
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
@@ -193,25 +193,22 @@ public class ReviewController {
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){
 
-        ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
-                .success(false)
-                .build();
-        try{
-            boolean isWriter = reviewService.deleteReview(email, reviewId);
-            if(isWriter){
-                responseDto = ReviewDeleteResponseDto.builder()
-                        .success(true)
-                        .build();
-            }
-        }catch (ArrayIndexOutOfBoundsException e){
-            return responseDto;
+        boolean isWriter = reviewService.deleteReview(email, reviewId);
+        if(!isWriter){
+            throw new ApiException(ErrorCode.REVIEW_DELETE_FORBIDDEN);
         }
-        return responseDto;
+
+        return ReviewDeleteResponseDto.builder()
+                .success(true)
+                .build();
     }
 
     @DeleteMapping("/review/report/{reviewId}")
     public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
         boolean result = reviewService.deleteReportedReview(reviewId);
+        if(!result){
+            throw new ApiException(ErrorCode.REVIEW_NOT_FOUND);
+        }
 
         return new ReviewDeleteResponseDto(result);
     }
