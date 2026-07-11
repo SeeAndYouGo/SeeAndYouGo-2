@@ -169,7 +169,7 @@ public class ReviewController {
     public byte[] showImage(@PathVariable String imgName) throws Exception {
         // 파일명 검증
         if (imgName.contains("..") || imgName.contains("/") || imgName.contains("\\")) {
-            throw new IllegalArgumentException("Invalid image name");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "올바르지 않은 이미지 파일명입니다.");
         }
 
         Path imagePath = Paths.get(IMAGE_STORAGE_DIR, imgName).normalize();
@@ -207,7 +207,7 @@ public class ReviewController {
     public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
         boolean result = reviewService.deleteReportedReview(reviewId);
         if(!result){
-            throw new ApiException(ErrorCode.REVIEW_NOT_FOUND);
+            throw new ApiException(ErrorCode.REVIEW_NOT_FOUND, "삭제하려는 신고 리뷰를 찾을 수 없습니다.");
         }
 
         return new ReviewDeleteResponseDto(result);

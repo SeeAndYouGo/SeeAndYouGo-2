@@ -44,7 +44,7 @@ public class DishController {
     public boolean dishDelete(@PathVariable Long id){
         boolean deleted = dishService.deleteDish(id);
         if(!deleted){
-            throw new ApiException(ErrorCode.DISH_NOT_FOUND);
+            throw new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 요리를 찾을 수 없습니다.");
         }
         return true;
     }

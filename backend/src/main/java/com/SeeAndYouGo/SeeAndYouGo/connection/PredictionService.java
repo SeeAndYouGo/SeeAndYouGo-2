@@ -59,8 +59,8 @@ public class PredictionService {
         try {
             String parsedName = Restaurant.parseName(restaurantParam);
             restaurant = Restaurant.valueOf(parsedName);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("알 수 없는 식당입니다: " + restaurantParam);
+        } catch (ApiException e) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "알 수 없는 식당입니다: " + restaurantParam);
         }
 
         // 2. observed_at 파싱
@@ -68,7 +68,7 @@ public class PredictionService {
         try {
             requestedTime = LocalDateTime.parse(observedAt, FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.");
         }
 
         // 3. DB에서 ±5분 윈도우 내 가장 가까운 관측값 찾기

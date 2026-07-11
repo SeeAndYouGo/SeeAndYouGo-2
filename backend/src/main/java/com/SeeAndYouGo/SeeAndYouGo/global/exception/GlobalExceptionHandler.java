@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.global.exception;
 
+import com.SeeAndYouGo.SeeAndYouGo.aop.InvalidTokenException;
 import com.SeeAndYouGo.SeeAndYouGo.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         logError(request, e.getErrorCode().getCode(), e.getDetail(), e);
 
-        return buildErrorResponse(e.getErrorCode(), e.getErrorCode().getMessage());
+        return buildErrorResponse(e.getErrorCode(), getMessageOrDefault(e.getUserMessage(), e.getErrorCode()));
     }
 
     @ExceptionHandler(javax.persistence.EntityNotFoundException.class)
@@ -48,16 +49,24 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ErrorCode.RESOURCE_NOT_FOUND, ErrorCode.RESOURCE_NOT_FOUND.getMessage());
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidTokenException(
+            InvalidTokenException e,
+            HttpServletRequest request) {
+        logError(request, ErrorCode.INVALID_TOKEN.getCode(), e.getMessage(), e);
+
+        return buildErrorResponse(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
             IllegalArgumentException e,
             HttpServletRequest request) {
         logError(request, ErrorCode.INVALID_INPUT_VALUE.getCode(), e.getMessage(), e);
 
-        return buildErrorResponse(
-                ErrorCode.INVALID_INPUT_VALUE,
-                getMessageOrDefault(e.getMessage(), ErrorCode.INVALID_INPUT_VALUE)
-        );
+        // IllegalArgumentException은 JDK/외부 라이브러리를 포함해 어디서든 던져질 수 있으므로,
+        // e.getMessage()를 사용자에게 그대로 노출하지 않는다. 사용자 문구가 필요하면 ApiException을 사용할 것.
+        return buildErrorResponse(ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
     @ExceptionHandler({

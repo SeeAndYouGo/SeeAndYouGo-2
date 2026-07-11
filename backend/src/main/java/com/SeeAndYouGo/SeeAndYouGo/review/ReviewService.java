@@ -46,7 +46,7 @@ public class ReviewService {
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
-        Restaurant restaurant = Restaurant.valueOf(data.getRestaurant());
+        Restaurant restaurant = Restaurant.valueOf(Restaurant.parseName(data.getRestaurant()));
         Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
         // 연관관계 존재
@@ -126,7 +126,7 @@ public class ReviewService {
 
     @Transactional
     public Integer updateReportCount(Long reviewId) {
-        Review review = reviewReader.getById(reviewId);
+        Review review = reviewReader.getById(reviewId, "신고하려는 리뷰를 찾을 수 없습니다.");
         return review.incrementReportCount();
     }
 
@@ -168,7 +168,7 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewReader.getById(reviewId);
+        Review review = reviewReader.getById(reviewId, "삭제하려는 리뷰를 찾을 수 없습니다.");
         Restaurant restaurant = review.getRestaurant();
 
         if(review.getWriterEmail().equals(userEmail)){

@@ -20,9 +20,6 @@ public enum ErrorCode {
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),
 
-    // Menu
-    MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "MENU_001", "메뉴를 찾을 수 없습니다."),
-
     // Dish
     DISH_NOT_FOUND(HttpStatus.NOT_FOUND, "DISH_001", "요리를 찾을 수 없습니다."),
 
@@ -32,12 +29,6 @@ public enum ErrorCode {
 
     // Keyword
     KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "KEYWORD_001", "키워드를 찾을 수 없습니다."),
-
-    // Rate
-    RATE_NOT_FOUND(HttpStatus.NOT_FOUND, "RATE_001", "평점 정보를 찾을 수 없습니다."),
-
-    // Statistics
-    STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS_001", "통계 정보를 찾을 수 없습니다."),
 
     // Prediction
     PREDICTION_NO_OBSERVATION(HttpStatus.NOT_FOUND, "PREDICTION_001", "해당 시간대의 관측 데이터가 없습니다."),

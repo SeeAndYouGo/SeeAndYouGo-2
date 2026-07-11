@@ -50,7 +50,7 @@ public class MenuController {
                                                                    @PathVariable String date,
                                                                    @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         if(!checkParams(date)){
-            throw new IllegalArgumentException("날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
         }
 
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음

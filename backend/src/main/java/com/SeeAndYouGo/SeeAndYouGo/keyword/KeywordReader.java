@@ -13,8 +13,12 @@ public class KeywordReader {
     private final KeywordRepository keywordRepository;
 
     public Keyword getByName(String name) {
+        return getByName(name, null);
+    }
+
+    public Keyword getByName(String name, String userMessage) {
         return keywordRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.KEYWORD_NOT_FOUND, "name=" + name));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.KEYWORD_NOT_FOUND, "name=" + name, userMessage));
     }
 
     public Optional<Keyword> findByName(String name) {

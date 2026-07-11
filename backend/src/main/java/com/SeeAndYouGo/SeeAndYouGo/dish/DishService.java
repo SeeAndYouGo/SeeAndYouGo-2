@@ -101,7 +101,7 @@ public class DishService {
     public boolean updateDishName(long id, String newName) {
         // 입력 검증
         if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("새로운 요리명은 비어있을 수 없습니다.");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "새로운 요리명은 비어있을 수 없습니다.");
         }
 
         // 대상 요리 조회 및 존재 확인
