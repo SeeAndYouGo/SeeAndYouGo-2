@@ -20,13 +20,13 @@ check_port_available() {
   if "${CONTAINER[@]}" ps --format '{{.Names}}' | grep -Fxq "$allowed_container"; then
     case "$service" in
       "MySQL"|"Redis")
-        echo "$service port $port is already used by $allowed_container; keeping the existing local $service container."
+        echo "$service 포트 $port는 이미 $allowed_container에서 사용 중입니다. 기존 로컬 $service 컨테이너를 유지합니다."
         ;;
       "SeeAndYouGo backend")
-        echo "Backend port $port is already used by $allowed_container; compose will rebuild and restart the backend if needed."
+        echo "백엔드 포트 $port는 이미 $allowed_container에서 사용 중입니다. 필요한 경우 compose가 백엔드를 다시 빌드하고 재시작합니다."
         ;;
       *)
-        echo "Port $port is already used by $allowed_container; continuing with the existing local container."
+        echo "포트 $port는 이미 $allowed_container에서 사용 중입니다. 기존 로컬 컨테이너를 유지하고 계속 진행합니다."
         ;;
     esac
     return
@@ -34,24 +34,24 @@ check_port_available() {
 
   if command -v lsof >/dev/null 2>&1; then
     if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-      echo "ERROR: port $port is already in use; cannot start $service." >&2
+      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
       lsof -nP -iTCP:"$port" -sTCP:LISTEN >&2 || true
       exit 1
     fi
   elif command -v ss >/dev/null 2>&1; then
     if ss -ltn "sport = :$port" | awk 'NR > 1 { found = 1 } END { exit !found }'; then
-      echo "ERROR: port $port is already in use; cannot start $service." >&2
+      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
       ss -ltnp "sport = :$port" >&2 || true
       exit 1
     fi
   elif command -v netstat >/dev/null 2>&1; then
     if netstat -ltn 2>/dev/null | awk -v port=":$port" '$4 ~ port"$" { found = 1 } END { exit !found }'; then
-      echo "ERROR: port $port is already in use; cannot start $service." >&2
+      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
       netstat -ltnp 2>/dev/null | awk -v port=":$port" '$4 ~ port"$"' >&2 || true
       exit 1
     fi
   else
-    echo "WARN: lsof, ss, and netstat are unavailable; skipping local port check for $service ($port)." >&2
+    echo "경고: lsof, ss, netstat을 사용할 수 없어 $service($port) 로컬 포트 검사를 건너뜁니다." >&2
   fi
 }
 
@@ -62,11 +62,19 @@ check_container_name_available() {
     local state
     state="$("${CONTAINER[@]}" inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null || echo unknown)"
     if [[ "$state" == "restarting" ]]; then
-      echo "Container $container_name is restarting; compose will attempt to recreate or restart it."
+      echo "컨테이너 $container_name이 재시작 중입니다. compose가 재생성 또는 재시작을 시도합니다."
     elif [[ "$state" != "running" && "$state" != "exited" && "$state" != "created" ]]; then
-      echo "ERROR: container name $container_name already exists in unexpected state: $state" >&2
+      echo "오류: 컨테이너 이름 $container_name이 예상하지 못한 상태로 이미 존재합니다: $state" >&2
       exit 1
     fi
+  fi
+}
+
+check_container_runtime_access() {
+  if ! "${CONTAINER[@]}" ps >/dev/null 2>&1; then
+    echo "오류: ${CONTAINER[*]} 컨테이너 목록을 조회할 수 없습니다." >&2
+    echo "Docker Desktop/daemon 실행 상태와 현재 터미널의 Docker 접근 권한을 확인한 뒤 다시 실행하세요." >&2
+    exit 1
   fi
 }
 
@@ -148,32 +156,32 @@ check_redirect_uri_match() {
   frontend_redirect="$(read_frontend_env_value "$frontend_key")"
 
   if [[ -z "$backend_redirect" ]]; then
-    echo "ERROR: $label REDIRECT_URI is missing in backend/src/main/resources/key.yml." >&2
+    echo "오류: backend/src/main/resources/key.yml에 $label REDIRECT_URI가 없습니다." >&2
     return 1
   fi
 
   if [[ -z "$frontend_redirect" ]]; then
-    echo "ERROR: $frontend_key is missing or empty in $FRONTEND_ENV_FILE." >&2
+    echo "오류: $FRONTEND_ENV_FILE에 $frontend_key 값이 없거나 비어 있습니다." >&2
     return 1
   fi
 
   if [[ "$backend_redirect" != "$frontend_redirect" ]]; then
-    echo "ERROR: $label redirect URI mismatch between key.yml and $FRONTEND_ENV_FILE ($frontend_key)." >&2
+    echo "오류: key.yml과 $FRONTEND_ENV_FILE의 $label redirect URI가 일치하지 않습니다($frontend_key)." >&2
     return 2
   fi
 
-  echo "$label redirect URI matches frontend .env."
+  echo "$label redirect URI가 frontend .env와 일치합니다."
   return 0
 }
 
 check_oauth_redirect_urls() {
   if [[ ! -f "$FRONTEND_ENV_FILE" ]]; then
-    echo "ERROR: frontend env file is required for OAuth redirect URI validation: $FRONTEND_ENV_FILE" >&2
-    echo "Set FRONTEND_ENV_FILE=/path/to/.env if your frontend env file is elsewhere." >&2
+    echo "오류: OAuth redirect URI 검증에 frontend env 파일이 필요합니다: $FRONTEND_ENV_FILE" >&2
+    echo "frontend env 파일 위치가 다르면 FRONTEND_ENV_FILE=/path/to/.env로 지정하세요." >&2
     exit 1
   fi
 
-  echo "Checking OAuth redirect URI consistency..."
+  echo "OAuth redirect URI 일치 여부를 확인합니다..."
   local failed=0
   local mismatch=0
 
@@ -199,142 +207,94 @@ check_oauth_redirect_urls() {
 
   if [[ "$mismatch" -ne 0 ]]; then
     if [[ ! -t 0 ]]; then
-      echo "ERROR: OAuth redirect URI mismatch detected. Rerun in a terminal and choose whether to sync key.yml from frontend .env." >&2
+      echo "오류: OAuth redirect URI 불일치가 감지되었습니다. key.yml의 REDIRECT_URI를 frontend .env 값과 맞춘 뒤 다시 실행하세요." >&2
       exit 1
     fi
 
     local answer
-    read -r -p "Sync key.yml OAuth redirect URIs from frontend .env? [y/N] " answer
+    read -r -p "frontend .env 기준으로 key.yml의 OAuth redirect URI를 동기화할까요? [y/N] " answer
     case "$answer" in
       [yY]|[yY][eE][sS])
         update_key_redirect_uri "kakao" "$(read_frontend_env_value "REACT_APP_KAKAO_REDIRECT_URI")"
         update_key_redirect_uri "google" "$(read_frontend_env_value "REACT_APP_GOOGLE_REDIRECT_URI")"
-        echo "Updated key.yml OAuth redirect URIs from frontend .env."
+        echo "frontend .env 기준으로 key.yml OAuth redirect URI를 업데이트했습니다."
         check_redirect_uri_match "Kakao" "kakao" "REACT_APP_KAKAO_REDIRECT_URI" || exit 1
         check_redirect_uri_match "Google" "google" "REACT_APP_GOOGLE_REDIRECT_URI" || exit 1
         ;;
       *)
-        echo "ERROR: OAuth redirect URI mismatch was not fixed." >&2
+        echo "오류: OAuth redirect URI 불일치가 수정되지 않았습니다." >&2
         exit 1
         ;;
     esac
   fi
 }
 
-check_local_ddl_auto_update() {
-  if ! grep -Eq 'SPRING_JPA_HIBERNATE_DDL_AUTO:[[:space:]]*update' "$COMPOSE_FILE"; then
-    prompt_fix_compose_ddl_auto
-  fi
-
-  if ! grep -Eq 'ddl-auto:[[:space:]]*\$\{SPRING_JPA_HIBERNATE_DDL_AUTO:update\}' "$RESOURCE_DIR/application-local.yml"; then
-    prompt_fix_application_local_ddl_auto
-  fi
-
-  echo "Local JPA ddl-auto is configured as update."
-}
-
-prompt_fix_compose_ddl_auto() {
-  if [[ ! -t 0 ]]; then
-    echo "ERROR: docker-compose.backend.local.yml must set SPRING_JPA_HIBERNATE_DDL_AUTO: update." >&2
-    echo "Rerun in a terminal to choose whether to update it automatically." >&2
-    exit 1
-  fi
-
-  local answer
-  read -r -p "docker-compose.backend.local.yml의 SPRING_JPA_HIBERNATE_DDL_AUTO를 update로 변경할까요? [y/N] " answer
-  case "$answer" in
-    [yY]|[yY][eE][sS])
-      set_compose_ddl_auto_update
-      echo "docker-compose.backend.local.yml의 ddl-auto 설정을 update로 맞췄습니다."
-      ;;
-    *)
-      echo "ERROR: local backend requires SPRING_JPA_HIBERNATE_DDL_AUTO: update." >&2
-      exit 1
-      ;;
-  esac
-}
-
-set_compose_ddl_auto_update() {
-  local tmp_file
-  tmp_file="$(mktemp "${TMPDIR:-/tmp}/docker-compose.backend.local.yml.XXXXXX")"
-
+read_compose_ddl_auto() {
   awk '
     /^[[:space:]]*SPRING_JPA_HIBERNATE_DDL_AUTO:[[:space:]]*/ {
-      sub(/SPRING_JPA_HIBERNATE_DDL_AUTO:.*/, "SPRING_JPA_HIBERNATE_DDL_AUTO: update")
-      found = 1
-      print
-      next
+      line = $0
+      sub(/^[[:space:]]*SPRING_JPA_HIBERNATE_DDL_AUTO:[[:space:]]*/, "", line)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+      print line
+      exit
     }
-    /^[[:space:]]*SPRING_DATA_REDIS_PORT:[[:space:]]*/ {
-      print
-      if (!found) {
-        indent = $0
-        sub(/SPRING_DATA_REDIS_PORT:.*/, "", indent)
-        print indent "SPRING_JPA_HIBERNATE_DDL_AUTO: update"
-        found = 1
-      }
-      next
-    }
-    { print }
-    END {
-      if (!found) {
-        exit 1
-      }
-    }
-  ' "$COMPOSE_FILE" > "$tmp_file" || {
-    rm -f "$tmp_file"
-    echo "ERROR: could not update SPRING_JPA_HIBERNATE_DDL_AUTO automatically." >&2
-    exit 1
-  }
-
-  mv "$tmp_file" "$COMPOSE_FILE"
+  ' "$COMPOSE_FILE"
 }
 
-prompt_fix_application_local_ddl_auto() {
+read_application_local_ddl_auto() {
+  awk '
+    /^[[:space:]]*ddl-auto:[[:space:]]*/ {
+      line = $0
+      sub(/^[[:space:]]*ddl-auto:[[:space:]]*/, "", line)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+      print line
+      exit
+    }
+  ' "$RESOURCE_DIR/application-local.yml"
+}
+
+confirm_non_update_setting() {
+  local file_path="$1"
+  local label="$2"
+  local current_value="$3"
+
   if [[ ! -t 0 ]]; then
-    echo "ERROR: application-local.yml must default spring.jpa.hibernate.ddl-auto to update." >&2
-    echo "Rerun in a terminal to choose whether to update it automatically." >&2
+    echo "오류: $file_path의 $label 설정은 ${current_value:-없음}입니다." >&2
+    echo "권장값은 update입니다. 진행 여부를 선택하려면 대화형 터미널에서 다시 실행하세요." >&2
     exit 1
   fi
 
   local answer
-  read -r -p "application-local.yml의 ddl-auto 기본값을 update로 변경할까요? [y/N] " answer
+  read -r -p "$file_path의 $label 설정은 ${current_value:-없음}입니다. 진행하시겠습니까? (권장: update) [y/N] " answer
   case "$answer" in
     [yY]|[yY][eE][sS])
-      set_application_local_ddl_auto_update
-      echo "application-local.yml의 ddl-auto 기본값을 update로 맞췄습니다."
+      echo "$file_path의 $label 설정이 update가 아니지만 계속 진행합니다."
       ;;
     *)
-      echo "ERROR: local profile requires spring.jpa.hibernate.ddl-auto default update." >&2
+      echo "오류: $file_path의 $label 설정을 update로 맞춘 뒤 다시 실행하세요." >&2
       exit 1
       ;;
   esac
 }
 
-set_application_local_ddl_auto_update() {
-  local tmp_file
-  tmp_file="$(mktemp "${TMPDIR:-/tmp}/application-local.yml.XXXXXX")"
+check_local_ddl_auto_update() {
+  local compose_ddl_auto
+  local application_ddl_auto
 
-  awk '
-    /^[[:space:]]*ddl-auto:[[:space:]]*/ {
-      sub(/ddl-auto:.*/, "ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}")
-      found = 1
-      print
-      next
-    }
-    { print }
-    END {
-      if (!found) {
-        exit 1
-      }
-    }
-  ' "$RESOURCE_DIR/application-local.yml" > "$tmp_file" || {
-    rm -f "$tmp_file"
-    echo "ERROR: could not update application-local.yml ddl-auto automatically." >&2
-    exit 1
-  }
+  compose_ddl_auto="$(read_compose_ddl_auto)"
+  application_ddl_auto="$(read_application_local_ddl_auto)"
 
-  mv "$tmp_file" "$RESOURCE_DIR/application-local.yml"
+  if [[ "$compose_ddl_auto" == "update" ]]; then
+    echo "docker-compose.backend.local.yml의 SPRING_JPA_HIBERNATE_DDL_AUTO 설정은 update입니다."
+  else
+    confirm_non_update_setting "docker-compose.backend.local.yml" "SPRING_JPA_HIBERNATE_DDL_AUTO" "$compose_ddl_auto"
+  fi
+
+  if [[ "$application_ddl_auto" == '${SPRING_JPA_HIBERNATE_DDL_AUTO:update}' ]]; then
+    echo "backend/src/main/resources/application-local.yml의 ddl-auto 기본값은 update입니다."
+  else
+    confirm_non_update_setting "backend/src/main/resources/application-local.yml" "ddl-auto 기본값" "$application_ddl_auto"
+  fi
 }
 
 run_compose() {
@@ -361,16 +321,14 @@ classify_backend_failure() {
   echo "백엔드 기동 실패 원인 분류:"
 
   if log_contains "$logs" "key\\.yml|Jasypt|encryptor|Could not resolve placeholder|BindException"; then
-    echo "- 설정/secret 문제 가능성이 큽니다."
+    echo "- 설정/시크릿 문제 가능성이 큽니다."
     echo "- key.yml, application-local.yml, 환경변수 값을 먼저 확인하세요."
-    echo "- DB 볼륨 삭제 대상이 아닙니다."
     return
   fi
 
   if log_contains "$logs" "Communications link failure|Access denied|Unknown database|HikariPool.*Exception|Connection refused.*mysql"; then
     echo "- MySQL 연결 또는 초기화 문제 가능성이 큽니다."
     echo "- MySQL 컨테이너 상태, datasource URL, 포트, 계정을 먼저 확인하세요."
-    echo "- 바로 DB 볼륨 삭제로 가지 말고 원인 확인이 먼저입니다."
     return
   fi
 
@@ -384,20 +342,17 @@ classify_backend_failure() {
   if log_contains "$logs" "Failed to execute CommandLineRunner|NoSuchFileException|menuOfRestaurant1\\.json|Failed to parse"; then
     echo "- 애플리케이션 초기 데이터 로딩 또는 리소스 파일 문제 가능성이 큽니다."
     echo "- 누락 파일, DataLoader, 외부 API 응답을 먼저 확인하세요."
-    echo "- DB 볼륨 삭제로 해결될 가능성은 낮습니다."
     return
   fi
 
   if log_contains "$logs" "RedisConnectionFailureException|Unable to connect to Redis|Connection refused.*redis"; then
     echo "- Redis 연결 문제 가능성이 큽니다."
     echo "- Redis 컨테이너 상태와 SPRING_DATA_REDIS_* 설정을 확인하세요."
-    echo "- DB 볼륨 삭제 대상이 아닙니다."
     return
   fi
 
   echo "- 알려진 패턴으로 분류되지 않았습니다."
   echo "- 아래 최근 로그를 기준으로 원인을 확인하세요."
-  echo "- DB 볼륨 삭제는 스키마/데이터 충돌이 확인될 때만 고려하세요."
 }
 
 monitor_backend_startup() {
@@ -416,7 +371,7 @@ monitor_backend_startup() {
 
   echo
   echo "백엔드 기동 상태를 확인합니다."
-  echo "- local profile, Spring 시작, DataLoader 초기세팅, HTTP 응답을 순서대로 확인합니다."
+  echo "- local 프로필, Spring 시작, DataLoader 초기세팅, HTTP 응답을 순서대로 확인합니다."
   echo "- 준비 확인은 최대 $((attempts * interval))초 동안 진행합니다."
 
   for ((i = 1; i <= attempts; i++)); do
@@ -426,7 +381,7 @@ monitor_backend_startup() {
     if log_contains "$logs" 'The following 1 profile is active: "local"'; then
       local_profile=1
       if [[ "$reported_local_profile" -eq 0 ]]; then
-        echo "- local profile 확인 완료"
+        echo "- local 프로필 확인 완료"
         reported_local_profile=1
       fi
     fi
@@ -461,7 +416,7 @@ monitor_backend_startup() {
     fi
 
     if log_contains "$logs" "Application run failed|Failed to execute CommandLineRunner"; then
-      echo "ERROR: 백엔드 애플리케이션 기동 실패 로그가 감지되었습니다." >&2
+      echo "오류: 백엔드 애플리케이션 기동 실패 로그가 감지되었습니다." >&2
       echo
       echo "최근 백엔드 로그:"
       printf '%s\n' "$logs"
@@ -470,7 +425,7 @@ monitor_backend_startup() {
     fi
 
     if [[ "$state" == exited* || "$state" == *"true" ]]; then
-      echo "ERROR: 백엔드 컨테이너 상태가 비정상입니다: ${state:-unknown}" >&2
+      echo "오류: 백엔드 컨테이너 상태가 비정상입니다: ${state:-unknown}" >&2
       echo
       echo "최근 백엔드 로그:"
       printf '%s\n' "$logs"
@@ -485,7 +440,7 @@ monitor_backend_startup() {
   done
 
   logs="$(backend_logs_tail 220)"
-  echo "ERROR: 제한 시간 안에 백엔드 준비 상태를 확인하지 못했습니다." >&2
+  echo "오류: 제한 시간 안에 백엔드 준비 상태를 확인하지 못했습니다." >&2
   echo
   echo "최근 백엔드 로그:"
   printf '%s\n' "$logs"
@@ -500,7 +455,7 @@ if command -v docker >/dev/null 2>&1; then
   elif command -v docker-compose >/dev/null 2>&1; then
     COMPOSE=(docker-compose)
   else
-    echo "ERROR: docker compose plugin or docker-compose is required." >&2
+    echo "오류: docker compose 플러그인 또는 docker-compose가 필요합니다." >&2
     exit 1
   fi
 elif command -v podman >/dev/null 2>&1; then
@@ -510,27 +465,28 @@ elif command -v podman >/dev/null 2>&1; then
   elif command -v podman-compose >/dev/null 2>&1; then
     COMPOSE=(podman-compose)
   else
-    echo "ERROR: docker is unavailable, and podman compose or podman-compose is required." >&2
+    echo "오류: docker를 사용할 수 없으며 podman compose 또는 podman-compose가 필요합니다." >&2
     exit 1
   fi
 else
-  echo "ERROR: docker command is required. If Docker is unavailable, podman is required as a fallback." >&2
+  echo "오류: docker 명령이 필요합니다. docker를 사용할 수 없으면 대체 수단으로 podman이 필요합니다." >&2
   exit 1
 fi
 
-echo "Using container runtime: ${CONTAINER[*]}"
-echo "Using compose command: ${COMPOSE[*]}"
-echo "Using compose project: $COMPOSE_PROJECT_NAME"
+echo "컨테이너 런타임: ${CONTAINER[*]}"
+echo "Compose 명령: ${COMPOSE[*]}"
+echo "Compose 프로젝트: $COMPOSE_PROJECT_NAME"
+check_container_runtime_access
 
 if [[ ! -f "$RESOURCE_DIR/key.yml" ]]; then
   if [[ -f "$RESOURCE_DIR/key.yaml" ]]; then
-    echo "backend/src/main/resources/key.yml not found; copying key.yaml to key.yml for the Spring classpath import."
+    echo "backend/src/main/resources/key.yml이 없어 Spring classpath import용으로 key.yaml을 key.yml에 복사합니다."
     cp "$RESOURCE_DIR/key.yaml" "$RESOURCE_DIR/key.yml"
   else
     cat >&2 <<'MSG'
-ERROR: backend/src/main/resources/key.yml is required before starting the backend.
-If your local secret file is named key.yaml, place it at backend/src/main/resources/key.yaml
-and rerun this script; it will copy it to key.yml for the current Spring configuration.
+오류: 백엔드를 시작하려면 backend/src/main/resources/key.yml이 필요합니다.
+로컬 시크릿 파일 이름이 key.yaml이라면 backend/src/main/resources/key.yaml에 배치한 뒤
+이 스크립트를 다시 실행하세요. 현재 Spring 설정에 맞춰 key.yml로 복사합니다.
 MSG
     exit 1
   fi
@@ -539,7 +495,7 @@ fi
 check_oauth_redirect_urls
 check_local_ddl_auto_update
 
-echo "Checking local port availability..."
+echo "로컬 포트 사용 가능 여부를 확인합니다..."
 check_port_available 3306 "MySQL" "seeandyougo-local-mysql"
 check_port_available 6379 "Redis" "seeandyougo-local-redis"
 check_port_available 8080 "SeeAndYouGo backend" "seeandyougo-local-backend"
@@ -548,10 +504,10 @@ check_container_name_available "seeandyougo-local-mysql"
 check_container_name_available "seeandyougo-local-redis"
 check_container_name_available "seeandyougo-local-backend"
 
-echo "Building latest backend jar..."
+echo "최신 백엔드 jar를 빌드합니다..."
 (cd "$BACKEND_DIR" && ./gradlew clean bootJar -x test)
 
-echo "Starting local backend stack (MySQL + Redis + SeeAndYouGo)..."
+echo "로컬 백엔드 스택(MySQL + Redis + SeeAndYouGo)을 시작합니다..."
 run_compose up -d --build mysql redis seeandyougo
 
 monitor_backend_startup
@@ -559,19 +515,19 @@ monitor_backend_startup
 cat <<MSG
 
 로컬 백엔드 스택 준비 완료.
-- Backend API: http://localhost:8080
+- 백엔드 API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
-- API Docs: http://localhost:8080/v3/api-docs
-- MySQL: localhost:3306 (database: seeandyougo, user: root, password: empty)
+- API 문서: http://localhost:8080/v3/api-docs
+- MySQL: localhost:3306 (데이터베이스: seeandyougo, 사용자: root, 비밀번호: 없음)
 - Redis: localhost:6379
-- 프론트 API base URL: http://localhost:8080
+- 프론트엔드 API 기본 URL: http://localhost:8080
 - JPA ddl-auto: update
 
-Useful commands:
-- Logs: COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME ${COMPOSE[*]} -f docker-compose.backend.local.yml logs -f seeandyougo
-- Stop: COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME ${COMPOSE[*]} -f docker-compose.backend.local.yml down
+유용한 명령어:
+- 로그 확인: COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME ${COMPOSE[*]} -f docker-compose.backend.local.yml logs -f seeandyougo
+- 종료: COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME ${COMPOSE[*]} -f docker-compose.backend.local.yml down
 
-[완료]
+[검증 완료]
 - Docker/Compose 확인 완료
 - key.yml 확인 완료
 - OAuth redirect URI 확인 완료
