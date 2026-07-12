@@ -1,3 +1,5 @@
+name: seeandyougo-local-backend
+
 services:
   mysql:
     container_name: seeandyougo-local-mysql
