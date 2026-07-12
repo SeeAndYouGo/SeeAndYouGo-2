@@ -8,6 +8,7 @@
 **/build
 **/data
 backend/src/main/resources/key.yml
+backend/src/main/resources/key.yaml
 .vscode
 cert_file
 backend/imageStorage
