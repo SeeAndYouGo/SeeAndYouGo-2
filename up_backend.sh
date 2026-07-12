@@ -20,13 +20,13 @@ check_port_available() {
   if "${CONTAINER[@]}" ps --format '{{.Names}}' | grep -Fxq "$allowed_container"; then
     case "$service" in
       "MySQL"|"Redis")
-        echo "$service 포트 $port는 이미 $allowed_container에서 사용 중입니다. 기존 로컬 $service 컨테이너를 유지합니다."
+        echo "${service} 포트 ${port}는 이미 ${allowed_container}에서 사용 중입니다. 기존 로컬 ${service} 컨테이너를 유지합니다."
         ;;
       "SeeAndYouGo backend")
-        echo "백엔드 포트 $port는 이미 $allowed_container에서 사용 중입니다. 필요한 경우 compose가 백엔드를 다시 빌드하고 재시작합니다."
+        echo "백엔드 포트 ${port}는 이미 ${allowed_container}에서 사용 중입니다. 필요한 경우 compose가 백엔드를 다시 빌드하고 재시작합니다."
         ;;
       *)
-        echo "포트 $port는 이미 $allowed_container에서 사용 중입니다. 기존 로컬 컨테이너를 유지하고 계속 진행합니다."
+        echo "포트 ${port}는 이미 ${allowed_container}에서 사용 중입니다. 기존 로컬 컨테이너를 유지하고 계속 진행합니다."
         ;;
     esac
     return
@@ -34,24 +34,24 @@ check_port_available() {
 
   if command -v lsof >/dev/null 2>&1; then
     if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
+      echo "오류: 포트 ${port}는 이미 사용 중이라 ${service}를 시작할 수 없습니다." >&2
       lsof -nP -iTCP:"$port" -sTCP:LISTEN >&2 || true
       exit 1
     fi
   elif command -v ss >/dev/null 2>&1; then
     if ss -ltn "sport = :$port" | awk 'NR > 1 { found = 1 } END { exit !found }'; then
-      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
+      echo "오류: 포트 ${port}는 이미 사용 중이라 ${service}를 시작할 수 없습니다." >&2
       ss -ltnp "sport = :$port" >&2 || true
       exit 1
     fi
   elif command -v netstat >/dev/null 2>&1; then
     if netstat -ltn 2>/dev/null | awk -v port=":$port" '$4 ~ port"$" { found = 1 } END { exit !found }'; then
-      echo "오류: 포트 $port는 이미 사용 중이라 $service를 시작할 수 없습니다." >&2
+      echo "오류: 포트 ${port}는 이미 사용 중이라 ${service}를 시작할 수 없습니다." >&2
       netstat -ltnp 2>/dev/null | awk -v port=":$port" '$4 ~ port"$"' >&2 || true
       exit 1
     fi
   else
-    echo "경고: lsof, ss, netstat을 사용할 수 없어 $service($port) 로컬 포트 검사를 건너뜁니다." >&2
+    echo "경고: lsof, ss, netstat을 사용할 수 없어 ${service}(${port}) 로컬 포트 검사를 건너뜁니다." >&2
   fi
 }
 
@@ -62,9 +62,9 @@ check_container_name_available() {
     local state
     state="$("${CONTAINER[@]}" inspect -f '{{.State.Status}}' "$container_name" 2>/dev/null || echo unknown)"
     if [[ "$state" == "restarting" ]]; then
-      echo "컨테이너 $container_name이 재시작 중입니다. compose가 재생성 또는 재시작을 시도합니다."
+      echo "컨테이너 ${container_name}이 재시작 중입니다. compose가 재생성 또는 재시작을 시도합니다."
     elif [[ "$state" != "running" && "$state" != "exited" && "$state" != "created" ]]; then
-      echo "오류: 컨테이너 이름 $container_name이 예상하지 못한 상태로 이미 존재합니다: $state" >&2
+      echo "오류: 컨테이너 이름 ${container_name}이 예상하지 못한 상태로 이미 존재합니다: ${state}" >&2
       exit 1
     fi
   fi
@@ -161,12 +161,12 @@ check_redirect_uri_match() {
   fi
 
   if [[ -z "$frontend_redirect" ]]; then
-    echo "오류: $FRONTEND_ENV_FILE에 $frontend_key 값이 없거나 비어 있습니다." >&2
+    echo "오류: ${FRONTEND_ENV_FILE}에 ${frontend_key} 값이 없거나 비어 있습니다." >&2
     return 1
   fi
 
   if [[ "$backend_redirect" != "$frontend_redirect" ]]; then
-    echo "오류: key.yml과 $FRONTEND_ENV_FILE의 $label redirect URI가 일치하지 않습니다($frontend_key)." >&2
+    echo "오류: key.yml과 ${FRONTEND_ENV_FILE}의 ${label} redirect URI가 일치하지 않습니다(${frontend_key})." >&2
     return 2
   fi
 
@@ -259,19 +259,19 @@ confirm_non_update_setting() {
   local current_value="$3"
 
   if [[ ! -t 0 ]]; then
-    echo "오류: $file_path의 $label 설정은 ${current_value:-없음}입니다." >&2
+    echo "오류: ${file_path}의 ${label} 설정은 ${current_value:-없음}입니다." >&2
     echo "권장값은 update입니다. 진행 여부를 선택하려면 대화형 터미널에서 다시 실행하세요." >&2
     exit 1
   fi
 
   local answer
-  read -r -p "$file_path의 $label 설정은 ${current_value:-없음}입니다. 진행하시겠습니까? (권장: update) [y/N] " answer
+  read -r -p "${file_path}의 ${label} 설정은 ${current_value:-없음}입니다. 진행하시겠습니까? (권장: update) [y/N] " answer
   case "$answer" in
     [yY]|[yY][eE][sS])
-      echo "$file_path의 $label 설정이 update가 아니지만 계속 진행합니다."
+      echo "${file_path}의 ${label} 설정이 update가 아니지만 계속 진행합니다."
       ;;
     *)
-      echo "오류: $file_path의 $label 설정을 update로 맞춘 뒤 다시 실행하세요." >&2
+      echo "오류: ${file_path}의 ${label} 설정을 update로 맞춘 뒤 다시 실행하세요." >&2
       exit 1
       ;;
   esac
