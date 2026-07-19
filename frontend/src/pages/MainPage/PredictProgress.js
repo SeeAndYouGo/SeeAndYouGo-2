@@ -59,7 +59,6 @@ const formatTargetTime = (targetTimestamp) => {
 };
 
 const PredictProgress = ({ restaurantId, time, capacity, ratio }) => {
-  const [predictOpen, setPredictOpen] = useState(true);
   const [predictItems, setPredictItems] = useState(null);
   const [predictMessage, setPredictMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -105,16 +104,10 @@ const PredictProgress = ({ restaurantId, time, capacity, ratio }) => {
   }, [restaurantId, time, capacity, ratio]);
 
   return (
-    <>
-      <div style={{ height: 1, width: '100%', backgroundColor: '#eee', margin: '16px 0' }} />
-      <div onClick={() => setPredictOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}>
+    <div style={{ marginTop: 16, backgroundColor: '#fff', padding: 16, borderRadius: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         <p style={{ fontSize: 16, fontWeight: 700, marginRight: 4 }}>예상 혼잡도</p>
-        <span className="material-symbols-outlined"style={{ marginLeft: 'auto', fontSize: 20, color: '#aaa', transition: 'transform 0.3s', transform: predictOpen ? 'rotate(0deg)' : 'rotate(180deg)' }} >
-          expand_less
-        </span>
       </div>
-
-      <div style={{ overflow: 'hidden', maxHeight: predictOpen ? '200px' : '0', transition: 'max-height 0.3s ease' }}>
         <PredictDesc>
           {predictMessage ?? '과거 혼잡도 데이터를 기반으로 예측합니다.'}
         </PredictDesc>
@@ -140,8 +133,7 @@ const PredictProgress = ({ restaurantId, time, capacity, ratio }) => {
             })}
           </div>
         )}
-      </div>
-    </>
+    </div>
   );
 };
 

@@ -3,6 +3,7 @@ import "../../App.css";
 import SwipeableTab from "./SwipeableTab";
 import Info from "./Info";
 import Progress from "./Progress";
+import PredictProgress from "./PredictProgress";
 import TopReview from "./TopReview";
 import TodayMenu from "./TodayMenu";
 import ReviewWriteForm from "./ReviewForm";
@@ -126,6 +127,12 @@ const MainPage = () => {
 					/>
 					<Info idx={restaurantId} />
 					<Progress
+						ratio={ratio}
+						time={restaurantData[restaurantId - 1]?.dateTime}
+						restaurantId={restaurantId}
+						capacity={restaurantData[restaurantId - 1]?.capacity}
+					/>
+					<PredictProgress
 						ratio={ratio}
 						time={restaurantData[restaurantId - 1]?.dateTime}
 						restaurantId={restaurantId}

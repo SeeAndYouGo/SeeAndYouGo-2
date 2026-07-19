@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Tooltip } from 'react-tooltip';
-import PredictProgress from "./PredictProgress";
 
 const Container = styled.div`
   display: flex;
@@ -123,12 +122,6 @@ const Progress = ({ ratio = 0, time, restaurantId, capacity }) => {
             <p>혼잡도 정보를 제공하지 않는 시간대입니다.</p>
           </ContentBlur>
         }
-        <PredictProgress
-          restaurantId={restaurantId}
-          time={time}
-          capacity={capacity}
-          ratio={ratio}
-        />
       </Container>
     </div>
   );
