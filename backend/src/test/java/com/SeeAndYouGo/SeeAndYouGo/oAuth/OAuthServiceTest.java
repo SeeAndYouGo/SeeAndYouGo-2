@@ -308,7 +308,7 @@ class OAuthServiceTest {
         user.updateRefreshToken("valid-refresh");
         given(userReader.getByEmail("user@kakao.com")).willReturn(user);
 
-        TokenDto reissued = new TokenDto("new-acc", "new-ref", "reissue");
+        TokenDto reissued = new TokenDto("new-acc", "new-ref", null, "reissue");
         given(tokenProvider.reIssueToken(auth, "valid-refresh")).willReturn(reissued);
 
         // when
