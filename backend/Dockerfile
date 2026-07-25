@@ -6,6 +6,7 @@ ARG SECRET_KEY
 WORKDIR /app
 
 COPY build/libs/SeeAndYouGoV2-0.0.1-SNAPSHOT.jar /app.jar
+COPY src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json /app/src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json
 
 EXPOSE 8080
 

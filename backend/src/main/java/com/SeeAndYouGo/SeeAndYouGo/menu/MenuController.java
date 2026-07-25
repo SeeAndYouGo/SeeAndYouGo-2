@@ -23,10 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
-import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
+import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MenuController {
     private final MenuService menuService;
+    private final AdminAuthorizationService adminAuthorizationService;
     private final UserRepository userRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
@@ -166,7 +168,9 @@ public class MenuController {
     }
 
     @GetMapping("/weekly-menu")
-    public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin() {
+    public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin(
+            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        adminAuthorizationService.assertAdmin(email);
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
