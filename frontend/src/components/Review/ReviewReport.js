@@ -2,7 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import { putWithToken, erase } from "../../api";
+import { putWithToken, deleteWithToken } from "../../api";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -21,7 +21,7 @@ const ReviewReport = ({ reportTarget }) => {
 		putWithToken(url)
 			.then((res) => {
 				if (res.data.reportCount >= 10) {
-					erase(`/review/report/${reportTarget}`)
+					deleteWithToken(`/review/report/${reportTarget}`)
 						.then((res) => {
 							if (res.data.success === true) {
 								dispatch(showToast({ contents: "review", toastIndex: 10 }));
