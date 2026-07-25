@@ -1,6 +1,6 @@
 ﻿spring:
   profiles:
-    active: local
+    active: prod
   config:
     import: classpath:key.yml
   jpa:
