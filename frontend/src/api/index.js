@@ -52,7 +52,6 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 		}
 
 		if (method === "get" || method === "delete") {
-			axiosConfig.params = data;
 			return await axiosClient[method](url, axiosConfig);
 		} else {
 			return await axiosClient[method](url, data, axiosConfig);
@@ -85,7 +84,6 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 					headers: newHeaders,
 				};
 				if (method === "get" || method === "delete") {
-					axiosConfig.params = data;
 					return await axiosClient[method](url, axiosConfig);
 				} else {
 					return await axiosClient[method](url, data, axiosConfig);
