@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class JwtFilterTest {
 
     @BeforeEach
     void setUp() {
-        jwtFilter = new JwtFilter(tokenProvider);
+        jwtFilter = new JwtFilter(tokenProvider, new ObjectMapper());
         SecurityContextHolder.clearContext();
     }
 

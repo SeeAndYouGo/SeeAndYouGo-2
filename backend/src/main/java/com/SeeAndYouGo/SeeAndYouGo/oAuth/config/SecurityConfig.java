@@ -4,6 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.JwtAccessDeniedHandler;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.JwtAuthenticationEntryPoint;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final ObjectMapper objectMapper;
 
 
     @Bean
@@ -56,7 +58,7 @@ public class SecurityConfig {
                 .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider, objectMapper));
         return http.build();
     }
 

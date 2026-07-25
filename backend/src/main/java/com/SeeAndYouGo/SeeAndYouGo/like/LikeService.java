@@ -25,8 +25,8 @@ public class LikeService {
 
     @Transactional
     public LikeResponseDto postLikeCount(Long reviewId, String email) {
-        Review review = reviewReader.getById(reviewId);
-        User user = userReader.getByEmail(email);
+        Review review = reviewReader.getById(reviewId, "좋아요를 처리할 리뷰를 찾을 수 없습니다.");
+        User user = userReader.getByEmail(email, "좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
 
         if(review.getWriterEmail().equals(email)){
             return LikeResponseDto.builder()

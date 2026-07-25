@@ -1,5 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.TokenDto;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -166,7 +168,7 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return true; // 🔹 만료됨
         } catch (SignatureException e) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
     }
 

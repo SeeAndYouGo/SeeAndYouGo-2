@@ -10,6 +10,7 @@ import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByAdminDto;
 import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -46,6 +47,9 @@ class AdminApiAuthorizationTest {
     @Mock
     private com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @Test
     void dishWeek_requiresAdminAuthorizationService() {
         DishController controller = new DishController(dishService, adminAuthorizationService);
@@ -66,7 +70,8 @@ class AdminApiAuthorizationTest {
                 adminAuthorizationService,
                 userRepository,
                 userKeywordRepository,
-                dishRepository
+                dishRepository,
+                objectMapper
         );
 
         when(menuService.getOneWeekRestaurantMenu(anyString(), anyString())).thenReturn(emptyWeekMenu());
