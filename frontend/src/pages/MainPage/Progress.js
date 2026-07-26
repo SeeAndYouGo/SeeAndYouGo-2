@@ -27,9 +27,10 @@ const ProgressBar = styled.div`
   height: 100%;
   border-radius: 5px;
   background-color: ${({ $value }) => {
-    if ($value <= 25) return '#4caf50';
-    if ($value <= 50) return '#ffeb3b';
-    if ($value <= 75) return '#ff9800';
+    // 0~40%: 초록, 41~70%: 노랑, 71~90%: 주황, 91~100%: 빨강
+    if ($value <= 40) return '#4caf50';
+    if ($value <= 70) return '#ffeb3b';
+    if ($value <= 90) return '#ff9800';
     return '#f44336';
   }};
 `;
@@ -60,7 +61,6 @@ const TooltipContent = styled.p`
 `;
 
 const Text = [
-  '매우 원활',
   '원활',
   '보통',
   '혼잡',
@@ -105,7 +105,12 @@ const Progress = ({ ratio = 0, time }) => {
       <Container>
         <div style={{ display: 'flex' }}>
           <p style={{ fontSize: 18, fontWeight: 700 }}>
-            {Text[Math.floor(ratio === -1 ? 5 : ratio / 20)]}
+            {Text[Math.floor(ratio === -1 ? 4 : (
+              ratio <= 40 ? 0 :
+              ratio <= 70 ? 1 :
+              ratio <= 90 ? 2 :
+              3
+            ))]}
           </p>
           <span className="material-symbols-outlined" style={{ fontSize: 14, lineHeight: '18px', marginLeft: 'auto', color: '#999', marginRight: 5}}>schedule</span>
           <p style={{ fontSize: 14, color: '#999', fontWeight: 400 }}>{nowTime} 기준</p>

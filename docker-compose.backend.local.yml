@@ -1,0 +1,59 @@
+name: seeandyougo-local-backend
+
+services:
+  mysql:
+    container_name: seeandyougo-local-mysql
+    image: mysql:8.4.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: seeandyougo
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_HOST: "%"
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - seeandyougo-local-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    container_name: seeandyougo-local-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  seeandyougo:
+    container_name: seeandyougo-local-backend
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    entrypoint: ["java", "-Dspring.profiles.active=local", "-jar", "/app.jar"]
+    environment:
+      TZ: Asia/Seoul
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/seeandyougo?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+
+volumes:
+  seeandyougo-local-mysql-data:
