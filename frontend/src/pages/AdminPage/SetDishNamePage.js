@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import { erase, get, put } from "../../api/index";
+import { deleteWithToken, getWithToken, putWithToken } from "../../api/index";
 import { useNavigate } from "react-router-dom";
 
 const Button = styled.button`
@@ -43,7 +43,7 @@ const SetDishNamePage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await get("/dish/week");
+			const response = await getWithToken("/dish/week");
 			const result = response.data;
 			return result;
 		};
@@ -67,7 +67,7 @@ const SetDishNamePage = () => {
 				id: dishId,
 				changeName: dishName,
 			};
-			const response = await put("/dish/name", changeDish);
+			const response = await putWithToken("/dish/name", changeDish);
 			console.log(response, "편집 요청 확인");
 			alert("편집되었습니다.");
 		} catch (error) {
@@ -86,7 +86,7 @@ const SetDishNamePage = () => {
 		setButtonDisabled(true);
 
 		try {
-			const response = await erase(`/dish/${dishId}`);
+			const response = await deleteWithToken(`/dish/${dishId}`);
 			console.log(response, "삭제 요청 확인");
 			alert("삭제되었습니다.");
 		} catch (error) {

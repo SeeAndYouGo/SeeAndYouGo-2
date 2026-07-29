@@ -290,7 +290,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                 <Link to="/admin/dish-name" onClick={toggleMenu} style={{marginBottom: 10}}>
                   <MenuName>
                     <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rule_settings</span>
-                    <span>메뉴 이름 수정하기</span>
+                    <span>메뉴 수정하기</span>
                   </MenuName>
                 </Link>
               </MenuList>

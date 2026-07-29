@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import { get, put } from "../../api/index";
+import { getWithToken, putWithToken } from "../../api/index";
 import { useNavigate } from "react-router-dom";
 
 const Button = styled.button`
@@ -31,7 +31,7 @@ const SetMainMenuPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await get("/weekly-menu");
+			const response = await getWithToken("/weekly-menu");
 			const result = response.data;
 			return result;
 		};
@@ -75,7 +75,7 @@ const SetMainMenuPage = () => {
 		if (changeValue) {
 			// 전체보기 버튼 클릭시, 전체 데이터 재요청
 			const fetchData = async () => {
-				const response = await get("/weekly-menu");
+				const response = await getWithToken("/weekly-menu");
 				const result = response.data;
 				return result;
 			};
@@ -95,7 +95,7 @@ const SetMainMenuPage = () => {
 		setButtonDisabled(true);
 
 		const jsonData = JSON.stringify(menuList);
-		await put("/main-menu", jsonData)
+		await putWithToken("/main-menu", jsonData)
 			.then(() => {
 				alert("전송 성공");
 			})
