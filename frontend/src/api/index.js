@@ -15,14 +15,22 @@ const axiosClient = axios.create({
 	},
 });
 
+// 백엔드 ApiResponse의 data만 꺼내 response.data로 맞춤
+const unwrapApiResponse = (response) => ({
+	...response,
+	data: response.data.data,
+});
+
 // access token 재발급 요청
 const getNewAccessToken = async (refreshToken) => {
 	try {
-		const response = await axiosClient.get("/oauth/token/reissue", {
-			headers: {
-				refreshToken: refreshToken,
-			},
-		});
+		const response = unwrapApiResponse(
+			await axiosClient.get("/oauth/token/reissue", {
+				headers: {
+					refreshToken: refreshToken,
+				},
+			})
+		);
 
 		return response.data.token;
 	} catch (error) {
@@ -52,9 +60,9 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 		}
 
 		if (method === "get" || method === "delete") {
-			return await axiosClient[method](url, axiosConfig);
+			return unwrapApiResponse(await axiosClient[method](url, axiosConfig));
 		} else {
-			return await axiosClient[method](url, data, axiosConfig);
+			return unwrapApiResponse(await axiosClient[method](url, data, axiosConfig));
 		}
 
 	} catch (error) {
@@ -84,9 +92,9 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 					headers: newHeaders,
 				};
 				if (method === "get" || method === "delete") {
-					return await axiosClient[method](url, axiosConfig);
+					return unwrapApiResponse(await axiosClient[method](url, axiosConfig));
 				} else {
-					return await axiosClient[method](url, data, axiosConfig);
+					return unwrapApiResponse(await axiosClient[method](url, data, axiosConfig));
 				}
 
 			} catch (error) {
@@ -122,9 +130,9 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 
 export const get = async (url, config = {}) => {
 	try {
-		const response = axiosClient.get(url, config);
+		const response = await axiosClient.get(url, config);
 
-		return response;
+		return unwrapApiResponse(response);
 	} catch (error) {
 		console.error("GET 요청 실패:", error);
 		throw error;
@@ -133,9 +141,9 @@ export const get = async (url, config = {}) => {
 
 export const put = async (url, data, config = {}) => {
 	try {
-		const response = axiosClient.put(url, data, config);
+		const response = await axiosClient.put(url, data, config);
 
-		return response;
+		return unwrapApiResponse(response);
 	} catch (error) {
 		console.error("PUT 요청 실패:", error);
 		throw error;
@@ -145,9 +153,9 @@ export const put = async (url, data, config = {}) => {
 export const erase = async (url, config = {}) => {
 	// delete라는 변수를 사용할 수 없어서 erase로 작성
 	try {
-		const response = axiosClient.delete(url, config);
+		const response = await axiosClient.delete(url, config);
 
-		return response;
+		return unwrapApiResponse(response);
 	} catch (error) {
 		console.error("DELETE 요청 실패:", error);
 		throw error;
