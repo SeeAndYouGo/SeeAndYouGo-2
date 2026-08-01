@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { Cascader } from "rsuite";
-import { get } from "../../api/index";
+import { getWithToken } from "../../api/index";
 
 const MenuSelectorContainer = styled.div`
 	width: 100%;
@@ -19,7 +19,7 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await get("/restaurant1-menu");
+			const response = await getWithToken("/restaurant1-menu");
 			const result = response.data;
 			const formatted = result.map((dept) => ({
 				label: dept.deptKo,

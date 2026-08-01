@@ -12,7 +12,7 @@ import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
-import { get, getWithToken } from "../../api/index";
+import { getWithToken } from "../../api/index";
 import LoginModal from "../../components/LoginModal";
 
 const MainPage = () => {
@@ -51,7 +51,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await get(`/connection/restaurant${i + 1}`);
+				const response = await getWithToken(`/connection/restaurant${i + 1}`);
 				results.push(response.data);
 			}
 			setRestaurantData(results);
@@ -64,7 +64,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await get(`/daily-menu/restaurant${i + 1}`);
+				const response = await getWithToken(`/daily-menu/restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
 					for (let j = 0; j < response.data.length; j++) {

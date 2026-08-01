@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useDispatch } from 'react-redux';
 import { showToast } from "../../redux/slice/ToastSlice";
-import { erase, get, put } from "../../api/index";
+import { deleteWithToken, getWithToken, putWithToken } from "../../api/index";
 
 const Button = styled.button`
 	background: white;
@@ -33,6 +33,7 @@ const SetDishNamePage = () => {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 	const dispatch = useDispatch();
   
+  //TODO 관리자 비밀번호 삭제 아래 3개
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
@@ -58,7 +59,7 @@ const SetDishNamePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await get("/dish/week");
+      const response = await getWithToken("/dish/week");
       const result = response.data;
       return result;
     };
@@ -70,6 +71,7 @@ const SetDishNamePage = () => {
     });
   }, []);
 
+  // TODO 토큰 검증 api로 변경 필요
   // dish 편집 함수
   const handleEditDish = async (dishName, dishId) => {
     if (buttonDisabled) return;
@@ -80,7 +82,7 @@ const SetDishNamePage = () => {
         "id": dishId,
         "changeName": dishName
       }
-      const response = await put("/dish/name", changeDish); 
+      const response = await putWithToken("/dish/name", changeDish); 
       console.log(response, "편집 요청 확인");
       alert("편집되었습니다.");
     } catch (error) {
@@ -93,13 +95,14 @@ const SetDishNamePage = () => {
     }
   };
 
+  // TODO 토큰 검증 api로 변경 필요
   // dish 삭제 함수
   const handleDeleteDish = async (dishId) => {
     if (buttonDisabled) return;
 		setButtonDisabled(true);
 
     try {
-      const response = await erase(`/dish/${dishId}`);
+      const response = await deleteWithToken(`/dish/${dishId}`);
       console.log(response, "삭제 요청 확인");
       alert("삭제되었습니다.");
     } catch (error) {
@@ -119,6 +122,7 @@ const SetDishNamePage = () => {
   return (
     <>
       {
+        // TODO 관리자 비밀번호 삭제 후 관리자가 아닌 경우 접근 제한 표시
         !isAdmin ? (
 					<div style={{ margin: "80px auto", width: "360px" }}>
 						<label>

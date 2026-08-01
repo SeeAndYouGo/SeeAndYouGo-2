@@ -5,7 +5,7 @@ import "swiper/css";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import BarChart from "./BarChart";
-import { get } from "../../api";
+import { getWithToken } from "../../api";
 
 const Slider = styled.div`
 	background-color: #fff;
@@ -112,7 +112,7 @@ const StatisticsPage = () => {
 				for (let i = 0; i < restaurantArray.length; i++) {
 					url.push(createUrl(i + 1));
 				}
-				await axios.all(url.map((path) => get(path))).then((res) => {
+				await axios.all(url.map((path) => getWithToken(path))).then((res) => {
 					setDatas(res.map((data) => data.data));
 				});
 			} catch (error) {

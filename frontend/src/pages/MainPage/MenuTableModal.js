@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import styled from "@emotion/styled";
-import { get } from "../../api";
+import { getWithToken } from "../../api";
 
 const Wrapper = styled.div`
   padding: 0 20px 10px 20px;
@@ -59,7 +59,7 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-      const result = await get(`/weekly-menu/restaurant${idx}`);
+      const result = await getWithToken(`/weekly-menu/restaurant${idx}`);
 			return result.data;
 		};
 		fetchData().then((data) => {

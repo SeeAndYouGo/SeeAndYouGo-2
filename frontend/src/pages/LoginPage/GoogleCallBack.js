@@ -2,12 +2,12 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from 'react-cookie';
-import { get, getWithToken } from "../../api";
+import { getWithToken } from "../../api";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { login, setNickname } from "../../redux/slice/UserSlice";
 import Loading from "../../components/Loading";
 
-//TODO 코드 자체는 같으니 추후에 google, kakao 등 통합해서 한개의 파일로 관리할 수 있도록 수정 
+//TODO 추후에 코드 자체는 같으니 추후에 google, kakao 등 통합해서 한개의 파일로 관리할 수 있도록 수정 
 const GoogleCallBack = () => {
 	const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
 	const navigator = useNavigate();
@@ -19,7 +19,7 @@ const GoogleCallBack = () => {
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
-			const response = await get(`/oauth/google?code=${authorizationCode}`);
+			const response = await getWithToken(`/oauth/google?code=${authorizationCode}`);
 
 			const nowToken = response.data.token;
 			const refreshToken = response.data.refreshToken;

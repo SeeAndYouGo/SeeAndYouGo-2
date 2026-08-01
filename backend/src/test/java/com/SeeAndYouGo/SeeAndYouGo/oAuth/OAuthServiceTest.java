@@ -1,5 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -17,11 +19,9 @@ import org.mockito.MockedStatic;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 
@@ -262,7 +262,7 @@ class OAuthServiceTest {
     // ===== reIssue 분기 =====
 
     @Test
-    @DisplayName("reIssue (리프레시 만료): 401 ResponseStatusException")
+    @DisplayName("reIssue (리프레시 만료): AUTH_001 ApiException")
     void reIssue_expiredRefresh() {
         // given
         setAuthentication("user@kakao.com");
@@ -270,16 +270,16 @@ class OAuthServiceTest {
 
         // expect
         assertThatThrownBy(() -> oAuthService.reIssue("expired-refresh"))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED);
 
         // userReader/tokenProvider.reIssueToken 은 호출되지 않음
-        verify(userReader, never()).getByEmail(anyString());
+        verify(userReader, never()).getByEmail(anyString(), anyString());
         verify(tokenProvider, never()).reIssueToken(any(), anyString());
     }
 
     @Test
-    @DisplayName("reIssue (DB 의 refresh 와 입력값 불일치): 401 ResponseStatusException")
+    @DisplayName("reIssue (DB 의 refresh 와 입력값 불일치): AUTH_003 ApiException")
     void reIssue_refreshMismatch() {
         // given
         setAuthentication("user@kakao.com");
@@ -287,12 +287,12 @@ class OAuthServiceTest {
 
         User user = User.builder().email("user@kakao.com").socialType(Social.KAKAO).build();
         user.updateRefreshToken("different-refresh-in-db");
-        given(userReader.getByEmail("user@kakao.com")).willReturn(user);
+        given(userReader.getByEmail(eq("user@kakao.com"), anyString())).willReturn(user);
 
         // expect
         assertThatThrownBy(() -> oAuthService.reIssue("client-refresh"))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
+                .isInstanceOf(ApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_TOKEN);
 
         verify(tokenProvider, never()).reIssueToken(any(), anyString());
     }
@@ -306,9 +306,9 @@ class OAuthServiceTest {
 
         User user = User.builder().email("user@kakao.com").socialType(Social.KAKAO).build();
         user.updateRefreshToken("valid-refresh");
-        given(userReader.getByEmail("user@kakao.com")).willReturn(user);
+        given(userReader.getByEmail(eq("user@kakao.com"), anyString())).willReturn(user);
 
-        TokenDto reissued = new TokenDto("new-acc", "new-ref", "reissue");
+        TokenDto reissued = new TokenDto("new-acc", "new-ref", null, "reissue");
         given(tokenProvider.reIssueToken(auth, "valid-refresh")).willReturn(reissued);
 
         // when

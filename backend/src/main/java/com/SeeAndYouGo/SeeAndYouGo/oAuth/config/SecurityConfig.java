@@ -1,8 +1,10 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.config;
 
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.JwtAccessDeniedHandler;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.JwtAuthenticationEntryPoint;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +24,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final ObjectMapper objectMapper;
 
 
     @Bean
@@ -39,10 +43,22 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .authorizeHttpRequests()
+                .antMatchers(
+                        HttpMethod.GET,
+                        "/api/dish/week",
+                        "/api/weekly-menu"
+                ).hasAuthority(UserRole.ADMIN.name())
+                .antMatchers(
+                        HttpMethod.PUT,
+                        "/api/dish/name",
+                        "/api/main-menu"
+                ).hasAuthority(UserRole.ADMIN.name())
+                .antMatchers(HttpMethod.DELETE, "/api/dish/*")
+                .hasAuthority(UserRole.ADMIN.name())
                 .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider, objectMapper));
         return http.build();
     }
 

@@ -5,7 +5,7 @@ import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
 import { useCookies } from 'react-cookie';
-import { get, getWithToken } from "../../api";
+import { getWithToken } from "../../api";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
@@ -19,7 +19,7 @@ const KakaoCallBack = () => {
 
 	useEffect(() => {
 		const getJWTToken = async (authorizationCode) => {
-			const response = await get(`/oauth/kakao?code=${authorizationCode}`);
+			const response = await getWithToken(`/oauth/kakao?code=${authorizationCode}`);
 
 			const nowToken = response.data.token;
 			const refreshToken = response.data.refreshToken;

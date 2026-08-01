@@ -1,20 +1,21 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt.TokenProvider;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserType;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -113,12 +114,12 @@ public class OAuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (tokenProvider.isRefreshTokenExpired(refreshToken)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Expired Refresh Token");
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
 
-        User user = userReader.getByEmail(authentication.getName());
+        User user = userReader.getByEmail(authentication.getName(), "토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
         if (!user.getRefreshToken().equals(refreshToken)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Refresh Token");
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
         return tokenProvider.reIssueToken(authentication, refreshToken);
@@ -129,6 +130,7 @@ public class OAuthService {
                 .email(dto.getEmail())
                 .nickname(null)
                 .socialType(social)
+                .userType(UserType.USER)
                 .build());
         log.info("New user signed up: {}", dto.getEmail());
     }

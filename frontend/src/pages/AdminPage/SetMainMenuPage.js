@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../redux/slice/ToastSlice";
-import { get, put } from "../../api/index";
+import { getWithToken, putWithToken } from "../../api/index";
 
 const Button = styled.button`
 	background: white;
@@ -23,6 +23,7 @@ const SetMainMenuPage = () => {
 	const [showTotal, setShowTotal] = useState(false);
 	const dispatch = useDispatch();
 
+	// TODO 관리자 비밀번호 삭제 아래 3개
 	const handlePasswordChange = (e) => {
 		setPassword(e.target.value);
 	};
@@ -46,7 +47,7 @@ const SetMainMenuPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await get("/weekly-menu");
+			const response = await getWithToken("/weekly-menu");
 			const result = response.data;
 			return result;
 		};
@@ -90,7 +91,7 @@ const SetMainMenuPage = () => {
 		if (changeValue) {
 			// 전체보기 버튼 클릭시, 전체 데이터 재요청
 			const fetchData = async () => {
-				const response = await get("/weekly-menu");
+				const response = await getWithToken("/weekly-menu");
 				const result = response.data;
 				return result;
 			};
@@ -102,12 +103,13 @@ const SetMainMenuPage = () => {
 		}
 	}
 
+	// TODO 토큰 검증 api로 변경 필요
 	const handleSubmit = async () => {
 		if (buttonDisabled) return;
 		setButtonDisabled(true);
 		
 		const jsonData = JSON.stringify(menuList);
-		await put("/main-menu", jsonData)
+		await putWithToken("/main-menu", jsonData)
 			.then(() => {
 				alert("전송 성공");
 			})
@@ -122,6 +124,7 @@ const SetMainMenuPage = () => {
 	return (
 		<>
 			{
+				// TODO 관리자 비밀번호 삭제 후 관리자가 아닌 경우 접근 제한 표시
 				!isAdmin ? (
 					<div style={{ margin: "80px auto", width: "360px" }}>
 						<label>

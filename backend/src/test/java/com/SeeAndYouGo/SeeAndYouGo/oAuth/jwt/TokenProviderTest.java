@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.TokenDto;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
  *  - createToken: access/refresh 발급 + refresh 를 User 에 저장
  *  - validateToken: 정상/만료/위변조/형식이상 토큰 처리
  *  - decodeToEmailByAccess: 정상 → sub(이메일) / null/"null"/위변조 → ""
- *  - isRefreshTokenExpired: 정상 → false, 만료 → true, 위변조 → IllegalArgumentException
+ *  - isRefreshTokenExpired: 정상 → false, 만료 → true, 위변조 → ApiException(AUTH_003)
  *  - reIssueToken: 새 access/refresh + message="reissue"
  */
 @ExtendWith(MockitoExtension.class)
@@ -174,14 +175,14 @@ class TokenProviderTest {
     }
 
     @Test
-    @DisplayName("isRefreshTokenExpired: 서명이 다른 토큰은 IllegalArgumentException")
+    @DisplayName("isRefreshTokenExpired: 서명이 다른 토큰은 ApiException(AUTH_003)")
     void refreshExpired_wrongSignature() {
         SecretKey other = Keys.hmacShaKeyFor(
                 "another-secret-with-enough-length-to-pass-hmac-sha512-validation-requirement-yo".getBytes()
         );
         String wrongSigned = issueToken(EMAIL, REFRESH_EXP, other);
         assertThatThrownBy(() -> tokenProvider.isRefreshTokenExpired(wrongSigned))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(ApiException.class);
     }
 
     // ===== reIssueToken =====
