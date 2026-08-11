@@ -42,6 +42,10 @@ public class ConnectionController {
     /**
      * 외부 예측 서버에서 받아온 혼잡도 예측 결과를 그대로 릴레이한다.
      * 호출 전 예측 서버 헬스체크를 수행한다.
+     *
+     * results는 horizon마다 개별 판정이라 일부만 status="unavailable", prediction=null일 수 있다.
+     * 클라이언트는 status가 "ok"가 아니면 예측값을 표시하지 말아야 하며 0으로 폴백하면 안 된다.
+     *
      * @param restaurant 식당 식별자 (예: restaurant1, 제1학생회관)
      * @param observedAt 관측 시각 (yyyy-MM-dd HH:mm:ss)
      */
