@@ -126,6 +126,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
   const user = useSelector((state) => state.user.value);
   const nickname = user.nickname;
   const loginState = user.loginState;
+  const userType = user.userType;
   const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const navigator = useNavigate();
@@ -271,6 +272,32 @@ const SideBar = ({isOpen, setIsOpen}) => {
               </MenuName>
             </Link>
           </MenuList>
+          {
+            userType === "ADMIN" && (
+              <>
+                <div style={{marginBottom: 10}}>
+                  <span>
+                    •&nbsp;ADMIN
+                  </span>
+                </div>
+                <MenuList>
+                <Link to="/admin/main-menu" onClick={toggleMenu} style={{marginBottom: 10}}>
+                  <MenuName>
+                    <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rule_settings</span>
+                    <span>메인 메뉴 설정하기</span>
+                  </MenuName>
+                </Link>
+                <Link to="/admin/dish-name" onClick={toggleMenu} style={{marginBottom: 10}}>
+                  <MenuName>
+                    <span className="material-symbols-outlined" style={{fontSize: 20, marginTop: -1}}>rule_settings</span>
+                    <span>메뉴 수정하기</span>
+                  </MenuName>
+                </Link>
+              </MenuList>
+              </>
+            )
+            
+          }
           <VisitorBadge>
             <p style={{backgroundColor: "#333", color: "#fff", padding: "2px 10px"}}>방문자수</p>
             <p style={{fontWeight: 500, padding: "2px 10px", borderRadius: 5}}>{Number(visitTodayData).toLocaleString()} / {Number(visitTotalData).toLocaleString()}</p>

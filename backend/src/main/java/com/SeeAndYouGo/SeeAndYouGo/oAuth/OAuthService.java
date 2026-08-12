@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserType;
 import com.SeeAndYouGo.SeeAndYouGo.user.dto.UserIdentityDto;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
@@ -129,6 +130,7 @@ public class OAuthService {
                 .email(dto.getEmail())
                 .nickname(null)
                 .socialType(social)
+                .userType(UserType.USER)
                 .build());
         log.info("New user signed up: {}", dto.getEmail());
     }

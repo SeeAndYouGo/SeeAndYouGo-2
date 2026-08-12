@@ -6,6 +6,7 @@ const initialStateValue = {
   nickname: "",
   loginState: false,
   selectedRestaurant: 1,
+  userType: "MEMBER",
 };
 
 const UserSlice = createSlice({
@@ -23,6 +24,9 @@ const UserSlice = createSlice({
     },
     setSelectedRestaurant: (state, action) => {
       state.value.selectedRestaurant = action.payload;
+    },
+    setUserType: (state, action) => {
+      state.value.userType = action.payload;
     }
   },
   extraReducers: builder => {
@@ -32,6 +36,6 @@ const UserSlice = createSlice({
   },
 });
 
-export const { login, logout, setNickname, setSelectedRestaurant } = UserSlice.actions;
+export const { login, logout, setNickname, setSelectedRestaurant, setUserType } = UserSlice.actions;
 
 export default UserSlice.reducer;

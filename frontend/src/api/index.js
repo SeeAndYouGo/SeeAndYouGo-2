@@ -36,6 +36,7 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 	const accessToken = user?.token;
 	const nickname = user?.nickname;
 	const restaurantId = user?.selectedRestaurant;
+	const userType = user?.userType;
 
 	const cookies = new Cookies();
 	const refreshToken = cookies.get('refreshToken');
@@ -72,6 +73,7 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 						nickname: nickname,
 						loginState: true,
 						selectedRestaurant: restaurantId,
+						userType: userType,
 					})
 				);
 
