@@ -19,18 +19,23 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const result = await getWithToken("/restaurant1-menu");
-			const formatted = result.map((dept) => ({
-				label: dept.deptKo,
-				value: dept.deptEn,
-				children: dept.menus.map((menu) => ({
-					label: menu.name,
-					value: menu.name,
-					price: menu.price,
-				})),
-			}));
+			try {
+				const result = await getWithToken("/restaurant1-menu");
 
-			setMenuData(formatted);
+				const formatted = result.map((dept) => ({
+					label: dept.deptKo,
+					value: dept.deptEn,
+					children: dept.menus.map((menu) => ({
+						label: menu.name,
+						value: menu.name,
+						price: menu.price,
+					})),
+				}));
+
+				setMenuData(formatted);
+			} catch (error) {
+				console.error("Error fetching menu data:", error);
+			}
 		};
 
 		fetchData();
@@ -54,9 +59,9 @@ const MenuSelector = ({ onSelectMenu }) => {
 				style={{ width: "100%", marginTop: 5 }}
 				placeholder="메뉴를 선택해주세요"
 				data={menuData}
+				menuWidth={150}
 				onClean={() => onSelectMenu({})}
 				onChange={handleMenuClick}
-				menuWidth={150}
 			/>
 		</MenuSelectorContainer>
 	);

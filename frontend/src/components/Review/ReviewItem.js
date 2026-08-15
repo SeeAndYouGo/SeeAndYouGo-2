@@ -150,7 +150,7 @@ const ReviewItem = ({
     
     try {
       const res = await postWithToken(`/review/like/${reviewId}`);
-      const { like: isLike, mine: isMine } = res.data;
+      const { like: isLike, mine: isMine } = res;
       
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
           dispatch(showToast({ contents: "review", toastIndex: 9 }));

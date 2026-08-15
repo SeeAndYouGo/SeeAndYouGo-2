@@ -17,9 +17,6 @@ const SetNicknameWrapper = styled.div`
   position: relative;
   left: 50%;
   transform: translateX(-50%);
-  /* @media (min-width: 576px) {
-    margin-top: 30px;
-  } */
 `;
 
 const NicknameInfo = styled.p`
@@ -27,9 +24,6 @@ const NicknameInfo = styled.p`
   color: #555;
   font-weight: 300;
   margin: 0;
-  /* @media (min-width: 576px) {
-    font-size: 14px;
-  } */
 `;
 
 const NicknameInput = styled.input`
@@ -74,20 +68,6 @@ const InputWrapper = styled.div`
     color: #777;
     cursor: pointer;
   }
-  /* @media (min-width: 576px) {
-    margin: 20px 0 30px 0;
-    & > input, & > button {
-      font-size: 14px;
-      height: 40px;
-    }
-    & > input {
-      padding: 0 15px;
-      width: calc(100% - 100px);
-    }
-    & > button {
-      width: 90px;
-    }
-  } */
 `;
 
 const SetButton = styled.button`
@@ -118,78 +98,79 @@ const NicknmaeWarning = styled.p`
   color: red;
   font-weight: 300;
   margin: 5px 0 0 0;
-  /* @media (min-width: 576px) {
-    font-size: 14px;
-  } */
 `;
 
 const SetNicknamePage = () => {
   const navigator = useNavigate();
-	const [nicknameValue, setNicknameValue] = useState("");
-  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
-  const user = useSelector((state) => state.user.value);
-  const [nicknameDate, setNicknameDate] = useState(""); // 닉네임 변경 가능 날짜 [YYYY-MM-DD
-  const [nicknameDateCheck, setNicknameDateCheck] = useState(true); // 닉네임 변경 가능 여부 [true: 변경 가능, false: 변경 불가능
   const dispatch = useDispatch();
 
+  const token = useSelector((state) => state.user.value.token);
+
+	const [nicknameValue, setNicknameValue] = useState("");
+  const [nicknameCheck, setNicknameCheck] = useState(false); // 중복확인 버튼 클릭 여부
+  const [nicknameDate, setNicknameDate] = useState(""); // 닉네임 변경 가능 날짜 [YYYY-MM-DD
+  const [nicknameDateCheck, setNicknameDateCheck] = useState(true); // 닉네임 변경 가능 여부 [true: 변경 가능, false: 변경 불가능
   const [buttonDisabled, setButtonDisabled] = useState(false); 
 
-  const handleInputChange = (val) => {
+  const handleInputChange = (e) => {
+    setNicknameValue(e.target.value);
     setNicknameCheck(false);
-    setNicknameValue(val.target.value);
   }
 
-  const CheckNickname = () => {
+  const CheckNickname = async () => {
     if (nicknameValue.length < 2) { // 2자 이상 입력하지 않은 경우
       dispatch(showToast({ contents: "nickname", toastIndex: 0 }));
       return;
     }
-    getWithToken(`/user/nickname/check/${nicknameValue}`)
-    .then((res) => {
-      if (res.data.redundancy === true) { // 중복인 경우
+
+    try {
+      const { redundancy } = await getWithToken(`/user/nickname/check/${nicknameValue}`);
+
+      if (redundancy) { // 중복인 경우
         dispatch(showToast({ contents: "nickname", toastIndex: 1 }));
         setNicknameCheck(false);
-      } else { // 중복이 아닌 경우
-        dispatch(showToast({ contents: "nickname", toastIndex: 2 }));
-        setNicknameCheck(true);
+        return;
       }
-    }).catch(() => {
+      
+      dispatch(showToast({ contents: "nickname", toastIndex: 2 }));
+      setNicknameCheck(true);
+
+    } catch (error) {
+      console.error("Error checking nickname:", error);
       dispatch(showToast({ contents: "error", toastIndex: 0 }));
-    });
-  }
+    }
+  };
 
   const NicknameSet = async () => {
     if (buttonDisabled) return;
     setButtonDisabled(true);
 
-    const Token = user.token;
+    try {
+      const { update, last_update } = await putWithToken('/user/nickname', {
+        token,
+        nickname: nicknameValue
+      });
 
-    // TODO: 수정 필요
-    const nicknameRequestJson = {
-      "token": Token,
-      "nickname": nicknameValue
-    }
-
-    await putWithToken('/user/nickname', nicknameRequestJson)
-    .then((res) => {
-      const data = res.data;
-      if (data.update === false) {
-        setNicknameDateCheck(false);
-        const date = new Date(data.last_update);
+      if (!update) {
+        const date = new Date(last_update);
         date.setDate(date.getDate() + 14);
+
+        setNicknameDateCheck(false);
         setNicknameDate(date.toISOString().substring(0,10));
         dispatch(showToast({ contents: "nickname", toastIndex: 4 }));
-      } else {
-        setNicknameDateCheck(true);
-        dispatch(setNickname(nicknameValue));
-        dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
-        navigator("/");
+        return;
       }
-    }).finally(() => {
-      setButtonDisabled(false);
-    });
 
-  }
+      setNicknameDateCheck(true);
+      dispatch(setNickname(nicknameValue));
+      dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
+      navigator("/");
+    } catch (error) {
+      console.error("Error setting nickname:", error);
+    } finally {
+      setButtonDisabled(false);
+    }
+  };
 
 	return (
 		<div className="App3">

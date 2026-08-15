@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { deleteWithToken } from "../../api";
@@ -132,15 +132,13 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 		comment,
 		imgLink,
 	} = review;
-	const nowToken = useSelector((state) => state.user.value.token);
 	const dispatch = useDispatch();
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
 			deleteWithToken(`/reviews/${reviewId}`)
 				.then((res) => {
-					console.log(res, '리뷰 삭제 확인');
-					if (res.data.success === true) { // 리뷰 삭제 성공
+					if (res.success === true) { // 리뷰 삭제 성공
 						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						const updatedReviewArr = beforeReviewList.filter(
 							(item) => item.reviewId !== reviewId

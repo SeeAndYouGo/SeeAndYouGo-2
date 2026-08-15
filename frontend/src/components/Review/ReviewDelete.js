@@ -16,42 +16,39 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 	const dispatch = useDispatch();
 
 	// deleteTarget: 삭제할 리뷰의 id
-	const handleSubmit = () => {
-		deleteWithToken(`/reviews/${deleteTarget}`)
-			.then((res) => {
-				if (res.data.success === true) { // 리뷰 삭제 성공
-					dispatch(showToast({ contents: "review", toastIndex: 3 }));
-					if (onDeleteSuccess) {
-						onDeleteSuccess();
-					} else {
-						setTimeout(() => {
-							window.location.reload();
-						}, 1000);
-					}
-				} else { // 리뷰 삭제 권한이 없음
-					dispatch(showToast({ contents: "review", toastIndex: 2 }));
-				}
-			})
-			.catch(() => { // 리뷰 삭제 실패
-				dispatch(showToast({ contents: "review", toastIndex: 4 }));
-			});
+	const handleSubmit = async () => {
+		try {
+			const { success } = await deleteWithToken(`/review/${deleteTarget}`);
+
+			if (!success) {
+				dispatch(showToast({ contents: "review", toastIndex: 2 }));
+				return;
+			}
+
+			dispatch(showToast({ contents: "review", toastIndex: 3 }));
+			
+			if (onDeleteSuccess) {
+				onDeleteSuccess();
+				return;
+			}
+
+			setTimeout(() => {
+				window.location.reload();
+			}, 1000);
+
+		} catch (error) {
+			dispatch(showToast({ contents: "review", toastIndex: 4 }));
+			console.error(error);
+		}
 	};
 
-	return (
-		<>
-			<RemoveButton
-				onClick={() => {
-					if (window.confirm("본인이 작성한 리뷰만 삭제가 가능합니다.\n삭제하시겠습니까?")) {
-						handleSubmit();
-					} else {
-						return;
-					}
-				}}
-			>
-				삭제하기
-			</RemoveButton>
-		</>
-	);
+	const handleClick = () => {
+		if (window.confirm("본인이 작성한 리뷰만 삭제가 가능합니다.\n삭제하시겠습니까?")) {
+			handleSubmit();
+		}
+	};
+
+	return <RemoveButton onClick={handleClick}>삭제하기</RemoveButton>;
 };
 
 export default ReviewDelete;

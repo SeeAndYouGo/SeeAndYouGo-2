@@ -31,9 +31,6 @@ const ReviewWrapper = styled.div`
 	width: 100%;
 	padding: 30px 15px;
 	font-size: 14px;
-	/* @media (min-width: 576px) {
-		padding: 30px 20px;
-	} */
 `;
 
 const MyReviewPage = () => {
@@ -42,56 +39,59 @@ const MyReviewPage = () => {
 	const nowToken = useSelector((state) => state.user.value.token);
 
 	useEffect(() => {
+		if (!nowToken) return;
+
 		const fetchData = async () => {
-			const result = await getWithToken(`/reviews/${nowToken}`);
-			return result.data;
+			try {
+				const reviews = await getWithToken(`/reviews/${nowToken}`);
+				setReviewList(reviews);
+			} catch (error) {
+				console.error("Error fetching reviews:", error);
+			}
 		};
-		fetchData().then((result) => {
-			setReviewList(result);
-		});
+
+		fetchData();
 	}, [nowToken]);
 
+	if (!nowToken) {
+		return (
+			<NotLogin>
+				<GoToLogin onClick={() => navigator("/login-page")}>
+					로그인이 필요합니다 !!
+				</GoToLogin>
+			</NotLogin>
+		);
+	}
+
 	return (
-		<>
-			{nowToken ? (
-				<ReviewWrapper>
-					<div style={{ textAlign: "center" }}>
-						<p style={{ fontSize: 20, margin: 10 }}>작성한 리뷰</p>
-						<p style={{ margin: 0, fontWeight: 600 }}>
-							내가 작성한 리뷰를 확인하세요!
-						</p>
-					</div>
-					<p style={{ margin: "10px 10px 5px" }}>
-						내가 작성한 총 리뷰 {reviewList ? reviewList.length : 0}개
-					</p>
-					{reviewList.length === 0 ? (
-						<p key={0} style={{ textAlign: "center" }}>
-							첫 리뷰를 작성해보세요!
-						</p>
-					) : (
-						reviewList.map((nowReview) => (
-							<MyReviewItem
-								key={nowReview.reviewId}
-								review={nowReview}
-								beforeReviewList={reviewList}
-								setReviewList={setReviewList}
-							/>
-						))
-					)}
-					<div className="blankSpace" style={{ marginBottom: 20 }}>&nbsp;</div>
-				</ReviewWrapper>
+		<ReviewWrapper>
+			<div style={{ textAlign: "center" }}>
+				<p style={{ fontSize: 20, margin: 10 }}>작성한 리뷰</p>
+				<p style={{ margin: 0, fontWeight: 600 }}>
+					내가 작성한 리뷰를 확인하세요!
+				</p>
+			</div>
+			<p style={{ margin: "10px 10px 5px" }}>
+				내가 작성한 총 리뷰 {reviewList ? reviewList.length : 0}개
+			</p>
+			{reviewList.length === 0 ? (
+				<p key={0} style={{ textAlign: "center" }}>
+					첫 리뷰를 작성해보세요!
+				</p>
 			) : (
-				<NotLogin>
-					<GoToLogin
-						onClick={() => {
-							navigator("/login-page");
-						}}
-					>
-						로그인이 필요합니다 !!
-					</GoToLogin>
-				</NotLogin>
+				reviewList.map((nowReview) => (
+					<MyReviewItem
+						key={nowReview.reviewId}
+						review={nowReview}
+						beforeReviewList={reviewList}
+						setReviewList={setReviewList}
+					/>
+				))
 			)}
-		</>
+			<div className="blankSpace" style={{ marginBottom: 20 }}>
+				&nbsp;
+			</div>
+		</ReviewWrapper>
 	);
 };
 
