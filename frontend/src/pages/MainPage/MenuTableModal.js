@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import styled from "@emotion/styled";
-import { getWithToken } from "../../api";
+import { getWithToken, errorWithAuth } from "../../api";
 
 const Wrapper = styled.div`
   padding: 0 20px 10px 20px;
@@ -60,7 +60,7 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
 	useEffect(() => {
 		const fetchData = async () => {
       const result = await getWithToken(`/weekly-menu/restaurant${idx}`);
-			return result.data;
+			return result;
 		};
 		fetchData().then((data) => {
       const menuTypeOrder = {
@@ -89,6 +89,8 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
       });
 
       setData(groupedByDate)
+		}).catch((error) => {
+			errorWithAuth(error.code, error.message);
 		});
 	}, [idx]);
 

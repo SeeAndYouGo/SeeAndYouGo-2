@@ -75,9 +75,10 @@ const toastList = {
 	error: [["error", "에러가 발생했습니다."]],
 };
 
-const Toast = ({ contentsName, toastIndex }) => {
+const Toast = ({ contentsName, toastIndex, message }) => {
   const dispatch = useDispatch();
   const nowToast = toastList[contentsName][toastIndex];
+  const toastText = message || nowToast[1];
 
   useEffect (() => {
     const timer = setTimeout(() => {
@@ -90,7 +91,7 @@ const Toast = ({ contentsName, toastIndex }) => {
 
   return (
     <ToastContainer>
-      <ToastMessage className={`toast-content ${nowToast[0]}`}>{nowToast[1]}</ToastMessage>
+      <ToastMessage className={`toast-content ${nowToast[0]}`}>{toastText}</ToastMessage>
     </ToastContainer>
   );
 }

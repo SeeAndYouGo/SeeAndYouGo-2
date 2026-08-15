@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialStateValue = {
 	contents: "",
 	toastIndex: null,
+	message: null,
 };
 
 const toastSlice = createSlice({

@@ -43,11 +43,18 @@ const getNewAccessToken = async (refreshToken) => {
   return unwrapApiResponse(response).token;
 };
 
-const forceLogout = () => {
+const forceLogout = (options = {}) => {
+  const { message } = options;
   const cookies = new Cookies();
 
   store.dispatch(logout());
-  store.dispatch(showToast({ contents: 'login', toastIndex: 5 }));
+  store.dispatch(
+    showToast({
+      contents: message ? "error" : "login",
+      toastIndex: message ? 0 : 5,
+      message: message || null,
+    })
+  );
   cookies.remove('refreshToken', { path: '/' });
 
   setTimeout(() => {
@@ -55,12 +62,91 @@ const forceLogout = () => {
   }, 1000);
 };
 
-const requestWithToken = async (method, url, data = null, config = {}) => {
-	const state = store.getState(); // Redux 상태 직접 가져오기
+const getResponseData = (error) => {
+	const data = error?.response?.data;
+	if (typeof data === "string") {
+		try {
+			return JSON.parse(data);
+		} catch {
+			return null;
+		}
+	}
+	return data ?? null;
+};
+
+export const getErrorCode = (error) => {
+	const responseCode = getResponseData(error)?.code;
+	if (responseCode) return responseCode;
+	if (!error?.response) return error?.code;
+	return undefined;
+};
+
+export const getErrorMessage = (error) => {
+	const dataMessage = getResponseData(error)?.message;
+	if (dataMessage) return dataMessage;
+	if (!error?.response) return error?.message;
+	return undefined;
+};
+
+const showErrorToast = (message) => {
+	store.dispatch(
+		showToast({
+			contents: "error",
+			toastIndex: 0,
+			message: message || "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+		})
+	);
+};
+
+// AUTH_001: access token 재발급 후 원래 요청 재시도
+const reissueAccessTokenAndRetry = async (method, url, data, config, refreshToken) => {
+	const state = store.getState();
 	const user = state.user?.value;
-	const accessToken = user?.token;
 	const nickname = user?.nickname;
 	const restaurantId = user?.selectedRestaurant;
+
+	try {
+		console.log("access token 만료로 인한 재발급 요청");
+		const newAccessToken = await getNewAccessToken(refreshToken);
+
+		// 새로운 accessToken 저장
+		store.dispatch(
+			login({
+				token: newAccessToken,
+				nickname: nickname,
+				loginState: true,
+				selectedRestaurant: restaurantId,
+			})
+		);
+
+		// 새로운 accessToken을 사용하여 원래 요청 재시도
+		const axiosConfig = {
+			...config,
+			headers: {
+				...config.headers,
+				Authorization: `Bearer ${newAccessToken}`,
+			},
+		};
+
+		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
+	} catch (retryError) {
+		const retryCode = getErrorCode(retryError);
+		if (retryCode === "AUTH_001" || retryCode === "AUTH_003") {
+			console.error("refresh token 만료/불일치로 인한 재발급 요청 실패:", retryError);
+		} else {
+			console.error("refresh token 만료가 아닌 다른 문제 발생", retryError);
+		}
+		// 로그아웃 처리 (토스트는 서버 message 한 번만)
+		console.error("access token 재발급 요청 실패:", retryError);
+		forceLogout({ message: getErrorMessage(retryError) });
+		throw retryError;
+	}
+};
+
+const requestWithToken = async (method, url, data = null, config = {}) => {
+	const state = store.getState();
+	const user = state.user?.value;
+	const accessToken = user?.token;
 
 	const cookies = new Cookies();
 	const refreshToken = cookies.get('refreshToken');
@@ -79,51 +165,22 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 
 	} catch (error) {
 		console.error("요청 실패:", error);
-		if (error.response?.status === 401 && refreshToken) {
-			try {
-				console.log("access token 만료로 인한 재발급 요청");
-				const newAccessToken = await getNewAccessToken(refreshToken);
+		const code = getErrorCode(error);
+		const message = getErrorMessage(error);
 
-				// 새로운 accessToken 저장
-				store.dispatch(
-					login({
-						token: newAccessToken,
-						nickname: nickname,
-						loginState: true,
-						selectedRestaurant: restaurantId,
-					})
-				);
-
-				// 새로운 accessToken을 사용하여 원래 요청 재시도
-				const newHeaders = {
-					...config.headers,
-					Authorization: `Bearer ${newAccessToken}`,
-				};
-				const axiosConfig = {
-					...config,
-					headers: newHeaders,
-				};
-
-				return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
-
-			} catch (retryError) {
-				if (retryError.response?.status === 401) {
-					console.error("refresh token 만료로 인한 재발급 요청 실패:", retryError);
-				} else {
-					console.error("refresh token 만료가 아닌 다른 문제 발생", retryError);
-					alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-				}
-				// 로그아웃 처리
-				console.error("access token 재발급 요청 실패:", retryError);
-				forceLogout();
-				throw retryError;
-			}
-		} else {
-			console.error(`${method} 요청 실패:`, error);
-			alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-			forceLogout();
-			throw error;
+		// AUTH_001: access token 만료/인증 실패 → 재발급 후 재시도
+		if (code === "AUTH_001" && refreshToken) {
+			return reissueAccessTokenAndRetry(method, url, data, config, refreshToken);
 		}
+
+		// 인증 자체가 불가한 경우만 로그아웃 (일반 비즈니스 에러는 toast만)
+		if (code === "AUTH_001" || code === "AUTH_003") {
+			forceLogout({ message });
+		} else {
+			showErrorToast(message);
+		}
+
+		throw error;
 	}
 };
 
@@ -137,7 +194,7 @@ export const errorWithAuth = (codeNum, errorMessage) => {
 	} else {
 		console.log("Auth와 관련 없는 에러 입니다. 확인이 필요합니다.");
 	}
-	alert(`에러 발생: ${errorMessage}`);
+	// alert(`에러 발생: ${errorMessage}`);
 };
 
 export const getWithToken = async (url, config = {}) =>

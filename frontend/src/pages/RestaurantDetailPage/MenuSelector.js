@@ -19,8 +19,7 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await getWithToken("/restaurant1-menu");
-			const result = response.data;
+			const result = await getWithToken("/restaurant1-menu");
 			const formatted = result.map((dept) => ({
 				label: dept.deptKo,
 				value: dept.deptEn,

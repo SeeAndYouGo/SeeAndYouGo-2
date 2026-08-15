@@ -311,8 +311,7 @@ const ReviewWrite = ({
 				}
 			})
 		} catch (error) {
-			dispatch(showToast({ contents: "review", toastIndex: 1 }));
-			console.log(dto, "리뷰 전달 확인");
+			console.log(dto, "리뷰 전달 확인", error);
 		} finally {
 			setButtonDisabled(false);
 			setIsLoading(false);
