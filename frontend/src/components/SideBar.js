@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
 import { useCookies } from 'react-cookie';
-import { get } from '../api';
+import { getWithToken, errorWithAuth } from '../api';
 
 const Background = styled.div`
   width: 100%;
@@ -146,13 +146,14 @@ const SideBar = ({isOpen, setIsOpen}) => {
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
-        const response = await get(`/visitors/count`);
-        setVisitTodayData(response.data.visitToday);
-        setVisitTotalData(response.data.visitTotal);
+        const { visitToday, visitTotal } = await getWithToken('/visitors/count');
+
+        setVisitTodayData(visitToday);
+        setVisitTotalData(visitTotal);
       } catch (error) {
-        console.error("Error fetching JSON:", error);
+        errorWithAuth(error.code, error.message);
       }
-    }
+    };
     fetchVisitData();
   },[]);
 

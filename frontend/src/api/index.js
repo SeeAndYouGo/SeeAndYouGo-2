@@ -15,27 +15,44 @@ const axiosClient = axios.create({
 	},
 });
 
-// 백엔드 ApiResponse의 data만 꺼내 response.data로 맞춤
-const unwrapApiResponse = (response) => ({
-	...response,
-	data: response.data.data,
-});
+const unwrapApiResponse = (response) => {
+  const { code, message, data } = response.data;
+
+  if (code !== 'SUCCESS') {
+    const error = new Error(message);
+    error.code = code;
+    throw error;
+  }
+
+  return data;
+};
+
+const sendRequest = (method, url, data, config) => {
+  if (method === 'get' || method === 'delete') {
+    return axiosClient[method](url, config);
+  }
+  return axiosClient[method](url, data, config);
+};
 
 // access token 재발급 요청
 const getNewAccessToken = async (refreshToken) => {
-	try {
-		const response = unwrapApiResponse(
-			await axiosClient.get("/oauth/token/reissue", {
-				headers: {
-					refreshToken: refreshToken,
-				},
-			})
-		);
+  const response = await axiosClient.get('/oauth/token/reissue', {
+    headers: { refreshToken },
+  });
 
-		return response.data.token;
-	} catch (error) {
-		throw error;
-	}
+  return unwrapApiResponse(response).token;
+};
+
+const forceLogout = () => {
+  const cookies = new Cookies();
+
+  store.dispatch(logout());
+  store.dispatch(showToast({ contents: 'login', toastIndex: 5 }));
+  cookies.remove('refreshToken', { path: '/' });
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
 };
 
 const requestWithToken = async (method, url, data = null, config = {}) => {
@@ -53,17 +70,12 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 			...config.headers,
 			Authorization: `Bearer ${accessToken}`,
 		};
-
 		const axiosConfig = {
 			...config,
 			headers,
 		}
 
-		if (method === "get" || method === "delete") {
-			return unwrapApiResponse(await axiosClient[method](url, axiosConfig));
-		} else {
-			return unwrapApiResponse(await axiosClient[method](url, data, axiosConfig));
-		}
+		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
 
 	} catch (error) {
 		console.error("요청 실패:", error);
@@ -91,76 +103,42 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 					...config,
 					headers: newHeaders,
 				};
-				if (method === "get" || method === "delete") {
-					return unwrapApiResponse(await axiosClient[method](url, axiosConfig));
-				} else {
-					return unwrapApiResponse(await axiosClient[method](url, data, axiosConfig));
-				}
 
-			} catch (error) {
-				if (error.response.status === 401) {
-					console.error("refresh token 만료로 인한 재발급 요청 실패:", error);
+				return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
+
+			} catch (retryError) {
+				if (retryError.response?.status === 401) {
+					console.error("refresh token 만료로 인한 재발급 요청 실패:", retryError);
 				} else {
-					console.error("refresh token 만료가 아닌 다른 문제 발생", error);
+					console.error("refresh token 만료가 아닌 다른 문제 발생", retryError);
 					alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 				}
 				// 로그아웃 처리
-				console.error("access token 재발급 요청 실패:", error);
-				store.dispatch(logout());
-				store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
-				cookies.remove('refreshToken', { path: '/' });
-				setTimeout(() => {
-					window.location.reload();
-				}, 1000);
-				throw error;
+				console.error("access token 재발급 요청 실패:", retryError);
+				forceLogout();
+				throw retryError;
 			}
 		} else {
 			console.error(`${method} 요청 실패:`, error);
 			alert("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-			store.dispatch(logout());
-			store.dispatch(showToast({ contents: "login", toastIndex: 5 }));
-			cookies.remove('refreshToken', { path: '/' });
-			setTimeout(() => {
-				window.location.reload();
-			}, 1000);
+			forceLogout();
 			throw error;
 		}
 	}
 };
 
-export const get = async (url, config = {}) => {
-	try {
-		const response = await axiosClient.get(url, config);
-
-		return unwrapApiResponse(response);
-	} catch (error) {
-		console.error("GET 요청 실패:", error);
-		throw error;
+export const errorWithAuth = (codeNum, errorMessage) => {
+	if (codeNum === "AUTH_001") { // 로그인이 필요한 API에 자격 증명 없이 접근한 경우
+		console.log("로그인이 필요합니다.(토큰이 만료된 경우)")
+	} else if (codeNum === "AUTH_002") { // 인증은 되었지만, 해당 리소스에 대한 권한이 없는 경우
+		console.log("해당 리소스에 대한 권한이 없습니다.(리뷰 삭제와 같은 동작)")
+	} else if (codeNum === "AUTH_003") { // 전달한 토큰 값이 서버에 저장된 값과 다른 경우
+		console.log("전달한 토큰 값이 서버에 저장된 값과 다른 경우(토큰 위조)");
+	} else {
+		console.log("Auth와 관련 없는 에러 입니다. 확인이 필요합니다.");
 	}
+	alert(`에러 발생: ${errorMessage}`);
 };
-
-export const put = async (url, data, config = {}) => {
-	try {
-		const response = await axiosClient.put(url, data, config);
-
-		return unwrapApiResponse(response);
-	} catch (error) {
-		console.error("PUT 요청 실패:", error);
-		throw error;
-	}
-}
-
-export const erase = async (url, config = {}) => {
-	// delete라는 변수를 사용할 수 없어서 erase로 작성
-	try {
-		const response = await axiosClient.delete(url, config);
-
-		return unwrapApiResponse(response);
-	} catch (error) {
-		console.error("DELETE 요청 실패:", error);
-		throw error;
-	}
-}
 
 export const getWithToken = async (url, config = {}) =>
 	requestWithToken("get", url, null, config);
