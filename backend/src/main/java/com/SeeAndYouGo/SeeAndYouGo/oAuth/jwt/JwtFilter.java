@@ -32,20 +32,22 @@ public class JwtFilter extends OncePerRequestFilter {
         // Access token
         if (StringUtils.hasText(accessToken) && accessToken.startsWith(BEARER_PREFIX)) {
             String jwtToken = accessToken.substring(BEARER_PREFIX.length());
-            if (tokenProvider.validateToken(jwtToken)) {
+            TokenStatus status = tokenProvider.resolveTokenStatus(jwtToken);
+            if (status == TokenStatus.VALID) {
                 setAuthentication(tokenProvider.getAuthentication(jwtToken));
             } else {
-                ApiResponseWriter.write(response, objectMapper, ErrorCode.INVALID_TOKEN);
+                ApiResponseWriter.write(response, objectMapper, toErrorCode(status));
                 return;
             }
         }
 
         // Refresh Token
         else if (StringUtils.hasText(refreshToken)) {
-            if (tokenProvider.validateToken(refreshToken)) {
+            TokenStatus status = tokenProvider.resolveTokenStatus(refreshToken);
+            if (status == TokenStatus.VALID) {
                 setAuthentication(tokenProvider.getAuthentication(refreshToken));
             } else {
-                ApiResponseWriter.write(response, objectMapper, ErrorCode.INVALID_TOKEN);
+                ApiResponseWriter.write(response, objectMapper, toErrorCode(status));
                 return;
             }
         }
@@ -57,6 +59,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // doFilter
         filterChain.doFilter(request, response);
+    }
+
+    // 만료는 재발급 후 재시도(AUTH_001), 그 외 무효는 즉시 로그아웃(AUTH_003)으로 안내한다.
+    private ErrorCode toErrorCode(TokenStatus status) {
+        return status == TokenStatus.EXPIRED ? ErrorCode.UNAUTHORIZED : ErrorCode.INVALID_TOKEN;
     }
 
     private void setAuthentication(Authentication authentication) {

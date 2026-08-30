@@ -40,7 +40,7 @@ class JwtFilterTest {
 
     @Test
     void accessToken_setsAuthenticationFromTokenClaims() throws Exception {
-        when(tokenProvider.validateToken("admin-token")).thenReturn(true);
+        when(tokenProvider.resolveTokenStatus("admin-token")).thenReturn(TokenStatus.VALID);
         when(tokenProvider.getAuthentication("admin-token")).thenReturn(
                 new UsernamePasswordAuthenticationToken(
                         "admin@seeandyougo.com",
@@ -60,6 +60,34 @@ class JwtFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
                 .extracting("authority")
                 .containsExactly("ADMIN");
+    }
+
+    @Test
+    void expiredAccessToken_respondsWithAuth001() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        jwtFilter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_001");
+    }
+
+    @Test
+    void invalidAccessToken_respondsWithAuth003() throws Exception {
+        when(tokenProvider.resolveTokenStatus("forged-token")).thenReturn(TokenStatus.INVALID);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer forged-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        jwtFilter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_003");
     }
 
     @Test
