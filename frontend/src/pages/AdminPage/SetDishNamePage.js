@@ -60,8 +60,7 @@ const SetDishNamePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await getWithToken("/dish/week");
-      const result = response.data;
-      return result;
+      return response;
     };
     fetchData().then((data) => {
       // data의 id 값을 내림차순으로 정렬해서 setDishList에 저장

@@ -48,8 +48,7 @@ const SetMainMenuPage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			const response = await getWithToken("/weekly-menu");
-			const result = response.data;
-			return result;
+			return response;
 		};
 		fetchData().then((data) => {
 			// data 중 restaurantName이 제1학생회관인 경우 제외
@@ -92,8 +91,7 @@ const SetMainMenuPage = () => {
 			// 전체보기 버튼 클릭시, 전체 데이터 재요청
 			const fetchData = async () => {
 				const response = await getWithToken("/weekly-menu");
-				const result = response.data;
-				return result;
+				return response;
 			};
 			fetchData().then((data) => {
 				setMenuList(data);
