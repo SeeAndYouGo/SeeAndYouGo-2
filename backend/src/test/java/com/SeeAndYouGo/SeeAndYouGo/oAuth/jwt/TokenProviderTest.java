@@ -132,6 +132,38 @@ class TokenProviderTest {
         assertThat(tokenProvider.validateToken("not.a.valid.jwt")).isFalse();
     }
 
+    // ===== resolveTokenStatus =====
+
+    @Test
+    @DisplayName("resolveTokenStatus: 유효한 토큰은 VALID")
+    void resolveTokenStatus_valid() {
+        String token = issueToken(EMAIL, ACCESS_EXP, secretKey);
+        assertThat(tokenProvider.resolveTokenStatus(token)).isEqualTo(TokenStatus.VALID);
+    }
+
+    @Test
+    @DisplayName("resolveTokenStatus: 만료된 토큰은 EXPIRED (위조와 구분된다)")
+    void resolveTokenStatus_expired() {
+        String expired = issueToken(EMAIL, -1000L, secretKey);
+        assertThat(tokenProvider.resolveTokenStatus(expired)).isEqualTo(TokenStatus.EXPIRED);
+    }
+
+    @Test
+    @DisplayName("resolveTokenStatus: 서명이 다른 토큰은 INVALID")
+    void resolveTokenStatus_wrongSignature() {
+        SecretKey other = Keys.hmacShaKeyFor(
+                "another-secret-with-enough-length-to-pass-hmac-sha512-validation-requirement-yo".getBytes()
+        );
+        String wrongSigned = issueToken(EMAIL, ACCESS_EXP, other);
+        assertThat(tokenProvider.resolveTokenStatus(wrongSigned)).isEqualTo(TokenStatus.INVALID);
+    }
+
+    @Test
+    @DisplayName("resolveTokenStatus: 형식이 깨진 문자열은 INVALID")
+    void resolveTokenStatus_malformed() {
+        assertThat(tokenProvider.resolveTokenStatus("not.a.valid.jwt")).isEqualTo(TokenStatus.INVALID);
+    }
+
     // ===== decodeToEmailByAccess =====
 
     @Test
