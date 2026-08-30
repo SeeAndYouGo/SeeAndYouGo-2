@@ -64,7 +64,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connection/prediction` — 식당 파라미터가 유효하지 않은 경우. |
 | 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connection/prediction` — `observed_at` 형식 오류. |
 | 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/restaurant/{n}/rate/detail` — 세부 평점 미지원 식당 요청. |
-| 400 | `COMMON_002` | 새로운 요리명은 비어있을 수 없습니다. | `PUT /api/dish/name` — 새 요리명이 빈 문자열. |
+| 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/dish/name` — 새 메뉴명이 빈 문자열. |
 | 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
 | 400 | `COMMON_002` | 올바르지 않은 이미지 파일명입니다. | `GET /api/images/{imgName}` — 경로 조작 문자(`..`, `/`, `\`) 포함 (path traversal 방어). |
 | 400 | `COMMON_002` | 잘못된 입력값입니다. (기본값) | 커스텀 문구 없는 나머지: Bean Validation 실패, path/query 타입 불일치, 필수 파라미터 누락, JSON 파싱 불가, 그 외 커스텀 메시지 없이 던져진 `IllegalArgumentException`. |
@@ -89,8 +89,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
 | 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `GET /api/oauth/token/reissue` |
-| 404 | `DISH_001` | {요리명}에 해당하는 요리를 찾을 수 없습니다. | `PUT /api/main-menu` |
-| 404 | `DISH_001` | ID {id}에 해당하는 요리를 찾을 수 없습니다. | `DELETE /api/dish/{id}`, `PUT /api/dish/name` |
+| 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/main-menu` |
+| 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/dish/{id}`, `PUT /api/dish/name` |
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
 | 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `PUT /api/report/{reviewId}` |
 | 404 | `REVIEW_001` | 삭제하려는 리뷰를 찾을 수 없습니다. | `DELETE /api/reviews/{reviewId}` |

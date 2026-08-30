@@ -21,7 +21,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),
 
     // Dish
-    DISH_NOT_FOUND(HttpStatus.NOT_FOUND, "DISH_001", "요리를 찾을 수 없습니다."),
+    DISH_NOT_FOUND(HttpStatus.NOT_FOUND, "DISH_001", "메뉴를 찾을 수 없습니다."),
 
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW_001", "리뷰를 찾을 수 없습니다."),

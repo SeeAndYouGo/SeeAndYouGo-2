@@ -39,7 +39,7 @@ public class DishService {
                 if (dish.isPresent()) {
                     dish.get().updateMainDish();
                 }else{
-                    throw new ApiException(ErrorCode.DISH_NOT_FOUND, mainDishName + "에 해당하는 요리를 찾을 수 없습니다.");
+                    throw new ApiException(ErrorCode.DISH_NOT_FOUND, mainDishName + "에 해당하는 메뉴를 찾을 수 없습니다.");
                 }
 
             }
@@ -101,12 +101,12 @@ public class DishService {
     public boolean updateDishName(long id, String newName) {
         // 입력 검증
         if (newName == null || newName.trim().isEmpty()) {
-            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "새로운 요리명은 비어있을 수 없습니다.");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "새로운 메뉴명은 비어있을 수 없습니다.");
         }
 
         // 대상 요리 조회 및 존재 확인
         Dish targetDish = dishRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 요리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 메뉴를 찾을 수 없습니다."));
 
         // 이미 같은 이름이면 변경 불필요
         if (targetDish.getName().equals(newName.trim())) {
