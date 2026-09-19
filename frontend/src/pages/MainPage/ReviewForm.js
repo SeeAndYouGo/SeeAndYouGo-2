@@ -6,7 +6,7 @@ import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
-import MenuSelector from "../RestaurantDetailPage/MenuSelector";
+import MenuSelector from "./MenuSelector";
 import ImageCropper from "./ImageCropper";
 import { postWithToken } from "../../api";
 import ReviewLimitation from "../../components/ReviewLimitation";
@@ -311,7 +311,7 @@ const ReviewWrite = ({
 				}
 			})
 		} catch (error) {
-			console.log(dto, "리뷰 전달 확인", error);
+			console.log(error);
 		} finally {
 			setButtonDisabled(false);
 			setIsLoading(false);

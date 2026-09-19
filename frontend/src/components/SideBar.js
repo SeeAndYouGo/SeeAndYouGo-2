@@ -151,7 +151,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
         setVisitTodayData(visitToday);
         setVisitTotalData(visitTotal);
       } catch (error) {
-        console.error(error);
+				console.log(error);
       }
     };
     fetchVisitData();

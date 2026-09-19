@@ -114,7 +114,7 @@ const StatisticsPage = () => {
 
 				setDatas(responses);
 			} catch (error) {
-				console.error(error);
+				console.log(error);
 			}
 		};
 

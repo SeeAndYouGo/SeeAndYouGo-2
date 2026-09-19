@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
-import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
+import MenuInfoForRestaurant1 from "./MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
 import { getWithToken } from "../../api/index";
 import LoginModal from "../../components/LoginModal";
@@ -56,7 +56,7 @@ const MainPage = () => {
 			}
 			setRestaurantData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -77,7 +77,7 @@ const MainPage = () => {
 			}
 			setMenuData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -90,7 +90,7 @@ const MainPage = () => {
 			}
 			setTopReviewData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -103,7 +103,7 @@ const MainPage = () => {
 					fetchTopReviewData()
 				])
 			} catch (error) {
-				console.error("Error fetching JSON:", error);
+				console.log(error);
 			} finally {
 				setLoading(false);
 			}

@@ -184,19 +184,6 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 	}
 };
 
-export const errorWithAuth = (codeNum, errorMessage) => {
-	if (codeNum === "AUTH_001") { // 로그인이 필요한 API에 자격 증명 없이 접근한 경우
-		console.log("로그인이 필요합니다.(토큰이 만료된 경우)")
-	} else if (codeNum === "AUTH_002") { // 인증은 되었지만, 해당 리소스에 대한 권한이 없는 경우
-		console.log("해당 리소스에 대한 권한이 없습니다.(리뷰 삭제와 같은 동작)")
-	} else if (codeNum === "AUTH_003") { // 전달한 토큰 값이 서버에 저장된 값과 다른 경우
-		console.log("전달한 토큰 값이 서버에 저장된 값과 다른 경우(토큰 위조)");
-	} else {
-		console.log("Auth와 관련 없는 에러 입니다. 확인이 필요합니다.");
-	}
-	// alert(`에러 발생: ${errorMessage}`);
-};
-
 export const getWithToken = async (url, config = {}) =>
 	requestWithToken("get", url, null, config);
 

@@ -34,7 +34,7 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 				setMenuData(formatted);
 			} catch (error) {
-				console.error("Error fetching menu data:", error);
+				console.log(error);
 			}
 		};
 

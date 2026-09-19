@@ -170,10 +170,10 @@ const ReviewItem = ({
       
       updateWholeReviewList(targetId, isLike);
     } catch (error) {
-        console.error(error);
+      console.log(error);
     } finally {
-        setLikeLoading(false);
-        setButtonDisabled(false);
+      setLikeLoading(false);
+      setButtonDisabled(false);
     }
   };
 

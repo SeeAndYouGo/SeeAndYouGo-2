@@ -46,7 +46,7 @@ const MyReviewPage = () => {
 				const reviews = await getWithToken(`/reviews/${nowToken}`);
 				setReviewList(reviews);
 			} catch (error) {
-				console.error("Error fetching reviews:", error);
+				console.log(error);
 			}
 		};
 

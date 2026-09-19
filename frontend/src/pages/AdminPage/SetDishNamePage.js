@@ -86,7 +86,7 @@ const SetDishNamePage = () => {
       alert("편집되었습니다.");
     } catch (error) {
       alert("편집에 실패했습니다. 다시 시도해주세요.");
-      console.error("Error editing dish:", error);
+      console.log(error);
     } finally {
       setButtonDisabled(false);
       setNowEditId(-1);
@@ -106,7 +106,7 @@ const SetDishNamePage = () => {
       alert("삭제되었습니다.");
     } catch (error) {
       alert("삭제에 실패했습니다. 다시 시도해주세요.");
-      console.error("Error deleting dish:", error);
+      console.log(error);
     } finally {
       setButtonDisabled(false);
       setDishList((prev) => prev.filter((dish) => dish.id !== dishId));

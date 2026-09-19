@@ -149,7 +149,7 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 					}
 				})
 				.catch((error) => {
-					console.error(error);
+					console.log(error);
 				});
 		} else {
 			return;

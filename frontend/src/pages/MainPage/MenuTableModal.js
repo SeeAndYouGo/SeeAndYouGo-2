@@ -90,7 +90,7 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
 
       setData(groupedByDate)
 		}).catch((error) => {
-			console.error(error);
+      console.log(error);
 		});
 	}, [idx]);
 

@@ -136,7 +136,7 @@ const SetNicknamePage = () => {
       setNicknameCheck(true);
 
     } catch (error) {
-      console.error("Error checking nickname:", error);
+      console.log(error);
     }
   };
 
@@ -165,7 +165,7 @@ const SetNicknamePage = () => {
       dispatch(showToast({ contents: "nickname", toastIndex: 3 }));
       navigator("/");
     } catch (error) {
-      console.error("Error setting nickname:", error);
+      console.log(error);
     } finally {
       setButtonDisabled(false);
     }
