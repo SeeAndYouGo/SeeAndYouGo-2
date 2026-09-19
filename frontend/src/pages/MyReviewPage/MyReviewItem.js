@@ -148,8 +148,8 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 						dispatch(showToast({ contents: "review", toastIndex: 2 }));
 					}
 				})
-				.catch(() => { // 리뷰 삭제 실패
-					dispatch(showToast({ contents: "review", toastIndex: 4 }));
+				.catch((error) => {
+					console.error(error);
 				});
 		} else {
 			return;

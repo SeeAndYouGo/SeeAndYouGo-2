@@ -18,7 +18,7 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 	// deleteTarget: 삭제할 리뷰의 id
 	const handleSubmit = async () => {
 		try {
-			const { success } = await deleteWithToken(`/review/${deleteTarget}`);
+			const { success } = await deleteWithToken(`/reviews/${deleteTarget}`);
 
 			if (!success) {
 				dispatch(showToast({ contents: "review", toastIndex: 2 }));
@@ -26,7 +26,7 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 			}
 
 			dispatch(showToast({ contents: "review", toastIndex: 3 }));
-			
+
 			if (onDeleteSuccess) {
 				onDeleteSuccess();
 				return;
@@ -37,7 +37,6 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 			}, 1000);
 
 		} catch (error) {
-			dispatch(showToast({ contents: "review", toastIndex: 4 }));
 			console.error(error);
 		}
 	};

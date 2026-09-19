@@ -171,7 +171,6 @@ const ReviewItem = ({
       updateWholeReviewList(targetId, isLike);
     } catch (error) {
         console.error(error);
-        dispatch(showToast({ contents: "error", toastIndex: 0 }));
     } finally {
         setLikeLoading(false);
         setButtonDisabled(false);

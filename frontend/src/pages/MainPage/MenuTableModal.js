@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import styled from "@emotion/styled";
-import { getWithToken, errorWithAuth } from "../../api";
+import { getWithToken } from "../../api";
 
 const Wrapper = styled.div`
   padding: 0 20px 10px 20px;
@@ -90,7 +90,7 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
 
       setData(groupedByDate)
 		}).catch((error) => {
-			errorWithAuth(error.code, error.message);
+			console.error(error);
 		});
 	}, [idx]);
 

@@ -12,7 +12,7 @@ import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
 import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
-import { getWithToken, errorWithAuth } from "../../api/index";
+import { getWithToken } from "../../api/index";
 import LoginModal from "../../components/LoginModal";
 
 const MainPage = () => {
@@ -57,7 +57,6 @@ const MainPage = () => {
 			setRestaurantData(results);
 		} catch (error) {
 			console.error("Error fetching JSON:", error);
-			errorWithAuth(error.code, error.message);
 		}
 	};
 
@@ -79,7 +78,6 @@ const MainPage = () => {
 			setMenuData(results);
 		} catch (error) {
 			console.error("Error fetching JSON:", error);
-			errorWithAuth(error.code, error.message);
 		}
 	};
 
@@ -93,7 +91,6 @@ const MainPage = () => {
 			setTopReviewData(results);
 		} catch (error) {
 			console.error("Error fetching JSON:", error);
-			errorWithAuth(error.code, error.message);
 		}
 	};
 

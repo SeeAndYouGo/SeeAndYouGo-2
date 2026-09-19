@@ -173,8 +173,8 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 			return reissueAccessTokenAndRetry(method, url, data, config, refreshToken);
 		}
 
-		// 인증 자체가 불가한 경우만 로그아웃 (일반 비즈니스 에러는 toast만)
-		if (code === "AUTH_001" || code === "AUTH_003") {
+		// 세션을 유지할 수 없는 경우만 로그아웃 (일반 비즈니스 에러는 toast만)
+		if (code === "AUTH_001" || code === "AUTH_003" || code === "USER_001") {
 			forceLogout({ message });
 		} else {
 			showErrorToast(message);

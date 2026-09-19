@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
 import { useCookies } from 'react-cookie';
-import { getWithToken, errorWithAuth } from '../api';
+import { getWithToken } from '../api';
 
 const Background = styled.div`
   width: 100%;
@@ -151,7 +151,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
         setVisitTodayData(visitToday);
         setVisitTotalData(visitTotal);
       } catch (error) {
-        errorWithAuth(error.code, error.message);
+        console.error(error);
       }
     };
     fetchVisitData();

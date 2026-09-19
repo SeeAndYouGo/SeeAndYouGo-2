@@ -39,7 +39,6 @@ const ReviewReport = ({ reportTarget }) => {
       }
 			
     } catch (error) {
-      dispatch(showToast({ contents: "review", toastIndex: 6 }));
       console.error(error);
     }
 	};

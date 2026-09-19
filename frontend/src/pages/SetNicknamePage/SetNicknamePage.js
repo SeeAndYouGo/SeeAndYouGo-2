@@ -137,7 +137,6 @@ const SetNicknamePage = () => {
 
     } catch (error) {
       console.error("Error checking nickname:", error);
-      dispatch(showToast({ contents: "error", toastIndex: 0 }));
     }
   };
 
