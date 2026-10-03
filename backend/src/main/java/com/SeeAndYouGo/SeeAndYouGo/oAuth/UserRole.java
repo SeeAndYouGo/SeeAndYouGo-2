@@ -1,5 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth;
 
 public enum UserRole {
-    USER, GUEST
+    ADMIN,
+    USER,
+    GUEST
 }

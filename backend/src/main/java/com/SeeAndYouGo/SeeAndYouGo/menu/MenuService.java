@@ -153,7 +153,7 @@ public class MenuService {
                 // 교직원 : 없음
                 // 만 메뉴를 제공한다.
                 if(restaurant.equals(Restaurant.제3학생회관)){
-                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STAFF, MenuType.DINNER);
+                    checkMenuByDeptAndMenuType(restaurant, menus, date, Dept.STUDENT, MenuType.DINNER);
                 }
             }
         }
@@ -256,7 +256,20 @@ public class MenuService {
         menuProvider.updateMenuMap(restaurant, monday, sunday);
 
         List<MenuVO> weeklyMenu = menuProvider.getWeeklyMenu(restaurant);
-        saveMenusWithDishes(weeklyMenu);
+        List<Menu> existingMenus = menuRepository.findByRestaurantAndDateBetween(
+                restaurant,
+                monday.toString(),
+                sunday.toString()
+        );
+        Set<String> existingMenuKeys = existingMenus.stream()
+                .map(this::createMenuKey)
+                .collect(Collectors.toSet());
+
+        List<MenuVO> newMenus = weeklyMenu.stream()
+                .filter(menuVO -> existingMenuKeys.add(createMenuKey(menuVO)))
+                .collect(Collectors.toList());
+
+        saveMenusWithDishes(newMenus);
     }
 
     /**
@@ -286,6 +299,50 @@ public class MenuService {
                             .build();
                     return dishRepository.save(newDish);
                 });
+    }
+
+    private String createMenuKey(Menu menu) {
+        return createMenuKey(
+                menu.getRestaurant(),
+                menu.getDate(),
+                menu.getDept(),
+                menu.getMenuType(),
+                menu.getPrice(),
+                menu.getDishList().stream()
+                        .map(dish -> dish.getDishType() + ":" + dish.getName())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    private String createMenuKey(MenuVO menuVO) {
+        return createMenuKey(
+                menuVO.getRestaurant(),
+                menuVO.getDate(),
+                menuVO.getDept(),
+                menuVO.getMenuType(),
+                menuVO.getPrice(),
+                menuVO.getDishVOs().stream()
+                        .map(dish -> dish.getDishType() + ":" + dish.getName())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    private String createMenuKey(
+            Restaurant restaurant,
+            String date,
+            Dept dept,
+            MenuType menuType,
+            Integer price,
+            List<String> dishes
+    ) {
+        String baseKey = restaurant + "|" + date + "|" + dept + "|" + menuType;
+        if (!restaurant.hasFixedMenu()) {
+            return baseKey;
+        }
+
+        List<String> sortedDishes = new ArrayList<>(dishes);
+        Collections.sort(sortedDishes);
+        return baseKey + "|" + price + "|" + String.join(",", sortedDishes);
     }
 
     public void updateAllRestaurantMenuMap() throws Exception {

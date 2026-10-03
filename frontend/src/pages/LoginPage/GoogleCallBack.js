@@ -24,12 +24,14 @@ const GoogleCallBack = () => {
 			const nowToken = response.data.token;
 			const refreshToken = response.data.refreshToken;
 			const message = response.data.message;
-			return { nowToken, refreshToken, message };
+			const userType = response.data.userType;
+
+			return { nowToken, refreshToken, message, userType };
 		};
 
 		const fetchData = async () => {
 			try {
-				const { nowToken, refreshToken, message } = await getJWTToken(code);
+				const { nowToken, refreshToken, message, userType } = await getJWTToken(code);
 
 				// refresh token을 쿠키에 저장
 				setCookie('refreshToken', refreshToken, {
@@ -40,7 +42,7 @@ const GoogleCallBack = () => {
 				});
 				
 				dispatch(
-					login({ token: nowToken, nickname: "", loginState: true, selectedRestaurant: restaurantId })
+					login({ token: nowToken, nickname: "", loginState: true, selectedRestaurant: restaurantId, userType: userType })
 				);
 
 				if (message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동

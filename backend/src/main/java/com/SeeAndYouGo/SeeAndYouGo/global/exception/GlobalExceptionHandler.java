@@ -1,9 +1,11 @@
 package com.SeeAndYouGo.SeeAndYouGo.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,6 +46,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
                 .body(response);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            ResponseStatusException e,
+            HttpServletRequest request) {
+        HttpStatus status = e.getStatus();
+        String detail = e.getReason();
+
+        log.warn("[{}] {} - {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                status.value(),
+                detail);
+
+        ErrorResponse response = ErrorResponse.builder()
+                .code("HTTP_" + status.value())
+                .message(status.getReasonPhrase())
+                .detail(detail)
+                .build();
+        return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(Exception.class)
