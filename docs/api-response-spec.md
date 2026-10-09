@@ -67,7 +67,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/dish/name` — 새 메뉴명이 빈 문자열. |
 | 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
 | 400 | `COMMON_002` | 올바르지 않은 이미지 파일명입니다. | `GET /api/images/{imgName}` — 경로 조작 문자(`..`, `/`, `\`) 포함 (path traversal 방어). |
-| 400 | `COMMON_002` | 잘못된 입력값입니다. (기본값) | 커스텀 문구 없는 나머지: Bean Validation 실패, path/query 타입 불일치, 필수 파라미터 누락, JSON 파싱 불가, 그 외 커스텀 메시지 없이 던져진 `IllegalArgumentException`. |
+| 400 | `COMMON_002` | 잘못된 입력값입니다. (기본값) | 커스텀 문구 없는 나머지: Bean Validation 실패, path/query 타입 불일치, 필수 파라미터·헤더·multipart 파트 누락, multipart 가 아닌 요청, JSON 파싱 불가, 허용되지 않은 HTTP 메서드(405 대신), 지원하지 않는 Content-Type(415 대신), 그 외 커스텀 메시지 없이 던져진 `IllegalArgumentException`. |
 | 404 | `COMMON_003` | 요청한 리소스를 찾을 수 없습니다. | 이미지 파일 없음 / 존재하지 않는 URL / JPA 엔티티 조회 실패. |
 
 > `IllegalArgumentException`은 JDK/외부 라이브러리를 포함해 어디서든 던져질 수 있어, `GlobalExceptionHandler`는 이 예외의 `getMessage()`를 사용자에게 절대 그대로 전달하지 않는다(항상 `COMMON_002` 기본 메시지로 고정). 위 표의 구체적인 문구들은 전부 해당 지점에서 `IllegalArgumentException` 대신 `ApiException(ErrorCode.INVALID_INPUT_VALUE, "...")`을 명시적으로 던지도록 고쳤기 때문에 노출된다.

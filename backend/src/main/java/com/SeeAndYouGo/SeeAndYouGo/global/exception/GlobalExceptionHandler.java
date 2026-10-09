@@ -3,16 +3,19 @@ package com.SeeAndYouGo.SeeAndYouGo.global.exception;
 import com.SeeAndYouGo.SeeAndYouGo.aop.InvalidTokenException;
 import com.SeeAndYouGo.SeeAndYouGo.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
@@ -69,11 +72,17 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ErrorCode.INVALID_INPUT_VALUE, ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 
+    // Exception.class 핸들러가 Spring 기본 리졸버보다 먼저 잡으므로, 클라이언트 요청 오류는 여기서 4xx로 매핑해야 500이 되지 않는다.
     @ExceptionHandler({
             MethodArgumentNotValidException.class,
             MethodArgumentTypeMismatchException.class,
             MissingServletRequestParameterException.class,
-            HttpMessageNotReadableException.class
+            MissingRequestHeaderException.class,
+            MissingServletRequestPartException.class,
+            MultipartException.class,
+            HttpMessageNotReadableException.class,
+            HttpRequestMethodNotSupportedException.class,
+            HttpMediaTypeNotSupportedException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleInvalidRequestException(
             Exception e,
@@ -85,8 +94,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             FileNotFoundException.class,
-            NoSuchFileException.class,
-            NoHandlerFoundException.class
+            NoSuchFileException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(
             Exception e,
@@ -100,7 +108,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleResponseStatusException(
             ResponseStatusException e,
             HttpServletRequest request) {
-        ErrorCode errorCode = resolveErrorCode(e.getStatus());
+        ErrorCode errorCode = ErrorCode.from(e.getStatus());
         logError(request, errorCode.getCode(), e.getReason(), e);
 
         return buildErrorResponse(errorCode, errorCode.getMessage());
@@ -119,22 +127,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
                 .body(ApiResponse.error(errorCode.getCode(), message));
-    }
-
-    private ErrorCode resolveErrorCode(HttpStatus status) {
-        if (status == HttpStatus.UNAUTHORIZED) {
-            return ErrorCode.UNAUTHORIZED;
-        }
-        if (status == HttpStatus.FORBIDDEN) {
-            return ErrorCode.ACCESS_DENIED;
-        }
-        if (status == HttpStatus.NOT_FOUND) {
-            return ErrorCode.RESOURCE_NOT_FOUND;
-        }
-        if (status.is4xxClientError()) {
-            return ErrorCode.INVALID_INPUT_VALUE;
-        }
-        return ErrorCode.INTERNAL_SERVER_ERROR;
     }
 
     private String getMessageOrDefault(String message, ErrorCode errorCode) {

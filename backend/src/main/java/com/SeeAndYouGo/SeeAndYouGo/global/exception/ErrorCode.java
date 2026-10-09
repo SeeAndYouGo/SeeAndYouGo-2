@@ -38,4 +38,20 @@ public enum ErrorCode {
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
+
+    public static ErrorCode from(HttpStatus status) {
+        if (status == HttpStatus.UNAUTHORIZED) {
+            return UNAUTHORIZED;
+        }
+        if (status == HttpStatus.FORBIDDEN) {
+            return ACCESS_DENIED;
+        }
+        if (status == HttpStatus.NOT_FOUND) {
+            return RESOURCE_NOT_FOUND;
+        }
+        if (status.is4xxClientError()) {
+            return INVALID_INPUT_VALUE;
+        }
+        return INTERNAL_SERVER_ERROR;
+    }
 }
