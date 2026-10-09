@@ -104,6 +104,7 @@ const reissueAccessTokenAndRetry = async (method, url, data, config, refreshToke
 	const user = state.user?.value;
 	const nickname = user?.nickname;
 	const restaurantId = user?.selectedRestaurant;
+	const userType = user?.userType;
 
 	try {
 		console.log("access token 만료로 인한 재발급 요청");
@@ -116,6 +117,7 @@ const reissueAccessTokenAndRetry = async (method, url, data, config, refreshToke
 				nickname: nickname,
 				loginState: true,
 				selectedRestaurant: restaurantId,
+				userType: userType,
 			})
 		);
 

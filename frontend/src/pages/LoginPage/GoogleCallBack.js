@@ -23,7 +23,7 @@ const GoogleCallBack = () => {
 
 		const fetchData = async () => {
 			try {
-				const { token, refreshToken, message } = await getWithToken(
+				const { token, refreshToken, message, userType } = await getWithToken(
 					`/oauth/google?code=${code}`,
 				);
 
@@ -41,6 +41,7 @@ const GoogleCallBack = () => {
 						nickname: "",
 						loginState: true,
 						selectedRestaurant: restaurantId,
+						userType: userType,
 					}),
 				);
 

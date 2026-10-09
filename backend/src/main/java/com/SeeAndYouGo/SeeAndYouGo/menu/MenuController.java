@@ -5,6 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
+import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
@@ -27,7 +28,6 @@ import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 
 @RestController
 @RequiredArgsConstructor

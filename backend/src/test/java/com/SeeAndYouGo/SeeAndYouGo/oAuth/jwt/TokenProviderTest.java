@@ -6,6 +6,7 @@ import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.user.Social;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
+import com.SeeAndYouGo.SeeAndYouGo.user.UserType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -239,6 +240,54 @@ class TokenProviderTest {
         assertThat(dto.getRefreshToken()).isNotBlank();
         assertThat(dto.getMessage()).isEqualTo("reissue");
         assertThat(user.getRefreshToken()).isEqualTo(dto.getRefreshToken());
+    }
+
+    @Test
+    @DisplayName("createToken: 관리자는 access/refresh 모두에 ADMIN 권한과 userType 이 담긴다")
+    void createToken_includesAdminUserTypeInAccessAndRefreshTokens() {
+        User adminUser = User.builder()
+                .email("admin@seeandyougo.com")
+                .nickname("admin")
+                .socialType(Social.GOOGLE)
+                .userType(UserType.ADMIN)
+                .build();
+        given(userRepository.findByEmail(adminUser.getEmail())).willReturn(Optional.of(adminUser));
+
+        TokenDto tokenDto = tokenProvider.createToken(adminUser.getEmail());
+
+        Claims accessClaims = parseClaims(tokenDto.getToken());
+        Claims refreshClaims = parseClaims(tokenDto.getRefreshToken());
+
+        assertThat(tokenDto.getUserType()).isEqualTo("ADMIN");
+        assertThat(accessClaims.getSubject()).isEqualTo(adminUser.getEmail());
+        assertThat(accessClaims.get("auth", String.class)).isEqualTo("ADMIN");
+        assertThat(accessClaims.get("userType", String.class)).isEqualTo("ADMIN");
+        assertThat(refreshClaims.get("auth", String.class)).isEqualTo("ADMIN");
+        assertThat(refreshClaims.get("userType", String.class)).isEqualTo("ADMIN");
+    }
+
+    @Test
+    @DisplayName("reIssueToken: 기존 토큰의 권한이 아니라 DB 의 현재 userType 으로 발급된다")
+    void reIssueToken_usesCurrentUserTypeFromDatabase() {
+        User adminUser = User.builder()
+                .email("manager@seeandyougo.com")
+                .nickname("manager")
+                .socialType(Social.KAKAO)
+                .userType(UserType.ADMIN)
+                .build();
+        given(userRepository.findByEmail(adminUser.getEmail())).willReturn(Optional.of(adminUser));
+
+        UsernamePasswordAuthenticationToken staleUserAuthentication = new UsernamePasswordAuthenticationToken(
+                adminUser.getEmail(), null,
+                Collections.singleton(new SimpleGrantedAuthority("USER"))
+        );
+
+        TokenDto tokenDto = tokenProvider.reIssueToken(staleUserAuthentication, "legacy-refresh-token");
+        Claims accessClaims = parseClaims(tokenDto.getToken());
+
+        assertThat(tokenDto.getUserType()).isEqualTo("ADMIN");
+        assertThat(accessClaims.get("auth", String.class)).isEqualTo("ADMIN");
+        assertThat(accessClaims.get("userType", String.class)).isEqualTo("ADMIN");
     }
 
     // ===== helpers =====

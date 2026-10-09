@@ -102,9 +102,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
-| 404 | `PREDICTION_001` | 해당 시간대의 관측 데이터가 없습니다. | `observed_at` ±5분 이내 관측 기록 없음. |
 | 503 | `PREDICTION_002` | 예측 서버가 응답하지 않습니다. | 예측 서버 헬스체크 실패. |
-| 502 | `PREDICTION_003` | 예측 서버 호출에 실패했습니다. | 헬스체크 통과 후 실제 요청 중 `RestClientException`. |
+| 502 | `PREDICTION_003` | 예측 서버 호출에 실패했습니다. | 헬스체크 통과 후 실제 요청 중 `RestClientException` (예측 서버가 모르는 식당이나 요청을 거부한 경우 포함). |
 
 ## 4. API별 실패 코드 매핑
 
@@ -114,7 +113,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 |---|---|---|---|
 | GET | `/api/connection/{restaurant}` | `ConnectionResponseDto` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/connection/cache` | `null` | `COMMON_001` |
-| GET | `/api/connection/prediction?restaurant=&observed_at=` | `PredictionResponseDto` | `COMMON_002` / `PREDICTION_001` / `PREDICTION_002` / `PREDICTION_003` |
+| GET | `/api/connection/prediction?restaurant=&observed_at=` | `PredictionResponseDto` | `COMMON_002` / `PREDICTION_002` / `PREDICTION_003` |
 | POST | `/api/connection/local?AUTH_KEY=&restaurant=` | `ConnectionVO` | `AUTH_001` / `COMMON_002` / `COMMON_001` |
 
 ### Menu

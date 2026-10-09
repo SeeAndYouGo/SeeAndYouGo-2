@@ -23,7 +23,7 @@ const KakaoCallBack = () => {
 
 		const fetchData = async () => {
 			try {
-				const { token, refreshToken, message } = await getWithToken(
+				const { token, refreshToken, message, userType } = await getWithToken(
 					`/oauth/kakao?code=${code}`
 				);
 
@@ -41,6 +41,7 @@ const KakaoCallBack = () => {
 						nickname: "",
 						loginState: true,
 						selectedRestaurant: restaurantId,
+						userType: userType,
 					}),
 				);
 

@@ -31,7 +31,6 @@ public enum ErrorCode {
     KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "KEYWORD_001", "키워드를 찾을 수 없습니다."),
 
     // Prediction
-    PREDICTION_NO_OBSERVATION(HttpStatus.NOT_FOUND, "PREDICTION_001", "해당 시간대의 관측 데이터가 없습니다."),
     PREDICTION_SERVER_DOWN(HttpStatus.SERVICE_UNAVAILABLE, "PREDICTION_002", "예측 서버가 응답하지 않습니다."),
     PREDICTION_FAILED(HttpStatus.BAD_GATEWAY, "PREDICTION_003", "예측 서버 호출에 실패했습니다.");
 
