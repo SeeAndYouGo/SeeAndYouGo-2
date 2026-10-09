@@ -24,8 +24,6 @@ import static org.mockito.Mockito.verify;
 @DisplayName("신고 리뷰 삭제 - ReviewService.deleteReportedReview")
 class ReviewReportDeleteTest {
 
-    private static final String NOT_FOUND_MESSAGE = "삭제하려는 신고 리뷰를 찾을 수 없습니다.";
-
     @Mock private RateService rateService;
     @Mock private MenuService menuService;
     @Mock private ReviewRepository reviewRepository;
@@ -40,7 +38,7 @@ class ReviewReportDeleteTest {
     @DisplayName("존재하는 리뷰는 삭제된다")
     void deletesExistingReview() {
         Review review = mock(Review.class);
-        given(reviewReader.getById(1L, NOT_FOUND_MESSAGE)).willReturn(review);
+        given(reviewReader.getById(1L)).willReturn(review);
 
         reviewService.deleteReportedReview(1L);
 
@@ -50,8 +48,8 @@ class ReviewReportDeleteTest {
     @Test
     @DisplayName("없는 리뷰면 REVIEW_001 예외가 나고 삭제하지 않는다")
     void throwsReviewNotFoundWhenMissing() {
-        given(reviewReader.getById(99L, NOT_FOUND_MESSAGE))
-                .willThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND, "id=99", NOT_FOUND_MESSAGE));
+        given(reviewReader.getById(99L))
+                .willThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND, "id=99"));
 
         assertThatThrownBy(() -> reviewService.deleteReportedReview(99L))
                 .isInstanceOf(EntityNotFoundException.class)

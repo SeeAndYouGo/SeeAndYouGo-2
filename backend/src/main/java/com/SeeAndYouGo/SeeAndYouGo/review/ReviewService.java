@@ -191,7 +191,7 @@ public class ReviewService {
 
     @Transactional
     public void deleteReportedReview(Long reviewId) {
-        Review review = reviewReader.getById(reviewId, "삭제하려는 신고 리뷰를 찾을 수 없습니다.");
+        Review review = reviewReader.getById(reviewId);
         reviewRepository.delete(review);
     }
 

@@ -94,7 +94,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
 | 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `PUT /api/report/{reviewId}` |
 | 404 | `REVIEW_001` | 삭제하려는 리뷰를 찾을 수 없습니다. | `DELETE /api/reviews/{reviewId}` |
-| 404 | `REVIEW_001` | 삭제하려는 신고 리뷰를 찾을 수 없습니다. | `DELETE /api/review/report/{reviewId}` |
+| 404 | `REVIEW_001` | 리뷰를 찾을 수 없습니다. (기본값) | `DELETE /api/review/report/{reviewId}` |
 | 403 | `REVIEW_002` | 본인이 작성한 리뷰만 삭제할 수 있습니다. | `DELETE /api/reviews/{reviewId}` — 요청자와 작성자가 다름. |
 | 404 | `KEYWORD_001` | 삭제하려는 키워드를 찾을 수 없습니다. | `DELETE /api/keyword` |
 
