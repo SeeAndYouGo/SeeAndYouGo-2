@@ -190,15 +190,9 @@ public class ReviewService {
     }
 
     @Transactional
-    public boolean deleteReportedReview(Long reviewId) {
-        try{
-            reviewRepository.deleteById(reviewId);
-        }catch (Exception e){
-            log.error("Failed to delete reported review with id: {}", reviewId, e);
-            return false;
-        }
-
-        return true;
+    public void deleteReportedReview(Long reviewId) {
+        Review review = reviewReader.getById(reviewId, "삭제하려는 신고 리뷰를 찾을 수 없습니다.");
+        reviewRepository.delete(review);
     }
 
     public BufferedImage resize(File file) throws Exception {

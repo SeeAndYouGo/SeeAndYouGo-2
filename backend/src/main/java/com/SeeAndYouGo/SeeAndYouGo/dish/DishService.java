@@ -8,7 +8,6 @@ import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
@@ -85,16 +83,12 @@ public class DishService {
     }
 
     @Transactional
-    public boolean deleteDish(Long id) {
-        try{
-            menuDishRepository.deleteByDishId(id);
-            dishRepository.deleteById(id);
-        }catch (Exception e){
-            log.error("Failed to delete dish with id: {}", id, e);
-            return false;
-        }
+    public void deleteDish(Long id) {
+        Dish dish = dishRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 메뉴를 찾을 수 없습니다."));
 
-        return true;
+        menuDishRepository.deleteByDishId(id);
+        dishRepository.delete(dish);
     }
 
     @Transactional

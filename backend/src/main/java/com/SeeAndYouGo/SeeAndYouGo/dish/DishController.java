@@ -3,8 +3,6 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
-import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +50,7 @@ public class DishController {
                               @Parameter(hidden = true) @AuthenticationPrincipal String email){
         adminAuthorizationService.assertAdmin(email);
 
-        boolean deleted = dishService.deleteDish(id);
-        if(!deleted){
-            throw new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 메뉴를 찾을 수 없습니다.");
-        }
+        dishService.deleteDish(id);
         return true;
     }
 

@@ -205,11 +205,8 @@ public class ReviewController {
 
     @DeleteMapping("/review/report/{reviewId}")
     public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
-        boolean result = reviewService.deleteReportedReview(reviewId);
-        if(!result){
-            throw new ApiException(ErrorCode.REVIEW_NOT_FOUND, "삭제하려는 신고 리뷰를 찾을 수 없습니다.");
-        }
+        reviewService.deleteReportedReview(reviewId);
 
-        return new ReviewDeleteResponseDto(result);
+        return new ReviewDeleteResponseDto(true);
     }
 }
