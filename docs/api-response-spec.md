@@ -76,7 +76,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
-| 401 | `AUTH_001` | 인증 정보가 올바르지 않습니다. | ① 로그인 필요 API에 자격 증명 없이(또는 만료된 access token으로) 접근 ② `GET /api/oauth/token/reissue`에서 refresh token 자체가 만료 |
+| 401 | `AUTH_001` | 인증 정보가 올바르지 않습니다. | ① 로그인 필요 API에 자격 증명 없이(또는 만료된 access token으로) 접근 ② `GET /api/oauth/token/reissue`에서 refresh token 자체가 만료. 공개 조회 API(GET)는 만료된 access token이 붙어 와도 비로그인으로 처리한다. |
 | 403 | `AUTH_002` | 접근 권한이 없습니다. | 인증은 되었으나 해당 리소스에 대한 권한이 없는 경우 (`AccessDeniedException`). |
 | 401 | `AUTH_003` | 유효하지 않은 토큰입니다. | ① `@ValidateToken` AOP 검증 실패 ② `GET /api/oauth/token/reissue`에서 refresh token JWT 서명 위조 ③ `GET /api/oauth/token/reissue`에서 refresh token 값이 서버 저장값과 불일치(탈취/변조 의심) |
 
