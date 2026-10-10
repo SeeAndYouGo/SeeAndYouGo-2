@@ -13,8 +13,12 @@ public class ReviewReader {
     private final ReviewRepository reviewRepository;
 
     public Review getById(Long id) {
+        return getById(id, null);
+    }
+
+    public Review getById(Long id, String userMessage) {
         return reviewRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND, "id=" + id));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND, "id=" + id, userMessage));
     }
 
     public Optional<Review> findById(Long id) {

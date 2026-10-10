@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slice/UserSlice";
 import { showToast } from '../redux/slice/ToastSlice';
 import { useCookies } from 'react-cookie';
-import { get } from '../api';
+import { getWithToken } from '../api';
 
 const Background = styled.div`
   width: 100%;
@@ -140,20 +140,24 @@ const SideBar = ({isOpen, setIsOpen}) => {
       toggleMenu()  
     }else {
       e.preventDefault();
-      dispatch(showToast({ contents: "login", toastIndex: 0 }));
+      dispatch(showToast({
+        code: "LOGIN_REQUIRED",
+        message: "로그인이 필요한 서비스입니다.",
+      }));
     }
   };
 
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
-        const response = await get(`/visitors/count`);
-        setVisitTodayData(response.data.visitToday);
-        setVisitTotalData(response.data.visitTotal);
+        const { visitToday, visitTotal } = await getWithToken('/visitors/count');
+
+        setVisitTodayData(visitToday);
+        setVisitTotalData(visitTotal);
       } catch (error) {
-        console.error("Error fetching JSON:", error);
+				console.log(error);
       }
-    }
+    };
     fetchVisitData();
   },[]);
 
@@ -198,10 +202,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       removeCookie('refreshToken', { path: '/' });
                       dispatch(logout());
                       navigator("/");
-                      dispatch(showToast({ contents: "login", toastIndex: 4 }));
+                      dispatch(showToast({
+                        code: "LOGOUT",
+                        message: "로그아웃 되었습니다.",
+                      }));
                       setTimeout(() => {
                         window.location.reload();
-                      }, 1000);
+                      }, 2000);
                       toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>

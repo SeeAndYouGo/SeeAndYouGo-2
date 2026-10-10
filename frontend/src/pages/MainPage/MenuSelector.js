@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { Cascader } from "rsuite";
-import { get } from "../../api/index";
+import { getWithToken } from "../../api/index";
 
 const MenuSelectorContainer = styled.div`
 	width: 100%;
@@ -19,19 +19,23 @@ const MenuSelector = ({ onSelectMenu }) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await get("/restaurant1-menu");
-			const result = response.data;
-			const formatted = result.map((dept) => ({
-				label: dept.deptKo,
-				value: dept.deptEn,
-				children: dept.menus.map((menu) => ({
-					label: menu.name,
-					value: menu.name,
-					price: menu.price,
-				})),
-			}));
+			try {
+				const result = await getWithToken("/restaurant1-menu");
 
-			setMenuData(formatted);
+				const formatted = result.map((dept) => ({
+					label: dept.deptKo,
+					value: dept.deptEn,
+					children: dept.menus.map((menu) => ({
+						label: menu.name,
+						value: menu.name,
+						price: menu.price,
+					})),
+				}));
+
+				setMenuData(formatted);
+			} catch (error) {
+				console.log(error);
+			}
 		};
 
 		fetchData();
@@ -55,9 +59,9 @@ const MenuSelector = ({ onSelectMenu }) => {
 				style={{ width: "100%", marginTop: 5 }}
 				placeholder="메뉴를 선택해주세요"
 				data={menuData}
+				menuWidth={150}
 				onClean={() => onSelectMenu({})}
 				onChange={handleMenuClick}
-				menuWidth={150}
 			/>
 		</MenuSelectorContainer>
 	);

@@ -44,8 +44,7 @@ const SetDishNamePage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			const response = await getWithToken("/dish/week");
-			const result = response.data;
-			return result;
+			return response;
 		};
 		fetchData()
 			.then((data) => {

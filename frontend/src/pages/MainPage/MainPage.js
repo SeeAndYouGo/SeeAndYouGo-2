@@ -10,9 +10,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { changeMenuType } from "../../redux/slice/MenuTypeSlice";
 import { changeDept } from "../../redux/slice/DeptSlice";
 import { setSelectedRestaurant } from "../../redux/slice/UserSlice";
-import MenuInfoForRestaurant1 from "../RestaurantDetailPage/MenuInfoForRestaurant1";
+import MenuInfoForRestaurant1 from "./MenuInfoForRestaurant1";
 import Loading from "../../components/Loading";
-import { get, getWithToken } from "../../api/index";
+import { getWithToken } from "../../api/index";
 import LoginModal from "../../components/LoginModal";
 
 const MainPage = () => {
@@ -51,12 +51,12 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await get(`/connection/restaurant${i + 1}`);
-				results.push(response.data);
+				const response = await getWithToken(`/connection/restaurant${i + 1}`);
+				results.push(response);
 			}
 			setRestaurantData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -64,20 +64,20 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await get(`/daily-menu/restaurant${i + 1}`);
+				const response = await getWithToken(`/daily-menu/restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
-					for (let j = 0; j < response.data.length; j++) {
-						tempObject[response.data[j].mainDishList[0]] = response.data[j].menuId;
+					for (let j = 0; j < response.length; j++) {
+						tempObject[response[j].mainDishList[0]] = response[j].menuId;
 					}
 					results.push(tempObject);
 				} else {
-					results.push(response.data);
+					results.push(response);
 				}
 			}
 			setMenuData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -86,11 +86,11 @@ const MainPage = () => {
 		try {
 			for (let i = 0; i < 6; i++) {
 				const response = await getWithToken(`/review/restaurant${i + 1}`);
-				results.push(response.data);
+				results.push(response);
 			}
 			setTopReviewData(results);
 		} catch (error) {
-			console.error("Error fetching JSON:", error);
+			console.log(error);
 		}
 	};
 
@@ -103,7 +103,7 @@ const MainPage = () => {
 					fetchTopReviewData()
 				])
 			} catch (error) {
-				console.error("Error fetching JSON:", error);
+				console.log(error);
 			} finally {
 				setLoading(false);
 			}

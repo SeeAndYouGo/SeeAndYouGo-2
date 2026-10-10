@@ -1,74 +1,81 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from 'react-cookie';
-import { get, getWithToken } from "../../api";
-import { showToast } from "../../redux/slice/ToastSlice";
 import { login, setNickname } from "../../redux/slice/UserSlice";
+import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
+import { useCookies } from "react-cookie";
+import { getWithToken } from "../../api";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
-	const [cookies, setCookie, removeCookie] = useCookies(['refreshToken']);
+	const [cookies, setCookie, removeCookie] = useCookies(["refreshToken"]);
 	const navigator = useNavigate();
-	const params = new URL(document.location.toString()).searchParams;
-	const code = params.get("code");
 	const dispatch = useDispatch();
+
 	const restaurantId = useSelector((state) => state.user).value
 		.selectedRestaurant;
 
+	const code = new URL(document.location.toString()).searchParams.get("code");
+
 	useEffect(() => {
-		const getJWTToken = async (authorizationCode) => {
-			const response = await get(`/oauth/kakao?code=${authorizationCode}`);
-
-			const nowToken = response.data.token;
-			const refreshToken = response.data.refreshToken;
-			const message = response.data.message;
-			const userType = response.data.userType;
-
-			return { nowToken, refreshToken, message, userType };
-		};
+		if (!code) return;
 
 		const fetchData = async () => {
 			try {
-				const { nowToken, refreshToken, message, userType } = await getJWTToken(code);
+				const { token, refreshToken, message, userType } = await getWithToken(
+					`/oauth/kakao?code=${code}`
+				);
 
 				// refresh token을 쿠키에 저장
-				setCookie('refreshToken', refreshToken, {
-					path: '/',
+				setCookie("refreshToken", refreshToken, {
+					path: "/",
 					maxAge: 14 * 24 * 60 * 60, // 14일
 					secure: true,
-					sameSite: 'strict'
+					sameSite: "strict",
 				});
-				
+
 				dispatch(
-					login({ token: nowToken, nickname: "", loginState: true, selectedRestaurant: restaurantId, userType: userType })
+					login({
+						token,
+						nickname: "",
+						loginState: true,
+						selectedRestaurant: restaurantId,
+						userType: userType,
+					}),
 				);
 
 				if (message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
-					dispatch(showToast({ contents: "login", toastIndex: 1 }));
+					dispatch(showToast({
+						code: "SIGNUP_SUCCESS",
+						message: "회원가입을 축하합니다!\n 닉네임을 설정해주세요.",
+					}));
 					navigator("/set-nickname");
-				} else { // 이미 등록된 회원인 경우 닉네임 가져오기
-					const res = await getWithToken('/user/nickname')
-					dispatch(setNickname(res.data.nickname));
-					dispatch(showToast({ contents: "login", toastIndex: 2 }));
-					navigator("/");
-				}
-			} catch (err) {
-				console.log(err);
-				dispatch(showToast({ contents: "login", toastIndex: 3 }));
+					return;
+				} 
+
+				// 이미 등록된 회원인 경우 닉네임 가져오기
+				const { nickname } = await getWithToken("/user/nickname");
+				dispatch(setNickname(nickname));
+				dispatch(showToast({
+					code: "LOGIN_SUCCESS",
+					message: "로그인에 성공했습니다.",
+				}));
+				navigator("/");
+			} catch (error) {
+				console.log(error);
+				dispatch(showToast({
+					code: "LOGIN_FAIL",
+					message: "로그인에 실패했습니다.",
+				}));
 				navigator("/login-page");
 			}
 		};
 
-		if (code) {
-			fetchData();
-		}
-	}, [code, dispatch, navigator]);
+		fetchData();
+	}, [code, dispatch, navigator, restaurantId, setCookie]);
 
-	return (
-		<Loading />
-	);
+	return <Loading />;
 };
 
 export default KakaoCallBack;

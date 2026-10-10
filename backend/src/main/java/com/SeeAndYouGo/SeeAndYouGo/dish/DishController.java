@@ -49,7 +49,8 @@ public class DishController {
     public boolean dishDelete(@PathVariable Long id,
                               @Parameter(hidden = true) @AuthenticationPrincipal String email){
         adminAuthorizationService.assertAdmin(email);
-        return dishService.deleteDish(id);
+        dishService.deleteDish(id);
+        return true;
     }
 
     @PutMapping("/dish/name")

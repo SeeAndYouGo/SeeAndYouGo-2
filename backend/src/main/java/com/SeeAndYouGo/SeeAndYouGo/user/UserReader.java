@@ -13,8 +13,12 @@ public class UserReader {
     private final UserRepository userRepository;
 
     public User getByEmail(String email) {
+        return getByEmail(email, null);
+    }
+
+    public User getByEmail(String email, String userMessage) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "email=" + email));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "email=" + email, userMessage));
     }
 
     public User getById(Long id) {

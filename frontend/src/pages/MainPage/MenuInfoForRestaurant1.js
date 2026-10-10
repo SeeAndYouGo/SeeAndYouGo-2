@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { changeMenuInfo } from "../../redux/slice/NowMenuSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { get } from "../../api";
+import { getWithToken } from "../../api";
 
 const Restaurant1MenuList = [
 	{
@@ -88,9 +88,9 @@ const MenuInfoForRestaurant1 = () => {
 	};
 
 	useEffect(() => {
-		get(`/restaurant/1/rate/detail`)
+		getWithToken("/restaurant/1/rate/detail")
 		.then((res) => {
-			res.data.map((val, idx) => Restaurant1MenuList[idx].menuList = val.avgRateByMenu);
+			res.map((val, idx) => Restaurant1MenuList[idx].menuList = val.avgRateByMenu);
 			setMenuArray(Restaurant1MenuList);
 		}).catch((err) => {
 			console.log(err);
@@ -98,9 +98,9 @@ const MenuInfoForRestaurant1 = () => {
 	} ,[]);
 
 	useEffect(() => {
-		get(`/daily-menu/restaurant1`)
+		getWithToken("/daily-menu/restaurant1")
 		.then((res) => {
-			if (res.data.length === 0) {
+			if (res.length === 0) {
 				dispatch(changeMenuInfo({mainMenuList: [], menuId: 0, menuIsOpen: false}));
 				console.log("1학 메뉴 정보가 없습니다...")
 			} else { // 1학 데이터를 백엔드로부터 받은 경우

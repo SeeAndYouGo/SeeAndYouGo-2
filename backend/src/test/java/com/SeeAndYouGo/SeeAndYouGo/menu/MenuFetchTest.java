@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.menu;
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.menu.mainCache.NewDishCacheService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.verify;
  *  [일별]
  *  - getOneDayRestaurantMenu: 식당명+날짜 → menuRepository 조회 후 메인 디시가 가장 앞에 오도록 정렬.
  *  - 식당 번호("2") 같은 축약 입력도 Restaurant.parseName 으로 정상 처리.
- *  - 잘못된 식당명은 IllegalArgumentException.
+ *  - 잘못된 식당명은 ApiException.
  *
  *  [주간]
  *  - getOneWeekRestaurantMenu: 입력 일자가 속한 주의 월~일 7일치를 인덱스 [0..6] 배열로 반환.
@@ -107,10 +108,10 @@ class MenuFetchTest {
     }
 
     @Test
-    @DisplayName("일별: 존재하지 않는 식당명은 IllegalArgumentException 으로 거부된다")
+    @DisplayName("일별: 존재하지 않는 식당명은 ApiException 으로 거부된다")
     void daily_invalidRestaurant() {
         assertThatThrownBy(() -> menuService.getOneDayRestaurantMenu("없는식당", "2025-11-03"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(ApiException.class);
     }
 
     // ===== 주간 메뉴 =====

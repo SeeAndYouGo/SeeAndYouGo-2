@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { showToast } from "../../redux/slice/ToastSlice";
 import { deleteWithToken } from "../../api";
@@ -132,26 +132,26 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 		comment,
 		imgLink,
 	} = review;
-	const nowToken = useSelector((state) => state.user.value.token);
 	const dispatch = useDispatch();
 
 	const removeReview = () => {
 		if (window.confirm("이 리뷰를 삭제하시겠습니까?") === true) {
 			deleteWithToken(`/reviews/${reviewId}`)
 				.then((res) => {
-					console.log(res, '리뷰 삭제 확인');
-					if (res.data.success === true) { // 리뷰 삭제 성공
-						dispatch(showToast({ contents: "review", toastIndex: 3 }));
+					if (res.success === true) { // 리뷰 삭제 성공
 						const updatedReviewArr = beforeReviewList.filter(
 							(item) => item.reviewId !== reviewId
 						);
 						setReviewList(updatedReviewArr);
 					} else { // 리뷰 삭제 권한이 없어 삭제 불가
-						dispatch(showToast({ contents: "review", toastIndex: 2 }));
+						dispatch(showToast({
+							code: "REVIEW_DELETE_FORBIDDEN",
+							message: "리뷰 삭제 권한이 없습니다.",
+						}));
 					}
 				})
-				.catch(() => { // 리뷰 삭제 실패
-					dispatch(showToast({ contents: "review", toastIndex: 4 }));
+				.catch((error) => {
+					console.log(error);
 				});
 		} else {
 			return;

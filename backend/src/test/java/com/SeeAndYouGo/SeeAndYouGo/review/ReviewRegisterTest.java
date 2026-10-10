@@ -2,6 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishType;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuRepository;
@@ -209,7 +210,7 @@ class ReviewRegisterTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 식당명이 들어오면 IllegalArgumentException 으로 거부되고, 저장이 일어나지 않는다")
+    @DisplayName("존재하지 않는 식당명이 들어오면 ApiException 으로 거부되고, 저장이 일어나지 않는다")
     void registerReview_invalidRestaurant_rejected() {
         // given
         ReviewData data = ReviewData.builder()
@@ -226,7 +227,7 @@ class ReviewRegisterTest {
 
         // expect
         assertThatThrownBy(() -> reviewService.registerReview(data))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(ApiException.class);
 
         verify(reviewRepository, never()).save(any());
         verify(rateService, never()).updateRateByRestaurant(any(), any(), any());

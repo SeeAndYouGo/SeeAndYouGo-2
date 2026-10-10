@@ -1,12 +1,11 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
-import { showToast } from "../../redux/slice/ToastSlice";
+import { useSelector } from "react-redux";
 import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
-import MenuSelector from "../RestaurantDetailPage/MenuSelector";
+import MenuSelector from "./MenuSelector";
 import ImageCropper from "./ImageCropper";
 import { postWithToken } from "../../api";
 import ReviewLimitation from "../../components/ReviewLimitation";
@@ -192,8 +191,6 @@ const ReviewWrite = ({
 	const [imageURL, setImageURL] = useState("");
 	const [prevImage, setPrevImage] = useState(null);
 	const imageRef = useRef(null);
-	const dispatch = useDispatch();
-
 	const token = useSelector((state) => state.user.value.token);
 	const nowMainMenuList = useSelector((state) => state.nowMenuInfo.value).mainMenuList;
 	const nowMenuId = useSelector((state) => state.nowMenuInfo.value).menuId;
@@ -294,8 +291,6 @@ const ReviewWrite = ({
 				// 100%까지 찬 상태를 잠깐 보여주고 완료
 				await new Promise(resolve => setTimeout(resolve, 300));
 
-				dispatch(showToast({ contents: "review", toastIndex: 0 }));
-				
 				// 폼 초기화
 				setStarVal(0);
 				setAnonymous(false);
@@ -311,8 +306,7 @@ const ReviewWrite = ({
 				}
 			})
 		} catch (error) {
-			dispatch(showToast({ contents: "review", toastIndex: 1 }));
-			console.log(dto, "리뷰 전달 확인");
+			console.log(error);
 		} finally {
 			setButtonDisabled(false);
 			setIsLoading(false);

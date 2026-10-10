@@ -150,10 +150,13 @@ const ReviewItem = ({
     
     try {
       const res = await postWithToken(`/review/like/${reviewId}`);
-      const { like: isLike, mine: isMine } = res.data;
+      const { like: isLike, mine: isMine } = res;
       
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
-          dispatch(showToast({ contents: "review", toastIndex: 9 }));
+          dispatch(showToast({
+            code: "REVIEW_LIKE_OWN",
+            message: "내가 쓴 리뷰는 공감할 수 없습니다.",
+          }));
           setLikeLoading(false);
           return;
       }
@@ -161,20 +164,21 @@ const ReviewItem = ({
       if (isLike === true) { // 공감 했을 때
           setLikeState(true);
           setLikeCountState(likeCountState + 1);
-          dispatch(showToast({ contents: "review", toastIndex: 7 }));
       } else { // 공감 취소 했을 때
           setLikeState(false);
           setLikeCountState(likeCountState - 1);
-          dispatch(showToast({ contents: "review", toastIndex: 8 }));
+          dispatch(showToast({
+            code: "REVIEW_UNLIKE",
+            message: "리뷰 공감을 해제했습니다.",
+          }));
       }
       
       updateWholeReviewList(targetId, isLike);
     } catch (error) {
-        console.error(error);
-        dispatch(showToast({ contents: "error", toastIndex: 0 }));
+      console.log(error);
     } finally {
-        setLikeLoading(false);
-        setButtonDisabled(false);
+      setLikeLoading(false);
+      setButtonDisabled(false);
     }
   };
 
