@@ -37,18 +37,13 @@ const PageWrapper = styled.div`
 `;
 
 const App = () => {
-  const toast = useSelector((state) => state.toast.value);
-	const toastIndex = toast.toastIndex;
-	const contents = toast.contents;
-	const message = toast.message;
+  const toastQueue = useSelector((state) => state.toast.value.queue);
 
   RouteChangeTracker();
 
   return (
 		<>
-			{ toastIndex !== null && (
-				<Toast contentsName={contents} toastIndex={toastIndex} message={message} />
-			) }
+			<Toast queue={toastQueue} />
 			<HeaderWrapper>
 				<Header />
 			</HeaderWrapper>

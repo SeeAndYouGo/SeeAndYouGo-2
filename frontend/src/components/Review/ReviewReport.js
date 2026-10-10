@@ -1,7 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { useDispatch } from "react-redux";
-import { showToast } from "../../redux/slice/ToastSlice";
 import { putWithToken, deleteWithToken } from "../../api";
 
 const ReportButton = styled.span`
@@ -13,8 +11,6 @@ const ReportButton = styled.span`
 `;
 
 const ReviewReport = ({ reportTarget }) => {
-	const dispatch = useDispatch();
-
 	const handleSubmit = async () => {
 		try {
       const { reportCount } = await putWithToken(`/report/${reportTarget}`);
@@ -24,17 +20,10 @@ const ReviewReport = ({ reportTarget }) => {
 
         if (!success) throw new Error("Failed to delete review after 10 reports");
 
-        dispatch(showToast({ contents: "review", toastIndex: 10 }));
-
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 2000);
 
-        return;
-      }
-
-      if (reportCount > 0) {
-        dispatch(showToast({ contents: "review", toastIndex: 5 }));
         return;
       }
     } catch (error) {

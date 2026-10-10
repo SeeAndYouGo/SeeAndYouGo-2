@@ -139,13 +139,15 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 			deleteWithToken(`/reviews/${reviewId}`)
 				.then((res) => {
 					if (res.success === true) { // 리뷰 삭제 성공
-						dispatch(showToast({ contents: "review", toastIndex: 3 }));
 						const updatedReviewArr = beforeReviewList.filter(
 							(item) => item.reviewId !== reviewId
 						);
 						setReviewList(updatedReviewArr);
 					} else { // 리뷰 삭제 권한이 없어 삭제 불가
-						dispatch(showToast({ contents: "review", toastIndex: 2 }));
+						dispatch(showToast({
+							code: "REVIEW_DELETE_FORBIDDEN",
+							message: "리뷰 삭제 권한이 없습니다.",
+						}));
 					}
 				})
 				.catch((error) => {

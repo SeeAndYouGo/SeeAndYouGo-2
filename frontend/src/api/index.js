@@ -15,13 +15,22 @@ const axiosClient = axios.create({
 	},
 });
 
-const unwrapApiResponse = (response) => {
+const unwrapApiResponse = (response, { toastOnSuccess = false } = {}) => {
   const { code, message, data } = response.data;
 
   if (code !== 'SUCCESS') {
     const error = new Error(message);
     error.code = code;
     throw error;
+  }
+
+  if (toastOnSuccess && message) {
+    store.dispatch(
+      showToast({
+        code,
+        message,
+      })
+    );
   }
 
   return data;
@@ -44,22 +53,21 @@ const getNewAccessToken = async (refreshToken) => {
 };
 
 const forceLogout = (options = {}) => {
-  const { message } = options;
+  const { message, code } = options;
   const cookies = new Cookies();
 
   store.dispatch(logout());
   store.dispatch(
     showToast({
-      contents: message ? "error" : "login",
-      toastIndex: message ? 0 : 5,
-      message: message || null,
+      code: message ? (code || "ERROR_GENERIC") : "LOGIN_EXPIRED",
+      message: message || "로그인이 만료되었습니다.\n 재로그인이 필요합니다.",
     })
   );
   cookies.remove('refreshToken', { path: '/' });
 
   setTimeout(() => {
     window.location.reload();
-  }, 1000);
+  }, 2000);
 };
 
 const getResponseData = (error) => {
@@ -88,11 +96,10 @@ export const getErrorMessage = (error) => {
 	return undefined;
 };
 
-const showErrorToast = (message) => {
+const showErrorToast = (message, code) => {
 	store.dispatch(
 		showToast({
-			contents: "error",
-			toastIndex: 0,
+			code: code || "API_ERROR",
 			message: message || "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
 		})
 	);
@@ -130,7 +137,9 @@ const reissueAccessTokenAndRetry = async (method, url, data, config, refreshToke
 			},
 		};
 
-		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
+		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig), {
+			toastOnSuccess: method !== "get",
+		});
 	} catch (retryError) {
 		const retryCode = getErrorCode(retryError);
 		if (retryCode === "AUTH_001" || retryCode === "AUTH_003") {
@@ -163,7 +172,9 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 			headers,
 		}
 
-		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig));
+		return unwrapApiResponse(await sendRequest(method, url, data, axiosConfig), {
+			toastOnSuccess: method !== "get",
+		});
 
 	} catch (error) {
 		console.error("요청 실패:", error);
@@ -177,9 +188,9 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 
 		// 세션을 유지할 수 없는 경우만 로그아웃 (일반 비즈니스 에러는 toast만)
 		if (code === "AUTH_001" || code === "AUTH_003" || code === "USER_001") {
-			forceLogout({ message });
+			forceLogout({ message, code });
 		} else {
-			showErrorToast(message);
+			showErrorToast(message, code);
 		}
 
 		throw error;

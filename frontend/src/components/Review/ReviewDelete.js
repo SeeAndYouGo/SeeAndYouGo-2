@@ -21,11 +21,12 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 			const { success } = await deleteWithToken(`/reviews/${deleteTarget}`);
 
 			if (!success) {
-				dispatch(showToast({ contents: "review", toastIndex: 2 }));
+				dispatch(showToast({
+					code: "REVIEW_DELETE_FORBIDDEN",
+					message: "리뷰 삭제 권한이 없습니다.",
+				}));
 				return;
 			}
-
-			dispatch(showToast({ contents: "review", toastIndex: 3 }));
 
 			if (onDeleteSuccess) {
 				onDeleteSuccess();
@@ -34,7 +35,7 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 
 			setTimeout(() => {
 				window.location.reload();
-			}, 1000);
+			}, 2000);
 
 		} catch (error) {
 			console.log(error);

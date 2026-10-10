@@ -140,7 +140,10 @@ const SideBar = ({isOpen, setIsOpen}) => {
       toggleMenu()  
     }else {
       e.preventDefault();
-      dispatch(showToast({ contents: "login", toastIndex: 0 }));
+      dispatch(showToast({
+        code: "LOGIN_REQUIRED",
+        message: "로그인이 필요한 서비스입니다.",
+      }));
     }
   };
 
@@ -199,10 +202,13 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       removeCookie('refreshToken', { path: '/' });
                       dispatch(logout());
                       navigator("/");
-                      dispatch(showToast({ contents: "login", toastIndex: 4 }));
+                      dispatch(showToast({
+                        code: "LOGOUT",
+                        message: "로그아웃 되었습니다.",
+                      }));
                       setTimeout(() => {
                         window.location.reload();
-                      }, 1000);
+                      }, 2000);
                       toggleMenu();
                     }}>로그아웃</LogoutBtn>
                   </AccountWrap>

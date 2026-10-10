@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
-import { showToast } from "../../redux/slice/ToastSlice";
+import { useSelector } from "react-redux";
 import moment from "moment";
 import StarsRating from "react-star-rate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -192,8 +191,6 @@ const ReviewWrite = ({
 	const [imageURL, setImageURL] = useState("");
 	const [prevImage, setPrevImage] = useState(null);
 	const imageRef = useRef(null);
-	const dispatch = useDispatch();
-
 	const token = useSelector((state) => state.user.value.token);
 	const nowMainMenuList = useSelector((state) => state.nowMenuInfo.value).mainMenuList;
 	const nowMenuId = useSelector((state) => state.nowMenuInfo.value).menuId;
@@ -294,8 +291,6 @@ const ReviewWrite = ({
 				// 100%까지 찬 상태를 잠깐 보여주고 완료
 				await new Promise(resolve => setTimeout(resolve, 300));
 
-				dispatch(showToast({ contents: "review", toastIndex: 0 }));
-				
 				// 폼 초기화
 				setStarVal(0);
 				setAnonymous(false);

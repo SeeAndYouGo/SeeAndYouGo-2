@@ -46,7 +46,10 @@ const GoogleCallBack = () => {
 				);
 
 				if (message === "join") { // 회원가입인 경우 닉네임 설정 창으로 이동
-					dispatch(showToast({ contents: "login", toastIndex: 1 }));
+					dispatch(showToast({
+						code: "SIGNUP_SUCCESS",
+						message: "회원가입을 축하합니다!\n 닉네임을 설정해주세요.",
+					}));
 					navigator("/set-nickname");
 					return;
 				}
@@ -54,11 +57,17 @@ const GoogleCallBack = () => {
 				// 이미 등록된 회원인 경우 닉네임 가져오기
 				const { nickname } = await getWithToken("/user/nickname");
 				dispatch(setNickname(nickname));
-				dispatch(showToast({ contents: "login", toastIndex: 2 }));
+				dispatch(showToast({
+					code: "LOGIN_SUCCESS",
+					message: "로그인에 성공했습니다.",
+				}));
 				navigator("/");
 			} catch (error) {
 				console.log(error);
-				dispatch(showToast({ contents: "login", toastIndex: 3 }));
+				dispatch(showToast({
+					code: "LOGIN_FAIL",
+					message: "로그인에 실패했습니다.",
+				}));
 				navigator("/login-page");
 			}
 		};
