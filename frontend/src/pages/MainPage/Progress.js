@@ -23,7 +23,6 @@ const ProgressContainer = styled.div`
 
 const ProgressBar = styled.div`
   width: ${({ $value }) => $value}%;
-  background-color: #ff6b6b;
   height: 100%;
   border-radius: 5px;
   background-color: ${({ $value }) => {
@@ -36,21 +35,21 @@ const ProgressBar = styled.div`
 `;
 
 const ContentBlur = styled.div`
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
-	background-color: rgba(20, 20, 20, 0.25);
-	z-index: 6;
-	border-radius: 10px;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	font-size: 16px;
-	cursor: default;
-	backdrop-filter: blur(1.5px);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  background-color: rgba(20, 20, 20, 0.25);
+  z-index: 6;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 16px;
+  cursor: default;
+  backdrop-filter: blur(1.5px);
 `;
 
 const TooltipContent = styled.p`
@@ -68,7 +67,7 @@ const Text = [
   ''
 ];
 
-const Progress = ({ ratio = 0, time }) => {
+const Progress = ({ ratio = 0, time, restaurantId, capacity }) => {
   const nowTime = time?.split(" ")[1].split(":").slice(0, 2).join(":");
 
   return (
