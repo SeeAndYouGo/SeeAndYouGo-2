@@ -145,7 +145,7 @@ const MyReviewItem = ({ review, beforeReviewList, setReviewList }) => {
 						setReviewList(updatedReviewArr);
 					} else { // 리뷰 삭제 권한이 없어 삭제 불가
 						dispatch(showToast({
-							code: "REVIEW_DELETE_FORBIDDEN",
+							code: "",
 							message: "리뷰 삭제 권한이 없습니다.",
 						}));
 					}

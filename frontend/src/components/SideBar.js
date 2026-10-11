@@ -141,7 +141,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
     }else {
       e.preventDefault();
       dispatch(showToast({
-        code: "LOGIN_REQUIRED",
+        code: "",
         message: "로그인이 필요한 서비스입니다.",
       }));
     }
@@ -203,7 +203,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
                       dispatch(logout());
                       navigator("/");
                       dispatch(showToast({
-                        code: "LOGOUT",
+                        code: "",
                         message: "로그아웃 되었습니다.",
                       }));
                       setTimeout(() => {

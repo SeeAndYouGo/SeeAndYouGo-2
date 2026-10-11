@@ -59,7 +59,7 @@ const forceLogout = (options = {}) => {
   store.dispatch(logout());
   store.dispatch(
     showToast({
-      code: message ? (code || "ERROR_GENERIC") : "LOGIN_EXPIRED",
+      code: message ? (code || "") : "",
       message: message || "로그인이 만료되었습니다.\n 재로그인이 필요합니다.",
     })
   );
@@ -99,7 +99,7 @@ export const getErrorMessage = (error) => {
 const showErrorToast = (message, code) => {
 	store.dispatch(
 		showToast({
-			code: code || "API_ERROR",
+			code: code || "",
 			message: message || "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
 		})
 	);

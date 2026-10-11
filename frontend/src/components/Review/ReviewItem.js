@@ -154,7 +154,7 @@ const ReviewItem = ({
       
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가
           dispatch(showToast({
-            code: "REVIEW_LIKE_OWN",
+            code: "",
             message: "내가 쓴 리뷰는 공감할 수 없습니다.",
           }));
           setLikeLoading(false);
@@ -168,7 +168,7 @@ const ReviewItem = ({
           setLikeState(false);
           setLikeCountState(likeCountState - 1);
           dispatch(showToast({
-            code: "REVIEW_UNLIKE",
+            code: "",
             message: "리뷰 공감을 해제했습니다.",
           }));
       }

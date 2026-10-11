@@ -22,7 +22,7 @@ const ReviewDelete = ({ deleteTarget, targetRestaurant, wholeReviewList, setWhol
 
 			if (!success) {
 				dispatch(showToast({
-					code: "REVIEW_DELETE_FORBIDDEN",
+					code: "",
 					message: "리뷰 삭제 권한이 없습니다.",
 				}));
 				return;

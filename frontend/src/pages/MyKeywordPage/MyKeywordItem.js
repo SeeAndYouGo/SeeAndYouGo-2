@@ -52,10 +52,16 @@ const MyKeywordItem = ({ keyword, setKeywordList }) => {
 			// 키워드 삭제 성공
 			const result = await res.json();
 			setKeywordList(result.keywords);
-			dispatch(showToast({ contents: "keyword", toastIndex: 5 }));
+			dispatch(showToast({
+				code: "",
+				message: "키워드 삭제에 성공했습니다.",
+			}));
 		} else {
 			// 키워드 삭제 실패
-			dispatch(showToast({ contents: "keyword", toastIndex: 6 }));
+			dispatch(showToast({
+				code: "",
+				message: "키워드 삭제에 실패했습니다.",
+			}));
 		}
 	};
 

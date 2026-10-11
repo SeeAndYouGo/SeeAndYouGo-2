@@ -120,7 +120,7 @@ const SetNicknamePage = () => {
   const CheckNickname = async () => {
     if (nicknameValue.length < 2) { // 2자 이상 입력하지 않은 경우
       dispatch(showToast({
-        code: "NICKNAME_TOO_SHORT",
+        code: "",
         message: "닉네임은 2자 이상 입력해주세요",
       }));
       return;
@@ -131,7 +131,7 @@ const SetNicknamePage = () => {
 
       if (redundancy) { // 중복인 경우
         dispatch(showToast({
-          code: "NICKNAME_ALREADY_EXISTS",
+          code: "",
           message: "이미 존재하는 닉네임입니다.",
         }));
         setNicknameCheck(false);
@@ -139,7 +139,7 @@ const SetNicknamePage = () => {
       }
       
       dispatch(showToast({
-        code: "NICKNAME_AVAILABLE",
+        code: "",
         message: "사용 가능한 닉네임입니다.",
       }));
       setNicknameCheck(true);
@@ -166,7 +166,7 @@ const SetNicknamePage = () => {
         setNicknameDateCheck(false);
         setNicknameDate(date.toISOString().substring(0,10));
         dispatch(showToast({
-          code: "NICKNAME_SET_FAIL",
+          code: "",
           message: "닉네임 설정에 실패했습니다.",
         }));
         return;

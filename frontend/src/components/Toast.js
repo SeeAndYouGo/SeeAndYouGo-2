@@ -91,11 +91,9 @@ export const toastList = {
 };
 
 const getToastClass = (code) => {
+	if (!code) return "alert";
 	if (code === "SUCCESS") return "success";
-	if (code === "API_ERROR" || code === "ERROR_GENERIC" || /^[A-Z]+_\d+$/.test(code ?? "")) {
-		return "error";
-	}
-	return "alert";
+	return "error";
 };
 
 const ToastItem = ({ id, code, message }) => {
