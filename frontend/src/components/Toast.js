@@ -90,13 +90,7 @@ export const toastList = {
 	error: [["error", "에러가 발생했습니다."]],
 };
 
-const getToastClass = (code) => {
-	if (!code) return "alert";
-	if (code === "SUCCESS") return "success";
-	return "error";
-};
-
-const ToastItem = ({ id, code, message }) => {
+const ToastItem = ({ id, type, message }) => {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -109,7 +103,7 @@ const ToastItem = ({ id, code, message }) => {
 	}, [dispatch, id]);
 
 	return (
-		<ToastMessage className={`toast-content ${getToastClass(code)}`}>
+		<ToastMessage className={`toast-content ${type}`}>
 			{message}
 		</ToastMessage>
 	);
@@ -124,7 +118,7 @@ const Toast = ({ queue }) => {
 				<ToastItem
 					key={toast.id}
 					id={toast.id}
-					code={toast.code}
+					type={toast.type}
 					message={toast.message}
 				/>
 			))}

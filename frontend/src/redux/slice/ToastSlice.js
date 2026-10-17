@@ -2,9 +2,16 @@ import { createSlice } from "@reduxjs/toolkit";
 
 let toastId = 0;
 
-// success와 error 둘 다 코드가 같을 때만 메시지로 중복을 판단하기
-const isDuplicateToast = (toast, { code, message }) => {
-	if (toast.code !== code) return false;
+// alert: 회색, 나머지: success ? "success" : "error"
+const resolveToastType = ({ type, success, code }) => {
+	if (type) return type;
+	if (success !== undefined) return success ? "success" : "error";
+	if (!code) return "alert";
+	return code === "SUCCESS" ? "success" : "error";
+};
+
+const isDuplicateToast = (toast, { type, message }) => {
+	if (toast.type !== type) return false;
 	return toast.message === message;
 };
 
@@ -13,17 +20,19 @@ const toastSlice = createSlice({
 	initialState: { value: { queue: [] } },
 	reducers: {
 		showToast: (state, action) => {
-			const { code = null, message } = action.payload;
+			const { type, success, code, message } = action.payload;
 			if (!message) return;
 
+			const resolvedType = resolveToastType({ type, success, code });
+
 			const isDuplicate = state.value.queue.some((toast) =>
-				isDuplicateToast(toast, { code, message })
+				isDuplicateToast(toast, { type: resolvedType, message })
 			);
 			if (isDuplicate) return;
 
 			state.value.queue.push({
 				id: ++toastId,
-				code,
+				type: resolvedType,
 				message,
 			});
 		},
