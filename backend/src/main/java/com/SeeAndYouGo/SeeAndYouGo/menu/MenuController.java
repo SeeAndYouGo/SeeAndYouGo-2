@@ -203,7 +203,7 @@ public class MenuController {
         return menuService.getWeeklyMenuMap(restaurant);
     }
 
-    @GetMapping("/week")
+    @GetMapping("/internal/menus/weekly-sync")
     public void week() throws Exception {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);

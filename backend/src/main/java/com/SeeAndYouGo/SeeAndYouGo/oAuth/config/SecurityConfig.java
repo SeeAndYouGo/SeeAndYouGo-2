@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/admin/**").hasAuthority(UserRole.ADMIN.name())
+                .antMatchers("/api/admin/**", "/api/internal/**").hasAuthority(UserRole.ADMIN.name())
                 .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()

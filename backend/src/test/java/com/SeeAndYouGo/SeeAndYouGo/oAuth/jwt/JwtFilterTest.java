@@ -108,7 +108,8 @@ class JwtFilterTest {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
         for (String uri : new String[]{"/api/connection/restaurant1", "/api/daily-menu/restaurant2",
-                "/api/review/restaurant1", "/api/visitors/count", "/api/oauth/kakao"}) {
+                "/api/review/restaurant1", "/api/visitors/count", "/api/oauth/kakao",
+                "/api/connections/prediction", "/api/ratings"}) {
             SecurityContextHolder.clearContext();
             MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
             request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
@@ -134,6 +135,7 @@ class JwtFilterTest {
                 {"GET", "/api/reviews/me"},
                 {"GET", "/api/admin/menus/weekly"},
                 {"GET", "/api/admin/dishes/weekly"},
+                {"GET", "/api/internal/menus/weekly-sync"},
                 {"POST", "/api/review"},
                 {"POST", "/api/review/like/1"},
         };

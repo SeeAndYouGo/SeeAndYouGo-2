@@ -33,7 +33,7 @@ public class ConnectionController {
         return new ConnectionResponseDto(recentConnection);
     }
 
-    @GetMapping("/connection/cache")
+    @GetMapping("/internal/connections/sync")
     public void cache() throws Exception {
         connectionService.saveRecentConnection();
     }
@@ -48,7 +48,7 @@ public class ConnectionController {
      * @param restaurant 식당 식별자 (예: restaurant1, 제1학생회관)
      * @param observedAt 관측 시각 (yyyy-MM-dd HH:mm:ss)
      */
-    @GetMapping("/connection/prediction")
+    @GetMapping("/connections/prediction")
     public PredictionResponseDto predictConnection(@RequestParam("restaurant") String restaurant,
                                                    @RequestParam("observed_at") String observedAt) {
         return predictionService.predict(restaurant, observedAt);

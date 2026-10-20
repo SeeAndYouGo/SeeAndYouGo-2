@@ -61,9 +61,9 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
 | 500 | `COMMON_001` | 서버 내부 오류가 발생했습니다. | 예상치 못한 모든 예외의 catch-all. DB 오류, NPE, 외부 파일(1학생회관 메뉴 JSON) 파싱 실패(`IOException`) 등. |
-| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connection/{restaurant}`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/restaurant/{n}/rate/main`, `/api/restaurant/{n}/rate/detail`, `/api/statistics/{n}`, `POST /api/review`, `/api/connection/local`, `/api/menu/local`) |
-| 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connection/prediction` — 식당 파라미터가 유효하지 않은 경우. |
-| 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connection/prediction` — `observed_at` 형식 오류. |
+| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connection/{restaurant}`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/restaurant/{n}/rate/detail`, `/api/statistics/{n}`, `POST /api/review`, `/api/connection/local`, `/api/menu/local`) |
+| 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connections/prediction` — 식당 파라미터가 유효하지 않은 경우. |
+| 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connections/prediction` — `observed_at` 형식 오류. |
 | 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/restaurant/{n}/rate/detail` — 세부 평점 미지원 식당 요청. |
 | 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/admin/dishes/name` — 새 메뉴명이 빈 문자열. |
 | 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
@@ -114,8 +114,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/connection/{restaurant}` | `ConnectionResponseDto` | `COMMON_002` / `COMMON_001` |
-| GET | `/api/connection/cache` | `null` | `COMMON_001` |
-| GET | `/api/connection/prediction?restaurant=&observed_at=` | `PredictionResponseDto` | `COMMON_002` / `PREDICTION_002` / `PREDICTION_003` |
+| GET | `/api/internal/connections/sync` | `null` | `AUTH_002` / `COMMON_001` |
+| GET | `/api/connections/prediction?restaurant=&observed_at=` | `PredictionResponseDto` | `COMMON_002` / `PREDICTION_002` / `PREDICTION_003` |
 | POST | `/api/connection/local?AUTH_KEY=&restaurant=` | `ConnectionVO` | `AUTH_001` / `COMMON_002` / `COMMON_001` |
 
 ### Menu
@@ -127,7 +127,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | GET | `/api/weekly-menu/{restaurant}` | `MenuResponseDto[]` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/admin/menus/weekly` | `MenuResponseByAdminDto[]` | `COMMON_001` |
 | POST | `/api/menu/local?AUTH_KEY=&restaurant=` | `MenuVO[]` | `AUTH_001` / `COMMON_002` |
-| GET | `/api/week` | `null` | `COMMON_001` |
+| GET | `/api/internal/menus/weekly-sync` | `null` | `AUTH_002` / `COMMON_001` |
 | GET | `/api/restaurant1-menu` | `JsonNode` | `COMMON_003` / `COMMON_001` |
 
 ### Dish
@@ -178,7 +178,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/restaurant/{restaurantNumber}/rate/main` | `RestaurantTotalRateResponseDto` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/ratings?restaurant=` | `RestaurantTotalRateResponseDto` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/restaurant/{restaurantNumber}/rate/detail` | `RestaurantDetailRateResponseDto[]` | `COMMON_002` / `COMMON_001` |
 
 ### Statistics
@@ -186,7 +186,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/statistics/{restaurantNumber}` | `ConnectionsStatisticsResponseDto[]` | `COMMON_002` / `COMMON_001` |
-| GET | `/api/statistics/{year}/{month}/{day}` | `null` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/internal/statistics/{year}/{month}/{day}` | `null` | `AUTH_002` / `COMMON_002` / `COMMON_001` |
 
 ### Visitor
 

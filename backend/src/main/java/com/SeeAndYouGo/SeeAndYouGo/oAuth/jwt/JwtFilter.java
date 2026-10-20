@@ -30,10 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
     // (메인 화면의 동시 요청이 한꺼번에 재발급을 시도해 강제 로그아웃되는 것을 막는다)
     private static final List<String> PUBLIC_GET_PATTERNS = Arrays.asList(
             "/api/connection/**",
+            "/api/connections/**",
             "/api/daily-menu/**",
             "/api/weekly-menu/*",
             "/api/restaurant1-menu",
             "/api/restaurant/*/rate/**",
+            "/api/ratings",
             "/api/review/*",
             "/api/top-review/*",
             "/api/total-review",
