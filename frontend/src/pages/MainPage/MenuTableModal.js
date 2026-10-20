@@ -59,7 +59,7 @@ const MenuTableModal = forwardRef(({ idx }, ref) => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-      const result = await getWithToken(`/weekly-menu/restaurant${idx}`);
+      const result = await getWithToken(`/menus/weekly?restaurant=restaurant${idx}`);
 			return result;
 		};
 		fetchData().then((data) => {

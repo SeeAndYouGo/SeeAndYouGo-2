@@ -107,7 +107,7 @@ class JwtFilterTest {
     void expiredAccessToken_onPublicGet_passesAsGuest() throws Exception {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
-        for (String uri : new String[]{"/api/connections", "/api/daily-menu/restaurant2",
+        for (String uri : new String[]{"/api/connections", "/api/menus/daily", "/api/menus/weekly",
                 "/api/reviews", "/api/visitors", "/api/oauth/kakao",
                 "/api/ratings/menus", "/api/statistics",
                 "/api/connections/prediction", "/api/ratings"}) {

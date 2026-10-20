@@ -64,7 +64,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await getWithToken(`/daily-menu/restaurant${i + 1}`);
+				const response = await getWithToken(`/menus/daily?restaurant=restaurant${i + 1}`);
 				if (i === 0) {
 					const tempObject = {};
 					for (let j = 0; j < response.length; j++) {

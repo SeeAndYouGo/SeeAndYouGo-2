@@ -98,7 +98,7 @@ const MenuInfoForRestaurant1 = () => {
 	} ,[]);
 
 	useEffect(() => {
-		getWithToken("/daily-menu/restaurant1")
+		getWithToken("/menus/daily?restaurant=restaurant1")
 		.then((res) => {
 			if (res.length === 0) {
 				dispatch(changeMenuInfo({mainMenuList: [], menuId: 0, menuIsOpen: false}));

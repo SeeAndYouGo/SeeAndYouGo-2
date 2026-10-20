@@ -61,12 +61,12 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
 | 500 | `COMMON_001` | 서버 내부 오류가 발생했습니다. | 예상치 못한 모든 예외의 catch-all. DB 오류, NPE, 외부 파일(1학생회관 메뉴 JSON) 파싱 실패(`IOException`) 등. |
-| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connections?restaurant=`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/ratings/menus?restaurant=`, `/api/statistics?restaurant=`, `GET /api/reviews?restaurant=`, `POST /api/reviews`, `/api/connection/local`, `/api/menu/local`) |
+| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connections?restaurant=`, `/api/menus/daily?restaurant=`, `/api/menus/weekly?restaurant=`, `/api/ratings?restaurant=`, `/api/ratings/menus?restaurant=`, `/api/statistics?restaurant=`, `GET /api/reviews?restaurant=`, `POST /api/reviews`, `/api/connection/local`, `/api/menu/local`) |
 | 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connections/prediction` — 식당 파라미터가 유효하지 않은 경우. |
 | 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connections/prediction` — `observed_at` 형식 오류. |
 | 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/ratings/menus?restaurant=` — 세부 평점 미지원 식당 요청. |
 | 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/admin/dishes/name` — 새 메뉴명이 빈 문자열. |
-| 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
+| 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/menus/daily?restaurant=&date=` — `date` 형식 오류. |
 | 400 | `COMMON_002` | 올바르지 않은 이미지 파일명입니다. | `GET /api/images/{imgName}` — 경로 조작 문자(`..`, `/`, `\`) 포함 (path traversal 방어). |
 | 400 | `COMMON_002` | 잘못된 입력값입니다. (기본값) | 커스텀 문구 없는 나머지: Bean Validation 실패, path/query 타입 불일치, 필수 파라미터·헤더·multipart 파트 누락, multipart 가 아닌 요청, JSON 파싱 불가, 허용되지 않은 HTTP 메서드(405 대신), 지원하지 않는 Content-Type(415 대신), 그 외 커스텀 메시지 없이 던져진 `IllegalArgumentException`. |
 | 404 | `COMMON_003` | 요청한 리소스를 찾을 수 없습니다. | 이미지 파일 없음 / 존재하지 않는 URL / JPA 엔티티 조회 실패. |
@@ -122,9 +122,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/daily-menu/{restaurant}` | `MenuResponseByUserDto[]` | `COMMON_002` / `COMMON_001` |
-| GET | `/api/daily-menu/{restaurant}/{date}` | `MenuResponseByUserDto[]` | `COMMON_002` |
-| GET | `/api/weekly-menu/{restaurant}` | `MenuResponseDto[]` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/menus/daily?restaurant=&date=` | `MenuResponseByUserDto[]` — `date` 생략 시 오늘 | `COMMON_002` / `COMMON_001` |
+| GET | `/api/menus/weekly?restaurant=` | `MenuResponseDto[]` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/admin/menus/weekly` | `MenuResponseByAdminDto[]` | `COMMON_001` |
 | POST | `/api/menu/local?AUTH_KEY=&restaurant=` | `MenuVO[]` | `AUTH_001` / `COMMON_002` |
 | GET | `/api/internal/menus/weekly-sync` | `null` | `AUTH_002` / `COMMON_001` |

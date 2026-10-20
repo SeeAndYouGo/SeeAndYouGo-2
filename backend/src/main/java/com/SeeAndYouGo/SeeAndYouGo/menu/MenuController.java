@@ -41,16 +41,16 @@ public class MenuController {
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/daily-menu/{restaurant}")
-    public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
+    /**
+     * 식당의 하루치 메뉴를 조회한다. date를 생략하면 오늘 메뉴를 반환한다.
+     */
+    @GetMapping("/menus/daily")
+    public List<MenuResponseByUserDto> restaurantMenuDayByUser(@RequestParam("restaurant") String place,
+                                                               @RequestParam(value = "date", required = false) String date,
                                                                @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        return restaurantMenuDayByUserTest(place, getTodayDate(), email);
-    }
-
-    @GetMapping("/daily-menu/{restaurant}/{date}")
-    public List<MenuResponseByUserDto> restaurantMenuDayByUserTest(@PathVariable("restaurant") String place,
-                                                                   @PathVariable String date,
-                                                                   @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        if (date == null) {
+            date = getTodayDate();
+        }
         if(!checkParams(date)){
             throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
         }
@@ -154,8 +154,8 @@ public class MenuController {
                 ).collect(Collectors.toList());
     }
 
-    @GetMapping("/weekly-menu/{restaurant}")
-    public List<MenuResponseDto> restaurantMenuWeek(@PathVariable("restaurant") String place) {
+    @GetMapping("/menus/weekly")
+    public List<MenuResponseDto> restaurantMenuWeek(@RequestParam("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
         List<MenuResponseDto> menuListArr = new ArrayList<>();

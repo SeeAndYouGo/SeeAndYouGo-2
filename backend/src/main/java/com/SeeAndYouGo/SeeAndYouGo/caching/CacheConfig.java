@@ -38,21 +38,25 @@ public class CacheConfig {
                 // 메뉴 캐싱 규칙
                 CacheRule.builder()
                         .cacheType(CacheType.STRING)
-                        .urlPattern("/api/daily-menu/{restaurant}")
+                        .urlPattern("/api/menus/daily")
                         .method("GET")
                         .cacheName("daily-menu")
                         .ttl(Duration.ofHours(6))
-                        .keyGenerator(ctx -> ctx.getPathVariables().get("restaurant"))
+                        .keyGenerator(ctx -> {
+                            String restaurant = ctx.getQueryParams().get("restaurant");
+                            String date = ctx.getQueryParams().get("date");
+                            return date == null ? restaurant : restaurant + ":" + date;
+                        })
                         .build(),
 
                 // 주간 메뉴 캐싱 규칙
                 CacheRule.builder()
                         .cacheType(CacheType.STRING)
-                        .urlPattern("/api/weekly-menu/{restaurant}")
+                        .urlPattern("/api/menus/weekly")
                         .method("GET")
                         .cacheName("weekly-menu")
                         .ttl(Duration.ofDays(1))
-                        .keyGenerator(ctx -> ctx.getPathVariables().get("restaurant"))
+                        .keyGenerator(ctx -> ctx.getQueryParams().get("restaurant"))
                         .build(),
 
                 // 좋아요 캐싱 규칙
