@@ -17,7 +17,7 @@
 
 - HTTP Status: `200 OK`
 - `data`에는 API별 실제 응답 결과가 들어간다.
-- `message`는 기본값이 `요청이 성공했습니다.`이며, 사용자에게 보여줄 완료 문구가 있는 API는 API별 문구를 내려준다. (예: `PUT /api/report/{reviewId}` → `리뷰 신고가 완료되었습니다.`)
+- `message`는 기본값이 `요청이 성공했습니다.`이며, 사용자에게 보여줄 완료 문구가 있는 API는 API별 문구를 내려준다. (예: `POST /api/reviews/{reviewId}/reports` → `리뷰 신고가 완료되었습니다.`)
 - 목록 API는 `data: []`, 단건 API는 `data: {}`, 값 응답은 `data: true`, 응답 본문이 없는 API는 `data: null`을 사용한다.
 
 ### 실패
@@ -61,7 +61,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
 | 500 | `COMMON_001` | 서버 내부 오류가 발생했습니다. | 예상치 못한 모든 예외의 catch-all. DB 오류, NPE, 외부 파일(1학생회관 메뉴 JSON) 파싱 실패(`IOException`) 등. |
-| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connections?restaurant=`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/ratings/menus?restaurant=`, `/api/statistics?restaurant=`, `POST /api/review`, `/api/connection/local`, `/api/menu/local`) |
+| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connections?restaurant=`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/ratings/menus?restaurant=`, `/api/statistics?restaurant=`, `GET /api/reviews?restaurant=`, `POST /api/reviews`, `/api/connection/local`, `/api/menu/local`) |
 | 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connections/prediction` — 식당 파라미터가 유효하지 않은 경우. |
 | 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connections/prediction` — `observed_at` 형식 오류. |
 | 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/ratings/menus?restaurant=` — 세부 평점 미지원 식당 요청. |
@@ -88,16 +88,16 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `USER_001` | 닉네임 변경 이력을 조회할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `PUT /api/users/me/nickname` |
 | 404 | `USER_001` | 키워드를 등록할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/keyword` |
 | 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
-| 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
+| 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/reviews/{reviewId}/likes` |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `GET /api/oauth/token/reissue` |
-| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `PUT /api/report/{reviewId}`, `POST /api/review`, `GET /api/reviews/me`, `DELETE /api/reviews/{reviewId}` |
+| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `POST /api/reviews/{reviewId}/reports`, `POST /api/reviews`, `GET /api/reviews/me`, `DELETE /api/reviews/{reviewId}` |
 | 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/admin/dishes/main` |
 | 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/admin/dishes/{id}`, `PUT /api/admin/dishes/name` |
-| 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
-| 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `PUT /api/report/{reviewId}` |
+| 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/reviews/{reviewId}/likes` |
+| 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `POST /api/reviews/{reviewId}/reports` |
 | 404 | `REVIEW_001` | 삭제하려는 리뷰를 찾을 수 없습니다. | `DELETE /api/reviews/{reviewId}` |
 | 403 | `REVIEW_002` | 본인이 작성한 리뷰만 삭제할 수 있습니다. | `DELETE /api/reviews/{reviewId}` — 요청자와 작성자가 다름. |
-| 400 | `REVIEW_003` | 본인이 작성한 리뷰는 신고할 수 없습니다. | `PUT /api/report/{reviewId}` — 요청자와 작성자가 같음. |
+| 400 | `REVIEW_003` | 본인이 작성한 리뷰는 신고할 수 없습니다. | `POST /api/reviews/{reviewId}/reports` — 요청자와 작성자가 같음. |
 | 404 | `KEYWORD_001` | 삭제하려는 키워드를 찾을 수 없습니다. | `DELETE /api/keyword` |
 
 ### Prediction — 혼잡도 예측 서버 연동
@@ -143,11 +143,9 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/total-review` | `ReviewResponseDto[]` | `COMMON_001` |
-| GET | `/api/top-review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
-| GET | `/api/review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
-| PUT | `/api/report/{reviewId}` | `null` (`message`: 리뷰 신고가 완료되었습니다.) — 신고 누적이 10에 도달하면 서버가 리뷰를 삭제한다. | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_003` |
-| POST | `/api/review` | `reviewId: number` | `AUTH_001` / `USER_001` / `COMMON_002` / `COMMON_003` / `COMMON_001` |
+| GET | `/api/reviews?restaurant=&sort=` | `ReviewResponseDto[]` — `restaurant` 생략 시 전 식당, `sort=top`이면 탑 리뷰(`like` 항상 `false`) | `COMMON_002` / `COMMON_001` |
+| POST | `/api/reviews/{reviewId}/reports` | `null` (`message`: 리뷰 신고가 완료되었습니다.) — 신고 누적이 10에 도달하면 서버가 리뷰를 삭제한다. | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_003` |
+| POST | `/api/reviews` | `reviewId: number` | `AUTH_001` / `USER_001` / `COMMON_002` / `COMMON_003` / `COMMON_001` |
 | GET | `/api/images/{imgName}` | `image/png` binary | `COMMON_002` / `COMMON_003` |
 | GET | `/api/reviews/me` | `ReviewResponseDto[]` | `AUTH_001` / `USER_001` / `COMMON_001` |
 | DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_002` |
@@ -156,7 +154,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| POST | `/api/review/like/{review_id}` | `LikeResponseDto` | `USER_001` / `REVIEW_001` |
+| POST | `/api/reviews/{reviewId}/likes` | `LikeResponseDto` | `USER_001` / `REVIEW_001` |
 
 ### Keyword
 

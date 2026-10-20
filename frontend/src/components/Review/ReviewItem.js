@@ -149,7 +149,7 @@ const ReviewItem = ({
     }
     
     try {
-      const res = await postWithToken(`/review/like/${reviewId}`);
+      const res = await postWithToken(`/reviews/${reviewId}/likes`);
       const { like: isLike, mine: isMine } = res;
       
       if (isMine === true) { // 본인이 작성한 리뷰라 공감 불가

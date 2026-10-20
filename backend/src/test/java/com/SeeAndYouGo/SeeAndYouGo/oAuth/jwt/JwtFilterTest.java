@@ -108,7 +108,7 @@ class JwtFilterTest {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
         for (String uri : new String[]{"/api/connections", "/api/daily-menu/restaurant2",
-                "/api/review/restaurant1", "/api/visitors", "/api/oauth/kakao",
+                "/api/reviews", "/api/visitors", "/api/oauth/kakao",
                 "/api/ratings/menus", "/api/statistics",
                 "/api/connections/prediction", "/api/ratings"}) {
             SecurityContextHolder.clearContext();
@@ -137,8 +137,9 @@ class JwtFilterTest {
                 {"GET", "/api/admin/menus/weekly"},
                 {"GET", "/api/admin/dishes/weekly"},
                 {"GET", "/api/internal/menus/weekly-sync"},
-                {"POST", "/api/review"},
-                {"POST", "/api/review/like/1"},
+                {"POST", "/api/reviews"},
+                {"POST", "/api/reviews/1/likes"},
+                {"POST", "/api/reviews/1/reports"},
         };
         for (String[] r : requests) {
             MockHttpServletRequest request = new MockHttpServletRequest(r[0], r[1]);

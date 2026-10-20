@@ -272,7 +272,7 @@ const ReviewWrite = ({
 		setTimeout(() => setLoadingProgress(30), 100);
 
 		try {
-			await postWithToken("/review", formdata, {
+			await postWithToken("/reviews", formdata, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},

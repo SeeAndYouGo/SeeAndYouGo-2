@@ -15,7 +15,7 @@ public class ReviewReportController {
 
     private final ReviewReportService reviewReportService;
 
-    @PutMapping("/report/{reviewId}")
+    @PostMapping("/reviews/{reviewId}/reports")
     public ApiResponse<Void> reportReview(@PathVariable Long reviewId,
                                           @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         reviewReportService.report(reviewId, email);

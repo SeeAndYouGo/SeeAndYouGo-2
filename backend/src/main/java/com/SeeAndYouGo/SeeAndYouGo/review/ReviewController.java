@@ -40,6 +40,8 @@ import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
 
+    private static final String SORT_TOP = "top";
+
     private final ReviewService reviewService;
     private final UserService userService;
     private final LikeService likeService;
@@ -68,8 +70,34 @@ public class ReviewController {
         return response;
     }
 
-    @GetMapping("/total-review")
-    public List<ReviewResponseDto> getAllReviews(@Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    /**
+     * 오늘의 리뷰를 조회한다.
+     * restaurant가 없으면 전 식당, 있으면 해당 식당의 리뷰를 반환하고, sort=top이면 해당 식당의 탑 리뷰를 반환한다.
+     */
+    @GetMapping("/reviews")
+    public List<ReviewResponseDto> getReviews(@RequestParam(value = "restaurant", required = false) String restaurant,
+                                              @RequestParam(value = "sort", required = false) String sort,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        if (sort != null) {
+            validateTopSort(restaurant, sort);
+            return getTopReviews(restaurant);
+        }
+        if (restaurant == null) {
+            return getAllReviews(email);
+        }
+        return getRestaurantReviews(restaurant, email);
+    }
+
+    private void validateTopSort(String restaurant, String sort) {
+        if (!SORT_TOP.equals(sort)) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "지원하지 않는 정렬 방식입니다: " + sort);
+        }
+        if (restaurant == null) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "탑 리뷰는 식당을 지정해야 조회할 수 있습니다.");
+        }
+    }
+
+    private List<ReviewResponseDto> getAllReviews(String email) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         for (Restaurant restaurant : Restaurant.values()) {
@@ -81,8 +109,7 @@ public class ReviewController {
     }
 
     // 탑 리뷰 조회
-    @GetMapping(value = "/top-review/{restaurant}")
-    public List<ReviewResponseDto> getTopReviews(@PathVariable("restaurant") String restaurant) {
+    private List<ReviewResponseDto> getTopReviews(String restaurant) {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
@@ -90,16 +117,14 @@ public class ReviewController {
         return getReviewDtos(reviews, "");
     }
 
-    @GetMapping("/review/{restaurant}")
-    public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
-                                                        @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    private List<ReviewResponseDto> getRestaurantReviews(String restaurant, String email) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
         return getReviewDtos(restaurantReviews, email);
     }
 
     // 리뷰 게시
-    @PostMapping(value = "/review")
+    @PostMapping(value = "/reviews")
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {

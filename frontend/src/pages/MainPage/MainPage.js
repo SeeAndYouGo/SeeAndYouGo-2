@@ -85,7 +85,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await getWithToken(`/review/restaurant${i + 1}`);
+				const response = await getWithToken(`/reviews?restaurant=restaurant${i + 1}`);
 				results.push(response);
 			}
 			setTopReviewData(results);

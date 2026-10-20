@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { putWithToken } from "../../api";
+import { postWithToken } from "../../api";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -14,7 +14,7 @@ const ReviewReport = ({ reportTarget }) => {
 	// 신고 누적 및 삭제 여부는 서버에서 판단한다. 결과 토스트는 서버 message로 표시된다.
 	const handleSubmit = async () => {
 		try {
-			await putWithToken(`/report/${reportTarget}`);
+			await postWithToken(`/reviews/${reportTarget}/reports`);
 		} catch (error) {
 			console.log(error);
 		}
