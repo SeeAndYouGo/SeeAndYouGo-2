@@ -127,7 +127,7 @@ const SetNicknamePage = () => {
     }
 
     try {
-      const { redundancy } = await getWithToken(`/user/nickname/check/${nicknameValue}`);
+      const { redundancy } = await getWithToken(`/users/nickname-availability?nickname=${encodeURIComponent(nicknameValue)}`);
 
       if (redundancy) { // 중복인 경우
         dispatch(showToast({
@@ -154,7 +154,7 @@ const SetNicknamePage = () => {
     setButtonDisabled(true);
 
     try {
-      const { update, last_update } = await putWithToken('/user/nickname', {
+      const { update, last_update } = await putWithToken('/users/me/nickname', {
         token,
         nickname: nicknameValue
       });

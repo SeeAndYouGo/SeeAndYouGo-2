@@ -18,7 +18,7 @@ public class VisitorController {
     private final HashOperations<String, String, String> todayRedisTemplate;
     private final ValueOperations<String, String> totalRedisTemplate;
 
-    @GetMapping("/count")
+    @GetMapping
     public VisitorCountDto index() {
         LocalDate date = LocalDate.now();
 

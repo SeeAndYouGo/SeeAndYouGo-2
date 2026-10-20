@@ -10,21 +10,21 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/nickname/check/{nickname}")
-    public NicknameCheckResponseDto checkNicknameRedundancy(@PathVariable String nickname) {
+    @GetMapping("/nickname-availability")
+    public NicknameCheckResponseDto checkNicknameRedundancy(@RequestParam("nickname") String nickname) {
         boolean redundancy = !userService.isNicknameCountZero(nickname);
 
         return NicknameCheckResponseDto.builder()
                                         .redundancy(redundancy).build();
     }
 
-    @PutMapping("/nickname")
+    @PutMapping("/me/nickname")
     public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest,
                                                     @Parameter(hidden = true) @AuthenticationPrincipal String email){
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
@@ -40,7 +40,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/nickname")
+    @GetMapping("/me")
     public UserResponseDto getNickname(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         String nickname = userService.getNicknameByEmail(email);
 

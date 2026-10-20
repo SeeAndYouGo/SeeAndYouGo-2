@@ -23,8 +23,8 @@ public class ConnectionController {
      * restaurant에 해당하는 가장 최근 혼잡도 불러오기(혼잡도는 5분마다 갱신됨)
      * @param restaurant : 원하는 restaurant(제1학생회관, 제2학생회관, 제3학생회관, 상록회관, 생활과학대)
      */
-    @GetMapping("/connection/{restaurant}")
-    public ConnectionResponseDto congestionRequest(@PathVariable("restaurant") String restaurant) throws Exception {
+    @GetMapping("/connections")
+    public ConnectionResponseDto congestionRequest(@RequestParam("restaurant") String restaurant) throws Exception {
         ConnectionVO recentConnection = connectionService.getRecentConnection(restaurant);
         if (recentConnection == null) {
             log.warn("최근 혼잡도 정보를 찾을 수 없습니다. restaurant={}", restaurant);

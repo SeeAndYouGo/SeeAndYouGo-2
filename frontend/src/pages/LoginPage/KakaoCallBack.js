@@ -55,7 +55,7 @@ const KakaoCallBack = () => {
 				} 
 
 				// 이미 등록된 회원인 경우 닉네임 가져오기
-				const { nickname } = await getWithToken("/user/nickname");
+				const { nickname } = await getWithToken("/users/me");
 				dispatch(setNickname(nickname));
 				dispatch(showToast({
 					code: "SUCCESS",

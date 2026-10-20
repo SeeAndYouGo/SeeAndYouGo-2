@@ -150,7 +150,7 @@ const SideBar = ({isOpen, setIsOpen}) => {
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
-        const { visitToday, visitTotal } = await getWithToken('/visitors/count');
+        const { visitToday, visitTotal } = await getWithToken('/visitors');
 
         setVisitTodayData(visitToday);
         setVisitTotalData(visitTotal);

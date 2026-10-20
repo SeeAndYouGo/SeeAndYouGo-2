@@ -51,7 +51,7 @@ const MainPage = () => {
 		const results = [];
 		try {
 			for (let i = 0; i < 6; i++) {
-				const response = await getWithToken(`/connection/restaurant${i + 1}`);
+				const response = await getWithToken(`/connections?restaurant=restaurant${i + 1}`);
 				results.push(response);
 			}
 			setRestaurantData(results);

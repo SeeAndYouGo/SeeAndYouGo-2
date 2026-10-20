@@ -61,10 +61,10 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
 | 500 | `COMMON_001` | 서버 내부 오류가 발생했습니다. | 예상치 못한 모든 예외의 catch-all. DB 오류, NPE, 외부 파일(1학생회관 메뉴 JSON) 파싱 실패(`IOException`) 등. |
-| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connection/{restaurant}`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/restaurant/{n}/rate/detail`, `/api/statistics/{n}`, `POST /api/review`, `/api/connection/local`, `/api/menu/local`) |
+| 400 | `COMMON_002` | 존재하지 않는 식당입니다: {입력값} | `Restaurant.parseName()` 실패 — 식당 번호/이름을 받는 대부분의 API 공통 경로 (`/api/connections?restaurant=`, `/api/daily-menu/{restaurant}`, `/api/weekly-menu/{restaurant}`, `/api/ratings?restaurant=`, `/api/ratings/menus?restaurant=`, `/api/statistics?restaurant=`, `POST /api/review`, `/api/connection/local`, `/api/menu/local`) |
 | 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connections/prediction` — 식당 파라미터가 유효하지 않은 경우. |
 | 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connections/prediction` — `observed_at` 형식 오류. |
-| 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/restaurant/{n}/rate/detail` — 세부 평점 미지원 식당 요청. |
+| 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/ratings/menus?restaurant=` — 세부 평점 미지원 식당 요청. |
 | 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/admin/dishes/name` — 새 메뉴명이 빈 문자열. |
 | 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
 | 400 | `COMMON_002` | 올바르지 않은 이미지 파일명입니다. | `GET /api/images/{imgName}` — 경로 조작 문자(`..`, `/`, `\`) 포함 (path traversal 방어). |
@@ -85,7 +85,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
-| 404 | `USER_001` | 닉네임 변경 이력을 조회할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `PUT /api/user/nickname` |
+| 404 | `USER_001` | 닉네임 변경 이력을 조회할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `PUT /api/users/me/nickname` |
 | 404 | `USER_001` | 키워드를 등록할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/keyword` |
 | 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
 | 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
@@ -113,7 +113,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/connection/{restaurant}` | `ConnectionResponseDto` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/connections?restaurant=` | `ConnectionResponseDto` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/internal/connections/sync` | `null` | `AUTH_002` / `COMMON_001` |
 | GET | `/api/connections/prediction?restaurant=&observed_at=` | `PredictionResponseDto` | `COMMON_002` / `PREDICTION_002` / `PREDICTION_003` |
 | POST | `/api/connection/local?AUTH_KEY=&restaurant=` | `ConnectionVO` | `AUTH_001` / `COMMON_002` / `COMMON_001` |
@@ -179,25 +179,25 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/ratings?restaurant=` | `RestaurantTotalRateResponseDto` | `COMMON_002` / `COMMON_001` |
-| GET | `/api/restaurant/{restaurantNumber}/rate/detail` | `RestaurantDetailRateResponseDto[]` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/ratings/menus?restaurant=` | `RestaurantDetailRateResponseDto[]` | `COMMON_002` / `COMMON_001` |
 
 ### Statistics
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/statistics/{restaurantNumber}` | `ConnectionsStatisticsResponseDto[]` | `COMMON_002` / `COMMON_001` |
+| GET | `/api/statistics?restaurant=` | `ConnectionsStatisticsResponseDto[]` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/internal/statistics/{year}/{month}/{day}` | `null` | `AUTH_002` / `COMMON_002` / `COMMON_001` |
 
 ### Visitor
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/visitors/count` | `VisitorCountDto` | `COMMON_001` |
+| GET | `/api/visitors` | `VisitorCountDto` | `COMMON_001` |
 
 ### User
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/user/nickname/check/{nickname}` | `NicknameCheckResponseDto` | `COMMON_001` |
-| PUT | `/api/user/nickname` | `NicknameUpdateResponseDto` | `USER_001` |
-| GET | `/api/user/nickname` | `UserResponseDto` | `COMMON_001` |
+| GET | `/api/users/nickname-availability?nickname=` | `NicknameCheckResponseDto` | `COMMON_001` |
+| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` | `USER_001` |
+| GET | `/api/users/me` | `UserResponseDto` | `COMMON_001` |

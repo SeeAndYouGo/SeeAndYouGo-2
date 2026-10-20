@@ -102,7 +102,7 @@ const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
 	const [currentTab, setCurrentTab] = useState(0);
 
-	const createUrl = (idx) => "/statistics/restaurant" + idx;
+	const createUrl = (idx) => "/statistics?restaurant=restaurant" + idx;
 	
 	useEffect(() => {
 		const fetchData = async () => {

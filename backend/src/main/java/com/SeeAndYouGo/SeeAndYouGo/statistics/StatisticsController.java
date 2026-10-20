@@ -14,9 +14,9 @@ import java.util.List;
 public class StatisticsController {
     private final StatisticsService statisticsService;
 
-    @GetMapping("/statistics/{restaurantNumber}")
-    public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@PathVariable String restaurantNumber){
-        String restaurantName = Restaurant.parseName(restaurantNumber);
+    @GetMapping("/statistics")
+    public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@RequestParam("restaurant") String restaurant){
+        String restaurantName = Restaurant.parseName(restaurant);
         return statisticsService.getConnectionStatistics(restaurantName);
     }
 

@@ -88,7 +88,7 @@ const MenuInfoForRestaurant1 = () => {
 	};
 
 	useEffect(() => {
-		getWithToken("/restaurant/1/rate/detail")
+		getWithToken("/ratings/menus?restaurant=1")
 		.then((res) => {
 			res.map((val, idx) => Restaurant1MenuList[idx].menuList = val.avgRateByMenu);
 			setMenuArray(Restaurant1MenuList);

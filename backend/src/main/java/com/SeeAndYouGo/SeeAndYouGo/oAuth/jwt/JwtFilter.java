@@ -29,19 +29,17 @@ public class JwtFilter extends OncePerRequestFilter {
     // 로그인 없이 쓰는 조회 API. 만료된 access token 이 붙어 와도 막지 않고 비로그인으로 처리한다.
     // (메인 화면의 동시 요청이 한꺼번에 재발급을 시도해 강제 로그아웃되는 것을 막는다)
     private static final List<String> PUBLIC_GET_PATTERNS = Arrays.asList(
-            "/api/connection/**",
             "/api/connections/**",
             "/api/daily-menu/**",
             "/api/weekly-menu/*",
             "/api/restaurant1-menu",
-            "/api/restaurant/*/rate/**",
-            "/api/ratings",
+            "/api/ratings/**",
             "/api/review/*",
             "/api/top-review/*",
             "/api/total-review",
             "/api/images/*",
-            "/api/statistics/**",
-            "/api/visitors/count",
+            "/api/statistics",
+            "/api/visitors",
             "/api/oauth/kakao",
             "/api/oauth/google"
     );

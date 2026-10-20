@@ -107,8 +107,9 @@ class JwtFilterTest {
     void expiredAccessToken_onPublicGet_passesAsGuest() throws Exception {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
-        for (String uri : new String[]{"/api/connection/restaurant1", "/api/daily-menu/restaurant2",
-                "/api/review/restaurant1", "/api/visitors/count", "/api/oauth/kakao",
+        for (String uri : new String[]{"/api/connections", "/api/daily-menu/restaurant2",
+                "/api/review/restaurant1", "/api/visitors", "/api/oauth/kakao",
+                "/api/ratings/menus", "/api/statistics",
                 "/api/connections/prediction", "/api/ratings"}) {
             SecurityContextHolder.clearContext();
             MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
@@ -131,7 +132,7 @@ class JwtFilterTest {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
         String[][] requests = {
-                {"GET", "/api/user/nickname"},
+                {"GET", "/api/users/me"},
                 {"GET", "/api/reviews/me"},
                 {"GET", "/api/admin/menus/weekly"},
                 {"GET", "/api/admin/dishes/weekly"},
@@ -157,7 +158,7 @@ class JwtFilterTest {
     void invalidAccessToken_onPublicGet_respondsWithAuth003() throws Exception {
         when(tokenProvider.resolveTokenStatus("forged-token")).thenReturn(TokenStatus.INVALID);
 
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/connection/restaurant1");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/connections");
         request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer forged-token");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
