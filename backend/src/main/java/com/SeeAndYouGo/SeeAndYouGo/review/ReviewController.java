@@ -8,6 +8,7 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +43,15 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final UserService userService;
     private final LikeService likeService;
+    private final AdminAuthorizationService authorizationService;
     private final Executor executor;
 
-    public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
+    public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService,
+                            AdminAuthorizationService authorizationService, @Qualifier("asyncTaskExecutor") Executor executor) {
         this.reviewService = reviewService;
         this.userService = userService;
         this.likeService = likeService;
+        this.authorizationService = authorizationService;
         this.executor = executor;
     }
 
@@ -99,6 +103,7 @@ public class ReviewController {
     public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
                            @RequestPart(value = "image", required = false) MultipartFile image,
                            @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        authorizationService.getLoginUser(email);
         String nickname = userService.getNicknameByEmail(email);
 
         String imgUrl = "";
@@ -175,6 +180,7 @@ public class ReviewController {
 
     @GetMapping("/reviews/{token}")
     public List<ReviewResponseDto> getReviewsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
         List<Review> reviews = reviewService.findReviewsByWriter(email);
 
         return getReviewDtos(reviews, email);
@@ -184,6 +190,7 @@ public class ReviewController {
     public ReviewDeleteResponseDto deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
 
         boolean isWriter = reviewService.deleteReview(email, reviewId);
         if(!isWriter){

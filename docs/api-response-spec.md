@@ -90,7 +90,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
 | 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `GET /api/oauth/token/reissue` |
-| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `PUT /api/report/{reviewId}` |
+| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `PUT /api/report/{reviewId}`, `POST /api/review`, `GET /api/reviews/{token}`, `DELETE /api/reviews/{reviewId}` |
 | 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/admin/dishes/main` |
 | 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/admin/dishes/{id}`, `PUT /api/admin/dishes/name` |
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
@@ -147,10 +147,10 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | GET | `/api/top-review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
 | GET | `/api/review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
 | PUT | `/api/report/{reviewId}` | `null` (`message`: 리뷰 신고가 완료되었습니다.) — 신고 누적이 10에 도달하면 서버가 리뷰를 삭제한다. | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_003` |
-| POST | `/api/review` | `reviewId: number` | `COMMON_002` / `COMMON_003` / `COMMON_001` |
+| POST | `/api/review` | `reviewId: number` | `AUTH_001` / `USER_001` / `COMMON_002` / `COMMON_003` / `COMMON_001` |
 | GET | `/api/images/{imgName}` | `image/png` binary | `COMMON_002` / `COMMON_003` |
-| GET | `/api/reviews/{token}` | `ReviewResponseDto[]` | `COMMON_001` |
-| DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` | `REVIEW_001` / `REVIEW_002` |
+| GET | `/api/reviews/{token}` | `ReviewResponseDto[]` | `AUTH_001` / `USER_001` / `COMMON_001` |
+| DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_002` |
 
 ### Like
 
