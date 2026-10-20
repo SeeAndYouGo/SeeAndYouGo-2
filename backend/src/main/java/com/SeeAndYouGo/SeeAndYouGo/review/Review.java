@@ -55,9 +55,16 @@ public class Review {
 
     private Integer reportCount = 0;
 
-    public Integer incrementReportCount(){
+    public void incrementReportCount(){
         reportCount++;
-        return reportCount;
+    }
+
+    public boolean hasReachedReportLimit(int limit){
+        return reportCount >= limit;
+    }
+
+    public boolean isWrittenBy(String email){
+        return writerEmail.equals(email);
     }
 
     public Integer incrementLikeCount(){

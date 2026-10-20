@@ -26,6 +26,7 @@ public enum ErrorCode {
     // Review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW_001", "리뷰를 찾을 수 없습니다."),
     REVIEW_DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "REVIEW_002", "본인이 작성한 리뷰만 삭제할 수 있습니다."),
+    REVIEW_SELF_REPORT(HttpStatus.BAD_REQUEST, "REVIEW_003", "본인이 작성한 리뷰는 신고할 수 없습니다."),
 
     // Keyword
     KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "KEYWORD_001", "키워드를 찾을 수 없습니다."),

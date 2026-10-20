@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { putWithToken, deleteWithToken } from "../../api";
+import { putWithToken } from "../../api";
 
 const ReportButton = styled.span`
 	width: 25px;
@@ -11,24 +11,13 @@ const ReportButton = styled.span`
 `;
 
 const ReviewReport = ({ reportTarget }) => {
+	// 신고 누적 및 삭제 여부는 서버에서 판단한다. 결과 토스트는 서버 message로 표시된다.
 	const handleSubmit = async () => {
 		try {
-      const { reportCount } = await putWithToken(`/report/${reportTarget}`);
-
-      if (reportCount >= 10) {
-        const { success } = await deleteWithToken(`/review/report/${reportTarget}`);
-
-        if (!success) throw new Error("Failed to delete review after 10 reports");
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-
-        return;
-      }
-    } catch (error) {
+			await putWithToken(`/report/${reportTarget}`);
+		} catch (error) {
 			console.log(error);
-    }
+		}
 	};
 
 	return (

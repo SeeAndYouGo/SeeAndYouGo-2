@@ -53,6 +53,7 @@ app:
     time-quantum: 5
   review:
     top-review-count: 3
+    report-delete-threshold: 10
   keyword:
     max-per-user: 10
 

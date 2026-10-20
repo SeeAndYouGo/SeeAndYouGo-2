@@ -10,12 +10,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminAuthorizationService {
     private final UserReader userReader;
 
-    public void assertAdmin(String email) {
+    public User getLoginUser(String email) {
         if (email == null || "none".equals(email)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
         }
 
-        User user = userReader.getByEmail(email);
+        return userReader.getByEmail(email);
+    }
+
+    public void assertAdmin(String email) {
+        User user = getLoginUser(email);
         if (!user.isAdmin()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다.");
         }

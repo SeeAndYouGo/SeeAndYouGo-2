@@ -5,7 +5,6 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReportCountResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
@@ -93,13 +92,6 @@ public class ReviewController {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
         return getReviewDtos(restaurantReviews, email);
-    }
-
-    @PutMapping("/report/{reviewId}")
-    public ReportCountResponseDto judgeDeleteReview(@PathVariable Long reviewId){
-        Integer reportCount = reviewService.updateReportCount(reviewId);
-
-        return new ReportCountResponseDto(reportCount);
     }
 
     // 리뷰 게시
@@ -201,12 +193,5 @@ public class ReviewController {
         return ReviewDeleteResponseDto.builder()
                 .success(true)
                 .build();
-    }
-
-    @DeleteMapping("/review/report/{reviewId}")
-    public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
-        reviewService.deleteReportedReview(reviewId);
-
-        return new ReviewDeleteResponseDto(true);
     }
 }
