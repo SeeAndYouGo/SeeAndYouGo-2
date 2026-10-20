@@ -43,7 +43,7 @@ const MyReviewPage = () => {
 
 		const fetchData = async () => {
 			try {
-				const reviews = await getWithToken(`/my-reviews`);
+				const reviews = await getWithToken(`/reviews/me`);
 				setReviewList(reviews);
 			} catch (error) {
 				console.log(error);

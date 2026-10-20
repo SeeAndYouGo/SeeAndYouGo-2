@@ -178,7 +178,7 @@ public class ReviewController {
         return Files.readAllBytes(imagePath);
     }
 
-    @GetMapping("/reviews/{token}")
+    @GetMapping("/reviews/me")
     public List<ReviewResponseDto> getReviewsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         authorizationService.getLoginUser(email);
         List<Review> reviews = reviewService.findReviewsByWriter(email);
