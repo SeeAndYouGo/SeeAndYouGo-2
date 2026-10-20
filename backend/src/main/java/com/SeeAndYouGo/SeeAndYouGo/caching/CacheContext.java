@@ -43,4 +43,11 @@ public class CacheContext {
      * 사용자 인증 정보 (있는 경우)
      */
     private String userEmail;
+
+    /**
+     * 요청에 사용자를 식별할 수 있는 토큰이 실려 있는지 확인
+     */
+    public boolean isLoggedIn() {
+        return userEmail != null && !userEmail.isEmpty();
+    }
 }

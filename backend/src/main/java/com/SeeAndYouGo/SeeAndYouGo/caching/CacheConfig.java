@@ -43,6 +43,10 @@ public class CacheConfig {
                         .cacheName("daily-menu")
                         .ttl(Duration.ofHours(6))
                         .keyGenerator(ctx -> {
+                            // 응답에 사용자별 keywordList가 포함되므로 로그인 사용자의 요청은 캐시하지 않는다.
+                            if (ctx.isLoggedIn()) {
+                                return null;
+                            }
                             String restaurant = ctx.getQueryParams().get("restaurant");
                             String date = ctx.getQueryParams().get("date");
                             return date == null ? restaurant : restaurant + ":" + date;

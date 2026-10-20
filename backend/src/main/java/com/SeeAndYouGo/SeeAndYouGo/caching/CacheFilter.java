@@ -64,6 +64,12 @@ public class CacheFilter extends OncePerRequestFilter {
         // 캐시 키 생성
         String cacheKey = rule.generateKey(context);
 
+        // 키가 없으면 캐시 대상이 아닌 요청
+        if (cacheKey == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 캐시에서 데이터 조회 - 캐시 타입에 따라 적절한 메소드 호출
         Optional<?> cachedData;
         if (rule.getCacheType() == CacheType.BYTES) {

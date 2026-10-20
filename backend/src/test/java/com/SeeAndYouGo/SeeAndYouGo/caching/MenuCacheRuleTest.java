@@ -29,6 +29,17 @@ class MenuCacheRuleTest {
     }
 
     @Test
+    @DisplayName("하루치 메뉴: 로그인 사용자의 요청은 키워드가 포함되므로 캐시하지 않는다")
+    void dailyMenu_loggedInUser_notCached() {
+        CacheRule rule = findRule("/api/menus/daily");
+
+        CacheContext loggedIn = contextOf(Map.of("restaurant", "restaurant1"));
+        loggedIn.setUserEmail("user@test.com");
+
+        assertThat(rule.generateKey(loggedIn)).isNull();
+    }
+
+    @Test
     @DisplayName("주간 메뉴: 식당으로 키를 만든다")
     void weeklyMenu_keyByRestaurant() {
         CacheRule rule = findRule("/api/menus/weekly");
