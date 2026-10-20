@@ -14,19 +14,19 @@ public class OAuthController {
     @Autowired
     private final OAuthService oauthService;
 
-    @GetMapping("/api/oauth/kakao")
+    @PostMapping("/api/oauth/kakao")
     public TokenDto kakaoLoginOauth(@RequestParam String code) {                // (1) 인가 코드를 받는다.
         String accessToken = oauthService.getKakaoAccessToken(code);            // (2) 카카오로부터 access token 을 받는다.
         return oauthService.kakaoLogin(accessToken);                            // (3) access token 을 통해 유저정보를 확인 후 그리고 우리 서비스 전용 jwt token 을 리턴!
     }
 
-    @GetMapping("/api/oauth/google")
+    @PostMapping("/api/oauth/google")
     public TokenDto googleLoginOauth(@RequestParam String code) {               // (1) 인가 코드를 받는다.
         String accessToken = oauthService.getGoogleAccessToken(code);           // (2) 구글로부터 access token 을 받는다.
         return oauthService.googleLogin(accessToken);                           // (3) access token 을 통해 유저정보를 확인 후 그리고 우리 서비스 전용 jwt token 을 리턴!
     }
 
-    @GetMapping("/api/oauth/token/reissue")
+    @PostMapping("/api/oauth/token")
     public TokenDto reissue(@RequestHeader(JwtFilter.REFRESH_HEADER) String refreshToken) {
         return oauthService.reIssue(refreshToken);
     }

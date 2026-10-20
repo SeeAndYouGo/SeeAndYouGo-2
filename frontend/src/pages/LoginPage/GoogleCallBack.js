@@ -5,7 +5,7 @@ import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
 import { useCookies } from "react-cookie";
-import { getWithToken } from "../../api";
+import { getWithToken, postWithoutToken } from "../../api";
 
 //TODO 추후에 코드 자체는 같으니 추후에 google, kakao 등 통합해서 한개의 파일로 관리할 수 있도록 수정
 const GoogleCallBack = () => {
@@ -23,9 +23,7 @@ const GoogleCallBack = () => {
 
 		const fetchData = async () => {
 			try {
-				const { token, refreshToken, message, userType } = await getWithToken(
-					`/oauth/google?code=${code}`,
-				);
+				const { token, refreshToken, message, userType } = await postWithoutToken(`/oauth/google?code=${code}`);
 
 				// refresh token을 쿠키에 저장
 				setCookie("refreshToken", refreshToken, {

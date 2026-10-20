@@ -45,7 +45,8 @@ const sendRequest = (method, url, data, config) => {
 
 // access token 재발급 요청
 const getNewAccessToken = async (refreshToken) => {
-  const response = await axiosClient.get('/oauth/token/reissue', {
+  // post는 두 번째 인자가 요청 본문이므로 헤더는 세 번째 인자로 넘긴다.
+  const response = await axiosClient.post('/oauth/token', null, {
     headers: { refreshToken },
   });
 
@@ -196,6 +197,10 @@ const requestWithToken = async (method, url, data = null, config = {}) => {
 		throw error;
 	}
 };
+
+// 토큰 없이 호출하는 공개 API(소셜 로그인 등). 성공 토스트와 실패 처리는 호출하는 쪽에서 한다.
+export const postWithoutToken = async (url, data = null, config = {}) =>
+	unwrapApiResponse(await axiosClient.post(url, data, config));
 
 export const getWithToken = async (url, config = {}) =>
 	requestWithToken("get", url, null, config);

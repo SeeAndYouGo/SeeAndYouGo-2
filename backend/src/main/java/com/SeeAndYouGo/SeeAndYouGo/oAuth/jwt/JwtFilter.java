@@ -37,7 +37,10 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/reviews",
             "/api/images/*",
             "/api/statistics",
-            "/api/visitors",
+            "/api/visitors"
+    );
+    // 소셜 로그인 요청. 만료된 access token 이 남아 있어도 다시 로그인할 수 있도록 비로그인으로 처리한다.
+    private static final List<String> LOGIN_PATTERNS = Arrays.asList(
             "/api/oauth/kakao",
             "/api/oauth/google"
     );
@@ -86,11 +89,15 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublicRequest(HttpServletRequest request) {
-        if (!HttpMethod.GET.matches(request.getMethod())) {
-            return false;
-        }
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        return PUBLIC_GET_PATTERNS.stream().anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
+        if (matchesAny(LOGIN_PATTERNS, path)) {
+            return true;
+        }
+        return HttpMethod.GET.matches(request.getMethod()) && matchesAny(PUBLIC_GET_PATTERNS, path);
+    }
+
+    private boolean matchesAny(List<String> patterns, String path) {
+        return patterns.stream().anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
     }
 
     // 만료는 재발급 후 재시도(AUTH_001), 그 외 무효는 즉시 로그아웃(AUTH_003)으로 안내한다.

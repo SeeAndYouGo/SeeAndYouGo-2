@@ -5,7 +5,7 @@ import { login, setNickname } from "../../redux/slice/UserSlice";
 import { showToast } from "../../redux/slice/ToastSlice";
 import Loading from "../../components/Loading";
 import { useCookies } from "react-cookie";
-import { getWithToken } from "../../api";
+import { getWithToken, postWithoutToken } from "../../api";
 
 const KakaoCallBack = () => {
 	// 백엔드에서 access_token 받아오고 정보 가져오는거까지 처리
@@ -23,9 +23,7 @@ const KakaoCallBack = () => {
 
 		const fetchData = async () => {
 			try {
-				const { token, refreshToken, message, userType } = await getWithToken(
-					`/oauth/kakao?code=${code}`
-				);
+				const { token, refreshToken, message, userType } = await postWithoutToken(`/oauth/kakao?code=${code}`);
 
 				// refresh token을 쿠키에 저장
 				setCookie("refreshToken", refreshToken, {

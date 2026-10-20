@@ -108,7 +108,7 @@ class JwtFilterTest {
         when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
 
         for (String uri : new String[]{"/api/connections", "/api/menus/daily", "/api/menus/weekly",
-                "/api/reviews", "/api/visitors", "/api/oauth/kakao",
+                "/api/reviews", "/api/visitors",
                 "/api/ratings/menus", "/api/statistics",
                 "/api/connections/prediction", "/api/ratings"}) {
             SecurityContextHolder.clearContext();
@@ -125,6 +125,54 @@ class JwtFilterTest {
                     .extracting("authority")
                     .containsExactly("GUEST");
         }
+    }
+
+    @Test
+    void expiredAccessToken_onSocialLoginPost_passesAsGuest() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        for (String uri : new String[]{"/api/oauth/kakao", "/api/oauth/google"}) {
+            SecurityContextHolder.clearContext();
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", uri);
+            request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            MockFilterChain chain = new MockFilterChain();
+
+            jwtFilter.doFilter(request, response, chain);
+
+            assertThat(chain.getRequest()).as(uri).isNotNull();
+            assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).as(uri).isEqualTo("none");
+        }
+    }
+
+    @Test
+    void validRefreshToken_onReissuePost_passes() throws Exception {
+        when(tokenProvider.resolveTokenStatus("refresh-token")).thenReturn(TokenStatus.VALID);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/oauth/token");
+        request.addHeader(JwtFilter.REFRESH_HEADER, "refresh-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        jwtFilter.doFilter(request, response, chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+    }
+
+    @Test
+    void expiredRefreshToken_onReissuePost_respondsWithAuth001() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-refresh-token")).thenReturn(TokenStatus.EXPIRED);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/oauth/token");
+        request.addHeader(JwtFilter.REFRESH_HEADER, "expired-refresh-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        jwtFilter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_001");
+        assertThat(chain.getRequest()).isNull();
     }
 
     @Test
