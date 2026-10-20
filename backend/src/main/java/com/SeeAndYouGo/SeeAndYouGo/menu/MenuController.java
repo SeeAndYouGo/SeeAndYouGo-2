@@ -167,7 +167,7 @@ public class MenuController {
         return menuListArr;
     }
 
-    @GetMapping("/weekly-menu")
+    @GetMapping("/admin/menus/weekly")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin(
             @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         adminAuthorizationService.assertAdmin(email);

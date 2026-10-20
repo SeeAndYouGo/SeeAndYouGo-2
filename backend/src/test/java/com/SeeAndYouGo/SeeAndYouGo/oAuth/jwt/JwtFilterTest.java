@@ -132,8 +132,8 @@ class JwtFilterTest {
         String[][] requests = {
                 {"GET", "/api/user/nickname"},
                 {"GET", "/api/reviews/expired-token"},
-                {"GET", "/api/weekly-menu"},
-                {"GET", "/api/dish/week"},
+                {"GET", "/api/admin/menus/weekly"},
+                {"GET", "/api/admin/dishes/weekly"},
                 {"POST", "/api/review"},
                 {"POST", "/api/review/like/1"},
         };

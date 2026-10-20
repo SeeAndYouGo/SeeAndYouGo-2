@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -43,18 +42,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers(
-                        HttpMethod.GET,
-                        "/api/dish/week",
-                        "/api/weekly-menu"
-                ).hasAuthority(UserRole.ADMIN.name())
-                .antMatchers(
-                        HttpMethod.PUT,
-                        "/api/dish/name",
-                        "/api/main-menu"
-                ).hasAuthority(UserRole.ADMIN.name())
-                .antMatchers(HttpMethod.DELETE, "/api/dish/*")
-                .hasAuthority(UserRole.ADMIN.name())
+                .antMatchers("/api/admin/**").hasAuthority(UserRole.ADMIN.name())
                 .antMatchers("/", "/api*", "/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().permitAll()
                 .and()

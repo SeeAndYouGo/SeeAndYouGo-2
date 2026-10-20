@@ -17,13 +17,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/admin/dishes")
 @CrossOrigin(origins = "http://localhost:3000")
 public class DishController {
     private final DishService dishService;
     private final AdminAuthorizationService adminAuthorizationService;
 
-    @PutMapping("/main-menu")
+    @PutMapping("/main")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos,
                                  @Parameter(hidden = true) @AuthenticationPrincipal String email){   // 받아오는 4개 중 mainMenuName만 사용할 것임
@@ -33,7 +33,7 @@ public class DishController {
         return "Main Menu reflect Success.";
     }
 
-    @GetMapping("/dish/week")
+    @GetMapping("/weekly")
     public List<DishResponseDto> getWeeklyDish(@Parameter(hidden = true) @AuthenticationPrincipal String email){
         adminAuthorizationService.assertAdmin(email);
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
@@ -44,7 +44,7 @@ public class DishController {
         return dishService.getWeeklyDish(startOfWeek, endOfWeek);
     }
 
-    @DeleteMapping("/dish/{id}")
+    @DeleteMapping("/{id}")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishDelete(@PathVariable Long id,
                               @Parameter(hidden = true) @AuthenticationPrincipal String email){
@@ -53,7 +53,7 @@ public class DishController {
         return true;
     }
 
-    @PutMapping("/dish/name")
+    @PutMapping("/name")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto,
                                   @Parameter(hidden = true) @AuthenticationPrincipal String email) {

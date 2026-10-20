@@ -65,7 +65,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 400 | `COMMON_002` | 알 수 없는 식당입니다: {restaurant 파라미터} | `GET /api/connection/prediction` — 식당 파라미터가 유효하지 않은 경우. |
 | 400 | `COMMON_002` | observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다. | `GET /api/connection/prediction` — `observed_at` 형식 오류. |
 | 400 | `COMMON_002` | 메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다. | `GET /api/restaurant/{n}/rate/detail` — 세부 평점 미지원 식당 요청. |
-| 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/dish/name` — 새 메뉴명이 빈 문자열. |
+| 400 | `COMMON_002` | 새로운 메뉴명은 비어있을 수 없습니다. | `PUT /api/admin/dishes/name` — 새 메뉴명이 빈 문자열. |
 | 400 | `COMMON_002` | 날짜형식이 일치하지 않습니다.(yyyy-MM-dd) | `GET /api/daily-menu/{restaurant}/{date}` — `date` 형식 오류. |
 | 400 | `COMMON_002` | 올바르지 않은 이미지 파일명입니다. | `GET /api/images/{imgName}` — 경로 조작 문자(`..`, `/`, `\`) 포함 (path traversal 방어). |
 | 400 | `COMMON_002` | 잘못된 입력값입니다. (기본값) | 커스텀 문구 없는 나머지: Bean Validation 실패, path/query 타입 불일치, 필수 파라미터·헤더·multipart 파트 누락, multipart 가 아닌 요청, JSON 파싱 불가, 허용되지 않은 HTTP 메서드(405 대신), 지원하지 않는 Content-Type(415 대신), 그 외 커스텀 메시지 없이 던져진 `IllegalArgumentException`. |
@@ -91,8 +91,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `GET /api/oauth/token/reissue` |
 | 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `PUT /api/report/{reviewId}` |
-| 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/main-menu` |
-| 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/dish/{id}`, `PUT /api/dish/name` |
+| 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/admin/dishes/main` |
+| 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/admin/dishes/{id}`, `PUT /api/admin/dishes/name` |
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
 | 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `PUT /api/report/{reviewId}` |
 | 404 | `REVIEW_001` | 삭제하려는 리뷰를 찾을 수 없습니다. | `DELETE /api/reviews/{reviewId}` |
@@ -125,7 +125,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | GET | `/api/daily-menu/{restaurant}` | `MenuResponseByUserDto[]` | `COMMON_002` / `COMMON_001` |
 | GET | `/api/daily-menu/{restaurant}/{date}` | `MenuResponseByUserDto[]` | `COMMON_002` |
 | GET | `/api/weekly-menu/{restaurant}` | `MenuResponseDto[]` | `COMMON_002` / `COMMON_001` |
-| GET | `/api/weekly-menu` | `MenuResponseByAdminDto[]` | `COMMON_001` |
+| GET | `/api/admin/menus/weekly` | `MenuResponseByAdminDto[]` | `COMMON_001` |
 | POST | `/api/menu/local?AUTH_KEY=&restaurant=` | `MenuVO[]` | `AUTH_001` / `COMMON_002` |
 | GET | `/api/week` | `null` | `COMMON_001` |
 | GET | `/api/restaurant1-menu` | `JsonNode` | `COMMON_003` / `COMMON_001` |
@@ -134,10 +134,10 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| PUT | `/api/main-menu` | `"Main Menu reflect Success."` | `DISH_001` / `COMMON_001` |
-| GET | `/api/dish/week` | `DishResponseDto[]` | `COMMON_001` |
-| DELETE | `/api/dish/{id}` | `true` | `DISH_001` |
-| PUT | `/api/dish/name` | `true` 또는 `false` | `COMMON_002` / `DISH_001` |
+| PUT | `/api/admin/dishes/main` | `"Main Menu reflect Success."` | `DISH_001` / `COMMON_001` |
+| GET | `/api/admin/dishes/weekly` | `DishResponseDto[]` | `COMMON_001` |
+| DELETE | `/api/admin/dishes/{id}` | `true` | `DISH_001` |
+| PUT | `/api/admin/dishes/name` | `true` 또는 `false` | `COMMON_002` / `DISH_001` |
 
 ### Review
 

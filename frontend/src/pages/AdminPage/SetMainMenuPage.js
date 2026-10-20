@@ -31,7 +31,7 @@ const SetMainMenuPage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await getWithToken("/weekly-menu");
+			const response = await getWithToken("/admin/menus/weekly");
 			return response;
 		};
 		fetchData().then((data) => {
@@ -74,7 +74,7 @@ const SetMainMenuPage = () => {
 		if (changeValue) {
 			// 전체보기 버튼 클릭시, 전체 데이터 재요청
 			const fetchData = async () => {
-				const response = await getWithToken("/weekly-menu");
+				const response = await getWithToken("/admin/menus/weekly");
 				return response;
 			};
 			fetchData().then((data) => {
@@ -93,7 +93,7 @@ const SetMainMenuPage = () => {
 		setButtonDisabled(true);
 
 		const jsonData = JSON.stringify(menuList);
-		await putWithToken("/main-menu", jsonData)
+		await putWithToken("/admin/dishes/main", jsonData)
 			.then(() => {
 				alert("전송 성공");
 			})
