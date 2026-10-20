@@ -17,6 +17,7 @@
 
 - HTTP Status: `200 OK`
 - `data`에는 API별 실제 응답 결과가 들어간다.
+- `message`는 기본값이 `요청이 성공했습니다.`이며, 사용자에게 보여줄 완료 문구가 있는 API는 API별 문구를 내려준다. (예: `PUT /api/report/{reviewId}` → `리뷰 신고가 완료되었습니다.`)
 - 목록 API는 `data: []`, 단건 API는 `data: {}`, 값 응답은 `data: true`, 응답 본문이 없는 API는 `data: null`을 사용한다.
 
 ### 실패
@@ -89,13 +90,14 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
 | 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/review/like/{review_id}` |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `GET /api/oauth/token/reissue` |
+| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `PUT /api/report/{reviewId}` |
 | 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/main-menu` |
 | 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/dish/{id}`, `PUT /api/dish/name` |
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/review/like/{review_id}` |
 | 404 | `REVIEW_001` | 신고하려는 리뷰를 찾을 수 없습니다. | `PUT /api/report/{reviewId}` |
 | 404 | `REVIEW_001` | 삭제하려는 리뷰를 찾을 수 없습니다. | `DELETE /api/reviews/{reviewId}` |
-| 404 | `REVIEW_001` | 리뷰를 찾을 수 없습니다. (기본값) | `DELETE /api/review/report/{reviewId}` |
 | 403 | `REVIEW_002` | 본인이 작성한 리뷰만 삭제할 수 있습니다. | `DELETE /api/reviews/{reviewId}` — 요청자와 작성자가 다름. |
+| 400 | `REVIEW_003` | 본인이 작성한 리뷰는 신고할 수 없습니다. | `PUT /api/report/{reviewId}` — 요청자와 작성자가 같음. |
 | 404 | `KEYWORD_001` | 삭제하려는 키워드를 찾을 수 없습니다. | `DELETE /api/keyword` |
 
 ### Prediction — 혼잡도 예측 서버 연동
@@ -144,12 +146,11 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | GET | `/api/total-review` | `ReviewResponseDto[]` | `COMMON_001` |
 | GET | `/api/top-review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
 | GET | `/api/review/{restaurant}` | `ReviewResponseDto[]` | `COMMON_002` |
-| PUT | `/api/report/{reviewId}` | `ReportCountResponseDto` | `REVIEW_001` |
+| PUT | `/api/report/{reviewId}` | `null` (`message`: 리뷰 신고가 완료되었습니다.) — 신고 누적이 10에 도달하면 서버가 리뷰를 삭제한다. | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_003` |
 | POST | `/api/review` | `reviewId: number` | `COMMON_002` / `COMMON_003` / `COMMON_001` |
 | GET | `/api/images/{imgName}` | `image/png` binary | `COMMON_002` / `COMMON_003` |
 | GET | `/api/reviews/{token}` | `ReviewResponseDto[]` | `COMMON_001` |
 | DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` | `REVIEW_001` / `REVIEW_002` |
-| DELETE | `/api/review/report/{reviewId}` | `ReviewDeleteResponseDto` | `REVIEW_001` |
 
 ### Like
 
