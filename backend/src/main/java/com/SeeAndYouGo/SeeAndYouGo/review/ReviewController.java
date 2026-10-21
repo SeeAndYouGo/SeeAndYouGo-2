@@ -8,7 +8,7 @@ import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +45,11 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final UserService userService;
     private final LikeService likeService;
-    private final AdminAuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
     private final Executor executor;
 
     public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService,
-                            AdminAuthorizationService authorizationService, @Qualifier("asyncTaskExecutor") Executor executor) {
+                            AuthorizationService authorizationService, @Qualifier("asyncTaskExecutor") Executor executor) {
         this.reviewService = reviewService;
         this.userService = userService;
         this.likeService = likeService;

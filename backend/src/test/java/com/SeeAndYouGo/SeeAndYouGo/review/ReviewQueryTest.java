@@ -4,7 +4,7 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +35,7 @@ class ReviewQueryTest {
     @Mock private ReviewService reviewService;
     @Mock private UserService userService;
     @Mock private LikeService likeService;
-    @Mock private AdminAuthorizationService authorizationService;
+    @Mock private AuthorizationService authorizationService;
     @Mock private Executor executor;
 
     private ReviewController reviewController;

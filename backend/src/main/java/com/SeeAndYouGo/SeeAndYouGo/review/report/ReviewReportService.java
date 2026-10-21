@@ -5,7 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewReader;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewService;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewReportService {
     private final ReviewReader reviewReader;
     private final ReviewService reviewService;
-    private final AdminAuthorizationService authorizationService;
+    private final AuthorizationService authorizationService;
 
     @Value("${app.review.report-delete-threshold}")
     private int reportDeleteThreshold;

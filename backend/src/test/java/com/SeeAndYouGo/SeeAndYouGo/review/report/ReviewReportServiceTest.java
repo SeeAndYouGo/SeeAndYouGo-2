@@ -5,7 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.review.Review;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewReader;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewService;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class ReviewReportServiceTest {
 
     @Mock private ReviewReader reviewReader;
     @Mock private ReviewService reviewService;
-    @Mock private AdminAuthorizationService authorizationService;
+    @Mock private AuthorizationService authorizationService;
 
     @InjectMocks private ReviewReportService reviewReportService;
 

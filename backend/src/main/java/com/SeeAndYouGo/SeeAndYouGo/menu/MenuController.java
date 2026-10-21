@@ -5,7 +5,7 @@ import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
@@ -35,7 +35,7 @@ import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MenuController {
     private final MenuService menuService;
-    private final AdminAuthorizationService adminAuthorizationService;
+    private final AuthorizationService authorizationService;
     private final UserRepository userRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
@@ -170,7 +170,7 @@ public class MenuController {
     @GetMapping("/admin/menus/weekly")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin(
             @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;

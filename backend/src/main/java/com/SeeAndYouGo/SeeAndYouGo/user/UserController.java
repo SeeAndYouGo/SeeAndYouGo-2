@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserService userService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping("/nickname-availability")
     public NicknameCheckResponseDto checkNicknameRedundancy(@RequestParam("nickname") String nickname) {
@@ -27,6 +28,7 @@ public class UserController {
     @PutMapping("/me/nickname")
     public NicknameUpdateResponseDto changeNickname(@RequestBody UserNicknameRequest nicknameRequest,
                                                     @Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
         String lastUpdateTime = userService.getLastUpdateTimeForNickname(email);
 
         boolean canUpdate;
@@ -42,6 +44,7 @@ public class UserController {
 
     @GetMapping("/me")
     public UserResponseDto getNickname(@Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
         String nickname = userService.getNicknameByEmail(email);
 
         return UserResponseDto.builder()

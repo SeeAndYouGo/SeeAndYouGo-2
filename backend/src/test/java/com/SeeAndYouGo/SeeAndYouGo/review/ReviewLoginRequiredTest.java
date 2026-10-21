@@ -2,7 +2,7 @@ package com.SeeAndYouGo.SeeAndYouGo.review;
 
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserReader;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class ReviewLoginRequiredTest {
 
     @BeforeEach
     void setUp() {
-        AdminAuthorizationService authorizationService = new AdminAuthorizationService(userReader);
+        AuthorizationService authorizationService = new AuthorizationService(userReader);
         reviewController = new ReviewController(reviewService, userService, likeService, authorizationService, executor);
     }
 

@@ -77,7 +77,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
-| 401 | `AUTH_001` | 인증 정보가 올바르지 않습니다. | ① 로그인 필요 API에 자격 증명 없이(또는 만료된 access token으로) 접근 ② `POST /api/oauth/token`에서 refresh token 자체가 만료. 공개 조회 API(GET)와 소셜 로그인(`POST /api/oauth/kakao`, `/google`)은 만료된 access token이 붙어 와도 비로그인으로 처리한다. |
+| 401 | `AUTH_001` | 인증 정보가 올바르지 않습니다. | ① 로그인 필요 API에 자격 증명 없이(또는 만료된 access token으로) 접근 — 로그인 필요 API는 비로그인 요청에 모두 이 코드로 응답한다 ② `POST /api/oauth/token`에서 refresh token 자체가 만료. 공개 조회 API(GET)와 소셜 로그인(`POST /api/oauth/kakao`, `/google`)은 만료된 access token이 붙어 와도 비로그인으로 처리한다. |
 | 403 | `AUTH_002` | 접근 권한이 없습니다. | 인증은 되었으나 해당 리소스에 대한 권한이 없는 경우 (`AccessDeniedException`). |
 | 401 | `AUTH_003` | 유효하지 않은 토큰입니다. | ① `@ValidateToken` AOP 검증 실패 ② `POST /api/oauth/token`에서 refresh token JWT 서명 위조 ③ `POST /api/oauth/token`에서 refresh token 값이 서버 저장값과 불일치(탈취/변조 의심) |
 
@@ -85,12 +85,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | HTTP | Code | Message | 발생 조건 |
 |---:|---|---|---|
-| 404 | `USER_001` | 닉네임 변경 이력을 조회할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `PUT /api/users/me/nickname` |
-| 404 | `USER_001` | 키워드를 등록할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/keyword` |
-| 404 | `USER_001` | 키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `DELETE /api/keyword` |
-| 404 | `USER_001` | 좋아요를 처리할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/reviews/{reviewId}/likes` |
+| 404 | `USER_001` | 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | 로그인 필요 API 전체 — 토큰은 유효하지만 토큰의 사용자가 DB에 없음 (`AuthorizationService.getLoginUser`) |
 | 404 | `USER_001` | 토큰을 재발급할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요. | `POST /api/oauth/token` |
-| 404 | `USER_001` | 사용자를 찾을 수 없습니다. (기본값) | `POST /api/reviews/{reviewId}/reports`, `POST /api/reviews`, `GET /api/reviews/me`, `DELETE /api/reviews/{reviewId}` |
 | 404 | `DISH_001` | {메뉴명}에 해당하는 메뉴를 찾을 수 없습니다. | `PUT /api/admin/dishes/main` |
 | 404 | `DISH_001` | ID {id}에 해당하는 메뉴를 찾을 수 없습니다. | `DELETE /api/admin/dishes/{id}`, `PUT /api/admin/dishes/name` |
 | 404 | `REVIEW_001` | 좋아요를 처리할 리뷰를 찾을 수 없습니다. | `POST /api/reviews/{reviewId}/likes` |
@@ -153,15 +149,15 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| POST | `/api/reviews/{reviewId}/likes` | `LikeResponseDto` | `USER_001` / `REVIEW_001` |
+| POST | `/api/reviews/{reviewId}/likes` | `LikeResponseDto` | `AUTH_001` / `USER_001` / `REVIEW_001` |
 
 ### Keyword
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| GET | `/api/keyword/{user_id}` | `KeywordResponseDto` | `COMMON_001` |
-| POST | `/api/keyword` | `KeywordAddResponseDto` | `USER_001` |
-| DELETE | `/api/keyword` | `KeywordResponseDto` | `USER_001` / `KEYWORD_001` |
+| GET | `/api/keyword/{user_id}` | `KeywordResponseDto` | `AUTH_001` / `USER_001` / `COMMON_001` |
+| POST | `/api/keyword` | `KeywordAddResponseDto` | `AUTH_001` / `USER_001` |
+| DELETE | `/api/keyword` | `KeywordResponseDto` | `AUTH_001` / `USER_001` / `KEYWORD_001` |
 
 ### OAuth
 
@@ -196,5 +192,5 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/users/nickname-availability?nickname=` | `NicknameCheckResponseDto` | `COMMON_001` |
-| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` | `USER_001` |
-| GET | `/api/users/me` | `UserResponseDto` | `COMMON_001` |
+| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` | `AUTH_001` / `USER_001` |
+| GET | `/api/users/me` | `UserResponseDto` | `AUTH_001` / `USER_001` / `COMMON_001` |

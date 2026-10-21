@@ -1,6 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.like;
 
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,9 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class LikeController {
     private final LikeService likeService;
+    private final AuthorizationService authorizationService;
+
     @PostMapping("/reviews/{reviewId}/likes")
     public LikeResponseDto postLikeCount(@PathVariable("reviewId") Long reviewId,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
         // 만약 해당 유저가 공감을 누른 상태였다면, 공감 삭제
         // 공감을 누르지 않은 상태였다면 공감 추가이다
         return likeService.postLikeCount(reviewId, email);

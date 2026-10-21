@@ -3,7 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.dish;
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,13 +21,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class DishController {
     private final DishService dishService;
-    private final AdminAuthorizationService adminAuthorizationService;
+    private final AuthorizationService authorizationService;
 
     @PutMapping("/main")
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos,
                                  @Parameter(hidden = true) @AuthenticationPrincipal String email){   // 받아오는 4개 중 mainMenuName만 사용할 것임
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         mainDishResponseDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponseDtos);
         return "Main Menu reflect Success.";
@@ -35,7 +35,7 @@ public class DishController {
 
     @GetMapping("/weekly")
     public List<DishResponseDto> getWeeklyDish(@Parameter(hidden = true) @AuthenticationPrincipal String email){
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         // 해당 주(week)의 시작 날짜와 끝 날짜 계산
         LocalDate today = LocalDate.now();
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -48,7 +48,7 @@ public class DishController {
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishDelete(@PathVariable Long id,
                               @Parameter(hidden = true) @AuthenticationPrincipal String email){
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         dishService.deleteDish(id);
         return true;
     }
@@ -57,7 +57,7 @@ public class DishController {
     @EvictAllCache({"daily-menu", "weekly-menu"})
     public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto,
                                   @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
     }
 }
