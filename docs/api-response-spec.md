@@ -163,8 +163,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| POST | `/api/oauth/kakao?code=` | `TokenDto` | `COMMON_002` / `COMMON_001` |
-| POST | `/api/oauth/google?code=` | `TokenDto` | `COMMON_002` / `COMMON_001` |
+| POST | `/api/oauth/kakao?code=` | `TokenDto` (`message`: 로그인되었습니다. / 신규 가입(`data.message: "join"`)이면 회원가입을 축하합니다! 닉네임을 설정해주세요.) | `COMMON_002` / `COMMON_001` |
+| POST | `/api/oauth/google?code=` | `TokenDto` (`message`: 로그인되었습니다. / 신규 가입(`data.message: "join"`)이면 회원가입을 축하합니다! 닉네임을 설정해주세요.) | `COMMON_002` / `COMMON_001` |
 | POST | `/api/oauth/token` | `TokenDto` | `AUTH_001`(만료) / `AUTH_003`(서명 위조·값 불일치) / `USER_001` |
 
 ### Rate

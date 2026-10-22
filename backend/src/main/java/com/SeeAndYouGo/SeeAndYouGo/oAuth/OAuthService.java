@@ -98,11 +98,11 @@ public class OAuthService {
     // ===== COMMON =====
     private TokenDto processLogin(UserIdentityDto userInfo, Social socialType) {
         String email = userInfo.getEmail();
-        String message = "login";
+        String message = TokenDto.LOGIN;
 
         if (!userReader.existsByEmail(email)) {
             signUp(userInfo, socialType);
-            message = "join";
+            message = TokenDto.JOIN;
         }
 
         TokenDto tokenDto = tokenProvider.createToken(email);

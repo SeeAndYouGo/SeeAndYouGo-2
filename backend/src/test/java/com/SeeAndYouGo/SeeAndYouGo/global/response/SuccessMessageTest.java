@@ -11,6 +11,9 @@ import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeController;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.OAuthController;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.OAuthService;
+import com.SeeAndYouGo.SeeAndYouGo.oAuth.TokenDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewController;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewService;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
@@ -53,12 +56,14 @@ class SuccessMessageTest {
     @Mock private KeywordService keywordService;
     @Mock private AuthorizationService authorizationService;
     @Mock private Executor executor;
+    @Mock private OAuthService oauthService;
 
     private ReviewController reviewController;
     private DishController dishController;
     private UserController userController;
     private KeywordController keywordController;
     private LikeController likeController;
+    private OAuthController oauthController;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +72,7 @@ class SuccessMessageTest {
         userController = new UserController(userService, authorizationService);
         keywordController = new KeywordController(keywordService, authorizationService);
         likeController = new LikeController(likeService, authorizationService);
+        oauthController = new OAuthController(oauthService);
         ReflectionTestUtils.setField(keywordController, "maxKeywordsPerUser", 10);
     }
 
@@ -141,5 +147,19 @@ class SuccessMessageTest {
 
         given(keywordService.deleteKeyword(any(), anyString())).willReturn(mock(KeywordResponseDto.class));
         assertThat(keywordController.deleteKeyword(request, EMAIL).getMessage()).isEqualTo("키워드가 삭제되었습니다.");
+    }
+
+    @Test
+    @DisplayName("소셜 로그인: 기존 회원·신규 가입")
+    void login() {
+        given(oauthService.getKakaoAccessToken("code")).willReturn("kakao-token");
+
+        given(oauthService.kakaoLogin("kakao-token")).willReturn(TokenDto.builder().message(TokenDto.LOGIN).build());
+        assertThat(oauthController.kakaoLoginOauth("code").getMessage()).isEqualTo("로그인되었습니다.");
+
+        given(oauthService.kakaoLogin("kakao-token")).willReturn(TokenDto.builder().message(TokenDto.JOIN).build());
+        ApiResponse<TokenDto> joined = oauthController.kakaoLoginOauth("code");
+        assertThat(joined.getMessage()).isEqualTo("회원가입을 축하합니다! 닉네임을 설정해주세요.");
+        assertThat(joined.getData().getMessage()).isEqualTo("join");
     }
 }
