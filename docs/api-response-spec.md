@@ -17,7 +17,7 @@
 
 - HTTP Status: `200 OK`
 - `data`에는 API별 실제 응답 결과가 들어간다.
-- `message`는 기본값이 `요청이 성공했습니다.`이며, 사용자에게 보여줄 완료 문구가 있는 API는 API별 문구를 내려준다. (예: `POST /api/reviews/{reviewId}/reports` → `리뷰 신고가 완료되었습니다.`)
+- `message`는 기본값이 `요청이 성공했습니다.`이며, 사용자에게 보여줄 완료 문구가 있는 API는 API별 문구를 내려준다. API별 문구는 아래 표의 응답 칸에 `message`로 적는다.
 - 목록 API는 `data: []`, 단건 API는 `data: {}`, 값 응답은 `data: true`, 응답 본문이 없는 API는 `data: null`을 사용한다.
 
 ### 실패
@@ -129,10 +129,10 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| PUT | `/api/admin/dishes/main` | `"Main Menu reflect Success."` | `DISH_001` / `COMMON_001` |
+| PUT | `/api/admin/dishes/main` | `"Main Menu reflect Success."` (`message`: 대표 메뉴가 반영되었습니다.) | `DISH_001` / `COMMON_001` |
 | GET | `/api/admin/dishes/weekly` | `DishResponseDto[]` | `COMMON_001` |
-| DELETE | `/api/admin/dishes/{id}` | `true` | `DISH_001` |
-| PUT | `/api/admin/dishes/name` | `true` 또는 `false` | `COMMON_002` / `DISH_001` |
+| DELETE | `/api/admin/dishes/{id}` | `true` (`message`: 메뉴가 삭제되었습니다.) | `DISH_001` |
+| PUT | `/api/admin/dishes/name` | `true` 또는 `false` (`message`: 메뉴명이 변경되었습니다. / 이름이 같아 `false`면 변경된 내용이 없습니다.) | `COMMON_002` / `DISH_001` |
 
 ### Review
 
@@ -140,10 +140,10 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 |---|---|---|---|
 | GET | `/api/reviews?restaurant=&sort=` | `ReviewResponseDto[]` — `restaurant` 생략 시 전 식당, `sort=top`이면 탑 리뷰(`like` 항상 `false`) | `COMMON_002` / `COMMON_001` |
 | POST | `/api/reviews/{reviewId}/reports` | `null` (`message`: 리뷰 신고가 완료되었습니다.) — 신고 누적이 10에 도달하면 서버가 리뷰를 삭제한다. | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_003` |
-| POST | `/api/reviews` | `reviewId: number` | `AUTH_001` / `USER_001` / `COMMON_002` / `COMMON_003` / `COMMON_001` |
+| POST | `/api/reviews` | `reviewId: number` (`message`: 리뷰가 등록되었습니다.) | `AUTH_001` / `USER_001` / `COMMON_002` / `COMMON_003` / `COMMON_001` |
 | GET | `/api/images/{imgName}` | `image/png` binary | `COMMON_002` / `COMMON_003` |
 | GET | `/api/reviews/me` | `ReviewResponseDto[]` | `AUTH_001` / `USER_001` / `COMMON_001` |
-| DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_002` |
+| DELETE | `/api/reviews/{reviewId}` | `ReviewDeleteResponseDto` (`message`: 리뷰가 삭제되었습니다.) | `AUTH_001` / `USER_001` / `REVIEW_001` / `REVIEW_002` |
 
 ### Like
 
@@ -156,8 +156,8 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/keyword/{user_id}` | `KeywordResponseDto` | `AUTH_001` / `USER_001` / `COMMON_001` |
-| POST | `/api/keyword` | `KeywordAddResponseDto` | `AUTH_001` / `USER_001` |
-| DELETE | `/api/keyword` | `KeywordResponseDto` | `AUTH_001` / `USER_001` / `KEYWORD_001` |
+| POST | `/api/keyword` | `KeywordAddResponseDto` (`message`: 키워드가 등록되었습니다. / `isExceed: true`면 키워드는 최대 {N}개까지 등록할 수 있습니다. — N은 `app.keyword.max-per-user`) | `AUTH_001` / `USER_001` |
+| DELETE | `/api/keyword` | `KeywordResponseDto` (`message`: 키워드가 삭제되었습니다.) | `AUTH_001` / `USER_001` / `KEYWORD_001` |
 
 ### OAuth
 
@@ -192,5 +192,5 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/users/nickname-availability?nickname=` | `NicknameCheckResponseDto` | `COMMON_001` |
-| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` | `AUTH_001` / `USER_001` |
+| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` (`message`: `update: true`면 닉네임이 변경되었습니다. / `false`면 기본값) | `AUTH_001` / `USER_001` |
 | GET | `/api/users/me` | `UserResponseDto` | `AUTH_001` / `USER_001` / `COMMON_001` |
