@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private static final String NICKNAME_UPDATED_MESSAGE = "닉네임이 변경되었습니다.";
+    private static final String NICKNAME_CHANGE_LIMITED_MESSAGE =
+            String.format("닉네임은 %d일에 한 번 변경할 수 있습니다.", User.NICKNAME_CHANGE_INTERVAL_DAYS);
 
     private final UserService userService;
     private final AuthorizationService authorizationService;
@@ -43,8 +45,7 @@ public class UserController {
                 .update(canUpdate)
                 .lastUpdate(lastUpdateTime)
                 .build();
-        // 변경 주기 제한(update: false) 문구는 프론트 자체 토스트와 함께 정리할 예정이라 기본 문구를 유지한다.
-        return canUpdate ? ApiResponse.success(response, NICKNAME_UPDATED_MESSAGE) : ApiResponse.success(response);
+        return ApiResponse.success(response, canUpdate ? NICKNAME_UPDATED_MESSAGE : NICKNAME_CHANGE_LIMITED_MESSAGE);
     }
 
     @GetMapping("/me")

@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Table(name = "users")
 public class User {
+    public static final int NICKNAME_CHANGE_INTERVAL_DAYS = 14;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -115,6 +117,6 @@ public class User {
         int monthGap = Math.abs(period.getMonths());
 
         // 14일 이후에 변경하는 경우나 아직 닉네임을 지정하지 않아 최초 등록의 경우는 닉네임을 수정할 수 있다.
-        return (dateGap > 14) || (monthGap > 2)  || nickname == null;
+        return (dateGap > NICKNAME_CHANGE_INTERVAL_DAYS) || (monthGap > 2)  || nickname == null;
     }
 }

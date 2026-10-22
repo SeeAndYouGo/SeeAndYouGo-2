@@ -8,7 +8,9 @@ import com.SeeAndYouGo.SeeAndYouGo.keyword.KeywordService;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordAddResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.keyword.dto.KeywordResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.like.LikeController;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
+import com.SeeAndYouGo.SeeAndYouGo.like.dto.LikeResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewController;
 import com.SeeAndYouGo.SeeAndYouGo.review.ReviewService;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
@@ -56,6 +58,7 @@ class SuccessMessageTest {
     private DishController dishController;
     private UserController userController;
     private KeywordController keywordController;
+    private LikeController likeController;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +66,7 @@ class SuccessMessageTest {
         dishController = new DishController(dishService, authorizationService);
         userController = new UserController(userService, authorizationService);
         keywordController = new KeywordController(keywordService, authorizationService);
+        likeController = new LikeController(likeService, authorizationService);
         ReflectionTestUtils.setField(keywordController, "maxKeywordsPerUser", 10);
     }
 
@@ -82,7 +86,7 @@ class SuccessMessageTest {
     }
 
     @Test
-    @DisplayName("닉네임 변경: 변경되면 전용 문구, 변경 주기 제한이면 기본 문구")
+    @DisplayName("닉네임 변경: 변경됨·변경 주기 제한")
     void nickname() {
         UserNicknameRequest request = mock(UserNicknameRequest.class);
 
@@ -90,7 +94,20 @@ class SuccessMessageTest {
         assertThat(userController.changeNickname(request, EMAIL).getMessage()).isEqualTo("닉네임이 변경되었습니다.");
 
         given(userService.canUpdateNickname(EMAIL)).willReturn(false);
-        assertThat(userController.changeNickname(request, EMAIL).getMessage()).isEqualTo(ApiResponse.SUCCESS_MESSAGE);
+        assertThat(userController.changeNickname(request, EMAIL).getMessage()).isEqualTo("닉네임은 14일에 한 번 변경할 수 있습니다.");
+    }
+
+    @Test
+    @DisplayName("공감: 추가·해제·내가 쓴 리뷰")
+    void like() {
+        given(likeService.postLikeCount(512L, EMAIL)).willReturn(new LikeResponseDto(true, false));
+        assertThat(likeController.postLikeCount(512L, EMAIL).getMessage()).isEqualTo("리뷰에 공감했습니다.");
+
+        given(likeService.postLikeCount(512L, EMAIL)).willReturn(new LikeResponseDto(false, false));
+        assertThat(likeController.postLikeCount(512L, EMAIL).getMessage()).isEqualTo("리뷰 공감을 해제했습니다.");
+
+        given(likeService.postLikeCount(512L, EMAIL)).willReturn(new LikeResponseDto(false, true));
+        assertThat(likeController.postLikeCount(512L, EMAIL).getMessage()).isEqualTo("내가 쓴 리뷰는 공감할 수 없습니다.");
     }
 
     @Test
