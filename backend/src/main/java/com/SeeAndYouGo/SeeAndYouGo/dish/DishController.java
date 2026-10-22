@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.response.ApiResponse;
 import com.SeeAndYouGo.SeeAndYouGo.caching.annotation.EvictAllCache;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
@@ -20,17 +21,22 @@ import java.util.List;
 @RequestMapping("/api/admin/dishes")
 @CrossOrigin(origins = "http://localhost:3000")
 public class DishController {
+    private static final String MAIN_DISH_UPDATED_MESSAGE = "대표 메뉴가 반영되었습니다.";
+    private static final String DISH_DELETED_MESSAGE = "메뉴가 삭제되었습니다.";
+    private static final String DISH_NAME_UPDATED_MESSAGE = "메뉴명이 변경되었습니다.";
+    private static final String DISH_NAME_UNCHANGED_MESSAGE = "변경된 내용이 없습니다.";
+
     private final DishService dishService;
     private final AuthorizationService authorizationService;
 
     @PutMapping("/main")
     @EvictAllCache({"daily-menu", "weekly-menu"})
-    public String updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos,
-                                 @Parameter(hidden = true) @AuthenticationPrincipal String email){   // 받아오는 4개 중 mainMenuName만 사용할 것임
+    public ApiResponse<String> updateMainDish(@RequestBody List<MainDishRequestDto> mainDishResponseDtos,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal String email){   // 받아오는 4개 중 mainMenuName만 사용할 것임
         authorizationService.assertAdmin(email);
         mainDishResponseDtos.removeAll(Collections.singletonList(null));
         dishService.updateMainDish(mainDishResponseDtos);
-        return "Main Menu reflect Success.";
+        return ApiResponse.success("Main Menu reflect Success.", MAIN_DISH_UPDATED_MESSAGE);
     }
 
     @GetMapping("/weekly")
@@ -46,18 +52,19 @@ public class DishController {
 
     @DeleteMapping("/{id}")
     @EvictAllCache({"daily-menu", "weekly-menu"})
-    public boolean dishDelete(@PathVariable Long id,
-                              @Parameter(hidden = true) @AuthenticationPrincipal String email){
+    public ApiResponse<Boolean> dishDelete(@PathVariable Long id,
+                                           @Parameter(hidden = true) @AuthenticationPrincipal String email){
         authorizationService.assertAdmin(email);
         dishService.deleteDish(id);
-        return true;
+        return ApiResponse.success(true, DISH_DELETED_MESSAGE);
     }
 
     @PutMapping("/name")
     @EvictAllCache({"daily-menu", "weekly-menu"})
-    public boolean dishUpdateName(@RequestBody DishRequestDto dishRequestDto,
-                                  @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    public ApiResponse<Boolean> dishUpdateName(@RequestBody DishRequestDto dishRequestDto,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         authorizationService.assertAdmin(email);
-        return dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
+        boolean updated = dishService.updateDishName(dishRequestDto.getId(), dishRequestDto.getChangeName());
+        return ApiResponse.success(updated, updated ? DISH_NAME_UPDATED_MESSAGE : DISH_NAME_UNCHANGED_MESSAGE);
     }
 }

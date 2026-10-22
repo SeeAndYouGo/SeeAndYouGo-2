@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.review;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.response.ApiResponse;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
@@ -41,6 +42,8 @@ import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.*;
 public class ReviewController {
 
     private static final String SORT_TOP = "top";
+    private static final String REVIEW_POSTED_MESSAGE = "리뷰가 등록되었습니다.";
+    private static final String REVIEW_DELETED_MESSAGE = "리뷰가 삭제되었습니다.";
 
     private final ReviewService reviewService;
     private final UserService userService;
@@ -125,9 +128,9 @@ public class ReviewController {
 
     // 리뷰 게시
     @PostMapping(value = "/reviews")
-    public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
-                           @RequestPart(value = "image", required = false) MultipartFile image,
-                           @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    public ApiResponse<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
+                                        @RequestPart(value = "image", required = false) MultipartFile image,
+                                        @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         authorizationService.getLoginUser(email);
         String nickname = userService.getNicknameByEmail(email);
 
@@ -151,7 +154,7 @@ public class ReviewController {
                 .imgUrl(imgUrl)
                 .build();
 
-        return reviewService.registerReview(data);
+        return ApiResponse.success(reviewService.registerReview(data), REVIEW_POSTED_MESSAGE);
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
@@ -212,7 +215,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/reviews/{reviewId}")
-    public ReviewDeleteResponseDto deleteReview(
+    public ApiResponse<ReviewDeleteResponseDto> deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){
         authorizationService.getLoginUser(email);
@@ -222,8 +225,9 @@ public class ReviewController {
             throw new ApiException(ErrorCode.REVIEW_DELETE_FORBIDDEN);
         }
 
-        return ReviewDeleteResponseDto.builder()
+        ReviewDeleteResponseDto response = ReviewDeleteResponseDto.builder()
                 .success(true)
                 .build();
+        return ApiResponse.success(response, REVIEW_DELETED_MESSAGE);
     }
 }
