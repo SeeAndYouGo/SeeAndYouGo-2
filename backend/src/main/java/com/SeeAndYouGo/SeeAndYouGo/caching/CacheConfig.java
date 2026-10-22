@@ -61,20 +61,6 @@ public class CacheConfig {
                         .cacheName("weekly-menu")
                         .ttl(Duration.ofDays(1))
                         .keyGenerator(ctx -> ctx.getQueryParams().get("restaurant"))
-                        .build(),
-
-                // 좋아요 캐싱 규칙
-                CacheRule.builder()
-                        .cacheType(CacheType.STRING)
-                        .urlPattern("/api/review/{reviewId}/like")
-                        .method("*")
-                        .cacheName("likes")
-                        .ttl(Duration.ofDays(1))
-                        .keyGenerator(ctx -> {
-                            String reviewId = ctx.getPathVariables().get("reviewId");
-                            String userEmail = ctx.getUserEmail();
-                            return reviewId + ":" + userEmail;
-                        })
                         .build()
         );
     }
