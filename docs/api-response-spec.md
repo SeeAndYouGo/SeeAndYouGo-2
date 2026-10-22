@@ -149,7 +149,7 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
-| POST | `/api/reviews/{reviewId}/likes` | `LikeResponseDto` | `AUTH_001` / `USER_001` / `REVIEW_001` |
+| POST | `/api/reviews/{reviewId}/likes` | `LikeResponseDto` (`message`: 리뷰에 공감했습니다. / 리뷰 공감을 해제했습니다. / `mine: true`면 내가 쓴 리뷰는 공감할 수 없습니다.) | `AUTH_001` / `USER_001` / `REVIEW_001` |
 
 ### Keyword
 
@@ -192,5 +192,5 @@ const message = error.response?.data?.message ?? "알 수 없는 오류가 발�
 | Method | Path | 성공 `data` | 실패 코드 |
 |---|---|---|---|
 | GET | `/api/users/nickname-availability?nickname=` | `NicknameCheckResponseDto` | `COMMON_001` |
-| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` (`message`: `update: true`면 닉네임이 변경되었습니다. / `false`면 기본값) | `AUTH_001` / `USER_001` |
+| PUT | `/api/users/me/nickname` | `NicknameUpdateResponseDto` (`message`: `update: true`면 닉네임이 변경되었습니다. / `false`면 닉네임은 14일에 한 번 변경할 수 있습니다.) | `AUTH_001` / `USER_001` |
 | GET | `/api/users/me` | `UserResponseDto` | `AUTH_001` / `USER_001` / `COMMON_001` |
