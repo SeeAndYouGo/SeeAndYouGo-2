@@ -1,5 +1,7 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.TokenDto;
 import com.SeeAndYouGo.SeeAndYouGo.oAuth.UserRole;
 import com.SeeAndYouGo.SeeAndYouGo.user.User;
@@ -126,19 +128,24 @@ public class TokenProvider {
     }
 
     public boolean validateToken(String token) {
+        return resolveTokenStatus(token) == TokenStatus.VALID;
+    }
+
+    public TokenStatus resolveTokenStatus(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return true;
+            return TokenStatus.VALID;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             logger.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             logger.info("만료된 JWT 토큰입니다.");
+            return TokenStatus.EXPIRED;
         } catch (UnsupportedJwtException e) {
             logger.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             logger.info("JWT 토큰이 잘못되었습니다.");
         }
-        return false;
+        return TokenStatus.INVALID;
     }
 
     public String decodeToEmailByAccess(String jwtToken) throws ArrayIndexOutOfBoundsException{
@@ -166,7 +173,7 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return true; // 🔹 만료됨
         } catch (SignatureException e) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+            throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
     }
 

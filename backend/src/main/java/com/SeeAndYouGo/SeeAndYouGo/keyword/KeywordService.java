@@ -40,7 +40,7 @@ public class KeywordService {
 
     @Transactional
     public KeywordAddResponseDto addKeyword(String keywordName, String email) {
-        User user = userReader.getByEmail(email);
+        User user = userReader.getByEmail(email, "키워드를 등록할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
         List<UserKeyword> userKeywords = userKeywordRepository.findByUser(user);
 
         // 유저는 최대 N개의 키워드밖에 등록하지 못한다.
@@ -57,8 +57,8 @@ public class KeywordService {
 
     @Transactional
     public KeywordResponseDto deleteKeyword(String keywordName, String email) {
-        Keyword keyword = keywordReader.getByName(keywordName);
-        User user = userReader.getByEmail(email);
+        Keyword keyword = keywordReader.getByName(keywordName, "삭제하려는 키워드를 찾을 수 없습니다.");
+        User user = userReader.getByEmail(email, "키워드를 삭제할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
         user.deleteKeyword(keyword);
 
         return KeywordResponseDto.toDTO(user.getKeywords());

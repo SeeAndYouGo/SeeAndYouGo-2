@@ -1,5 +1,6 @@
 package com.SeeAndYouGo.SeeAndYouGo.oAuth.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class JwtFilterTest {
 
     @BeforeEach
     void setUp() {
-        jwtFilter = new JwtFilter(tokenProvider);
+        jwtFilter = new JwtFilter(tokenProvider, new ObjectMapper());
         SecurityContextHolder.clearContext();
     }
 
@@ -39,7 +40,7 @@ class JwtFilterTest {
 
     @Test
     void accessToken_setsAuthenticationFromTokenClaims() throws Exception {
-        when(tokenProvider.validateToken("admin-token")).thenReturn(true);
+        when(tokenProvider.resolveTokenStatus("admin-token")).thenReturn(TokenStatus.VALID);
         when(tokenProvider.getAuthentication("admin-token")).thenReturn(
                 new UsernamePasswordAuthenticationToken(
                         "admin@seeandyougo.com",
@@ -62,6 +63,34 @@ class JwtFilterTest {
     }
 
     @Test
+    void expiredAccessToken_respondsWithAuth001() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        jwtFilter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_001");
+    }
+
+    @Test
+    void invalidAccessToken_respondsWithAuth003() throws Exception {
+        when(tokenProvider.resolveTokenStatus("forged-token")).thenReturn(TokenStatus.INVALID);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer forged-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        jwtFilter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_003");
+    }
+
+    @Test
     void requestWithoutToken_setsGuestAuthentication() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -72,5 +101,119 @@ class JwtFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
                 .extracting("authority")
                 .containsExactly("GUEST");
+    }
+
+    @Test
+    void expiredAccessToken_onPublicGet_passesAsGuest() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        for (String uri : new String[]{"/api/connections", "/api/menus/daily", "/api/menus/weekly",
+                "/api/reviews", "/api/visitors",
+                "/api/ratings/menus", "/api/statistics",
+                "/api/connections/prediction", "/api/ratings"}) {
+            SecurityContextHolder.clearContext();
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+            request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            MockFilterChain chain = new MockFilterChain();
+
+            jwtFilter.doFilter(request, response, chain);
+
+            assertThat(chain.getRequest()).as(uri).isNotNull();
+            assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).as(uri).isEqualTo("none");
+            assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
+                    .extracting("authority")
+                    .containsExactly("GUEST");
+        }
+    }
+
+    @Test
+    void expiredAccessToken_onSocialLoginPost_passesAsGuest() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        for (String uri : new String[]{"/api/oauth/kakao", "/api/oauth/google"}) {
+            SecurityContextHolder.clearContext();
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", uri);
+            request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            MockFilterChain chain = new MockFilterChain();
+
+            jwtFilter.doFilter(request, response, chain);
+
+            assertThat(chain.getRequest()).as(uri).isNotNull();
+            assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).as(uri).isEqualTo("none");
+        }
+    }
+
+    @Test
+    void validRefreshToken_onReissuePost_passes() throws Exception {
+        when(tokenProvider.resolveTokenStatus("refresh-token")).thenReturn(TokenStatus.VALID);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/oauth/token");
+        request.addHeader(JwtFilter.REFRESH_HEADER, "refresh-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        jwtFilter.doFilter(request, response, chain);
+
+        assertThat(chain.getRequest()).isNotNull();
+    }
+
+    @Test
+    void expiredRefreshToken_onReissuePost_respondsWithAuth001() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-refresh-token")).thenReturn(TokenStatus.EXPIRED);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/oauth/token");
+        request.addHeader(JwtFilter.REFRESH_HEADER, "expired-refresh-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        jwtFilter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_001");
+        assertThat(chain.getRequest()).isNull();
+    }
+
+    @Test
+    void expiredAccessToken_onLoginRequiredApi_respondsWithAuth001() throws Exception {
+        when(tokenProvider.resolveTokenStatus("expired-token")).thenReturn(TokenStatus.EXPIRED);
+
+        String[][] requests = {
+                {"GET", "/api/users/me"},
+                {"GET", "/api/reviews/me"},
+                {"GET", "/api/admin/menus/weekly"},
+                {"GET", "/api/admin/dishes/weekly"},
+                {"GET", "/api/internal/menus/weekly-sync"},
+                {"POST", "/api/reviews"},
+                {"POST", "/api/reviews/1/likes"},
+                {"POST", "/api/reviews/1/reports"},
+        };
+        for (String[] r : requests) {
+            MockHttpServletRequest request = new MockHttpServletRequest(r[0], r[1]);
+            request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer expired-token");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            MockFilterChain chain = new MockFilterChain();
+
+            jwtFilter.doFilter(request, response, chain);
+
+            assertThat(response.getStatus()).as(r[0] + " " + r[1]).isEqualTo(401);
+            assertThat(response.getContentAsString()).as(r[0] + " " + r[1]).contains("AUTH_001");
+            assertThat(chain.getRequest()).as(r[0] + " " + r[1]).isNull();
+        }
+    }
+
+    @Test
+    void invalidAccessToken_onPublicGet_respondsWithAuth003() throws Exception {
+        when(tokenProvider.resolveTokenStatus("forged-token")).thenReturn(TokenStatus.INVALID);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/connections");
+        request.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer forged-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        jwtFilter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentAsString()).contains("AUTH_003");
     }
 }

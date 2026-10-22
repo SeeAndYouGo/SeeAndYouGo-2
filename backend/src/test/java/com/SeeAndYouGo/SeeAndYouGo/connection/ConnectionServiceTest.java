@@ -3,6 +3,7 @@ package com.SeeAndYouGo.SeeAndYouGo.connection;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProvider;
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderFactory;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.ConnectionVO;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  *  - 운영시간 내 정상 조회: 식당명을 파싱해 알맞은 ConnectionProvider 를 통해 ConnectionVO 를 반환한다.
  *  - 식당번호("2") 만으로도 조회 가능 (Restaurant.parseName).
  *  - 비운영시간: Provider 호출 없이 connected=-1 의 ConnectionVO 를 반환한다.
- *  - 잘못된 식당명: IllegalArgumentException 으로 거부된다.
+ *  - 잘못된 식당명: ApiException 으로 거부된다.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("식당 혼잡도 조회 - ConnectionService.getRecentConnection")
@@ -122,10 +123,10 @@ class ConnectionServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 식당명은 IllegalArgumentException 으로 거부된다")
+    @DisplayName("존재하지 않는 식당명은 ApiException 으로 거부된다")
     void getRecentConnection_invalidRestaurant() {
         assertThatThrownBy(() -> connectionService.getRecentConnection("없는식당"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(ApiException.class);
 
         verifyNoInteractions(connectionProviderFactory, connectionProvider);
     }

@@ -4,6 +4,8 @@ import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionResultDto;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionServerRequest;
 import com.SeeAndYouGo.SeeAndYouGo.connection.dto.PredictionServerResponse;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +53,6 @@ public class PredictionService {
             Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(10, 20, 30, 60)));
 
     private static final String STATUS_OK = "OK";
-    private static final String STATUS_INVALID_REQUEST = "INVALID_REQUEST";
-    private static final String STATUS_UNSUPPORTED_RESTAURANT = "UNSUPPORTED_RESTAURANT";
-    private static final String STATUS_PREDICTION_SERVER_DOWN = "PREDICTION_SERVER_DOWN";
-    private static final String STATUS_PREDICTION_FAILED = "PREDICTION_FAILED";
 
     private final ConnectionRepository connectionRepository;
 
@@ -95,10 +93,8 @@ public class PredictionService {
         try {
             String parsedName = Restaurant.parseName(restaurantParam);
             restaurant = Restaurant.valueOf(parsedName);
-        } catch (IllegalArgumentException e) {
-            return errorResponse(STATUS_INVALID_REQUEST,
-                    "알 수 없는 식당입니다: " + restaurantParam,
-                    null, observedAt);
+        } catch (ApiException e) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "알 수 없는 식당입니다: " + restaurantParam);
         }
 
         // 2. observed_at 파싱
@@ -106,9 +102,7 @@ public class PredictionService {
         try {
             requestedTime = LocalDateTime.parse(observedAt, FORMATTER);
         } catch (DateTimeParseException e) {
-            return errorResponse(STATUS_INVALID_REQUEST,
-                    "observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.",
-                    restaurant.name(), observedAt);
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "observed_at은 yyyy-MM-dd HH:mm:ss 형식이어야 합니다.");
         }
 
         // 3. DB에서 ±5분 윈도우 내 가장 가까운 관측값 찾기.
@@ -124,9 +118,7 @@ public class PredictionService {
 
         // 4. 예측 서버 헬스체크
         if (!isPredictionServerHealthy()) {
-            return baseResponse(STATUS_PREDICTION_SERVER_DOWN, restaurant, observedAt, observed)
-                    .message("예측 서버가 응답하지 않습니다.")
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_SERVER_DOWN);
         }
 
         // 5. 외부 예측 서버 호출 후 응답 릴레이
@@ -136,21 +128,15 @@ public class PredictionService {
         } catch (HttpClientErrorException.NotFound e) {
             // 404는 이제 "예측 서버가 모르는 식당"인 경우에만 발생한다.
             log.warn("예측 서버가 모르는 식당입니다: restaurant={}", restaurant);
-            return baseResponse(STATUS_UNSUPPORTED_RESTAURANT, restaurant, observedAt, observed)
-                    .message("예측을 지원하지 않는 식당입니다.")
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_FAILED);
         } catch (HttpClientErrorException e) {
             // 400: 지원하지 않는 horizon 값, 422: 요청 형식 오류. 둘 다 우리 쪽 요청 문제다.
             log.error("예측 서버 요청이 거부되었습니다: restaurant={}, observed_at={}, status={}, body={}",
                     restaurant, observedAt, e.getStatusCode(), e.getResponseBodyAsString());
-            return baseResponse(STATUS_PREDICTION_FAILED, restaurant, observedAt, observed)
-                    .message("예측 서버가 요청을 거부했습니다: " + e.getStatusCode())
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_FAILED);
         } catch (RestClientException e) {
             log.error("예측 서버 호출 실패: restaurant={}, observed_at={}", restaurant, observedAt, e);
-            return baseResponse(STATUS_PREDICTION_FAILED, restaurant, observedAt, observed)
-                    .message("예측 서버 호출 실패: " + e.getMessage())
-                    .build();
+            throw new ApiException(ErrorCode.PREDICTION_FAILED);
         }
     }
 
@@ -304,13 +290,4 @@ public class PredictionService {
         }
     }
 
-    private PredictionResponseDto errorResponse(String status, String message,
-                                                String restaurantName, String requestedAt) {
-        return PredictionResponseDto.builder()
-                .status(status)
-                .message(message)
-                .restaurantName(restaurantName)
-                .requestedAt(requestedAt)
-                .build();
-    }
 }

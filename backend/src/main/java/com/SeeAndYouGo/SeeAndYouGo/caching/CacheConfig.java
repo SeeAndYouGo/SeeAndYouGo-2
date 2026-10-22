@@ -38,35 +38,29 @@ public class CacheConfig {
                 // 메뉴 캐싱 규칙
                 CacheRule.builder()
                         .cacheType(CacheType.STRING)
-                        .urlPattern("/api/daily-menu/{restaurant}")
+                        .urlPattern("/api/menus/daily")
                         .method("GET")
                         .cacheName("daily-menu")
                         .ttl(Duration.ofHours(6))
-                        .keyGenerator(ctx -> ctx.getPathVariables().get("restaurant"))
+                        .keyGenerator(ctx -> {
+                            // 응답에 사용자별 keywordList가 포함되므로 로그인 사용자의 요청은 캐시하지 않는다.
+                            if (ctx.isLoggedIn()) {
+                                return null;
+                            }
+                            String restaurant = ctx.getQueryParams().get("restaurant");
+                            String date = ctx.getQueryParams().get("date");
+                            return date == null ? restaurant : restaurant + ":" + date;
+                        })
                         .build(),
 
                 // 주간 메뉴 캐싱 규칙
                 CacheRule.builder()
                         .cacheType(CacheType.STRING)
-                        .urlPattern("/api/weekly-menu/{restaurant}")
+                        .urlPattern("/api/menus/weekly")
                         .method("GET")
                         .cacheName("weekly-menu")
                         .ttl(Duration.ofDays(1))
-                        .keyGenerator(ctx -> ctx.getPathVariables().get("restaurant"))
-                        .build(),
-
-                // 좋아요 캐싱 규칙
-                CacheRule.builder()
-                        .cacheType(CacheType.STRING)
-                        .urlPattern("/api/review/{reviewId}/like")
-                        .method("*")
-                        .cacheName("likes")
-                        .ttl(Duration.ofDays(1))
-                        .keyGenerator(ctx -> {
-                            String reviewId = ctx.getPathVariables().get("reviewId");
-                            String userEmail = ctx.getUserEmail();
-                            return reviewId + ":" + userEmail;
-                        })
+                        .keyGenerator(ctx -> ctx.getQueryParams().get("restaurant"))
                         .build()
         );
     }

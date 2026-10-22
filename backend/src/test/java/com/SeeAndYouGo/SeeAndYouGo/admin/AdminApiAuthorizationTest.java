@@ -7,9 +7,10 @@ import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuService;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.MenuResponseByAdminDto;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,7 +33,7 @@ class AdminApiAuthorizationTest {
     private DishService dishService;
 
     @Mock
-    private AdminAuthorizationService adminAuthorizationService;
+    private AuthorizationService authorizationService;
 
     @Mock
     private MenuService menuService;
@@ -46,34 +47,38 @@ class AdminApiAuthorizationTest {
     @Mock
     private com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @Test
-    void dishWeek_requiresAdminAuthorizationService() {
-        DishController controller = new DishController(dishService, adminAuthorizationService);
+    void dishWeek_requiresAuthorizationService() {
+        DishController controller = new DishController(dishService, authorizationService);
         List<DishResponseDto> expected = List.of(new DishResponseDto(1L, "비빔밥"));
 
         when(dishService.getWeeklyDish(any(LocalDate.class), any(LocalDate.class))).thenReturn(expected);
 
         List<DishResponseDto> result = controller.getWeeklyDish("admin@seeandyougo.com");
 
-        verify(adminAuthorizationService).assertAdmin("admin@seeandyougo.com");
+        verify(authorizationService).assertAdmin("admin@seeandyougo.com");
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
-    void weeklyMenuForAdmin_requiresAdminAuthorizationService() {
+    void weeklyMenuForAdmin_requiresAuthorizationService() {
         MenuController controller = new MenuController(
                 menuService,
-                adminAuthorizationService,
+                authorizationService,
                 userRepository,
                 userKeywordRepository,
-                dishRepository
+                dishRepository,
+                objectMapper
         );
 
         when(menuService.getOneWeekRestaurantMenu(anyString(), anyString())).thenReturn(emptyWeekMenu());
 
         List<MenuResponseByAdminDto> result = controller.allRestaurantMenuWeekForAdmin("admin@seeandyougo.com");
 
-        verify(adminAuthorizationService).assertAdmin("admin@seeandyougo.com");
+        verify(authorizationService).assertAdmin("admin@seeandyougo.com");
         assertThat(result).isEmpty();
     }
 

@@ -21,7 +21,10 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 
 	const handleSubmit = async () => {
 		if (existedKeywordList.includes(keyword)) { // 이미 등록된 키워드
-			dispatch(showToast({ contents: "keyword", toastIndex: 2 }));
+			dispatch(showToast({
+				code: "",
+				message: "이미 등록된 키워드입니다.",
+			}));
 		} else if (keyword.length > 0 && keyword.length < 7) {
 			const url = config.BASE_URL + "/keyword";
 
@@ -37,14 +40,23 @@ const MyKeywordInput = ({ setKeywordList, existedKeywordList }) => {
 			});
 			const result = await res.json();
 			if (result.isExceed) { // 키워드 등록 최대 개수 초과
-				dispatch(showToast({ contents: "keyword", toastIndex: 3 }));
+				dispatch(showToast({
+					code: "",
+					message: "키워드는 최대 10개까지\n 등록 가능합니다.",
+				}));
 			} else { // 키워드 등록 성공
 				setKeywordList(result.keywords);
 				setKeyword("");
-				dispatch(showToast({ contents: "keyword", toastIndex: 0 }));
+				dispatch(showToast({
+					code: "",
+					message: "키워드가 등록되었습니다.",
+				}));
 			}
 		} else { // 키워드 조건 확인 필요
-			dispatch(showToast({ contents: "keyword", toastIndex: 4 }));
+			dispatch(showToast({
+				code: "",
+				message: "키워드 조건을 확인해주세요!",
+			}));
 		}
 	};
 

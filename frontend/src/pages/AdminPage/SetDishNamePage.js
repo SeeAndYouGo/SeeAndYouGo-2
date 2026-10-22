@@ -43,9 +43,8 @@ const SetDishNamePage = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const response = await getWithToken("/dish/week");
-			const result = response.data;
-			return result;
+			const response = await getWithToken("/admin/dishes/weekly");
+			return response;
 		};
 		fetchData()
 			.then((data) => {
@@ -67,7 +66,7 @@ const SetDishNamePage = () => {
 				id: dishId,
 				changeName: dishName,
 			};
-			const response = await putWithToken("/dish/name", changeDish);
+			const response = await putWithToken("/admin/dishes/name", changeDish);
 			console.log(response, "편집 요청 확인");
 			alert("편집되었습니다.");
 		} catch (error) {
@@ -86,7 +85,7 @@ const SetDishNamePage = () => {
 		setButtonDisabled(true);
 
 		try {
-			const response = await deleteWithToken(`/dish/${dishId}`);
+			const response = await deleteWithToken(`/admin/dishes/${dishId}`);
 			console.log(response, "삭제 요청 확인");
 			alert("삭제되었습니다.");
 		} catch (error) {

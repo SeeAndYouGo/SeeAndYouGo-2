@@ -1,19 +1,21 @@
 package com.SeeAndYouGo.SeeAndYouGo.menu;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.dto.*;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.user.AdminAuthorizationService;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserRepository;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeyword;
 import com.SeeAndYouGo.SeeAndYouGo.userKeyword.UserKeywordRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
-import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE;
 import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getNearestMonday;
+import static com.SeeAndYouGo.SeeAndYouGo.global.DateUtils.getSundayOfWeek;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,23 +35,24 @@ import static com.SeeAndYouGo.SeeAndYouGo.global.DateTimeFormatters.DATE_STRICT;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MenuController {
     private final MenuService menuService;
-    private final AdminAuthorizationService adminAuthorizationService;
+    private final AuthorizationService authorizationService;
     private final UserRepository userRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository dishRepository;
+    private final ObjectMapper objectMapper;
 
-    @GetMapping("/daily-menu/{restaurant}")
-    public List<MenuResponseByUserDto> restaurantMenuDayByUser(@PathVariable("restaurant") String place,
+    /**
+     * 식당의 하루치 메뉴를 조회한다. date를 생략하면 오늘 메뉴를 반환한다.
+     */
+    @GetMapping("/menus/daily")
+    public List<MenuResponseByUserDto> restaurantMenuDayByUser(@RequestParam("restaurant") String place,
+                                                               @RequestParam(value = "date", required = false) String date,
                                                                @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        return restaurantMenuDayByUserTest(place, getTodayDate(), email);
-    }
-
-    @GetMapping("/daily-menu/{restaurant}/{date}")
-    public List<MenuResponseByUserDto> restaurantMenuDayByUserTest(@PathVariable("restaurant") String place,
-                                                                   @PathVariable String date,
-                                                                   @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        if (date == null) {
+            date = getTodayDate();
+        }
         if(!checkParams(date)){
-            throw new IllegalArgumentException("날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "날짜형식이 일치하지 않습니다.(yyyy-MM-dd)");
         }
 
         List<Menu> oneDayRestaurantMenu = menuService.getOneDayRestaurantMenu(place, date);  // 메인메뉴가 변하지 않았다면 캐싱해오고 있음
@@ -151,8 +154,8 @@ public class MenuController {
                 ).collect(Collectors.toList());
     }
 
-    @GetMapping("/weekly-menu/{restaurant}")
-    public List<MenuResponseDto> restaurantMenuWeek(@PathVariable("restaurant") String place) {
+    @GetMapping("/menus/weekly")
+    public List<MenuResponseDto> restaurantMenuWeek(@RequestParam("restaurant") String place) {
         String date = getTodayDate();
         List<Menu>[] oneWeekRestaurantMenu = menuService.getOneWeekRestaurantMenu(place, date);
         List<MenuResponseDto> menuListArr = new ArrayList<>();
@@ -164,10 +167,10 @@ public class MenuController {
         return menuListArr;
     }
 
-    @GetMapping("/weekly-menu")
+    @GetMapping("/admin/menus/weekly")
     public List<MenuResponseByAdminDto> allRestaurantMenuWeekForAdmin(
             @Parameter(hidden = true) @AuthenticationPrincipal String email) {
-        adminAuthorizationService.assertAdmin(email);
+        authorizationService.assertAdmin(email);
         String date = getTodayDate();
         List<MenuResponseByAdminDto> menuListArr = new ArrayList<>();
         List<Menu>[] oneWeekRestaurantMenu;
@@ -186,14 +189,12 @@ public class MenuController {
 
     @PostMapping("/menu/local")
     public List<MenuVO> bridgeDish(@RequestParam String AUTH_KEY,
-                                   @RequestParam(name = "restaurant") String restaurantToString,
-                                   HttpServletResponse response) throws Exception {
+                                   @RequestParam(name = "restaurant") String restaurantToString) throws Exception {
 
         boolean isRightSecretKey = menuService.checkSecretKey(AUTH_KEY);
 
         if(!isRightSecretKey){
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            throw new IllegalArgumentException("Invalid AUTH_KEY: Unauthorized access");
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
         }
 
         String restaurantName = Restaurant.parseName(restaurantToString);
@@ -202,7 +203,7 @@ public class MenuController {
         return menuService.getWeeklyMenuMap(restaurant);
     }
 
-    @GetMapping("/week")
+    @GetMapping("/internal/menus/weekly-sync")
     public void week() throws Exception {
         LocalDate nearestMonday = getNearestMonday(LocalDate.now());
         LocalDate sunday = getSundayOfWeek(nearestMonday);
@@ -211,9 +212,9 @@ public class MenuController {
     }
 
     @GetMapping(value = "/restaurant1-menu", produces = "application/json; charset=UTF-8")
-    public String getRestaurant1Menu() throws IOException {
-        String jsonContent = new String(Files.readAllBytes(
-                Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath()));
-        return jsonContent;
+    public JsonNode getRestaurant1Menu() throws IOException {
+        byte[] jsonContent = Files.readAllBytes(
+                Paths.get("src/main/java/com/SeeAndYouGo/SeeAndYouGo/restaurant/menuOfRestaurant1.json").toAbsolutePath());
+        return objectMapper.readTree(jsonContent);
     }
 }

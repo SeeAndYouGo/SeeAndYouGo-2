@@ -11,7 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Table(name = "users")
 public class User {
+    public static final int NICKNAME_CHANGE_INTERVAL_DAYS = 14;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -39,6 +41,8 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime lastUpdateTime = LocalDateTime.now();
 
+    private LocalDateTime nicknameUpdatedAt; // 마지막 닉네임 변경 시각. 변경 이력이 없으면 null
+
     private String refreshToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -54,6 +58,7 @@ public class User {
 
     public void changeNickname(String nickname) {
         this.nickname = nickname;
+        this.nicknameUpdatedAt = LocalDateTime.now();
     }
 
     public void updateRefreshToken(String refreshToken) {
@@ -107,14 +112,11 @@ public class User {
      * @return 닉네임 변경 가능 여부
      */
     public boolean canUpdateNickname(LocalDateTime dateTime) {
-
-
-        Period period = Period.between(lastUpdateTime.toLocalDate(), dateTime.toLocalDate());
-
-        int dateGap = Math.abs(period.getDays());
-        int monthGap = Math.abs(period.getMonths());
-
-        // 14일 이후에 변경하는 경우나 아직 닉네임을 지정하지 않아 최초 등록의 경우는 닉네임을 수정할 수 있다.
-        return (dateGap > 14) || (monthGap > 2)  || nickname == null;
+        // 아직 닉네임을 지정하지 않은 최초 등록이거나, 변경 이력이 없거나, 마지막 변경일로부터 14일이 지났으면 수정할 수 있다.
+        if (nickname == null || nicknameUpdatedAt == null) {
+            return true;
+        }
+        long daysSinceLastChange = ChronoUnit.DAYS.between(nicknameUpdatedAt.toLocalDate(), dateTime.toLocalDate());
+        return daysSinceLastChange >= NICKNAME_CHANGE_INTERVAL_DAYS;
     }
 }

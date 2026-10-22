@@ -1,17 +1,19 @@
 package com.SeeAndYouGo.SeeAndYouGo.review;
 
+import com.SeeAndYouGo.SeeAndYouGo.global.response.ApiResponse;
 import com.SeeAndYouGo.SeeAndYouGo.like.LikeService;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.MenuController;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
-import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReportCountResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewDeleteResponseDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewRequestDto;
 import com.SeeAndYouGo.SeeAndYouGo.review.dto.ReviewResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.user.AuthorizationService;
 import com.SeeAndYouGo.SeeAndYouGo.user.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,15 +41,22 @@ import static com.SeeAndYouGo.SeeAndYouGo.review.ImageConstants.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ReviewController {
 
+    private static final String SORT_TOP = "top";
+    private static final String REVIEW_POSTED_MESSAGE = "리뷰가 등록되었습니다.";
+    private static final String REVIEW_DELETED_MESSAGE = "리뷰가 삭제되었습니다.";
+
     private final ReviewService reviewService;
     private final UserService userService;
     private final LikeService likeService;
+    private final AuthorizationService authorizationService;
     private final Executor executor;
 
-    public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService, @Qualifier("asyncTaskExecutor") Executor executor) {
+    public ReviewController(ReviewService reviewService, UserService userService, LikeService likeService,
+                            AuthorizationService authorizationService, @Qualifier("asyncTaskExecutor") Executor executor) {
         this.reviewService = reviewService;
         this.userService = userService;
         this.likeService = likeService;
+        this.authorizationService = authorizationService;
         this.executor = executor;
     }
 
@@ -64,8 +73,34 @@ public class ReviewController {
         return response;
     }
 
-    @GetMapping("/total-review")
-    public List<ReviewResponseDto> getAllReviews(@Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    /**
+     * 오늘의 리뷰를 조회한다.
+     * restaurant가 없으면 전 식당, 있으면 해당 식당의 리뷰를 반환하고, sort=top이면 해당 식당의 탑 리뷰를 반환한다.
+     */
+    @GetMapping("/reviews")
+    public List<ReviewResponseDto> getReviews(@RequestParam(value = "restaurant", required = false) String restaurant,
+                                              @RequestParam(value = "sort", required = false) String sort,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        if (sort != null) {
+            validateTopSort(restaurant, sort);
+            return getTopReviews(restaurant);
+        }
+        if (restaurant == null) {
+            return getAllReviews(email);
+        }
+        return getRestaurantReviews(restaurant, email);
+    }
+
+    private void validateTopSort(String restaurant, String sort) {
+        if (!SORT_TOP.equals(sort)) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "지원하지 않는 정렬 방식입니다: " + sort);
+        }
+        if (restaurant == null) {
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "탑 리뷰는 식당을 지정해야 조회할 수 있습니다.");
+        }
+    }
+
+    private List<ReviewResponseDto> getAllReviews(String email) {
         String date = MenuController.getTodayDate();
         List<Review> allReviews = new ArrayList<>();
         for (Restaurant restaurant : Restaurant.values()) {
@@ -77,8 +112,7 @@ public class ReviewController {
     }
 
     // 탑 리뷰 조회
-    @GetMapping(value = "/top-review/{restaurant}")
-    public List<ReviewResponseDto> getTopReviews(@PathVariable("restaurant") String restaurant) {
+    private List<ReviewResponseDto> getTopReviews(String restaurant) {
         String restaurantName = Restaurant.parseName(restaurant);
         String date = MenuController.getTodayDate();
         List<Review> reviews = reviewService.findTopReviewsByRestaurantAndDate(restaurantName, date);
@@ -86,27 +120,18 @@ public class ReviewController {
         return getReviewDtos(reviews, "");
     }
 
-    @GetMapping("/review/{restaurant}")
-    public List<ReviewResponseDto> getRestaurantReviews(@PathVariable("restaurant") String restaurant,
-                                                        @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    private List<ReviewResponseDto> getRestaurantReviews(String restaurant, String email) {
         String date = MenuController.getTodayDate();
         List<Review> restaurantReviews = reviewService.findRestaurantReviews(restaurant, date);
         return getReviewDtos(restaurantReviews, email);
     }
 
-    @PutMapping("/report/{reviewId}")
-    public ReportCountResponseDto judgeDeleteReview(@PathVariable Long reviewId){
-        Integer reportCount = reviewService.updateReportCount(reviewId);
-
-        return new ReportCountResponseDto(reportCount);
-    }
-
     // 리뷰 게시
-    @PostMapping(value = "/review")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Long postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
-                           @RequestPart(value = "image", required = false) MultipartFile image,
-                           @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+    @PostMapping(value = "/reviews")
+    public ApiResponse<Long> postReview(@RequestPart(value = "dto") ReviewRequestDto dto,
+                                        @RequestPart(value = "image", required = false) MultipartFile image,
+                                        @Parameter(hidden = true) @AuthenticationPrincipal String email) {
+        authorizationService.getLoginUser(email);
         String nickname = userService.getNicknameByEmail(email);
 
         String imgUrl = "";
@@ -129,7 +154,7 @@ public class ReviewController {
                 .imgUrl(imgUrl)
                 .build();
 
-        return reviewService.registerReview(data);
+        return ApiResponse.success(reviewService.registerReview(data), REVIEW_POSTED_MESSAGE);
     }
 
     private File createTempFileFromMultipart(MultipartFile image) {
@@ -169,7 +194,7 @@ public class ReviewController {
     public byte[] showImage(@PathVariable String imgName) throws Exception {
         // 파일명 검증
         if (imgName.contains("..") || imgName.contains("/") || imgName.contains("\\")) {
-            throw new IllegalArgumentException("Invalid image name");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "올바르지 않은 이미지 파일명입니다.");
         }
 
         Path imagePath = Paths.get(IMAGE_STORAGE_DIR, imgName).normalize();
@@ -181,38 +206,28 @@ public class ReviewController {
         return Files.readAllBytes(imagePath);
     }
 
-    @GetMapping("/reviews/{token}")
+    @GetMapping("/reviews/me")
     public List<ReviewResponseDto> getReviewsByUser(@Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
         List<Review> reviews = reviewService.findReviewsByWriter(email);
 
         return getReviewDtos(reviews, email);
     }
 
     @DeleteMapping("/reviews/{reviewId}")
-    public ReviewDeleteResponseDto deleteReview(
+    public ApiResponse<ReviewDeleteResponseDto> deleteReview(
             @PathVariable("reviewId") Long reviewId,
             @Parameter(hidden = true) @AuthenticationPrincipal String email){
+        authorizationService.getLoginUser(email);
 
-        ReviewDeleteResponseDto responseDto = ReviewDeleteResponseDto.builder()
-                .success(false)
-                .build();
-        try{
-            boolean isWriter = reviewService.deleteReview(email, reviewId);
-            if(isWriter){
-                responseDto = ReviewDeleteResponseDto.builder()
-                        .success(true)
-                        .build();
-            }
-        }catch (ArrayIndexOutOfBoundsException e){
-            return responseDto;
+        boolean isWriter = reviewService.deleteReview(email, reviewId);
+        if(!isWriter){
+            throw new ApiException(ErrorCode.REVIEW_DELETE_FORBIDDEN);
         }
-        return responseDto;
-    }
 
-    @DeleteMapping("/review/report/{reviewId}")
-    public ReviewDeleteResponseDto deleteReportedReview(@PathVariable("reviewId") Long reviewId){
-        boolean result = reviewService.deleteReportedReview(reviewId);
-
-        return new ReviewDeleteResponseDto(result);
+        ReviewDeleteResponseDto response = ReviewDeleteResponseDto.builder()
+                .success(true)
+                .build();
+        return ApiResponse.success(response, REVIEW_DELETED_MESSAGE);
     }
 }

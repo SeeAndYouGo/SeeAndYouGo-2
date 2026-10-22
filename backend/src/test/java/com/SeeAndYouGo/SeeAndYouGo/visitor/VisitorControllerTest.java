@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**
- * 테스트 목표: GET /api/visitors/count 가 Redis 에서 오늘/누적 방문자수를 그대로 읽어 DTO 로 반환하는지 검증.
+ * 테스트 목표: GET /api/visitors 가 Redis 에서 오늘/누적 방문자수를 그대로 읽어 DTO 로 반환하는지 검증.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("방문자 캐시 - VisitorController")

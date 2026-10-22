@@ -46,7 +46,7 @@ public class ReviewService {
     public Long registerReview(ReviewData data) {
         LocalDateTime time = LocalDateTime.now();
 
-        Restaurant restaurant = Restaurant.valueOf(data.getRestaurant());
+        Restaurant restaurant = Restaurant.valueOf(Restaurant.parseName(data.getRestaurant()));
         Objects.requireNonNull(restaurant, "Restaurant not fount for name: " + data.getRestaurant());
 
         // 연관관계 존재
@@ -125,12 +125,6 @@ public class ReviewService {
     }
 
     @Transactional
-    public Integer updateReportCount(Long reviewId) {
-        Review review = reviewReader.getById(reviewId);
-        return review.incrementReportCount();
-    }
-
-    @Transactional
     public void deleteById(Long reviewId) {
         Review review = reviewRepository.getReferenceById(reviewId);
         reviewRepository.deleteById(reviewId);
@@ -168,37 +162,32 @@ public class ReviewService {
      */
     @Transactional
     public boolean deleteReview(String userEmail, Long reviewId) {
-        Review review = reviewReader.getById(reviewId);
-        Restaurant restaurant = review.getRestaurant();
+        Review review = reviewReader.getById(reviewId, "삭제하려는 리뷰를 찾을 수 없습니다.");
 
-        if(review.getWriterEmail().equals(userEmail)){
-            deleteById(reviewId);
-
-            rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString())
-                    .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
-
-            // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴에 대한 Rate 데이터에도 반영해야 한다.
-            if(restaurant.hasPerMenuRating()){
-                rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName())
-                        .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    @Transactional
-    public boolean deleteReportedReview(Long reviewId) {
-        try{
-            reviewRepository.deleteById(reviewId);
-        }catch (Exception e){
-            log.error("Failed to delete reported review with id: {}", reviewId, e);
+        if(!review.isWrittenBy(userEmail)){
             return false;
         }
 
+        removeReview(review);
         return true;
+    }
+
+    /**
+     * 리뷰를 삭제하고, 리뷰가 반영되어 있던 평점 데이터에서도 제외한다.
+     */
+    @Transactional
+    public void removeReview(Review review) {
+        Restaurant restaurant = review.getRestaurant();
+        deleteById(review.getId());
+
+        rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getDept().toString())
+                .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
+
+        // 메뉴별 개별 평점을 관리하는 식당의 경우, 각 메뉴에 대한 Rate 데이터에도 반영해야 한다.
+        if(restaurant.hasPerMenuRating()){
+            rateRepository.findByRestaurantAndDept(restaurant, review.getMenu().getMenuName())
+                    .ifPresent(rate -> rate.exceptRate(review.getReviewRate()));
+        }
     }
 
     public BufferedImage resize(File file) throws Exception {

@@ -16,15 +16,15 @@ public class RateController {
 
     private final RateService rateService;
 
-    @GetMapping("/restaurant/{restaurantNumber}/rate/main")
-    public RestaurantTotalRateResponseDto getTotalRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
-        String restaurantName = Restaurant.parseName(String.valueOf(restaurantNumber));
+    @GetMapping("/ratings")
+    public RestaurantTotalRateResponseDto getTotalRestaurantRate(@RequestParam("restaurant") String restaurant){
+        String restaurantName = Restaurant.parseName(restaurant);
         return rateService.getTotalRestaurantRate(restaurantName);
     }
 
-    @GetMapping("/restaurant/{restaurantNumber}/rate/detail")
-    public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(@PathVariable("restaurantNumber") Integer restaurantNumber){
-        String restaurantName = Restaurant.parseName(String.valueOf(restaurantNumber));
+    @GetMapping("/ratings/menus")
+    public List<RestaurantDetailRateResponseDto> getDetailRestaurantRate(@RequestParam("restaurant") String restaurant){
+        String restaurantName = Restaurant.parseName(restaurant);
         return rateService.getDetailRestaurantRate(restaurantName);
     }
 }

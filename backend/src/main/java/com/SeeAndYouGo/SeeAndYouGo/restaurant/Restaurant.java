@@ -1,6 +1,8 @@
 package com.SeeAndYouGo.SeeAndYouGo.restaurant;
 
 import com.SeeAndYouGo.SeeAndYouGo.connection.connectionProvider.ConnectionProviderType;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.menuProvider.MenuProviderType;
 import lombok.Getter;
@@ -107,7 +109,7 @@ public enum Restaurant {
             if (name.contains(String.valueOf(restaurant.number)) || name.contains(restaurant.name()))
                 return restaurant.name();
         }
-        throw new IllegalArgumentException("[ERROR] 해당하는 레스토랑명이 없음: input: " + name);
+        throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "존재하지 않는 식당입니다: " + name);
     }
 
     public String toRedisKey() {

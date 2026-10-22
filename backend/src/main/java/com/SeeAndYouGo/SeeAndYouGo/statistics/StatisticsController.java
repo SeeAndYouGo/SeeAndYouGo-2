@@ -8,20 +8,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/statistics")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class StatisticsController {
     private final StatisticsService statisticsService;
 
-    @RequestMapping("/{restaurantNumber}")
-    public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@PathVariable String restaurantNumber){
-        String restaurantName = Restaurant.parseName(restaurantNumber);
+    @GetMapping("/statistics")
+    public List<ConnectionsStatisticsResponseDto> getConnectionStatistics(@RequestParam("restaurant") String restaurant){
+        String restaurantName = Restaurant.parseName(restaurant);
         return statisticsService.getConnectionStatistics(restaurantName);
     }
 
-    @GetMapping("/{year}/{month}/{day}")
-    public void test(@PathVariable int year, @PathVariable int month, @PathVariable int day){
+    @GetMapping("/internal/statistics/{year}/{month}/{day}")
+    public void recalculateStatistics(@PathVariable int year, @PathVariable int month, @PathVariable int day){
         statisticsService.updateConnectionStatistics(LocalDate.of(year, month, day));
     }
 }

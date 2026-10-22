@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import axios from "axios";
 import Loading from "../../components/Loading";
 import BarChart from "./BarChart";
-import { get } from "../../api";
+import { getWithToken } from "../../api";
 
 const Slider = styled.div`
 	background-color: #fff;
@@ -103,22 +102,22 @@ const StatisticsPage = () => {
 	const [datas, setDatas] = useState([]);
 	const [currentTab, setCurrentTab] = useState(0);
 
-	const createUrl = (idx) => "/statistics/restaurant" + idx;
+	const createUrl = (idx) => "/statistics?restaurant=restaurant" + idx;
 	
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const url = [];
-				for (let i = 0; i < restaurantArray.length; i++) {
-					url.push(createUrl(i + 1));
-				}
-				await axios.all(url.map((path) => get(path))).then((res) => {
-					setDatas(res.map((data) => data.data));
-				});
+				const urls = restaurantArray.map((_, idx) => createUrl(idx + 1));
+				const responses = await Promise.all(
+					urls.map((url) => getWithToken(url))
+				);
+
+				setDatas(responses);
 			} catch (error) {
-				console.error(error);
+				console.log(error);
 			}
 		};
+
 		fetchData();
 	}, []);
 

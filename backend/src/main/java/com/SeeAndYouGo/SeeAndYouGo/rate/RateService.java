@@ -2,6 +2,8 @@ package com.SeeAndYouGo.SeeAndYouGo.rate;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.Dish;
 import com.SeeAndYouGo.SeeAndYouGo.dish.DishRepository;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Dept;
 import com.SeeAndYouGo.SeeAndYouGo.menu.Menu;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
@@ -138,7 +140,7 @@ public class RateService {
 
         if(!restaurant.hasPerMenuRating()){
             // 메뉴별 개별 평점을 관리하는 식당이 아니라면 세부 평점 기능을 제공하지 않음.
-            throw new IllegalArgumentException("메뉴별 개별 평점을 관리하는 식당만 지원하는 메서드입니다.");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "메뉴별 개별 평점을 관리하는 식당만 지원하는 기능입니다.");
         }
 
         // 1학의 개인 메뉴의 평점을 가져오는 코드를 작성하기

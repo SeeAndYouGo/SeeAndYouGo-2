@@ -31,6 +31,7 @@ public class CacheRule {
 
     /**
      * 캐시 키 생성 함수 (URL, 요청 데이터로부터 키 생성)
+     * null을 반환하면 해당 요청은 캐시하지 않는다.
      */
     private Function<CacheContext, String> keyGenerator;
 

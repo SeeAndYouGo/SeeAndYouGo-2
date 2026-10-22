@@ -1,16 +1,16 @@
 package com.SeeAndYouGo.SeeAndYouGo.dish;
 
 import com.SeeAndYouGo.SeeAndYouGo.dish.dto.DishResponseDto;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ApiException;
+import com.SeeAndYouGo.SeeAndYouGo.global.exception.ErrorCode;
 import com.SeeAndYouGo.SeeAndYouGo.menu.*;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDish;
 import com.SeeAndYouGo.SeeAndYouGo.menuDish.MenuDishRepository;
 import com.SeeAndYouGo.SeeAndYouGo.restaurant.Restaurant;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class DishService {
     private final DishRepository dishRepository;
     private final MenuService menuService;
@@ -38,7 +37,7 @@ public class DishService {
                 if (dish.isPresent()) {
                     dish.get().updateMainDish();
                 }else{
-                    throw new EntityNotFoundException(mainDishName+"에 해당하는 dish를 찾을 수 없습니다.");
+                    throw new ApiException(ErrorCode.DISH_NOT_FOUND, mainDishName + "에 해당하는 메뉴를 찾을 수 없습니다.");
                 }
 
             }
@@ -84,28 +83,24 @@ public class DishService {
     }
 
     @Transactional
-    public boolean deleteDish(Long id) {
-        try{
-            menuDishRepository.deleteByDishId(id);
-            dishRepository.deleteById(id);
-        }catch (Exception e){
-            log.error("Failed to delete dish with id: {}", id, e);
-            return false;
-        }
+    public void deleteDish(Long id) {
+        Dish dish = dishRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 메뉴를 찾을 수 없습니다."));
 
-        return true;
+        menuDishRepository.deleteByDishId(id);
+        dishRepository.delete(dish);
     }
 
     @Transactional
     public boolean updateDishName(long id, String newName) {
         // 입력 검증
         if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("새로운 요리명은 비어있을 수 없습니다.");
+            throw new ApiException(ErrorCode.INVALID_INPUT_VALUE, "새로운 메뉴명은 비어있을 수 없습니다.");
         }
 
         // 대상 요리 조회 및 존재 확인
         Dish targetDish = dishRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("ID " + id + "에 해당하는 요리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ApiException(ErrorCode.DISH_NOT_FOUND, "ID " + id + "에 해당하는 메뉴를 찾을 수 없습니다."));
 
         // 이미 같은 이름이면 변경 불필요
         if (targetDish.getName().equals(newName.trim())) {
