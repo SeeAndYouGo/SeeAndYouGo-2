@@ -36,6 +36,7 @@ public class UserService {
 
     public String getLastUpdateTimeForNickname(String email) {
         User user = userReader.getByEmail(email, "닉네임 변경 이력을 조회할 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
-        return user.getLastUpdateTime().toLocalDate().toString();
+        LocalDateTime nicknameUpdatedAt = user.getNicknameUpdatedAt();
+        return nicknameUpdatedAt == null ? null : nicknameUpdatedAt.toLocalDate().toString();
     }
 }

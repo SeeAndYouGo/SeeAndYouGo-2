@@ -41,6 +41,8 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime lastUpdateTime = LocalDateTime.now();
 
+    private LocalDateTime nicknameUpdatedAt; // 마지막 닉네임 변경 시각. 변경 이력이 없으면 null
+
     private String refreshToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,6 +58,7 @@ public class User {
 
     public void changeNickname(String nickname) {
         this.nickname = nickname;
+        this.nicknameUpdatedAt = LocalDateTime.now();
     }
 
     public void updateRefreshToken(String refreshToken) {
@@ -109,8 +112,11 @@ public class User {
      * @return 닉네임 변경 가능 여부
      */
     public boolean canUpdateNickname(LocalDateTime dateTime) {
-        // 아직 닉네임을 지정하지 않은 최초 등록이거나, 마지막 변경일로부터 14일이 지났으면 수정할 수 있다.
-        long daysSinceLastUpdate = ChronoUnit.DAYS.between(lastUpdateTime.toLocalDate(), dateTime.toLocalDate());
-        return nickname == null || daysSinceLastUpdate >= NICKNAME_CHANGE_INTERVAL_DAYS;
+        // 아직 닉네임을 지정하지 않은 최초 등록이거나, 변경 이력이 없거나, 마지막 변경일로부터 14일이 지났으면 수정할 수 있다.
+        if (nickname == null || nicknameUpdatedAt == null) {
+            return true;
+        }
+        long daysSinceLastChange = ChronoUnit.DAYS.between(nicknameUpdatedAt.toLocalDate(), dateTime.toLocalDate());
+        return daysSinceLastChange >= NICKNAME_CHANGE_INTERVAL_DAYS;
     }
 }
